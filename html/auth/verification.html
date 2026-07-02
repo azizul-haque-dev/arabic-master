@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Bhasa Shikhi - Verification</title>
+
+    <!-- Premium Fonts -->
+
+    <!-- Tailwind CSS v3 -->
+    <link rel="stylesheet" href="../assets/app.css" />
+    <script defer src="../assets/app.js"></script>
+  </head>
+  <body
+    class="bg-gray-100 font-sans antialiased text-text-main flex justify-center items-center min-h-screen sm:py-8 selection:bg-primary-light selection:text-primary"
+  >
+    <!-- Mobile Device Simulator Container -->
+    <div
+      class="w-full max-w-[428px] h-[100dvh] sm:h-[900px] bg-background relative sm:rounded-[3rem] sm:border-[10px] sm:border-gray-900 shadow-2xl overflow-hidden flex flex-col"
+    >
+      <!-- Top App Bar (56px) -->
+      <header class="h-14 glass-nav z-50 flex items-center px-2 shrink-0">
+        <!-- Back Button (48x48 hit area) -->
+        <button
+          class="w-12 h-12 flex items-center justify-center rounded-full text-text-main hover:bg-gray-200/50 active:scale-95 transition-all"
+          aria-label="Go back"
+        >
+          <svg
+            class="w-6 h-6 rtl:rotate-180"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+      </header>
+
+      <!-- Main Content Area -->
+      <main class="flex-1 flex flex-col px-6 pt-6 pb-8 overflow-y-auto">
+        <!-- Icon / Illustration -->
+        <div
+          class="w-16 h-16 bg-primary-light rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-pink-100"
+        >
+          <svg
+            class="w-8 h-8 text-primary"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            />
+          </svg>
+        </div>
+
+        <!-- Typography Context -->
+        <h1
+          class="text-[28px] font-extrabold text-text-main mb-2 tracking-tight leading-tight"
+        >
+          Enter your code
+        </h1>
+        <p class="text-[16px] text-muted leading-relaxed mb-10">
+          We sent a 6-digit verification code to <br />
+          <strong class="font-semibold text-text-main">a***@gmail.com</strong>
+        </p>
+
+        <!-- OTP Input Group -->
+        <div class="flex justify-between items-center gap-2 mb-8" dir="ltr">
+          <!-- Box 1: Filled -->
+          <div
+            class="w-[52px] h-[64px] bg-surface border border-gray-200 rounded-xl flex items-center justify-center shadow-sm relative"
+          >
+            <span class="text-[28px] font-bold text-text-main">4</span>
+          </div>
+
+          <!-- Box 2: Filled -->
+          <div
+            class="w-[52px] h-[64px] bg-surface border border-gray-200 rounded-xl flex items-center justify-center shadow-sm relative"
+          >
+            <span class="text-[28px] font-bold text-text-main">8</span>
+          </div>
+
+          <!-- Box 3: Filled -->
+          <div
+            class="w-[52px] h-[64px] bg-surface border border-gray-200 rounded-xl flex items-center justify-center shadow-sm relative"
+          >
+            <span class="text-[28px] font-bold text-text-main">2</span>
+          </div>
+
+          <!-- Box 4: Active / Focused -->
+          <div
+            class="w-[52px] h-[64px] bg-surface border-2 border-primary rounded-xl flex items-center justify-center shadow-[0_0_0_4px_rgba(236,72,153,0.15)] relative scale-105 transition-transform duration-200"
+          >
+            <!-- Simulated Blinking Caret -->
+            <div
+              class="w-[2px] h-8 bg-primary animate-caret rounded-full"
+            ></div>
+            <!-- Hidden native input for functionality -->
+            <input
+              type="tel"
+              class="absolute inset-0 opacity-0 cursor-text"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              autocomplete="one-time-code"
+              aria-label="Digit 4 of 6"
+              autofocus
+            />
+          </div>
+
+          <!-- Box 5: Empty -->
+          <div
+            class="w-[52px] h-[64px] bg-gray-50 border border-gray-200/60 rounded-xl flex items-center justify-center"
+          ></div>
+
+          <!-- Box 6: Empty -->
+          <div
+            class="w-[52px] h-[64px] bg-gray-50 border border-gray-200/60 rounded-xl flex items-center justify-center"
+          ></div>
+        </div>
+
+        <!-- Resend Action & Timer -->
+        <div
+          class="flex flex-col items-center justify-center space-y-4 mt-auto sm:mt-8"
+        >
+          <div
+            class="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full"
+          >
+            <svg
+              class="w-4 h-4 text-muted"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span class="text-[14px] font-medium text-muted">00:59</span>
+          </div>
+          <button
+            class="text-[15px] font-semibold text-primary hover:text-primary-hover active:scale-95 transition-all"
+          >
+            Didn't receive the code?
+          </button>
+        </div>
+      </main>
+
+      <!-- Sticky Bottom Keyboard Action Area -->
+      <div class="p-6 bg-background">
+        <!-- Button is shown in 'Disabled' state since only 3 digits are entered -->
+        <button
+          disabled
+          class="w-full h-14 bg-primary text-white rounded-2xl font-bold text-[17px] flex items-center justify-center shadow-lg shadow-primary/20 disabled:opacity-50 disabled:shadow-none disabled:bg-gray-200 disabled:text-gray-400 transition-all duration-200 active:scale-[0.98]"
+        >
+          Verify & Continue
+        </button>
+      </div>
+    </div>
+  </body>
+</html>

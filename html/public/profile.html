@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Bhasa Shikhi - Profile</title>
+
+    <!-- Premium Fonts -->
+
+    <!-- Tailwind CSS v3 -->
+    <link rel="stylesheet" href="../assets/app.css" />
+    <script defer src="../assets/app.js"></script>
+  </head>
+  <body
+    class="bg-gray-100 font-sans antialiased text-text-main flex justify-center items-center min-h-screen sm:py-8 selection:bg-primary-light selection:text-primary"
+  >
+    <!-- Mobile Device Simulator Container -->
+    <div
+      class="w-full max-w-[428px] h-[100dvh] sm:h-[900px] bg-background relative sm:rounded-[3rem] sm:border-[10px] sm:border-gray-900 shadow-2xl overflow-hidden flex flex-col"
+    >
+      <!-- Top App Bar (56px) -->
+      <header
+        class="h-14 glass-nav z-50 flex items-center px-4 justify-between shrink-0"
+      >
+        <h1 class="font-extrabold text-[20px] text-text-main tracking-tight">
+          Profile
+        </h1>
+        <button
+          class="w-11 h-11 flex items-center justify-center rounded-full text-muted hover:bg-gray-100 hover:text-text-main active:scale-95 transition-all"
+          aria-label="Settings"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+          </svg>
+        </button>
+      </header>
+
+      <!-- Main Scrollable Content -->
+      <main
+        class="flex-1 overflow-y-auto no-scrollbar pb-[100px] bg-background"
+      >
+        <!-- Hero Section: Identity -->
+        <section
+          class="flex flex-col items-center pt-8 pb-6 px-5 border-b border-gray-100 bg-surface"
+        >
+          <!-- Editable Avatar -->
+          <div class="relative group cursor-pointer mb-4">
+            <div
+              class="w-24 h-24 rounded-full border-4 border-surface shadow-md overflow-hidden bg-gradient-to-br from-primary-light to-white flex items-center justify-center text-4xl"
+            >
+              🧑🏻‍💻
+            </div>
+            <!-- Edit Badge -->
+            <div
+              class="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full border-2 border-surface flex items-center justify-center shadow-sm active:scale-95 transition-transform"
+            >
+              <svg
+                class="w-4 h-4 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.5"
+                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <h2 class="text-[22px] font-extrabold text-text-main mb-0.5">
+            Azizul Haque
+          </h2>
+          <p class="text-[15px] font-medium text-muted mb-3">@azizu_dev</p>
+          <div
+            class="flex items-center gap-1.5 px-3 py-1 bg-gray-50 rounded-full border border-gray-100"
+          >
+            <svg
+              class="w-4 h-4 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+            <span class="text-[13px] font-semibold text-gray-500"
+              >Joined May 2026</span
+            >
+          </div>
+        </section>
+
+        <!-- Stats Grid Dashboard -->
+        <section class="px-5 py-6">
+          <h3 class="text-[17px] font-bold text-text-main mb-4">Statistics</h3>
+          <div class="grid grid-cols-2 gap-3">
+            <!-- Streak Card -->
+            <div
+              class="bg-surface p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-2"
+            >
+              <div
+                class="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center text-warning"
+              >
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M17.683 11.026a1.996 1.996 0 00-.737-1.54 1.998 1.998 0 00-1.7-.354c-.9.27-1.564 1.05-1.71 1.98-.13.84.28 1.68 1.01 2.06a.998.998 0 01.32 1.54 1 1 0 01-1.39.06c-1.3-1.09-1.92-2.73-1.63-4.38.25-1.42 1.25-2.62 2.62-3.13a2.001 2.001 0 001.21-1.65c.16-1.11-.27-2.22-1.14-2.92a.998.998 0 00-1.6.61c-.55 3.32-3.19 5.86-6.53 6.32a.997.997 0 00-.85.98c.03 2.15 1.04 4.15 2.72 5.4 1.7 1.28 3.86 1.8 5.96 1.45 2.65-.45 4.86-2.5 5.51-5.12.18-.74.1-1.52-.2-2.2z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <div
+                  class="text-[20px] font-black text-text-main leading-tight"
+                >
+                  14
+                </div>
+                <div class="text-[13px] font-semibold text-muted">
+                  Day Streak
+                </div>
+              </div>
+            </div>
+
+            <!-- Total XP Card -->
+            <div
+              class="bg-surface p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-2"
+            >
+              <div
+                class="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-primary"
+              >
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                </svg>
+              </div>
+              <div>
+                <div
+                  class="text-[20px] font-black text-text-main leading-tight"
+                >
+                  12,450
+                </div>
+                <div class="text-[13px] font-semibold text-muted">Total XP</div>
+              </div>
+            </div>
+
+            <!-- League Card -->
+            <div
+              class="bg-surface p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-2"
+            >
+              <div
+                class="w-8 h-8 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-500"
+              >
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+                  />
+                </svg>
+              </div>
+              <div>
+                <div
+                  class="text-[20px] font-black text-text-main leading-tight"
+                >
+                  Gold
+                </div>
+                <div class="text-[13px] font-semibold text-muted">
+                  Current League
+                </div>
+              </div>
+            </div>
+
+            <!-- Top Finishes Card -->
+            <div
+              class="bg-surface p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-2"
+            >
+              <div
+                class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-500"
+              >
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M12 15l-3 1.5 1-3.5-2.5-2.5 3.5-.5L12 7l1.5 3.5 3.5.5-2.5 2.5 1 3.5zM12 2a10 10 0 100 20 10 10 0 000-20z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <div
+                  class="text-[20px] font-black text-text-main leading-tight"
+                >
+                  3
+                </div>
+                <div class="text-[13px] font-semibold text-muted">
+                  Top 3 Finishes
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Sticky Tab Navigation -->
+        <div
+          class="sticky top-0 z-40 bg-background/95 backdrop-blur-md pt-2 border-b border-gray-200"
+        >
+          <div class="flex px-5 relative">
+            <button
+              class="flex-1 pb-3 text-[15px] font-bold text-text-main text-center"
+            >
+              Achievements
+            </button>
+            <button
+              class="flex-1 pb-3 text-[15px] font-semibold text-muted hover:text-text-main text-center transition-colors"
+            >
+              Friends (4)
+            </button>
+            <!-- Active Indicator -->
+            <div
+              class="absolute bottom-0 left-5 w-[calc(50%-20px)] h-[3px] bg-primary rounded-t-full"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Achievements List -->
+        <section class="px-5 py-6 flex flex-col gap-4">
+          <!-- In Progress Achievement -->
+          <div
+            class="bg-surface border border-gray-100 rounded-2xl p-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex gap-4 items-center"
+          >
+            <div
+              class="w-14 h-14 shrink-0 rounded-full bg-orange-50 border-2 border-orange-100 flex items-center justify-center text-2xl"
+            >
+              🔥
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-center mb-1">
+                <h4 class="text-[16px] font-bold text-text-main truncate">
+                  Wildfire
+                </h4>
+                <span class="text-[13px] font-black text-muted">Lvl 3</span>
+              </div>
+              <p class="text-[13px] text-muted mb-2 truncate">
+                Reach a 30 day streak
+              </p>
+              <!-- Progress Bar -->
+              <div class="flex items-center gap-3">
+                <div
+                  class="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden"
+                >
+                  <div
+                    class="h-full bg-warning rounded-full w-[46%] transition-all duration-1000"
+                  ></div>
+                </div>
+                <span class="text-[12px] font-bold text-text-main">14/30</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Completed Achievement -->
+          <div
+            class="bg-surface border border-gray-100 rounded-2xl p-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex gap-4 items-center"
+          >
+            <div
+              class="w-14 h-14 shrink-0 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center text-2xl"
+            >
+              📚
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-center mb-1">
+                <h4 class="text-[16px] font-bold text-text-main truncate">
+                  Scholar
+                </h4>
+                <span class="text-[13px] font-black text-success"
+                  >Completed</span
+                >
+              </div>
+              <p class="text-[13px] text-muted mb-2 truncate">
+                Learn 500 new Arabic words
+              </p>
+              <div class="flex items-center gap-3">
+                <div
+                  class="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-success rounded-full w-full"></div>
+                </div>
+                <span class="text-[12px] font-bold text-text-main">500</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Locked Achievement (Empty State Strategy) -->
+          <div
+            class="bg-surface border border-gray-100 rounded-2xl p-4 flex gap-4 items-center opacity-60 grayscale"
+          >
+            <div
+              class="w-14 h-14 shrink-0 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center text-2xl"
+            >
+              🎯
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-center mb-1">
+                <h4 class="text-[16px] font-bold text-text-main truncate">
+                  Sharpshooter
+                </h4>
+                <svg
+                  class="w-4 h-4 text-muted"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 17a2 2 0 100-4 2 2 0 000 4zm3-7V8a3 3 0 10-6 0v2H7v10h10V10h-2zM9 8a3 3 0 116 0v2H9V8z"
+                  />
+                </svg>
+              </div>
+              <p class="text-[13px] text-muted mb-2 truncate">
+                Complete 10 perfect lessons
+              </p>
+              <div class="flex items-center gap-3">
+                <div
+                  class="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-gray-300 rounded-full w-[20%]"></div>
+                </div>
+                <span class="text-[12px] font-bold text-text-main">2/10</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Fixed Bottom Nav (84px) -->
+      <nav
+        class="absolute bottom-0 left-0 right-0 h-[84px] glass-nav-bottom z-50 flex items-center justify-around px-2 pb-5 pt-3"
+      >
+        <!-- Home -->
+        <button
+          class="flex flex-col items-center gap-1.5 w-16 text-muted hover:text-text-main active:scale-95 transition-all"
+        >
+          <svg
+            class="w-[26px] h-[26px]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.2"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+            />
+          </svg>
+          <span class="text-[11px] font-semibold">Home</span>
+        </button>
+
+        <!-- Lessons -->
+        <button
+          class="flex flex-col items-center gap-1.5 w-16 text-muted hover:text-text-main active:scale-95 transition-all"
+        >
+          <svg
+            class="w-[26px] h-[26px]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.2"
+              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+            />
+          </svg>
+          <span class="text-[11px] font-semibold">Lessons</span>
+        </button>
+
+        <!-- Rank -->
+        <button
+          class="flex flex-col items-center gap-1.5 w-16 text-muted hover:text-text-main active:scale-95 transition-all"
+        >
+          <svg
+            class="w-[26px] h-[26px]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.2"
+              d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+            />
+          </svg>
+          <span class="text-[11px] font-semibold">Rank</span>
+        </button>
+
+        <!-- Profile (Active) -->
+        <button
+          class="flex flex-col items-center gap-1.5 w-16 text-primary active:scale-95 transition-transform"
+        >
+          <svg
+            class="w-[26px] h-[26px]"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+            />
+          </svg>
+          <span class="text-[11px] font-bold">Profile</span>
+        </button>
+      </nav>
+    </div>
+  </body>
+</html>

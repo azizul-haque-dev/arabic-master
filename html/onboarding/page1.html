@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en" class="h-full bg-[#FAFAFA]">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Language Selection Onboarding — Premium Design System</title>
+    <link rel="stylesheet" href="../assets/app.css" />
+    <script defer src="../assets/app.js"></script>
+  </head>
+  <body
+    class="h-full font-en text-text-main antialiased selection:bg-[#FCE7F3]"
+  >
+    <div
+      class="mx-auto flex h-full max-w-md flex-col bg-[#FAFAFA] shadow-2xl md:max-w-xl md:border-x md:border-[#E5E7EB]"
+    >
+      <header class="px-6 pt-6 pb-4">
+        <div class="flex items-center justify-between">
+          <button
+            type="button"
+            aria-label="Go back"
+            class="flex h-12 w-12 items-center justify-start rounded-full text-[#6B7280] hover:text-text-main focus:outline-2 focus:outline-offset-2 focus:outline-[#A855F7]"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2.5"
+              stroke="currentColor"
+              class="h-6 w-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 19.5L8.25 12l7.5-7.5"
+              />
+            </svg>
+          </button>
+
+          <div
+            class="mx-4 h-3 w-full rounded-full bg-[#E5E7EB]"
+            role="progressbar"
+            aria-valuenow="25"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            <div
+              class="h-3 w-1/4 rounded-full bg-[#EC4899] card-transition"
+              style="width: 25%"
+            ></div>
+          </div>
+
+          <span class="text-sm font-semibold text-[#6B7280] tracking-tight"
+            >1/4</span
+          >
+        </div>
+      </header>
+
+      <main class="flex flex-1 flex-col justify-between px-6 pt-4 pb-8">
+        <div class="space-y-2 pt-2 text-center md:text-left">
+          <h1
+            class="text-2xl font-bold tracking-tight text-text-main md:text-3xl"
+          >
+            Choose your language
+          </h1>
+          <p class="text-base text-[#6B7280]">
+            Select your preferred language to begin your learning journey.
+          </p>
+        </div>
+
+        <div
+          class="my-auto space-y-4 py-8"
+          role="radiogroup"
+          aria-label="Language selection choices"
+        >
+          <div
+            id="lang-en"
+            onclick="selectLanguage('en')"
+            class="card-transition relative flex h-20 cursor-pointer items-center justify-between rounded-2xl border-2 border-[#EC4899] bg-[#FFFFFF] px-5 shadow-sm ring-4 ring-[#FCE7F3]/50"
+            role="radio"
+            aria-checked="true"
+            tabindex="0"
+          >
+            <div class="flex items-center space-x-4">
+              <div
+                class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 font-semibold text-lg text-slate-700"
+              >
+                EN
+              </div>
+              <div class="flex flex-col">
+                <span class="font-en font-bold text-base text-text-main"
+                  >English</span
+                >
+                <span class="font-en text-xs text-[#6B7280]"
+                  >Default UI language</span
+                >
+              </div>
+            </div>
+            <div
+              class="flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#EC4899]"
+            >
+              <div class="h-3 w-3 rounded-full bg-[#EC4899]"></div>
+            </div>
+          </div>
+
+          <div
+            id="lang-bn"
+            onclick="selectLanguage('bn')"
+            class="card-transition relative flex h-20 cursor-pointer items-center justify-between rounded-2xl border-2 border-[#E5E7EB] bg-[#FFFFFF] px-5 hover:border-[#EC4899]/50"
+            role="radio"
+            aria-checked="false"
+            tabindex="0"
+          >
+            <div class="flex items-center space-x-4">
+              <div
+                class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 font-semibold text-lg text-emerald-700"
+              >
+                বাংলা
+              </div>
+              <div class="flex flex-col">
+                <span
+                  class="font-bn font-bold text-lg leading-tight text-text-main"
+                  >বাংলা</span
+                >
+                <span class="font-bn text-xs text-[#6B7280] pt-0.5"
+                  >সহজ ইন্টারফেস ভাষা</span
+                >
+              </div>
+            </div>
+            <div
+              class="flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#E5E7EB]"
+            >
+              <div class="h-3 w-3 rounded-full bg-transparent"></div>
+            </div>
+          </div>
+
+          <div
+            id="lang-ar"
+            onclick="selectLanguage('ar')"
+            class="card-transition relative flex h-20 cursor-pointer items-center justify-between rounded-2xl border-2 border-[#E5E7EB] bg-[#FFFFFF] px-5 hover:border-[#EC4899]/50"
+            role="radio"
+            aria-checked="false"
+            tabindex="0"
+          >
+            <div class="flex items-center space-x-4">
+              <div
+                class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 font-semibold text-lg text-amber-700"
+              >
+                عربي
+              </div>
+              <div class="flex flex-col">
+                <span class="font-ar font-bold text-base text-text-main"
+                  >العربية</span
+                >
+                <span class="font-ar text-xs text-[#6B7280] pt-0.5"
+                  >دعم كامل للغة العربية</span
+                >
+              </div>
+            </div>
+            <div
+              class="flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#E5E7EB]"
+            >
+              <div class="h-3 w-3 rounded-full bg-transparent"></div>
+            </div>
+          </div>
+        </div>
+
+        <footer class="space-y-4">
+          <button
+            type="button"
+            id="submit-btn"
+            class="card-transition flex h-14 w-full items-center justify-center rounded-2xl bg-[#EC4899] font-semibold text-base text-white shadow-md shadow-[#EC4899]/20 hover:bg-[#DB2777] focus:outline-[3px] focus:outline-offset-4 focus:outline-[#A855F7] active:scale-[0.98]"
+          >
+            Continue
+          </button>
+
+          <p class="text-center text-xs text-[#6B7280]">
+            Can’t find your language?
+            <a
+              href="#"
+              class="font-medium text-[#A855F7] underline underline-offset-4 hover:text-[#EC4899]"
+              >Request support</a
+            >
+          </p>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

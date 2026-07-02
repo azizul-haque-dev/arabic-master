@@ -1,0 +1,22 @@
+# Multi-stage build: compile TypeScript in a full node image, then run
+# the compiled output in a slim image to keep the final artifact small.
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY prisma ./prisma
+RUN npx prisma generate
+COPY . .
+RUN npm run build
+
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/src/generated ./src/generated
+COPY --from=builder /app/prisma ./prisma
+
+EXPOSE 4000
+CMD ["node", "dist/server.js"]

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#FAFAFA]">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Assessment Onboarding — Design System Engine</title>
+    <!-- Tailwind CSS v3 -->
+    <!-- System Fonts Matrix -->
+    <link rel="stylesheet" href="../assets/app.css" />
+    <script defer src="../assets/app.js"></script>
+  </head>
+<body class="h-full font-en text-text-main antialiased">
+
+    <!-- Primary Tablet/Mobile App Shell Boundary -->
+    <div class="mx-auto flex h-full max-w-md flex-col bg-[#FAFAFA] shadow-2xl md:max-w-xl md:border-x md:border-[#E5E7EB]">
+        
+        <!-- HEADER: System Progress Indicator -->
+        <header class="px-6 pt-6 pb-4">
+            <div class="flex items-center justify-between">
+                <!-- Back Button (Touch target optimized to 48x48) -->
+                <button type="button" aria-label="Navigate back" class="flex h-12 w-12 items-center justify-start rounded-full text-[#6B7280] hover:text-text-main focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#A855F7]">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-6 w-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                    </svg>
+                </button>
+                
+                <!-- Deterministic Micro-Progress Bar (50% complete) -->
+                <div class="mx-4 h-3 w-full rounded-full bg-[#E5E7EB]" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+                    <div class="h-3 rounded-full bg-[#EC4899] ui-transition" style="width: 50%;"></div>
+                </div>
+                
+                <span class="text-sm font-semibold text-[#6B7280] tracking-tight">2/4</span>
+            </div>
+        </header>
+
+        <!-- MAIN WORKSPACE -->
+        <main class="flex flex-1 flex-col justify-between px-6 pt-4 pb-8">
+            
+            <!-- Context Headline Typography Group -->
+            <div id="text-cluster" class="space-y-2 pt-2 text-start">
+                <h1 class="text-2xl font-bold tracking-tight text-text-main md:text-3xl">
+                    How much Arabic do you know?
+                </h1>
+                <p class="text-base text-[#6B7280]">
+                    This helps us calibrate your personalized learning baseline tracks.
+                </p>
+            </div>
+
+            <!-- ASSESSMENT FIELD MATRIX -->
+            <div id="matrix-container" class="my-auto space-y-4 py-6" role="radiogroup" aria-label="Arabic proficiency indicators">
+                
+                <!-- Option 1: Few Words -->
+                <div id="opt-1" onclick="handleMatrixSelection('opt-1')" class="ui-transition relative flex h-20 cursor-pointer items-center justify-between rounded-2xl border-2 border-[#E5E7EB] bg-[#FFFFFF] px-5 shadow-sm hover:border-[#EC4899]/60" role="radio" aria-checked="false" tabindex="0">
+                    <div class="flex items-center space-x-4 space-x-reverse">
+                        <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#FCE7F3] text-xl">🌱</div>
+                        <div class="flex flex-col text-start">
+                            <span class="font-bold text-base text-text-main data-phrase="en">Few words</span>
+                            <span class="text-xs text-[#6B7280]">I know basic greetings or single isolated terms</span>
+                        </div>
+                    </div>
+                    <div class="flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#E5E7EB] shrink-0">
+                        <div class="h-3 w-3 rounded-full bg-transparent ui-transition"></div>
+                    </div>
+                </div>
+
+                <!-- Option 2: I can speak -->
+                <div id="opt-2" onclick="handleMatrixSelection('opt-2')" class="ui-transition relative flex h-20 cursor-pointer items-center justify-between rounded-2xl border-2 border-[#E5E7EB] bg-[#FFFFFF] px-5 shadow-sm hover:border-[#EC4899]/60" role="radio" aria-checked="false" tabindex="0">
+                    <div class="flex items-center space-x-4 space-x-reverse">
+                        <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50 text-xl">💬</div>
+                        <div class="flex flex-col text-start">
+                            <span class="font-bold text-base text-text-main">I can speak</span>
+                            <span class="text-xs text-[#6B7280]">I can construct straightforward basic sentences</span>
+                        </div>
+                    </div>
+                    <div class="flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#E5E7EB] shrink-0">
+                        <div class="h-3 w-3 rounded-full bg-transparent ui-transition"></div>
+                    </div>
+                </div>
+
+                <!-- Option 3: Don't know -->
+                <div id="opt-3" onclick="handleMatrixSelection('opt-3')" class="ui-transition relative flex h-20 cursor-pointer items-center justify-between rounded-2xl border-2 border-[#E5E7EB] bg-[#FFFFFF] px-5 shadow-sm hover:border-[#EC4899]/60" role="radio" aria-checked="false" tabindex="0">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-xl">🔍</div>
+                    <div class="flex items-center space-x-4 space-x-reverse">
+                        <div class="flex flex-col text-start">
+                            <span class="font-bold text-base text-text-main">Don't know</span>
+                            <span class="text-xs text-[#6B7280]">Absolute beginner framework step</span>
+                        </div>
+                    </div>
+                    <div class="flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#E5E7EB] shrink-0">
+                        <div class="h-3 w-3 rounded-full bg-transparent ui-transition"></div>
+                    </div>
+                </div>
+
+                <!-- Option 4: I can talk with support -->
+                <div id="opt-4" onclick="handleMatrixSelection('opt-4')" class="ui-transition relative flex h-20 cursor-pointer items-center justify-between rounded-2xl border-2 border-[#E5E7EB] bg-[#FFFFFF] px-5 shadow-sm hover:border-[#EC4899]/60" role="radio" aria-checked="false" tabindex="0">
+                    <div class="flex items-center space-x-4 space-x-reverse">
+                        <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-xl">👔</div>
+                        <div class="flex flex-col text-start">
+                            <span class="font-bold text-base text-text-main">I can talk with support</span>
+                            <span class="text-xs text-[#6B7280]">High operational comfort or business terms</span>
+                        </div>
+                    </div>
+                    <div class="flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#E5E7EB] shrink-0">
+                        <div class="h-3 w-3 rounded-full bg-transparent ui-transition"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ACTION FOOTER BAR -->
+            <footer class="space-y-4">
+                <button type="button" id="cta-btn" disabled class="ui-transition flex h-14 w-full items-center justify-center rounded-2xl bg-[#E5E7EB] font-semibold text-base text-[#6B7280] cursor-not-allowed focus-visible:outline-[3px] focus-visible:outline-offset-4 focus-visible:outline-[#A855F7] active:scale-[0.98]">
+                    Continue
+                </button>
+                <p class="text-center text-xs text-[#6B7280]">
+                    Unsure about your alignment? <a href="#" class="font-medium text-[#A855F7] underline underline-offset-4 hover:text-[#EC4899]">Skip baseline testing</a>
+                </p>
+            </footer>
+
+        </main>
+    </div>
+
+    <!-- UI State Engine Logic -->
+</body>
+</html>

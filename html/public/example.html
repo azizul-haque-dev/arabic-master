@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Kalam - Learning Examples</title>
+
+    <!-- Premium Fonts for Multiple Languages -->
+
+    <!-- Tailwind CSS v3 -->
+    <link rel="stylesheet" href="../assets/app.css" />
+    <script defer src="../assets/app.js"></script>
+  </head>
+  <body
+    class="bg-gray-100 font-sans antialiased text-gray-900 selection:bg-primary-light flex justify-center items-center min-h-screen sm:py-8"
+  >
+    <!-- Mobile Device Simulator Container -->
+    <div
+      class="w-full max-w-[428px] h-[100dvh] sm:h-[900px] bg-background relative sm:rounded-[3rem] sm:border-[10px] sm:border-gray-900 shadow-2xl overflow-hidden flex flex-col"
+    >
+      <!-- Minimal Header (56px) -->
+      <header
+        class="absolute top-0 left-0 right-0 h-14 glass-nav border-b z-50 flex items-center px-4"
+      >
+        <button
+          class="w-10 h-10 flex items-center justify-center rounded-full text-gray-600 hover:bg-gray-100 active:scale-95 transition-all"
+          aria-label="Go back"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+        <div class="flex-1 text-center pr-10">
+          <h1 class="font-bold text-[15px] text-gray-900 leading-tight">
+            Lesson Examples
+          </h1>
+          <p
+            class="text-[11px] font-medium text-gray-500 uppercase tracking-wider"
+          >
+            Preview Mode
+          </p>
+        </div>
+      </header>
+
+      <!-- Main Scrollable Content -->
+      <main class="flex-1 overflow-y-auto no-scrollbar pt-20 pb-28 px-5">
+        <!-- ========================================== -->
+        <!-- CONVERSATIONS EXAMPLES (2 Rows)            -->
+        <!-- ========================================== -->
+        <section class="mb-8">
+          <h2
+            class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"
+          >
+            <span
+              class="w-8 h-8 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+              </svg>
+            </span>
+            Conversations
+          </h2>
+
+          <div class="flex flex-col gap-4">
+            <!-- Row 1: Restaurant Dialogue Block -->
+            <div
+              class="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative overflow-hidden group"
+            >
+              <div
+                class="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-400 rounded-l-[2rem]"
+              ></div>
+
+              <div class="flex items-center gap-3 mb-3">
+                <div
+                  class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-[13px] font-bold text-blue-600"
+                >
+                  K
+                </div>
+                <span class="font-semibold text-sm text-gray-700"
+                  >Khalid (Local)</span
+                >
+              </div>
+
+              <!-- Arabic Script -->
+              <div
+                dir="rtl"
+                class="font-arabic-text text-xl font-semibold text-gray-900 mb-2"
+              >
+                أَهْلًا بِكُمْ فِي المَطْعَم. مَاذَا تُرِيدُونَ أَنْ تَأْكُلُوا؟
+              </div>
+
+              <!-- Transliteration -->
+              <div class="text-sm text-primary font-medium mb-3">
+                Ahlan bikum fi al-mat'am. Madha turiduna an takulu?
+              </div>
+
+              <!-- Translations -->
+              <div class="bg-gray-50 rounded-2xl p-3 mb-4 space-y-1.5">
+                <p
+                  class="font-bangla-text text-[14px] text-gray-700 font-medium"
+                >
+                  রেস্তোরাঁয় স্বাগতম। আপনি কি খেতে চান?
+                </p>
+                <p class="text-[13px] text-gray-500">
+                  Welcome to the restaurant. What would you like to eat?
+                </p>
+              </div>
+
+              <!-- Action Bar -->
+              <div
+                class="flex items-center justify-between border-t border-gray-100 pt-3"
+              >
+                <button
+                  class="flex items-center gap-2 bg-primary-light text-primary hover:bg-pink-200 transition-colors px-4 py-2 rounded-full font-semibold text-sm active:scale-95"
+                  aria-label="Play audio"
+                >
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                  Play
+                </button>
+                <div class="flex gap-2">
+                  <button
+                    class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50 active:scale-95 transition-all"
+                    aria-label="Slow playback"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-primary hover:bg-primary-light active:scale-95 transition-all"
+                    aria-label="Save card"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 2: Learner Response Block -->
+            <div
+              class="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative overflow-hidden group"
+            >
+              <div
+                class="absolute left-0 top-0 bottom-0 w-1.5 bg-primary rounded-l-[2rem]"
+              ></div>
+
+              <div class="flex items-center gap-3 mb-3">
+                <div
+                  class="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-[13px] font-bold text-primary"
+                >
+                  S
+                </div>
+                <span class="font-semibold text-sm text-gray-700"
+                  >Sara (Learner)</span
+                >
+              </div>
+
+              <div
+                dir="rtl"
+                class="font-arabic-text text-xl font-semibold text-gray-900 mb-2"
+              >
+                أُرِيدُ طَاوِلَةً لِشَخْصَيْنِ، مِنْ فَضْلِكِ.
+              </div>
+
+              <div class="text-sm text-primary font-medium mb-3">
+                Uridu tawilatan lishakhsayn, min fadlik.
+              </div>
+
+              <div class="bg-gray-50 rounded-2xl p-3 mb-4 space-y-1.5">
+                <p
+                  class="font-bangla-text text-[14px] text-gray-700 font-medium"
+                >
+                  আমি দুজনের জন্য একটি টেবিল চাই, দয়া করে।
+                </p>
+                <p class="text-[13px] text-gray-500">
+                  I'd like a table for two, please.
+                </p>
+              </div>
+
+              <div
+                class="flex items-center justify-between border-t border-gray-100 pt-3"
+              >
+                <button
+                  class="flex items-center gap-2 bg-primary-light text-primary hover:bg-pink-200 transition-colors px-4 py-2 rounded-full font-semibold text-sm active:scale-95"
+                  aria-label="Play audio"
+                >
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                  Play
+                </button>
+                <div class="flex gap-2">
+                  <button
+                    class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50 active:scale-95 transition-all"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-primary hover:bg-primary-light active:scale-95 transition-all"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- WORD EXAMPLES (2 Cards in 1 Row)           -->
+        <!-- ========================================== -->
+        <section class="mb-8">
+          <h2
+            class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"
+          >
+            <span
+              class="w-8 h-8 rounded-xl bg-accent/10 text-accent flex items-center justify-center"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                />
+              </svg>
+            </span>
+            Vocabulary
+          </h2>
+
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Word Card 1 -->
+            <div
+              class="bg-white p-4 rounded-3xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col items-center text-center transition-transform hover:-translate-y-1"
+            >
+              <div class="w-full flex justify-end mb-1">
+                <button
+                  class="text-gray-300 hover:text-primary transition-colors"
+                  aria-label="Save word"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2.5"
+                      d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <div
+                dir="rtl"
+                class="font-arabic-text text-2xl font-bold text-gray-900 mb-1"
+              >
+                طَاوِلَة
+              </div>
+              <div class="text-[13px] text-gray-400 font-medium mb-3">
+                (Tawila)
+              </div>
+
+              <div class="w-full h-[1px] bg-gray-50 mb-3"></div>
+
+              <div
+                class="font-bangla-text text-[15px] font-semibold text-gray-800"
+              >
+                টেবিল
+              </div>
+              <div class="text-[13px] text-gray-500 mb-4">Table</div>
+
+              <button
+                class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center shadow-[0_4px_12px_rgba(236,72,153,0.3)] active:scale-95 transition-all mt-auto"
+                aria-label="Play pronunciation"
+              >
+                <svg
+                  class="w-5 h-5 ml-1"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Word Card 2 -->
+            <div
+              class="bg-white p-4 rounded-3xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col items-center text-center transition-transform hover:-translate-y-1"
+            >
+              <div class="w-full flex justify-end mb-1">
+                <button
+                  class="text-primary transition-colors"
+                  aria-label="Unsave word"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                      d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <div
+                dir="rtl"
+                class="font-arabic-text text-2xl font-bold text-gray-900 mb-1"
+              >
+                مَطْعَم
+              </div>
+              <div class="text-[13px] text-gray-400 font-medium mb-3">
+                (Mat'am)
+              </div>
+
+              <div class="w-full h-[1px] bg-gray-50 mb-3"></div>
+
+              <div
+                class="font-bangla-text text-[15px] font-semibold text-gray-800"
+              >
+                রেস্তোরাঁ
+              </div>
+              <div class="text-[13px] text-gray-500 mb-4">Restaurant</div>
+
+              <button
+                class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center shadow-[0_4px_12px_rgba(236,72,153,0.3)] active:scale-95 transition-all mt-auto"
+                aria-label="Play pronunciation"
+              >
+                <svg
+                  class="w-5 h-5 ml-1"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VERB EXAMPLES (2 Cards in 1 Row)           -->
+        <!-- ========================================== -->
+        <section class="mb-4">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <span
+                class="w-8 h-8 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+              </span>
+              Verb Patterns
+            </h2>
+            <span
+              class="text-xs font-bold text-gray-400 uppercase tracking-wide bg-gray-100 px-2.5 py-1 rounded-md"
+              >First Person (أَنَا)</span
+            >
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Verb Card 1 -->
+            <div
+              class="bg-gradient-to-b from-white to-gray-50 p-4 rounded-3xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex flex-col justify-between"
+            >
+              <div>
+                <div class="flex justify-between items-start mb-3">
+                  <span
+                    class="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider"
+                    >Want</span
+                  >
+                  <button
+                    class="text-gray-300 hover:text-primary transition-colors"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2.5"
+                        d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <div
+                  dir="rtl"
+                  class="font-arabic-text text-lg font-bold text-gray-900 mb-1 leading-snug"
+                >
+                  أَنَا أَبْغَى الفَاتُورَة
+                </div>
+                <div
+                  class="text-[12px] text-primary font-medium mb-3 leading-tight"
+                >
+                  Ana abgha al-fatoorah
+                </div>
+
+                <div
+                  class="font-bangla-text text-[14px] font-semibold text-gray-700 mb-0.5"
+                >
+                  আমি বিলটি চাই।
+                </div>
+                <div class="text-[12px] text-gray-500 mb-4">
+                  I want the bill.
+                </div>
+              </div>
+
+              <button
+                class="w-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors rounded-xl py-2.5 flex items-center justify-center gap-2 font-semibold text-sm active:scale-95 shadow-sm"
+              >
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                Play
+              </button>
+            </div>
+
+            <!-- Verb Card 2 -->
+            <div
+              class="bg-gradient-to-b from-white to-gray-50 p-4 rounded-3xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex flex-col justify-between"
+            >
+              <div>
+                <div class="flex justify-between items-start mb-3">
+                  <span
+                    class="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider"
+                    >Go</span
+                  >
+                  <button
+                    class="text-gray-300 hover:text-primary transition-colors"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2.5"
+                        d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <div
+                  dir="rtl"
+                  class="font-arabic-text text-lg font-bold text-gray-900 mb-1 leading-snug"
+                >
+                  أَنَا أَرُوح المَكْتَب
+                </div>
+                <div
+                  class="text-[12px] text-primary font-medium mb-3 leading-tight"
+                >
+                  Ana arooh al-maktab
+                </div>
+
+                <div
+                  class="font-bangla-text text-[14px] font-semibold text-gray-700 mb-0.5"
+                >
+                  আমি অফিসে যাচ্ছি।
+                </div>
+                <div class="text-[12px] text-gray-500 mb-4">
+                  I am going to the office.
+                </div>
+              </div>
+
+              <button
+                class="w-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors rounded-xl py-2.5 flex items-center justify-center gap-2 font-semibold text-sm active:scale-95 shadow-sm"
+              >
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                Play
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Fixed Bottom Floating CTA (Progress & Continue) -->
+      <div
+        class="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-white via-white to-transparent z-50"
+      >
+        <button
+          class="w-full bg-gradient-to-r from-primary to-accent text-white font-bold text-[16px] py-4 rounded-2xl shadow-[0_8px_20px_rgba(236,72,153,0.3)] hover:shadow-[0_10px_25px_rgba(236,72,153,0.4)] transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+        >
+          Continue Learning
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </body>
+</html>

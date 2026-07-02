@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en" class="h-full bg-[#FAFAFA]">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Attribution Onboarding — Premium Design System</title>
+    <!-- Tailwind CSS v3 -->
+    <!-- Premium Google Typography -->
+    <link rel="stylesheet" href="../assets/app.css" />
+    <script defer src="../assets/app.js"></script>
+  </head>
+  <body class="h-full font-en text-text-main antialiased overflow-hidden">
+    <!-- Global App Shell -->
+    <div
+      class="mx-auto flex h-full max-w-md flex-col bg-[#FAFAFA] shadow-2xl md:max-w-xl md:border-x md:border-[#E5E7EB] relative"
+    >
+      <!-- HEADER MODULE (Final Step) -->
+      <header class="px-6 pt-6 pb-2 shrink-0 z-10 bg-[#FAFAFA]">
+        <div class="flex items-center justify-between">
+          <!-- Back Action -->
+          <button
+            type="button"
+            aria-label="Go back"
+            class="flex h-12 w-12 items-center justify-start rounded-full text-[#6B7280] hover:text-text-main focus-visible:outline-[3px] focus-visible:outline-[#A855F7]"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2.5"
+              stroke="currentColor"
+              class="h-6 w-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 19.5L8.25 12l7.5-7.5"
+              />
+            </svg>
+          </button>
+
+          <!-- Dynamic Progress Bar (100% Completion) -->
+          <div
+            class="mx-4 h-3 w-full rounded-full bg-[#E5E7EB]"
+            role="progressbar"
+            aria-valuenow="100"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            <div
+              class="h-3 rounded-full bg-[#EC4899] ux-motion"
+              style="width: 100%"
+            ></div>
+          </div>
+
+          <span
+            class="text-sm font-semibold text-[#6B7280] tracking-tight w-6 text-right"
+            >6/6</span
+          >
+        </div>
+      </header>
+
+      <!-- MAIN WORKSPACE VIEWPORT -->
+      <div class="flex-1 overflow-y-auto no-scrollbar relative px-6 pb-32">
+        <!-- Headline Cluster -->
+        <div class="space-y-2 pt-4 pb-8 text-start">
+          <h1
+            class="text-2xl font-bold tracking-tight text-text-main md:text-3xl"
+          >
+            Where did you hear about us?
+          </h1>
+          <p class="text-base text-[#6B7280]">
+            Just curious! This helps us know where to find more learners like
+            you.
+          </p>
+        </div>
+
+        <!-- 2x3 ATTRIBUTION GRID -->
+        <div
+          class="grid grid-cols-2 gap-4"
+          role="radiogroup"
+          aria-label="Marketing attribution sources"
+        >
+          <!-- Source 1: YouTube -->
+          <div
+            id="src-youtube"
+            onclick="selectSource('src-youtube')"
+            class="ux-motion flex h-28 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-[#E5E7EB] bg-[#FFFFFF] p-4 shadow-sm hover:border-[#EC4899]/50 active:scale-95"
+            role="radio"
+            aria-checked="false"
+            tabindex="0"
+          >
+            <svg
+              class="h-8 w-8 text-[#FF0000] mb-2"
+              aria-hidden="true"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
+              />
+            </svg>
+            <span class="font-semibold text-[15px] text-text-main"
+              >YouTube</span
+            >
+          </div>
+
+          <!-- Source 2: Facebook -->
+          <div
+            id="src-fb"
+            onclick="selectSource('src-fb')"
+            class="ux-motion flex h-28 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-[#E5E7EB] bg-[#FFFFFF] p-4 shadow-sm hover:border-[#EC4899]/50 active:scale-95"
+            role="radio"
+            aria-checked="false"
+            tabindex="0"
+          >
+            <svg
+              class="h-8 w-8 text-[#1877F2] mb-2"
+              aria-hidden="true"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+              />
+            </svg>
+            <span class="font-semibold text-[15px] text-text-main"
+              >Facebook</span
+            >
+          </div>
+
+          <!-- Source 3: Instagram -->
+          <div
+            id="src-ig"
+            onclick="selectSource('src-ig')"
+            class="ux-motion flex h-28 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-[#E5E7EB] bg-[#FFFFFF] p-4 shadow-sm hover:border-[#EC4899]/50 active:scale-95"
+            role="radio"
+            aria-checked="false"
+            tabindex="0"
+          >
+            <svg
+              class="h-8 w-8 mb-2"
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <defs>
+                <linearGradient
+                  id="ig-grad"
+                  x1="2.4"
+                  y1="21.6"
+                  x2="21.6"
+                  y2="2.4"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop stop-color="#FEE411" />
+                  <stop offset="0.1" stop-color="#FEDB16" />
+                  <stop offset="0.25" stop-color="#FEC125" />
+                  <stop offset="0.45" stop-color="#FE983D" />
+                  <stop offset="0.65" stop-color="#FE5F5E" />
+                  <stop offset="0.85" stop-color="#E53688" />
+                  <stop offset="1" stop-color="#C220B8" />
+                </linearGradient>
+              </defs>
+              <path
+                fill="url(#ig-grad)"
+                d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"
+              />
+            </svg>
+            <span class="font-semibold text-[15px] text-text-main"
+              >Instagram</span
+            >
+          </div>
+
+          <!-- Source 4: TikTok -->
+          <div
+            id="src-tiktok"
+            onclick="selectSource('src-tiktok')"
+            class="ux-motion flex h-28 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-[#E5E7EB] bg-[#FFFFFF] p-4 shadow-sm hover:border-[#EC4899]/50 active:scale-95"
+            role="radio"
+            aria-checked="false"
+            tabindex="0"
+          >
+            <svg
+              class="h-8 w-8 text-black mb-2"
+              aria-hidden="true"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12.525.02c1.31-.02 2.61-.01 3.91-.04.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93v7.06c-.01 2.37-.66 4.75-2.15 6.45-1.55 1.78-3.9 2.58-6.19 2.19-2.31-.38-4.25-1.89-5.18-3.99-.9-2.01-.9-4.4.05-6.38 1.01-2.12 3.19-3.53 5.52-3.79 1.13-.13 2.29-.02 3.39.29v4.06c-.73-.24-1.52-.37-2.3-.23-.88.15-1.65.65-2.17 1.37-.53.72-.72 1.63-.52 2.5.21.87.81 1.59 1.59 1.95.83.38 1.83.35 2.63-.09.78-.44 1.34-1.19 1.51-2.07.13-.67.14-1.37.14-2.05V.02h-.03z"
+              />
+            </svg>
+            <span class="font-semibold text-[15px] text-text-main">TikTok</span>
+          </div>
+
+          <!-- Source 5: Ads -->
+          <div
+            id="src-ads"
+            onclick="selectSource('src-ads')"
+            class="ux-motion flex h-28 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-[#E5E7EB] bg-[#FFFFFF] p-4 shadow-sm hover:border-[#EC4899]/50 active:scale-95"
+            role="radio"
+            aria-checked="false"
+            tabindex="0"
+          >
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 mb-1"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="w-5 h-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z"
+                />
+              </svg>
+            </div>
+            <span class="font-semibold text-[15px] text-text-main"
+              >Other Ads</span
+            >
+          </div>
+
+          <!-- Source 6: Friends -->
+          <div
+            id="src-friends"
+            onclick="selectSource('src-friends')"
+            class="ux-motion flex h-28 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-[#E5E7EB] bg-[#FFFFFF] p-4 shadow-sm hover:border-[#EC4899]/50 active:scale-95"
+            role="radio"
+            aria-checked="false"
+            tabindex="0"
+          >
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 mb-1"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="w-5 h-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"
+                />
+              </svg>
+            </div>
+            <span class="font-semibold text-[15px] text-text-main"
+              >Friends/Family</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- STICKY ACTION DRAWER (Anchored Bottom) -->
+      <footer
+        class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#FAFAFA] via-[#FAFAFA] to-transparent px-6 pb-6 pt-10 shrink-0 z-20"
+      >
+        <button
+          type="button"
+          id="final-cta"
+          disabled
+          onclick="submitSetup()"
+          class="ux-motion flex h-14 w-full items-center justify-center rounded-2xl bg-[#E5E7EB] font-semibold text-base text-[#6B7280] cursor-not-allowed focus-visible:outline-[3px] focus-visible:outline-offset-4 focus-visible:outline-[#A855F7] active:scale-[0.98]"
+        >
+          Start Learning
+        </button>
+      </footer>
+    </div>
+
+    <!-- UI State Engine Logic -->
+  </body>
+</html>

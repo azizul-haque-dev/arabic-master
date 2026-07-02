@@ -1,0 +1,179 @@
+@import url("https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-en: "Inter", system-ui, sans-serif;
+    --font-bn: "Hind Siliguri", system-ui, sans-serif;
+    --font-ar: "Noto Sans Arabic", system-ui, sans-serif;
+    background-color: #e5e7eb;
+    font-family: var(--font-en);
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body.lang-en,
+  .font-en {
+    font-family: var(--font-en);
+  }
+
+  body.lang-bn,
+  .font-bn,
+  .font-bangla-text {
+    font-family: var(--font-bn);
+  }
+
+  body.lang-ar,
+  .font-ar,
+  .arabic-text,
+  .font-arabic-text {
+    font-family: var(--font-ar);
+  }
+
+  .font-arabic-text {
+    line-height: 1.8;
+  }
+}
+
+@layer utilities {
+  .app-container {
+    max-width: 430px;
+    margin: 0 auto;
+    background-color: var(--color-background);
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgb(0 0 0 / 0.05);
+  }
+
+  .ux-motion,
+  .card-transition,
+  .ui-transition {
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .input-ring-transition {
+    transition:
+      box-shadow 0.2s ease-in-out,
+      border-color 0.2s ease-in-out;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar,
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hide-scrollbar,
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .glass-nav {
+    @apply border-b border-gray-100/80 bg-white/90 backdrop-blur-xl supports-[backdrop-filter]:bg-white/75;
+  }
+
+  .glass-nav-bottom {
+    @apply border-t border-gray-100/80 bg-white/90 backdrop-blur-xl supports-[backdrop-filter]:bg-white/75;
+  }
+
+  .sticky-shadow {
+    box-shadow: 0 -4px 20px rgb(0 0 0 / 0.05);
+  }
+
+  .fade-enter {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  .fade-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 300ms,
+      transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .animate-caret {
+    animation: blink 1s step-end infinite;
+  }
+
+  .animate-progress {
+    animation: dash 1.5s ease-out forwards;
+  }
+
+  .accordion-content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .accordion-content > div {
+    overflow: hidden;
+  }
+
+  .accordion-content.is-open {
+    grid-template-rows: 1fr;
+  }
+
+  .chevron {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .is-open .chevron {
+    transform: rotate(180deg);
+  }
+
+  .is-recording {
+    @apply border-danger bg-danger text-white;
+    animation: pulse-ring 2s infinite;
+  }
+
+  .bookmark-active {
+    @apply fill-primary text-primary;
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes dash {
+  from {
+    stroke-dashoffset: 150.7;
+  }
+
+  to {
+    stroke-dashoffset: 45;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgb(239 68 68 / 0.7);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgb(239 68 68 / 0);
+  }
+
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgb(239 68 68 / 0);
+  }
+}

@@ -1,0 +1,81 @@
+# ==========================
+# Environment Files
+# ==========================
+**/.env
+**/.env.*
+!.env.example
+
+# ==========================
+# Node Modules
+# ==========================
+**/node_modules/
+
+# ==========================
+# Logs
+# ==========================
+**/logs/
+**/*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==========================
+# Build Output
+# ==========================
+admin/dist/
+admin/.vite/
+server/dist/
+server/build/
+server/coverage/
+
+# ==========================
+# Prisma
+# ==========================
+server/prisma/dev.db
+server/prisma/dev.db-journal
+server/prisma/*.db
+server/prisma/*.db-journal
+
+# Prisma Generated (only if generated inside prisma folder)
+server/prisma/generated/
+
+# ==========================
+# Uploads
+# ==========================
+server/uploads/
+server/tmp/
+server/temp/
+
+# ==========================
+# Cache
+# ==========================
+**/.cache/
+**/.parcel-cache/
+**/.turbo/
+**/.eslintcache
+
+# ==========================
+# IDE
+# ==========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ==========================
+# OS Files
+# ==========================
+.DS_Store
+Thumbs.db
+
+# ==========================
+# Test
+# ==========================
+coverage/
+.nyc_output/
+
+# ==========================
+# TypeScript
+# ==========================
+**/*.tsbuildinfo

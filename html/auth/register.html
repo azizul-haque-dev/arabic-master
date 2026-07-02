@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en" class="h-full bg-[#FAFAFA]" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Registration — Premium Design System</title>
+    <!-- Tailwind CSS v3 -->
+    <!-- Premium Google Typography -->
+    <link rel="stylesheet" href="../assets/app.css" />
+    <script defer src="../assets/app.js"></script>
+  </head>
+  <body
+    class="h-full lang-en text-[#111827] antialiased overflow-hidden selection:bg-[#FCE7F3] selection:text-[#DB2777]"
+  >
+    <!-- Language Switcher Sandbox (For demo purposes) -->
+    <div class="fixed top-4 right-4 z-50 flex gap-2">
+      <button
+        onclick="setLanguage('en')"
+        class="text-xs bg-white border border-gray-200 rounded px-2 py-1 shadow-sm font-semibold text-gray-700"
+      >
+        EN
+      </button>
+      <button
+        onclick="setLanguage('ar')"
+        class="text-xs bg-white border border-gray-200 rounded px-2 py-1 shadow-sm font-semibold text-gray-700"
+      >
+        AR
+      </button>
+      <button
+        onclick="setLanguage('bn')"
+        class="text-xs bg-white border border-gray-200 rounded px-2 py-1 shadow-sm font-semibold text-gray-700"
+      >
+        BN
+      </button>
+    </div>
+
+    <!-- Global App Shell -->
+    <div
+      class="mx-auto flex h-full max-w-md flex-col bg-[#FAFAFA] shadow-2xl md:max-w-xl md:border-x md:border-[#E5E7EB] relative"
+    >
+      <!-- HEADER MODULE -->
+      <header class="px-6 pt-6 pb-2 shrink-0 z-10 bg-[#FAFAFA]">
+        <div class="flex items-center">
+          <!-- RTL-aware Back Action -->
+          <button
+            type="button"
+            aria-label="Go back"
+            class="flex h-12 w-12 -ms-3 items-center justify-center rounded-full text-[#6B7280] hover:text-[#111827] hover:bg-gray-100 focus-visible:outline-[3px] focus-visible:outline-[#A855F7] ux-motion"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2.5"
+              stroke="currentColor"
+              class="h-6 w-6 rtl:-scale-x-100"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 19.5L8.25 12l7.5-7.5"
+              />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- MAIN WORKSPACE VIEWPORT -->
+      <div class="flex-1 overflow-y-auto no-scrollbar relative px-6 pb-36">
+        <!-- Headline Cluster -->
+        <div class="space-y-2 pt-2 pb-8 text-start">
+          <h1
+            id="title-main"
+            class="text-3xl font-bold tracking-tight text-[#111827]"
+          >
+            Create an account
+          </h1>
+          <p id="title-sub" class="text-base text-[#6B7280]">
+            Start your learning journey today.
+          </p>
+        </div>
+
+        <!-- Social Auth Module -->
+        <button
+          type="button"
+          class="ux-motion flex h-12 w-full items-center justify-center gap-3 rounded-2xl border border-[#E5E7EB] bg-white font-semibold text-[#111827] shadow-sm hover:bg-gray-50 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#A855F7] active:scale-[0.98]"
+        >
+          <svg
+            class="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              fill="#4285F4"
+            />
+            <path
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              fill="#34A853"
+            />
+            <path
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+              fill="#FBBC05"
+            />
+            <path
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              fill="#EA4335"
+            />
+          </svg>
+          <span id="btn-google">Continue with Google</span>
+        </button>
+
+        <!-- Divider -->
+        <div class="relative my-8">
+          <div class="absolute inset-0 flex items-center" aria-hidden="true">
+            <div class="w-full border-t border-[#E5E7EB]"></div>
+          </div>
+          <div class="relative flex justify-center">
+            <span
+              id="lbl-or"
+              class="bg-[#FAFAFA] px-4 text-sm font-medium text-[#6B7280]"
+            >
+              Or register with email
+            </span>
+          </div>
+        </div>
+
+        <!-- Form Module -->
+        <form
+          id="register-form"
+          class="space-y-5"
+          novalidate
+          oninput="validateForm()"
+        >
+          <!-- Full Name -->
+          <div>
+            <label
+              id="lbl-name"
+              for="name"
+              class="block text-sm font-medium text-[#111827] mb-1.5"
+              >Full Name</label
+            >
+            <input
+              type="text"
+              id="name"
+              required
+              placeholder="John Doe"
+              class="ux-motion block h-12 w-full rounded-xl border border-[#E5E7EB] bg-white px-4 text-[#111827] placeholder:text-[#9CA3AF] focus:border-[#EC4899] focus:outline-none focus:ring-1 focus:ring-[#EC4899]"
+            />
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label
+              id="lbl-email"
+              for="email"
+              class="block text-sm font-medium text-[#111827] mb-1.5"
+              >Email address</label
+            >
+            <input
+              type="email"
+              id="email"
+              required
+              placeholder="you@example.com"
+              class="ux-motion block h-12 w-full rounded-xl border border-[#E5E7EB] bg-white px-4 text-[#111827] placeholder:text-[#9CA3AF] focus:border-[#EC4899] focus:outline-none focus:ring-1 focus:ring-[#EC4899]"
+            />
+          </div>
+
+          <!-- Password -->
+          <div>
+            <label
+              id="lbl-password"
+              for="password"
+              class="block text-sm font-medium text-[#111827] mb-1.5"
+              >Password</label
+            >
+            <div class="relative">
+              <input
+                type="password"
+                id="password"
+                required
+                placeholder="••••••••"
+                class="ux-motion block h-12 w-full rounded-xl border border-[#E5E7EB] bg-white px-4 pe-12 text-[#111827] placeholder:text-[#9CA3AF] focus:border-[#EC4899] focus:outline-none focus:ring-1 focus:ring-[#EC4899]"
+              />
+              <button
+                type="button"
+                onclick="togglePassword()"
+                aria-label="Toggle password visibility"
+                class="absolute inset-y-0 end-0 flex items-center justify-center w-12 text-[#6B7280] hover:text-[#111827] focus:outline-none"
+              >
+                <!-- Eye Icon (Hidden state default) -->
+                <svg
+                  id="eye-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke="currentColor"
+                  class="w-5 h-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- STICKY ACTION DRAWER -->
+      <footer
+        class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#FAFAFA] via-[#FAFAFA] to-transparent px-6 pb-8 pt-10 shrink-0 z-20"
+      >
+        <button
+          type="button"
+          id="final-cta"
+          disabled
+          onclick="submitForm()"
+          class="ux-motion flex h-14 w-full items-center justify-center rounded-2xl bg-[#E5E7EB] font-semibold text-base text-[#9CA3AF] cursor-not-allowed focus-visible:outline-[3px] focus-visible:outline-offset-4 focus-visible:outline-[#A855F7]"
+        >
+          Create Account
+        </button>
+        <p class="mt-4 text-center text-sm text-[#6B7280]">
+          <span id="lbl-account">Already have an account?</span>
+          <a
+            href="#"
+            id="link-login"
+            class="font-semibold text-[#EC4899] hover:text-[#DB2777] focus:outline-none focus:underline"
+            >Log in</a
+          >
+        </p>
+      </footer>
+    </div>
+
+    <!-- UI State Engine & Translations -->
+  </body>
+</html>
