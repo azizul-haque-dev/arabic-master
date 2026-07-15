@@ -4,6 +4,7 @@ import { createApp } from "./app.js";
 import { connectDatabase, disconnectDatabase } from "./config/database.js";
 import { env } from "./config/env.js";
 import { logger } from "./config/logger.js";
+import { sentenceWorker } from "./modules/sentence/sentence.worker.js";
 
 async function bootstrap() {
   await connectDatabase();
@@ -17,6 +18,7 @@ async function bootstrap() {
     logger.info(`${signal} received, shutting down gracefully`);
 
     server.close(async () => {
+      await sentenceWorker.close();
       await disconnectDatabase();
       logger.info("Shutdown complete");
       process.exit(0);

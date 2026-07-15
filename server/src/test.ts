@@ -1,49 +1,17 @@
 import "dotenv/config";
 import { prisma } from "./config/database.js";
-import { createCategorySchema } from "./modules/category/category.validation.js";
+import { getOrCreateCategory } from "./modules/category/category.service.js";
 import { WORD_INCLUDE } from "./modules/word/word.service.js";
-import { AiResponse } from "./utils/ai.word.utils.js";
 import { generateContent } from "./utils/aiGenrateContent.js";
-import { ApiError } from "./utils/api-error.js";
 
-export async function generateText(
-  input: string,
-): Promise<AiResponse | undefined> {
+export async function createWordViaAi(input: string) {
   try {
-    const existingText = await prisma.arabicText.findUnique({
-      where: { text: input },
-    });
-    if (existingText) {
-      throw ApiError.conflict("This Arabic text already exists");
-    }
-
-    const response = await generateContent(input);
-
-    const result = JSON.parse(response) as AiResponse;
-    const normalizedCategoryEn = result.categoryEn.toLowerCase().trim();
-
-    let existingCategory = await prisma.category.findUnique({
-      where: { nameEn: normalizedCategoryEn },
-    });
-
-    if (!existingCategory) {
-      const categoryData = {
-        nameEn: normalizedCategoryEn,
-        nameBn: result.categoryBn.trim(),
-      };
-
-      const validation = createCategorySchema.safeParse(categoryData);
-      if (!validation.success) {
-        throw ApiError.badRequest(
-          "Validation failed",
-          validation.error.flatten(),
-        );
-      }
-
-      existingCategory = await prisma.category.create({
-        data: validation.data,
-      });
-    }
+    const result = await generateContent(input);
+    const catetoryData = {
+      categoryBn: result.categoryBn,
+      categoryEn: result.categoryEn,
+    };
+    const catetoryId = await getOrCreateCategory(catetoryData);
 
     const word = await prisma.word.create({
       data: {
@@ -63,7 +31,7 @@ export async function generateText(
           create: [
             {
               category: {
-                connect: { id: existingCategory.id },
+                connect: { id: catetoryId },
               },
             },
           ],
@@ -72,7 +40,7 @@ export async function generateText(
       include: WORD_INCLUDE,
     });
 
-    return result;
+    return word;
   } catch (error) {
     console.error("Error in generateText:", error);
     throw error;

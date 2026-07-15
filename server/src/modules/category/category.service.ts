@@ -1,5 +1,6 @@
 import { prisma } from "@/config/database.js";
 import { ApiError } from "@/utils/api-error.js";
+import { createCategorySchema } from "./category.validation.js";
 
 export async function list() {
   return prisma.category.findMany({ orderBy: { nameEn: "asc" } });
@@ -26,4 +27,42 @@ export async function update(
 export async function remove(id: string): Promise<void> {
   await getById(id);
   await prisma.category.delete({ where: { id } });
+}
+
+interface GetOrCreateCategoryInput {
+  categoryEn: string;
+  categoryBn: string;
+}
+
+export async function getOrCreateCategory({
+  categoryEn,
+  categoryBn,
+}: GetOrCreateCategoryInput): Promise<string> {
+  const normalizedCategoryEn = categoryEn.toLowerCase().trim();
+
+  const existingCategory = await prisma.category.findUnique({
+    where: {
+      nameEn: normalizedCategoryEn,
+    },
+  });
+
+  if (existingCategory) {
+    return existingCategory.id;
+  }
+
+  const categoryData = {
+    nameEn: normalizedCategoryEn,
+    nameBn: categoryBn.trim(),
+  };
+
+  const validation = createCategorySchema.safeParse(categoryData);
+
+  if (!validation.success) {
+    throw ApiError.badRequest("Validation failed", validation.error.flatten());
+  }
+
+  const createNew = await prisma.category.create({
+    data: validation.data,
+  });
+  return createNew.id;
 }

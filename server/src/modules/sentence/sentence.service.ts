@@ -1,6 +1,12 @@
 import { Prisma } from "@/generated/prisma/client.js";
+import { createWordViaAi } from "@/test.js";
+
+import { generateContent } from "@/utils/aiGenrateContent.js";
+import { cleanTextAndSpaces } from "@/utils/utils.js";
 import { prisma } from "../../config/database.js";
 import { ApiError } from "../../utils/api-error.js";
+import { aiSententceService } from "../ai/sentence/ai.sentence.services.js";
+import { enQueueSentenceProcessing } from "./sentence.queue.js";
 import { ListSentencesQuery } from "./sentence.validation.js";
 
 const SENTENCE_INCLUDE = {
@@ -153,4 +159,100 @@ export async function remove(id: string): Promise<void> {
 
   // Cascades to Sentence + its category/word links via ArabicText's onDelete.
   await prisma.arabicText.delete({ where: { id: sentence.arabicId } });
+}
+
+export async function getOrCreateWord(arabicText: string) {
+  console.log({ arabicText });
+  const cleanText = cleanTextAndSpaces(arabicText);
+  console.log({ cleanText });
+
+  // split(" ") on "يا الحبيب" results in ['يا', 'الحبيب']
+  const wordsArr = cleanText.split(" ").map((word, index) => ({
+    position: index + 1,
+    word,
+  }));
+
+  console.log({ wordsArr }); // Verify we have 2 words to process
+
+  const wordIdswithPosition: { wordId: string; position: number }[] = [];
+
+  for (const wordData of wordsArr) {
+    try {
+      // 1. Check if the word exists in the DB
+      let existingWord = await prisma.word.findFirst({
+        where: {
+          arabic: {
+            text: wordData.word,
+          },
+        },
+      });
+      console.log(`Checking DB for "${wordData.word}":`, { existingWord });
+
+      // 2. If it doesn't exist, try to generate it using AI
+      if (!existingWord) {
+        console.log(`Word "${wordData.word}" not found. Triggering AI...`);
+        const newWord = await createWordViaAi(wordData.word);
+
+        if (!newWord) {
+          console.error(
+            `AI failed to generate word structure for: "${wordData.word}"`,
+          );
+          continue; // Skip this word instead of crashing the entire array generation
+        }
+
+        existingWord = newWord;
+        console.log(`Successfully created via AI:`, { newWord });
+      }
+
+      // 3. Push to results
+      wordIdswithPosition.push({
+        wordId: existingWord.id,
+        position: wordData.position,
+      });
+    } catch (error) {
+      // Catching errors here keeps the loop running for other words
+      console.error(`Error processing word "${wordData.word}":`, error);
+    }
+  }
+
+  console.log({ finalWordIdsWithPosition: wordIdswithPosition });
+  return wordIdswithPosition;
+}
+
+export async function processNewSentence(input: string) {
+  console.log("processNewSentence input:", input);
+
+  // 1. Check if the text already exists in the database
+  const existingText = await prisma.arabicText.findUnique({
+    where: { text: input },
+  });
+  if (existingText) {
+    throw ApiError.conflict("This Arabic text already exists");
+  }
+
+  // 2. Call AI content generator (which can return AiResponse or undefined)
+  const aiSentenceResponse = await generateContent(input);
+
+  // Type Guard: If the AI response is undefined, throw an internal error
+  if (!aiSentenceResponse) {
+    console.error(`AI failed to generate response for: "${input}"`);
+    throw ApiError.internal(
+      "AI failed to generate a valid response for this sentence.",
+    );
+  }
+
+  // 3. Create a pending sentence record in the database
+  // Note: Corrected the spelling typos from your original code
+  const sentence =
+    await aiSententceService.createPendingSentence(aiSentenceResponse);
+
+  // 4. Dispatch the job to the background queue for asynchronous processing
+  await enQueueSentenceProcessing(sentence.id);
+
+  // 5. Return immediate response back to the client
+  return {
+    success: true,
+    sentenceId: sentence.id,
+    status: sentence.status,
+  };
 }

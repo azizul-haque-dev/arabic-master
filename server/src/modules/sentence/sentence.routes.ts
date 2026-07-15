@@ -24,6 +24,11 @@ router.post(
   validate({ body: createSentenceSchema }),
   controller.create,
 );
+router.post(
+  "/ai",
+
+  controller.processSentence,
+);
 router.patch(
   "/:id",
   requireAuth,
@@ -32,7 +37,7 @@ router.patch(
 );
 router.delete(
   "/:id",
-  requireAuth,
+  // requireAuth,
   validate({ params: sentenceIdParamSchema }),
   controller.remove,
 );

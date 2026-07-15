@@ -28,7 +28,7 @@ router.patch(
 );
 router.delete(
   "/:id",
-  requireAuth,
+  // requireAuth,
   validate({ params: wordIdParamSchema }),
   controller.remove,
 );

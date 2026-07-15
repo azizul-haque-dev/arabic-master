@@ -33,3 +33,9 @@ export const remove = asyncHandler(async (req: Request, res: Response) => {
   await sentenceService.remove(req.params.id as string);
   sendSuccess(res, 200, "Sentence deleted");
 });
+export const processSentence = asyncHandler(
+  async (req: Request, res: Response) => {
+    await sentenceService.processNewSentence(req.body.text);
+    sendSuccess(res, 200, "sentence generated");
+  },
+);
