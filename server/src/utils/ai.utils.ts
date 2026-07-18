@@ -1,4 +1,6 @@
+import { AIResponseSchema } from "@/modules/sentence/sentence.validation.js";
 import { Type } from "@google/genai";
+import z from "zod";
 export const aiInstruction =
   () => `You are a native Saudi Arabic language teacher specializing in the Najdi dialect.
 
@@ -64,14 +66,4 @@ export const aiResponseSchema = {
   ],
 };
 
-export interface AiResponse {
-  arabicText: string;
-  meaningBn: string;
-  categoryEn: string;
-  categoryBn: string;
-  meaningEn: string;
-  pronunciationBn: string;
-  pronunciationEn: string;
-  whenToUseBn: string;
-  whenToUseEn: string;
-}
+export type AiResponse = z.infer<typeof AIResponseSchema>;

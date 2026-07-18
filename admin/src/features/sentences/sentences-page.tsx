@@ -1,13 +1,4 @@
-import { useEffect, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { Plus, Pencil, Trash2, ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { StatusBadge } from "@/components/status-badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,11 +9,44 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { StatusBadge } from "@/components/status-badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { fetchCategories } from "@/features/categories/api";
-import { fetchSentences, deleteSentence } from "./api";
-import { SentenceFormDialog } from "./sentence-form-dialog";
 import type { Sentence, Status } from "@/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import {
+  deleteSentence,
+  fetchSentences,
+  generateAiSentenceContent,
+} from "./api";
+import { SentenceFormDialog } from "./sentence-form-dialog";
 
 export function SentencesPage() {
   const queryClient = useQueryClient();
@@ -45,10 +69,16 @@ export function SentencesPage() {
     return () => clearTimeout(timeout);
   }, [search]);
 
-  const { data: categories } = useQuery({ queryKey: ["categories"], queryFn: fetchCategories });
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+  });
 
   const { data, isLoading, isPlaceholderData } = useQuery({
-    queryKey: ["sentences", { page, status, categoryId, search: debouncedSearch }],
+    queryKey: [
+      "sentences",
+      { page, status, categoryId, search: debouncedSearch },
+    ],
     queryFn: () =>
       fetchSentences({
         page,
@@ -70,6 +100,15 @@ export function SentencesPage() {
     onError: () => toast.error("Could not delete this sentence"),
   });
 
+  const generateMutation = useMutation({
+    mutationFn: generateAiSentenceContent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sentences"] });
+      toast.success("Sentence Generated");
+    },
+    onError: () => toast.error("Could not delete this sentence"),
+  });
+
   function openCreate() {
     setEditing(null);
     setFormOpen(true);
@@ -85,7 +124,9 @@ export function SentencesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-ink">Sentences</h1>
-          <p className="text-sm text-muted">Full example sentences built from your word bank.</p>
+          <p className="text-sm text-muted">
+            Full example sentences built from your word bank.
+          </p>
         </div>
         <Button onClick={openCreate}>
           <Plus className="h-4 w-4" />
@@ -104,7 +145,13 @@ export function SentencesPage() {
           />
         </div>
 
-        <Select value={status} onValueChange={(v) => { setStatus(v as Status | "ALL"); setPage(1); }}>
+        <Select
+          value={status}
+          onValueChange={(v) => {
+            setStatus(v as Status | "ALL");
+            setPage(1);
+          }}
+        >
           <SelectTrigger className="w-40">
             <SelectValue />
           </SelectTrigger>
@@ -117,7 +164,13 @@ export function SentencesPage() {
           </SelectContent>
         </Select>
 
-        <Select value={categoryId} onValueChange={(v) => { setCategoryId(v); setPage(1); }}>
+        <Select
+          value={categoryId}
+          onValueChange={(v) => {
+            setCategoryId(v);
+            setPage(1);
+          }}
+        >
           <SelectTrigger className="w-48">
             <SelectValue />
           </SelectTrigger>
@@ -154,17 +207,31 @@ export function SentencesPage() {
               <TableBody>
                 {data.items.map((sentence) => (
                   <TableRow key={sentence.id}>
-                    <TableCell className="arabic-text max-w-xs text-lg text-ink">{sentence.arabic.text}</TableCell>
-                    <TableCell className="max-w-xs text-muted">{sentence.meaningEn}</TableCell>
-                    <TableCell className="text-sm text-muted">{sentence.words.length}</TableCell>
+                    <TableCell className="arabic-text max-w-xs text-lg text-ink">
+                      {sentence.arabic.text}
+                    </TableCell>
+                    <TableCell className="max-w-xs text-muted">
+                      {sentence.meaningEn}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted">
+                      {sentence.words.length}
+                    </TableCell>
                     <TableCell>
                       <StatusBadge status={sentence.status} />
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(sentence)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openEdit(sentence)}
+                      >
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => setPendingDelete(sentence)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setPendingDelete(sentence)}
+                      >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                     </TableCell>
@@ -175,10 +242,16 @@ export function SentencesPage() {
 
             <div className="flex items-center justify-between border-t border-border p-3">
               <p className="text-xs text-muted">
-                Page {data.meta.page} of {data.meta.totalPages} · {data.meta.total} sentences
+                Page {data.meta.page} of {data.meta.totalPages} ·{" "}
+                {data.meta.total} sentences
               </p>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
                   <ChevronLeft className="h-4 w-4" />
                   Prev
                 </Button>
@@ -195,22 +268,37 @@ export function SentencesPage() {
             </div>
           </>
         ) : (
-          <div className="p-10 text-center text-sm text-muted">No sentences match these filters.</div>
+          <div className="p-10 text-center text-sm text-muted">
+            No sentences match these filters.
+          </div>
         )}
       </Card>
 
-      <SentenceFormDialog open={formOpen} onOpenChange={setFormOpen} sentence={editing} />
+      <SentenceFormDialog
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        sentence={editing}
+      />
 
-      <AlertDialog open={!!pendingDelete} onOpenChange={(open) => !open && setPendingDelete(null)}>
+      <AlertDialog
+        open={!!pendingDelete}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="arabic-text">"{pendingDelete?.arabic.text}"</AlertDialogTitle>
-            <AlertDialogDescription>This sentence will be permanently deleted.</AlertDialogDescription>
+            <AlertDialogTitle className="arabic-text">
+              "{pendingDelete?.arabic.text}"
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This sentence will be permanently deleted.
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => pendingDelete && deleteMutation.mutate(pendingDelete.id)}
+              onClick={() =>
+                pendingDelete && deleteMutation.mutate(pendingDelete.id)
+              }
               disabled={deleteMutation.isPending}
             >
               Delete

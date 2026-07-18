@@ -25,6 +25,10 @@ export const createSentenceSchema = z.object({
 
 export const updateSentenceSchema = createSentenceSchema.partial();
 
+export const generateSentenceSchema = z.object({
+  text: z.string().trim().min(1, "Arabic text is required"),
+});
+
 export const sentenceIdParamSchema = z.object({
   id: z.string().min(1),
 });
@@ -38,3 +42,17 @@ export const listSentencesQuerySchema = z.object({
 });
 
 export type ListSentencesQuery = z.infer<typeof listSentencesQuerySchema>;
+
+export const AIResponseSchema = z.object({
+  arabicText: z.string().min(1),
+  meaningBn: z.string().min(1),
+  categoryEn: z.string().min(1),
+  categoryBn: z.string().min(1),
+  meaningEn: z.string().min(1),
+  pronunciationBn: z.string().min(1),
+  pronunciationEn: z.string().min(1),
+  whenToUseBn: z.string().min(1),
+  whenToUseEn: z.string().min(1),
+});
+
+export type SentenceInput = z.infer<typeof createSentenceSchema>;

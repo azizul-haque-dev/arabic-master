@@ -1,3 +1,4 @@
+import { Prisma } from "@/generated/prisma/client.js";
 import { Status } from "@/generated/prisma/enums.js";
 import { z } from "zod";
 
@@ -31,3 +32,16 @@ export const listWordsQuerySchema = z.object({
 });
 
 export type ListWordsQuery = z.infer<typeof listWordsQuerySchema>;
+
+export interface WordInput {
+  text: string;
+  audioUrl?: string;
+  meaningEn?: string;
+  meaningBn?: string;
+  whenToUseEn?: string;
+  whenToUseBn?: string;
+  pronunciationEn?: string;
+  pronunciationBn?: string;
+  status?: Prisma.WordCreateInput["status"];
+  categoryIds?: string[];
+}

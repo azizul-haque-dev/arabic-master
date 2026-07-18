@@ -1,6 +1,6 @@
+import type { PaginatedResult } from "@/features/words/api";
 import { api } from "@/lib/axios";
 import type { ApiResponse, Sentence, Status } from "@/types";
-import type { PaginatedResult } from "@/features/words/api";
 
 export interface ListSentencesParams {
   page?: number;
@@ -10,8 +10,12 @@ export interface ListSentencesParams {
   search?: string;
 }
 
-export async function fetchSentences(params: ListSentencesParams): Promise<PaginatedResult<Sentence>> {
-  const { data } = await api.get<ApiResponse<Sentence[]>>("/sentences", { params });
+export async function fetchSentences(
+  params: ListSentencesParams,
+): Promise<PaginatedResult<Sentence>> {
+  const { data } = await api.get<ApiResponse<Sentence[]>>("/sentences", {
+    params,
+  });
   return { items: data.data, meta: data.meta! };
 }
 
@@ -39,11 +43,21 @@ export async function createSentence(input: SentenceInput): Promise<Sentence> {
   return data.data;
 }
 
-export async function updateSentence(id: string, input: Partial<SentenceInput>): Promise<Sentence> {
-  const { data } = await api.patch<ApiResponse<Sentence>>(`/sentences/${id}`, input);
+export async function updateSentence(
+  id: string,
+  input: Partial<SentenceInput>,
+): Promise<Sentence> {
+  const { data } = await api.patch<ApiResponse<Sentence>>(
+    `/sentences/${id}`,
+    input,
+  );
   return data.data;
 }
 
 export async function deleteSentence(id: string): Promise<void> {
   await api.delete(`/sentences/${id}`);
+}
+
+export async function generateAiSentenceContent(input: string) {
+  const data = await api.post(`/sentences/ai`, input);
 }

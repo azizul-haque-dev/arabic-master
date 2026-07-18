@@ -1,7 +1,7 @@
 import { Prisma } from "@/generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
 import { ApiError } from "../../utils/api-error.js";
-import { ListWordsQuery } from "./word.validation.js";
+import { ListWordsQuery, WordInput } from "./word.validation.js";
 
 // Shared include so every response returns the Arabic text + categories
 // in a consistent shape, without repeating the same object everywhere.
@@ -36,7 +36,18 @@ export async function list(query: ListWordsQuery) {
       : {}),
   };
 
-  const [items, total] = await prisma.$transaction([
+  // const [items, total] = await prisma.$transaction([
+  //   prisma.word.findMany({
+  //     where,
+  //     include: WORD_INCLUDE,
+  //     orderBy: { createdAt: "desc" },
+  //     skip: (page - 1) * limit,
+  //     take: limit,
+  //   }),
+  //   prisma.word.count({ where }),
+  // ]);
+
+  const [items, total] = await Promise.all([
     prisma.word.findMany({
       where,
       include: WORD_INCLUDE,
@@ -46,7 +57,6 @@ export async function list(query: ListWordsQuery) {
     }),
     prisma.word.count({ where }),
   ]);
-
   return {
     items: items.map(present),
     meta: {
@@ -65,19 +75,6 @@ export async function getById(id: string) {
   });
   if (!word) throw ApiError.notFound("Word not found");
   return present(word);
-}
-
-interface WordInput {
-  text: string;
-  audioUrl?: string;
-  meaningEn?: string;
-  meaningBn?: string;
-  whenToUseEn?: string;
-  whenToUseBn?: string;
-  pronunciationEn?: string;
-  pronunciationBn?: string;
-  status?: Prisma.WordCreateInput["status"];
-  categoryIds?: string[];
 }
 
 export async function create(input: WordInput) {

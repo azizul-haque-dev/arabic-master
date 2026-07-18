@@ -148,6 +148,7 @@ model Word {
 
   @@index([status])
   @@index([arabicId])
+  @@index([createdAt])
   @@map("words")
 }
 
@@ -172,11 +173,11 @@ model Sentence {
   arabicId String     @unique @map("arabic_id")
   arabic   ArabicText @relation(fields: [arabicId], references: [id], onDelete: Cascade)
 
-  pronunciationEn String @map("pronunciation_en")
-  pronunciationBn String @map("pronunciation_bn")
+  pronunciationEn String? @map("pronunciation_en")
+  pronunciationBn String? @map("pronunciation_bn")
 
-  meaningEn String @map("meaning_en") @db.Text
-  meaningBn String @map("meaning_bn") @db.Text
+  meaningEn String? @map("meaning_en") @db.Text
+  meaningBn String? @map("meaning_bn") @db.Text
 
   whenToUseEn String? @map("when_to_use_en") @db.Text
   whenToUseBn String? @map("when_to_use_bn") @db.Text
@@ -190,6 +191,7 @@ model Sentence {
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@index([status])
+  @@index([arabicId])
   @@map("sentences")
 }
 

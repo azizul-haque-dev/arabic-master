@@ -11,7 +11,12 @@ import {
 
 const router = Router();
 
-router.get("/", validate({ query: listWordsQuerySchema }), controller.list);
+router.get(
+  "/",
+  validate({ query: listWordsQuerySchema }),
+  requireAuth,
+  controller.list,
+);
 router.get("/:id", validate({ params: wordIdParamSchema }), controller.getOne);
 
 router.post(
@@ -20,6 +25,7 @@ router.post(
   validate({ body: createWordSchema }),
   controller.create,
 );
+router.post("/ai", requireAuth, controller.processWord);
 router.patch(
   "/:id",
   requireAuth,
@@ -28,7 +34,7 @@ router.patch(
 );
 router.delete(
   "/:id",
-  // requireAuth,
+  requireAuth,
   validate({ params: wordIdParamSchema }),
   controller.remove,
 );

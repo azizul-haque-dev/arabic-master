@@ -4,6 +4,7 @@ import { asyncHandler } from "../../utils/async-handler.js";
 import * as userService from "./user.service.js";
 
 export const getMe = asyncHandler(async (req: Request, res: Response) => {
+  console.log(req.cookies);
   const user = await userService.getById(req.user!.id);
   sendSuccess(res, 200, "Profile fetched", user);
 });

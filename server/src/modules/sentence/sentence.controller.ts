@@ -35,7 +35,7 @@ export const remove = asyncHandler(async (req: Request, res: Response) => {
 });
 export const processSentence = asyncHandler(
   async (req: Request, res: Response) => {
-    await sentenceService.processNewSentence(req.body.text);
-    sendSuccess(res, 200, "sentence generated");
+    const result = await sentenceService.processNewSentence(req.body.text);
+    sendSuccess(res, 202, "Sentence queued for AI processing", result);
   },
 );

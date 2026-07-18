@@ -1,6 +1,3 @@
-// Business logic for authentication. Controllers stay thin and just
-// translate HTTP <-> service calls; all the actual rules live here so
-// they can be unit tested without touching Express.
 import { AuthProvider } from "@/generated/prisma/enums.js";
 import argon2 from "argon2";
 import crypto from "crypto";

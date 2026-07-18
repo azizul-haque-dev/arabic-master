@@ -1,7 +1,10 @@
 import { Badge } from "@/components/ui/badge";
 import type { Status } from "@/types";
 
-const STATUS_STYLES: Record<Status, { label: string; variant: "default" | "outline" | "warning" | "destructive" }> = {
+const STATUS_STYLES: Record<
+  Status,
+  { label: string; variant: "default" | "outline" | "warning" | "destructive" }
+> = {
   DRAFT: { label: "Draft", variant: "outline" },
   PUBLISHED: { label: "Published", variant: "default" },
   ACTIVE: { label: "Active", variant: "default" },
@@ -9,6 +12,12 @@ const STATUS_STYLES: Record<Status, { label: string; variant: "default" | "outli
 };
 
 export function StatusBadge({ status }: { status: Status }) {
-  const { label, variant } = STATUS_STYLES[status];
+  const currentStyle = STATUS_STYLES[status] || {
+    label: typeof status === "string" ? status : "Unknown",
+    variant: "outline" as const,
+  };
+
+  const { label, variant } = currentStyle;
+
   return <Badge variant={variant}>{label}</Badge>;
 }

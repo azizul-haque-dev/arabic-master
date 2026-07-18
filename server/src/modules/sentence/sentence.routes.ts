@@ -4,6 +4,7 @@ import { validate } from "../../middlewares/validate.middleware.js";
 import * as controller from "./sentence.controller.js";
 import {
   createSentenceSchema,
+  generateSentenceSchema,
   listSentencesQuerySchema,
   sentenceIdParamSchema,
   updateSentenceSchema,
@@ -24,11 +25,7 @@ router.post(
   validate({ body: createSentenceSchema }),
   controller.create,
 );
-router.post(
-  "/ai",
-
-  controller.processSentence,
-);
+router.post("/ai", requireAuth, validate({ body: generateSentenceSchema }), controller.processSentence);
 router.patch(
   "/:id",
   requireAuth,
@@ -37,7 +34,7 @@ router.patch(
 );
 router.delete(
   "/:id",
-  // requireAuth,
+  requireAuth,
   validate({ params: sentenceIdParamSchema }),
   controller.remove,
 );

@@ -1,11 +1,3 @@
-import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { Plus, Pencil, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,9 +8,26 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { fetchCategories, deleteCategory } from "./api";
-import { CategoryFormDialog } from "./category-form-dialog";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  useDeleteCategory,
+  useGetCategoris,
+} from "@/hooks/categories/useCategories";
 import type { Category } from "@/types";
+import { useQueryClient } from "@tanstack/react-query";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { CategoryFormDialog } from "./category-form-dialog";
 
 export function CategoriesPage() {
   const queryClient = useQueryClient();
@@ -26,21 +35,11 @@ export function CategoriesPage() {
   const [editing, setEditing] = useState<Category | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Category | null>(null);
 
-  const { data: categories, isLoading } = useQuery({
-    queryKey: ["categories"],
-    queryFn: fetchCategories,
-  });
+  const { data: categories, isLoading } = useGetCategoris();
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteCategory,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      toast.success("Category deleted");
-      setPendingDelete(null);
-    },
-    onError: () => toast.error("Could not delete this category"),
+  const deleteMutation = useDeleteCategory({
+    onSuccess: () => setPendingDelete(null),
   });
-
   function openCreate() {
     setEditing(null);
     setFormOpen(true);
@@ -56,7 +55,9 @@ export function CategoriesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-ink">Categories</h1>
-          <p className="text-sm text-muted">Group words and sentences so learners can browse by topic.</p>
+          <p className="text-sm text-muted">
+            Group words and sentences so learners can browse by topic.
+          </p>
         </div>
         <Button onClick={openCreate}>
           <Plus className="h-4 w-4" />
@@ -83,13 +84,23 @@ export function CategoriesPage() {
             <TableBody>
               {categories.map((category) => (
                 <TableRow key={category.id}>
-                  <TableCell className="font-medium text-ink">{category.nameEn}</TableCell>
+                  <TableCell className="font-medium text-ink">
+                    {category.nameEn}
+                  </TableCell>
                   <TableCell>{category.nameBn}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(category)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => openEdit(category)}
+                    >
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => setPendingDelete(category)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setPendingDelete(category)}
+                    >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </TableCell>
@@ -104,20 +115,32 @@ export function CategoriesPage() {
         )}
       </Card>
 
-      <CategoryFormDialog open={formOpen} onOpenChange={setFormOpen} category={editing} />
+      <CategoryFormDialog
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        category={editing}
+      />
 
-      <AlertDialog open={!!pendingDelete} onOpenChange={(open) => !open && setPendingDelete(null)}>
+      <AlertDialog
+        open={!!pendingDelete}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete "{pendingDelete?.nameEn}"?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Delete "{pendingDelete?.nameEn}"?
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This can't be undone. Words and sentences using this category will keep their other tags.
+              This can't be undone. Words and sentences using this category will
+              keep their other tags.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => pendingDelete && deleteMutation.mutate(pendingDelete.id)}
+              onClick={() =>
+                pendingDelete && deleteMutation.mutate(pendingDelete.id)
+              }
               disabled={deleteMutation.isPending}
             >
               Delete

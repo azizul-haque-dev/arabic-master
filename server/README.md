@@ -39,18 +39,20 @@ so new features can be added without touching unrelated code.
 ## Getting started
 
 ```bash
-npm install
+pnpm install
 cp .env.example .env        # fill in real values
-npx prisma migrate dev      # creates tables + generates the Prisma client
-npm run dev                 # starts with hot reload (tsx watch)
+pnpm prisma:migrate         # creates tables + generates the Prisma client
+pnpm dev                    # starts the API with hot reload
+pnpm worker:dev             # starts the background worker with hot reload
 ```
 
 Production:
 
 ```bash
-npm run build
-npm run prisma:deploy       # applies pending migrations, no prompts
-npm start
+pnpm build
+pnpm prisma:deploy          # applies pending migrations, no prompts
+pnpm start
+pnpm worker                 # run in a separate process/container
 ```
 
 Or via Docker:
@@ -58,6 +60,10 @@ Or via Docker:
 ```bash
 docker compose up --build
 ```
+
+The API process only enqueues background jobs. Run `pnpm worker` (or the
+`worker` Compose service) separately; this prevents scaling API replicas from
+starting duplicate workers.
 
 ## Auth flow
 

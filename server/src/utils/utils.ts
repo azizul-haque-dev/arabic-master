@@ -9,6 +9,5 @@ export function cleanTextAndSpaces(input: string): string {
 }
 
 // delay simulation
-export const sleep = (ms: number) => {
-  new Promise((resolve) => setTimeout(resolve, ms));
-};
+export const sleep = (ms: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms));

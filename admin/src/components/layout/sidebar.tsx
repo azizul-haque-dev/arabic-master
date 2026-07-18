@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import {
   BookText,
+  Sparkles,
   FileHeadphone,
   LayoutGrid,
   MessageSquareText,
@@ -10,11 +11,38 @@ import { NavLink } from "react-router-dom";
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutGrid, end: true },
+  { to: "/ai", label: "AI Studio", icon: Sparkles },
   { to: "/words", label: "Words", icon: BookText },
   { to: "/sentences", label: "Sentences", icon: MessageSquareText },
   { to: "/media", label: "Media", icon: FileHeadphone },
   { to: "/categories", label: "Categories", icon: Tags },
 ];
+
+export function NavigationLinks({ onNavigate }: { onNavigate?: () => void }) {
+  return (
+    <>
+      {navItems.map(({ to, label, icon: Icon, end }) => (
+        <NavLink
+          key={to}
+          to={to}
+          end={end}
+          onClick={onNavigate}
+          className={({ isActive }) =>
+            cn(
+              "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              isActive
+                ? "bg-accent-soft text-accent"
+                : "text-muted hover:bg-background hover:text-ink",
+            )
+          }
+        >
+          <Icon className="h-4 w-4" />
+          {label}
+        </NavLink>
+      ))}
+    </>
+  );
+}
 
 export function Sidebar() {
   return (
@@ -24,25 +52,8 @@ export function Sidebar() {
         <span className="text-sm font-semibold text-ink">Arabic App Admin</span>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-1 p-3">
-        {navItems.map(({ to, label, icon: Icon, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            className={({ isActive }) =>
-              cn(
-                "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-accent-soft text-accent"
-                  : "text-muted hover:bg-background hover:text-ink",
-              )
-            }
-          >
-            <Icon className="h-4 w-4" />
-            {label}
-          </NavLink>
-        ))}
+      <nav className="flex flex-1 flex-col gap-1 px-3 py-2">
+        <NavigationLinks />
       </nav>
     </aside>
   );

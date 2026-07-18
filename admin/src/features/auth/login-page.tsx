@@ -13,7 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import { fetchMe, loginRequest } from "./api";
@@ -27,7 +27,10 @@ type LoginValues = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const setAuth = useAuthStore((s) => s.setAuth);
+  const setUser = useAuthStore((state) => state.setUser);
+  const user = useAuthStore((s) => s.user);
+
+  if (user) return <Navigate to="/" replace />;
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -36,11 +39,10 @@ export function LoginPage() {
 
   const mutation = useMutation({
     mutationFn: loginRequest,
-    onSuccess: async ({ accessToken }) => {
-      // Store the token first so the follow-up /users/me request is authenticated.
-      useAuthStore.getState().setAccessToken(accessToken);
+    onSuccess: async () => {
       const user = await fetchMe();
-      setAuth(user, accessToken);
+      setUser(user);
+
       navigate("/", { replace: true });
     },
     onError: (err) => {

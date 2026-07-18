@@ -6,6 +6,7 @@ import { asyncHandler } from "../../utils/async-handler.js";
 import * as authService from "./auth.service.js";
 
 const REFRESH_COOKIE_NAME = "refreshToken";
+const ACCESS_COOKIE_NAME = "accessToken";
 
 // httpOnly cookie so the refresh token is never exposed to client-side JS,
 // which is the standard mitigation against XSS-based token theft.
@@ -14,51 +15,97 @@ const refreshCookieOptions: CookieOptions = {
   secure: isProd,
   sameSite: "lax",
   domain: env.COOKIE_DOMAIN,
-  path: "/api/v1/auth",
-  maxAge: 7 * 24 * 60 * 60 * 1000, // matches JWT_REFRESH_EXPIRES_IN default
+  path: "/",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+const accessCookieOptions: CookieOptions = {
+  httpOnly: true,
+  secure: isProd,
+  sameSite: "lax",
+  domain: isProd ? env.COOKIE_DOMAIN : "",
+  path: "/",
+  maxAge: 15 * 60 * 1000,
 };
 
 function setRefreshCookie(res: Response, token: string) {
   res.cookie(REFRESH_COOKIE_NAME, token, refreshCookieOptions);
+}
+function setAccessCookie(res: Response, token: string) {
+  res.cookie(ACCESS_COOKIE_NAME, token, accessCookieOptions);
 }
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
   const { user, accessToken, refreshToken } = await authService.register(
     req.body,
   );
-  setRefreshCookie(res, refreshToken);
-  sendSuccess(
-    res,
-    201,
-    "Account created. Please check your email to verify your account.",
-    {
-      user,
-      accessToken,
-    },
-  );
+  const platform = req.headers["X-Client-Type"]?.toString().trim();
+  if (platform !== "mobile") {
+    setRefreshCookie(res, refreshToken);
+    setAccessCookie(res, accessToken);
+    sendSuccess(
+      res,
+      201,
+      "Account created. Please check your email to verify your account.",
+      {
+        user,
+      },
+    );
+  } else {
+    sendSuccess(
+      res,
+      201,
+      "Account created. Please check your email to verify your account.",
+      {
+        user,
+        accessToken,
+        refresh,
+      },
+    );
+  }
 });
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const { user, accessToken, refreshToken } = await authService.login(req.body);
-  setRefreshCookie(res, refreshToken);
-  sendSuccess(res, 200, "Logged in successfully", { user, accessToken });
+  const platform = req.headers["X-Client-Type"]?.toString().trim();
+  if (platform !== "mobile") {
+    setRefreshCookie(res, refreshToken);
+    setAccessCookie(res, accessToken);
+    sendSuccess(res, 200, "Logged in successfully.", {
+      user,
+    });
+  } else {
+    sendSuccess(res, 200, "Logged in successfully", {
+      user,
+      accessToken,
+      refresh,
+    });
+  }
 });
 
 export const refresh = asyncHandler(async (req: Request, res: Response) => {
-  const rawToken = req.cookies?.[REFRESH_COOKIE_NAME];
+  const rawToken = req.cookies?.refreshToken;
+
   if (!rawToken) throw ApiError.unauthorized("No refresh token provided");
 
   const { accessToken, refreshToken } =
     await authService.refreshTokens(rawToken);
-  setRefreshCookie(res, refreshToken);
-  sendSuccess(res, 200, "Token refreshed", { accessToken });
+
+  const platform = req.headers["X-Client-Type"]?.toString().trim();
+  if (platform !== "mobile") {
+    setRefreshCookie(res, refreshToken);
+    setAccessCookie(res, accessToken);
+    sendSuccess(res, 200, "Token refreshed");
+  } else {
+    sendSuccess(res, 200, "Token refreshed", { accessToken, refreshToken });
+  }
 });
 
 export const logout = asyncHandler(async (req: Request, res: Response) => {
   const rawToken = req.cookies?.[REFRESH_COOKIE_NAME];
   if (rawToken) await authService.logout(rawToken);
 
-  res.clearCookie(REFRESH_COOKIE_NAME, { path: refreshCookieOptions.path });
+  res.clearCookie(REFRESH_COOKIE_NAME, { path: "/" });
+  res.clearCookie(ACCESS_COOKIE_NAME, { path: "/" });
   sendSuccess(res, 200, "Logged out successfully");
 });
 
@@ -92,11 +139,13 @@ export const googleCallback = asyncHandler(
       accessToken: string;
       refreshToken: string;
     };
-    setRefreshCookie(res, result.refreshToken);
-    // Redirect back to the frontend with the access token as a one-time
-    // query param; the client should exchange/store it immediately.
+    const platform = req.headers["X-Client-Type"]?.toString().trim();
+    if (platform !== "mobile") {
+      setRefreshCookie(res, result.refreshToken);
+      setAccessCookie(res, result.accessToken);
+    }
     res.redirect(
-      `${env.CLIENT_URL}/oauth/callback?accessToken=${result.accessToken}`,
+      `${env.CLIENT_URL}/oauth/callback?accessToken=${result.accessToken}?refreshToken=${result.refreshToken}`,
     );
   },
 );

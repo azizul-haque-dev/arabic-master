@@ -1,62 +1,68 @@
-// Central axios instance. Two interceptors do the heavy lifting:
-//  - request: attaches the current access token
-//  - response: on a 401, tries exactly one silent refresh, retries the
-//    original request, and only logs the user out if that also fails.
-import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "@/stores/auth.store";
+import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true, // sends/receives the httpOnly refresh cookie
+  withCredentials: true,
 });
 
-api.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().accessToken;
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// Scalable Exclusion List: Add any public endpoint patterns that should NEVER trigger a 401 token refresh loop
+const PUBLIC_AUTH_ROUTES = [
+  "/auth/login",
+  "/auth/register",
+  "/auth/forget",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+  "/auth/refresh",
+];
 
-// Queues requests that hit a 401 while a refresh is already in flight,
-// so a burst of parallel requests doesn't trigger multiple refreshes.
-let refreshPromise: Promise<string> | null = null;
+let refreshPromise: Promise<void> | null = null;
 
-async function refreshAccessToken(): Promise<string> {
-  const { data } = await axios.post(
+async function refreshAccessToken(): Promise<void> {
+  await axios.post(
     `${import.meta.env.VITE_API_URL}/auth/refresh`,
     {},
-    { withCredentials: true }
+    { withCredentials: true },
   );
-  const token = data.data.accessToken as string;
-  useAuthStore.getState().setAccessToken(token);
-  return token;
 }
 
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
+    // Cast explicitly matching Axios internal type definitions plus your custom flag
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
 
-    const isAuthRoute = originalRequest?.url?.includes("/auth/login") || originalRequest?.url?.includes("/auth/refresh");
+    const isPublicAuthRoute = originalRequest?.url
+      ? PUBLIC_AUTH_ROUTES.some((route) => originalRequest.url?.includes(route))
+      : false;
 
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !isAuthRoute) {
-      originalRequest._retry = true;
+    // Notice the safe check on originalRequest
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest._retry &&
+      !isPublicAuthRoute
+    ) {
+      originalRequest._retry = true; // No type errors here now
 
       try {
         refreshPromise ??= refreshAccessToken().finally(() => {
           refreshPromise = null;
         });
-        const token = await refreshPromise;
 
-        originalRequest.headers.Authorization = `Bearer ${token}`;
+        await refreshPromise;
+
+        //  Passing it back to api() works flawlessly now because types match up
         return api(originalRequest);
-      } catch {
+      } catch (refreshError) {
         useAuthStore.getState().clear();
         window.location.href = "/login";
+        return Promise.reject(refreshError);
       }
     }
 
     return Promise.reject(error);
-  }
+  },
 );

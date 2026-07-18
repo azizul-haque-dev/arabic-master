@@ -2,33 +2,49 @@ import { prisma } from "@/config/database.js";
 import { workerRedis } from "@/config/redis.js";
 import { SentenceStatus } from "@/generated/prisma/enums.js";
 import { ApiError } from "@/utils/api-error.js";
+import { generateContent } from "@/utils/aiGenrateContent.js";
+import { getOrCreateCategory } from "@/modules/category/category.service.js";
 import { Job, Worker } from "bullmq";
 import { SENTENCE_QUEUE_NAME } from "./sentence.queue.js";
 import { getOrCreateWord } from "./sentence.service.js";
+import { AIResponseSchema } from "./sentence.validation.js";
 
 const processSentenceJob = async (job: Job<{ sentenceId: string }>) => {
   const { sentenceId } = job.data;
   const startTime = Date.now();
   console.log(`[Worker] Job ${job.id} started processing.`);
 
-  // load sentence
+  // Load sentence
   const sentence = await prisma.sentence.findUnique({
     where: { id: sentenceId },
     include: { arabic: true },
   });
-  console.log("woker got the sentence:", sentence);
+  console.log("worker got the sentence:", sentence);
 
   if (!sentence) {
     throw ApiError.badRequest(`Sentence not found by id ${sentenceId}`);
   }
 
-  // update sentence status to PROCESSING
+  // Update sentence status to PROCESSING
   await prisma.sentence.update({
     where: { id: sentenceId },
     data: { status: SentenceStatus.PROCESSING },
   });
 
   try {
+    // All expensive AI enrichment happens in this worker, never in the API.
+    const aiResponse = await generateContent(sentence.arabic.text, 5, "sentence");
+    const parsedResponse = AIResponseSchema.safeParse(aiResponse);
+    if (!parsedResponse.success) {
+      throw ApiError.internal("AI failed to generate valid sentence content.");
+    }
+    const aiData = parsedResponse.data;
+    const categoryId = await getOrCreateCategory({
+      categoryEn: aiData.categoryEn,
+      categoryBn: aiData.categoryBn,
+    });
+
+    // Keep heavy logic outside the transaction to prevent database connection locks
     const wordIdswithPosition = await getOrCreateWord(sentence.arabic.text);
     const sentenceWordsData = wordIdswithPosition.map((item) => ({
       sentenceId,
@@ -36,13 +52,37 @@ const processSentenceJob = async (job: Job<{ sentenceId: string }>) => {
       position: item.position,
     }));
 
-    await prisma.sentenceWord.createMany({
-      data: sentenceWordsData,
-    });
+    // Use a Prisma transaction to ensure both idempotency and atomicity
+    await prisma.$transaction(async (tx) => {
+      // Idempotency Layer: Clean up any partial data from previous failed attempts
+      await tx.sentenceWord.deleteMany({
+        where: { sentenceId: sentenceId },
+      });
 
-    await prisma.sentence.update({
-      where: { id: sentenceId },
-      data: { status: SentenceStatus.COMPLETED },
+      // Insert clean data only if the array contains words
+      if (sentenceWordsData.length > 0) {
+        await tx.sentenceWord.createMany({
+          data: sentenceWordsData,
+        });
+      }
+
+      await tx.sentenceCategory.deleteMany({ where: { sentenceId } });
+      await tx.sentenceCategory.create({ data: { sentenceId, categoryId } });
+
+      // Update sentence status to COMPLETED inside the same atomic block
+      await tx.sentence.update({
+        where: { id: sentenceId },
+        data: {
+          meaningEn: aiData.meaningEn,
+          meaningBn: aiData.meaningBn,
+          pronunciationEn: aiData.pronunciationEn,
+          pronunciationBn: aiData.pronunciationBn,
+          whenToUseEn: aiData.whenToUseEn,
+          whenToUseBn: aiData.whenToUseBn,
+          errorMessage: null,
+          status: SentenceStatus.COMPLETED,
+        },
+      });
     });
 
     const duration = Date.now() - startTime;
@@ -52,6 +92,7 @@ const processSentenceJob = async (job: Job<{ sentenceId: string }>) => {
   } catch (error: any) {
     console.log(`[Worker] Error processing job ${job.id}:`, error.stack);
 
+    // Fallback status update if the processing fails completely
     await prisma.sentence.update({
       where: { id: sentenceId },
       data: {
