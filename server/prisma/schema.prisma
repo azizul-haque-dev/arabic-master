@@ -135,9 +135,12 @@ model Word {
 
   whenToUseEn String? @map("when_to_use_en") @db.Text
   whenToUseBn String? @map("when_to_use_bn") @db.Text
+  
 
   pronunciationEn String? @map("pronunciation_en")
   pronunciationBn String? @map("pronunciation_bn")
+  feminineBn  String? @map("feminine_bn") @db.Text
+  feminineEn  String? @map("feminine_En") @db.Text
   status          Status  @default(DRAFT)
 
   categories WordCategory[]
@@ -181,6 +184,8 @@ model Sentence {
 
   whenToUseEn String? @map("when_to_use_en") @db.Text
   whenToUseBn String? @map("when_to_use_bn") @db.Text
+  feminineBn  String? @map("feminine_bn") @db.Text
+  feminineEn  String? @map("feminine_En") @db.Text
   status      SentenceStatus  @default(DRAFT)
   errorMessage String?
 

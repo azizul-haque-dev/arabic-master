@@ -1,13 +1,13 @@
 import { prisma } from "@/config/database.js";
 import { workerRedis } from "@/config/redis.js";
 import { SentenceStatus } from "@/generated/prisma/enums.js";
-import { ApiError } from "@/utils/api-error.js";
-import { generateContent } from "@/utils/aiGenrateContent.js";
 import { getOrCreateCategory } from "@/modules/category/category.service.js";
+import { ApiError } from "@/utils/api-error.js";
 import { Job, Worker } from "bullmq";
+import { generateContent } from "../ai/generateContent.js";
+import { AIResponseSchema } from "../ai/schema.js";
 import { SENTENCE_QUEUE_NAME } from "./sentence.queue.js";
 import { getOrCreateWord } from "./sentence.service.js";
-import { AIResponseSchema } from "./sentence.validation.js";
 
 const processSentenceJob = async (job: Job<{ sentenceId: string }>) => {
   const { sentenceId } = job.data;
@@ -33,7 +33,7 @@ const processSentenceJob = async (job: Job<{ sentenceId: string }>) => {
 
   try {
     // All expensive AI enrichment happens in this worker, never in the API.
-    const aiResponse = await generateContent(sentence.arabic.text, 5, "sentence");
+    const aiResponse = await generateContent(sentence.arabic.text);
     const parsedResponse = AIResponseSchema.safeParse(aiResponse);
     if (!parsedResponse.success) {
       throw ApiError.internal("AI failed to generate valid sentence content.");
@@ -79,6 +79,8 @@ const processSentenceJob = async (job: Job<{ sentenceId: string }>) => {
           pronunciationBn: aiData.pronunciationBn,
           whenToUseEn: aiData.whenToUseEn,
           whenToUseBn: aiData.whenToUseBn,
+          feminineBn: aiData.feminineBn,
+          feminineEn: aiData.feminineEn,
           errorMessage: null,
           status: SentenceStatus.COMPLETED,
         },

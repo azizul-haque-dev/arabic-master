@@ -28,7 +28,7 @@ export const listWordsQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(100).default(20),
   status: z.enum(Status).optional(),
   categoryId: z.string().optional(),
-  search: z.string().trim().optional(), // matches against Arabic text or English meaning
+  search: z.string().trim().optional(),
 });
 
 export type ListWordsQuery = z.infer<typeof listWordsQuerySchema>;

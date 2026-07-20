@@ -1,10 +1,9 @@
 import { Prisma } from "@/generated/prisma/client.js";
-
-import { createWordViaAi } from "@/utils/aiGenrateContent.js";
 import { cleanTextAndSpaces } from "@/utils/utils.js";
 import { prisma } from "../../config/database.js";
 import { ApiError } from "../../utils/api-error.js";
 import { aiSententceService } from "../ai/sentence/ai.sentence.services.js";
+import { createWordViaAi } from "../ai/word/word.services.js";
 import { enQueueSentenceProcessing } from "./sentence.queue.js";
 import { ListSentencesQuery, SentenceInput } from "./sentence.validation.js";
 

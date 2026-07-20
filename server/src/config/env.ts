@@ -40,10 +40,11 @@ const envSchema = z.object({
   R2_BUCKET_NAME: z.string().optional(),
   R2_PUBLIC_URL: z.string().optional(),
   R2_ACCOUNT_ID: z.string().optional(),
-  AI_API_KEY: z.string(),
+  GOOGLE_API_KEY: z.string(),
   AI_MODEL_NAME: z.string(),
   REDIS_URL: z.string(),
   REDIS_PORT: z.string(),
+  PROVIDER: z.string(),
 });
 
 const parsed = envSchema.safeParse(process.env);

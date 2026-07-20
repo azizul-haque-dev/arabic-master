@@ -1,16 +1,50 @@
-import { env } from "@/config/env.js";
-import { GoogleGenAI } from "@google/genai";
+import { prisma } from "@/config/database.js";
+import { getOrCreateCategory } from "@/modules/category/category.service.js";
+import { WORD_INCLUDE } from "@/modules/word/word.service.js";
+import { generateContent } from "../generateContent.js";
+import { AiResponse } from "../schema.js";
 
-const ai = new GoogleGenAI({ apiKey: env.AI_API_KEY });
-
-export async function generateText() {
+export async function createWordViaAi(input: string) {
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
-      contents: "translate 'what is your name in bangla'",
+    const result = (await generateContent(input)) as AiResponse;
+    const catetoryData = {
+      categoryBn: result.categoryBn,
+      categoryEn: result.categoryEn,
+    };
+    const catetoryId = await getOrCreateCategory(catetoryData);
+
+    const word = await prisma.word.create({
+      data: {
+        meaningEn: result.meaningEn,
+        meaningBn: result.meaningBn,
+        whenToUseEn: result.whenToUseEn,
+        whenToUseBn: result.whenToUseBn,
+        pronunciationEn: result.pronunciationEn,
+        pronunciationBn: result.pronunciationBn,
+        feminineEn: result.feminineEn,
+        feminineBn: result.feminineBn,
+        status: "DRAFT",
+
+        arabic: {
+          create: { text: result.text },
+        },
+
+        categories: {
+          create: [
+            {
+              category: {
+                connect: { id: catetoryId },
+              },
+            },
+          ],
+        },
+      },
+      include: WORD_INCLUDE,
     });
-    console.log(response.text);
+
+    return word;
   } catch (error) {
-    console.log(error);
+    console.error("Error in generateText:", error);
+    throw error;
   }
 }
