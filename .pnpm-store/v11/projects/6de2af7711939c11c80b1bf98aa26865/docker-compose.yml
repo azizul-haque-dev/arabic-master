@@ -1,0 +1,30 @@
+services:
+  api:
+    build: .
+    ports:
+      - "4000:4000"
+    env_file: .env
+    depends_on:
+      - db
+
+  worker:
+    build: .
+    command: ["node", "dist/worker.js"]
+    env_file: .env
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: arabic_app
+      POSTGRES_PASSWORD: arabic_app
+      POSTGRES_DB: arabic_app
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:

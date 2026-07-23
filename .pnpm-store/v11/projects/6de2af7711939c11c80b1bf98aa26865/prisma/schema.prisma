@@ -1,0 +1,242 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+// ─── Enums ─────────────────────────────────────────────
+
+enum Status {
+  DRAFT
+  PUBLISHED
+  ACTIVE
+  DISABLED
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+}
+
+enum SentenceStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  DRAFT
+  PUBLISHED
+  ACTIVE
+  DISABLED
+  
+}
+
+// ─── Auth ──────────────────────────────────────────────
+
+model User {
+  id            String       @id @default(uuid()) @db.Uuid
+  name          String       @db.VarChar(120)
+  email         String       @unique @db.VarChar(255)
+  emailVerified Boolean      @default(false) @map("email_verified")
+  passwordHash  String?      @map("password_hash")
+  provider      AuthProvider @default(LOCAL)
+  googleId      String?      @unique @map("google_id") @db.VarChar(255)
+  avatarUrl     String?      @map("avatar_url")
+
+  refreshTokens RefreshToken[]
+  resetTokens   ResetToken[]
+  verifyTokens  VerifyUser[]
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid @map("user_id")
+
+  tokenHash String  @unique @map("token_hash")
+  revoked   Boolean @default(false)
+
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  // Speeds up cron/cleanup jobs that purge expired or revoked tokens
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+model ResetToken {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid @map("user_id")
+
+  tokenHash String @unique @map("token_hash")
+
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("reset_tokens")
+}
+
+model VerifyUser {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid @map("user_id")
+
+  tokenHash String @unique @map("token_hash")
+
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("verify_users")
+}
+
+// ─── Content ───────────────────────────────────────────
+
+model ArabicText {
+  id       String  @id @default(cuid())
+  text     String  @unique @db.Text
+  audioUrl String? @map("audio_url")
+  audioKey String? @map("audio_key")
+  word     Word?
+  sentence Sentence?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("arabic_texts")
+}
+
+model Word {
+  id String @id @default(cuid())
+
+  arabicId String     @unique @map("arabic_id")
+  arabic   ArabicText @relation(fields: [arabicId], references: [id], onDelete: Cascade)
+
+  meaningEn String? @map("meaning_en") @db.Text
+  meaningBn String? @map("meaning_bn") @db.Text
+
+  whenToUseEn String? @map("when_to_use_en") @db.Text
+  whenToUseBn String? @map("when_to_use_bn") @db.Text
+  
+
+  pronunciationEn String? @map("pronunciation_en")
+  pronunciationBn String? @map("pronunciation_bn")
+  feminineBn  String? @map("feminine_bn") @db.Text
+  feminineEn  String? @map("feminine_En") @db.Text
+  status          Status  @default(DRAFT)
+
+  categories WordCategory[]
+  sentences  SentenceWord[]
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([status])
+  @@index([arabicId])
+  @@index([createdAt])
+  @@map("words")
+}
+
+model Category {
+  id     String @id @default(cuid())
+  nameEn String @map("name_en")
+  nameBn String? @map("name_bn")
+
+  words     WordCategory[]
+  sentences SentenceCategory[]
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([nameEn])
+  @@map("categories")
+}
+
+model Sentence {
+  id String @id @default(cuid())
+
+  arabicId String     @unique @map("arabic_id")
+  arabic   ArabicText @relation(fields: [arabicId], references: [id], onDelete: Cascade)
+
+  pronunciationEn String? @map("pronunciation_en")
+  pronunciationBn String? @map("pronunciation_bn")
+
+  meaningEn String? @map("meaning_en") @db.Text
+  meaningBn String? @map("meaning_bn") @db.Text
+
+  whenToUseEn String? @map("when_to_use_en") @db.Text
+  whenToUseBn String? @map("when_to_use_bn") @db.Text
+  feminineBn  String? @map("feminine_bn") @db.Text
+  feminineEn  String? @map("feminine_En") @db.Text
+  status      SentenceStatus  @default(DRAFT)
+  errorMessage String?
+
+  words      SentenceWord[]
+  categories SentenceCategory[]
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([status])
+  @@index([arabicId])
+  @@map("sentences")
+}
+
+model WordCategory {
+  wordId     String @map("word_id")
+  categoryId String @map("category_id")
+
+  word     Word     @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([wordId, categoryId])
+  @@index([categoryId])
+  @@map("word_categories")
+}
+
+model SentenceCategory {
+  sentenceId String @map("sentence_id")
+  categoryId String @map("category_id")
+
+  sentence Sentence @relation(fields: [sentenceId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([sentenceId, categoryId])
+  @@index([categoryId])
+  @@map("sentence_categories")
+}
+
+model SentenceWord {
+  sentenceId String @map("sentence_id")
+  wordId     String @map("word_id")
+
+  /// Position of the word inside the sentence.
+  position Int
+
+  sentence Sentence @relation(fields: [sentenceId], references: [id], onDelete: Cascade)
+  word     Word     @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  @@id([sentenceId, wordId])
+  /// Keeps the sentence ordered.
+  @@unique([sentenceId, position])
+  @@index([wordId])
+  @@map("sentence_words")
+}
