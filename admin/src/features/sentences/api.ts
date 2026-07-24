@@ -59,5 +59,6 @@ export async function deleteSentence(id: string): Promise<void> {
 }
 
 export async function generateAiSentenceContent(input: string) {
-  const data = await api.post(`/sentences/ai`, input);
+  const { data } = await api.post(`/sentences/ai`, input);
+  return data;
 }

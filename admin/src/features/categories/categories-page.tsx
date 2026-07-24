@@ -24,13 +24,11 @@ import {
   useGetCategoris,
 } from "@/hooks/categories/useCategories";
 import type { Category } from "@/types";
-import { useQueryClient } from "@tanstack/react-query";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { CategoryFormDialog } from "./category-form-dialog";
 
 export function CategoriesPage() {
-  const queryClient = useQueryClient();
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Category | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Category | null>(null);

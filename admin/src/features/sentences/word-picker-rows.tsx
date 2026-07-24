@@ -55,17 +55,19 @@ function WordSearchCombobox({ value, onChange }: WordSearchComboboxProps) {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="flex-1 justify-between font-normal"
-        >
-          {selectedLabel ? selectedLabel : "Search a word..."}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
+      <PopoverTrigger
+        render={
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="flex-1 justify-between font-normal"
+          >
+            {selectedLabel ? selectedLabel : "Search a word..."}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        }
+      />
       <PopoverContent className="w-[300px] p-0">
         <Command shouldFilter={false}>
           {/* shouldFilter={false} দেওয়া হয়েছে কারণ আমরা Server-side ফিল্টার করছি */}

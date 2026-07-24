@@ -44,7 +44,6 @@ import { toast } from "sonner";
 import {
   deleteSentence,
   fetchSentences,
-  generateAiSentenceContent,
 } from "./api";
 import { SentenceFormDialog } from "./sentence-form-dialog";
 
@@ -96,15 +95,6 @@ export function SentencesPage() {
       queryClient.invalidateQueries({ queryKey: ["sentences"] });
       toast.success("Sentence deleted");
       setPendingDelete(null);
-    },
-    onError: () => toast.error("Could not delete this sentence"),
-  });
-
-  const generateMutation = useMutation({
-    mutationFn: generateAiSentenceContent,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["sentences"] });
-      toast.success("Sentence Generated");
     },
     onError: () => toast.error("Could not delete this sentence"),
   });

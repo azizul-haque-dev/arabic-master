@@ -23,7 +23,6 @@ import {
 } from "@/hooks/categories/useCategories";
 import type { Category } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
@@ -38,7 +37,6 @@ export function CategoryFormDialog({
   onOpenChange,
   category,
 }: CategoryFormDialogProps) {
-  const queryClient = useQueryClient();
   const isEditing = Boolean(category);
 
   const form = useForm<CategoryValues>({
