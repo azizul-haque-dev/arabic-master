@@ -17,6 +17,7 @@ const PUBLIC_AUTH_ROUTES = [
 ];
 
 let refreshPromise: Promise<void> | null = null;
+let isRedirectingToLogin = false;
 
 async function refreshAccessToken(): Promise<void> {
   await axios.post(
@@ -58,7 +59,10 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         useAuthStore.getState().clear();
-        window.location.href = "/login";
+        if (!isRedirectingToLogin && window.location.pathname !== "/login") {
+          isRedirectingToLogin = true;
+          window.location.assign("/login");
+        }
         return Promise.reject(refreshError);
       }
     }

@@ -10,20 +10,24 @@ const ACCESS_COOKIE_NAME = "accessToken";
 
 // httpOnly cookie so the refresh token is never exposed to client-side JS,
 // which is the standard mitigation against XSS-based token theft.
-const refreshCookieOptions: CookieOptions = {
+const cookieDomain = env.COOKIE_DOMAIN?.trim() || undefined;
+
+const baseCookieOptions: CookieOptions = {
   httpOnly: true,
   secure: isProd,
-  sameSite: "lax",
-  domain: env.COOKIE_DOMAIN,
+  // Cross-origin production clients need SameSite=None for the browser to
+  // accept and return the cookie. Secure is mandatory with SameSite=None.
+  sameSite: isProd ? "none" : "lax",
+  domain: cookieDomain,
   path: "/",
+};
+
+const refreshCookieOptions: CookieOptions = {
+  ...baseCookieOptions,
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 const accessCookieOptions: CookieOptions = {
-  httpOnly: true,
-  secure: isProd,
-  sameSite: "lax",
-  domain: isProd ? env.COOKIE_DOMAIN : "",
-  path: "/",
+  ...baseCookieOptions,
   maxAge: 15 * 60 * 1000,
 };
 
@@ -38,7 +42,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   const { user, accessToken, refreshToken } = await authService.register(
     req.body,
   );
-  const platform = req.headers["X-Client-Type"]?.toString().trim();
+  const platform = req.headers["x-client-type"]?.toString().trim();
   if (platform !== "mobile") {
     setRefreshCookie(res, refreshToken);
     setAccessCookie(res, accessToken);
@@ -66,7 +70,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const { user, accessToken, refreshToken } = await authService.login(req.body);
-  const platform = req.headers["X-Client-Type"]?.toString().trim();
+  const platform = req.headers["x-client-type"]?.toString().trim();
   if (platform !== "mobile") {
     setRefreshCookie(res, refreshToken);
     setAccessCookie(res, accessToken);
@@ -90,7 +94,7 @@ export const refresh = asyncHandler(async (req: Request, res: Response) => {
   const { accessToken, refreshToken } =
     await authService.refreshTokens(rawToken);
 
-  const platform = req.headers["X-Client-Type"]?.toString().trim();
+  const platform = req.headers["x-client-type"]?.toString().trim();
   if (platform !== "mobile") {
     setRefreshCookie(res, refreshToken);
     setAccessCookie(res, accessToken);
@@ -104,8 +108,8 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
   const rawToken = req.cookies?.[REFRESH_COOKIE_NAME];
   if (rawToken) await authService.logout(rawToken);
 
-  res.clearCookie(REFRESH_COOKIE_NAME, { path: "/" });
-  res.clearCookie(ACCESS_COOKIE_NAME, { path: "/" });
+  res.clearCookie(REFRESH_COOKIE_NAME, baseCookieOptions);
+  res.clearCookie(ACCESS_COOKIE_NAME, baseCookieOptions);
   sendSuccess(res, 200, "Logged out successfully");
 });
 
@@ -139,7 +143,7 @@ export const googleCallback = asyncHandler(
       accessToken: string;
       refreshToken: string;
     };
-    const platform = req.headers["X-Client-Type"]?.toString().trim();
+    const platform = req.headers["x-client-type"]?.toString().trim();
     if (platform !== "mobile") {
       setRefreshCookie(res, result.refreshToken);
       setAccessCookie(res, result.accessToken);
