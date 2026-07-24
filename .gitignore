@@ -62,6 +62,7 @@ server/temp/
 # ==========================
 .vscode/
 .idea/
+.pnpm-store
 *.swp
 *.swo
 

@@ -2,6 +2,9 @@
   "name": "arabic-app-server",
   "version": "1.0.0",
   "description": "Backend API for the Arabic learning platform",
+  "engines": {
+    "node": ">=22 <23"
+  },
   "main": "dist/server.js",
   "type": "module",
   "scripts": {
