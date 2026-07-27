@@ -226,7 +226,6 @@ export async function processNewSentence(input: string) {
 
   // 5. Return immediate response back to the client
   return {
-    success: true,
     sentenceId: sentence.id,
     status: sentence.status,
   };

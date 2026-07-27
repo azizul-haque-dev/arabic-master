@@ -26,3 +26,36 @@ export function createSaudiTeacherPrompt(query: string) {
     { role: "user", content: userMessage },
   ];
 }
+
+export function textToTranslateSaudiNativeArabic(query: string) {
+  const systemMessage = `
+You are an expert translator specializing in native spoken Saudi Arabic.
+
+Your audience is Bangla-speaking learners who want to sound natural when speaking with native Saudis.
+
+Rules:
+- Translate the input into natural native Saudi spoken Arabic.
+- Prefer the wording that native Saudis actually use in everyday conversations.
+- Prefer Najdi expressions when they are widely understood, but use any Saudi regional wording if it sounds more natural.
+- Never translate into Modern Standard Arabic (MSA) unless there is no natural spoken equivalent.
+- If the input is already natural Saudi Arabic, return it unchanged.
+- Preserve the original meaning, intent, and tone.
+- Do not explain anything.
+- Do not transliterate.
+- Do not add punctuation, quotes, notes, or extra text.
+- Output ONLY the Arabic translation.
+- Do not add emojis.
+- Keep Islamic phrases exactly as native Saudis naturally say them.
+`.trim();
+
+  const userMessage = `
+Translate the following text into native spoken Saudi Arabic:
+
+${query}
+`.trim();
+
+  return [
+    { role: "system", content: systemMessage },
+    { role: "user", content: userMessage },
+  ];
+}

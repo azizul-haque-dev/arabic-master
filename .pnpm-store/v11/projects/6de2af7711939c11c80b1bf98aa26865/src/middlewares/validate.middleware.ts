@@ -15,22 +15,33 @@ export function validate(schemas: ValidationSchemas) {
   return (req: Request, _res: Response, next: NextFunction) => {
     if (schemas.body) {
       const result = schemas.body.safeParse(req.body);
-      if (!result.success)
-        throw ApiError.badRequest("Validation failed", result.error.flatten());
+
+      if (!result.success) {
+        // result.error.issues contains the array of errors
+        const firstErrorMessage =
+          result.error.issues[0]?.message || "Validation failed";
+        throw ApiError.badRequest(firstErrorMessage, result.error.flatten());
+      }
       req.body = result.data;
     }
 
     if (schemas.params) {
       const result = schemas.params.safeParse(req.params);
-      if (!result.success)
-        throw ApiError.badRequest("Validation failed", result.error.flatten());
+      if (!result.success) {
+        const firstErrorMessage =
+          result.error.issues[0]?.message || "Validation failed";
+        throw ApiError.badRequest(firstErrorMessage, result.error.flatten());
+      }
       req.params = result.data as typeof req.params;
     }
 
     if (schemas.query) {
       const result = schemas.query.safeParse(req.query);
-      if (!result.success)
-        throw ApiError.badRequest("Validation failed", result.error.flatten());
+      if (!result.success) {
+        const firstErrorMessage =
+          result.error.issues[0]?.message || "Validation failed";
+        throw ApiError.badRequest(firstErrorMessage, result.error.flatten());
+      }
       // req.query is read-only in Express 5, so store parsed values separately
       (req as Request & { validatedQuery?: unknown }).validatedQuery =
         result.data;

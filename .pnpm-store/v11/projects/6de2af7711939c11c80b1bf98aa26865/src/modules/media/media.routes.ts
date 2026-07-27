@@ -70,7 +70,7 @@ router.post(
       });
     }
 
-    sendSuccess(res, 201, "File uploaded successfully", null);
+    sendSuccess(res, 201, "File uploaded successfully");
   }),
 );
 

@@ -1,15 +1,16 @@
 import { Request, Response } from "express";
 import { sendSuccess } from "../../utils/api-response.js";
 import { asyncHandler } from "../../utils/async-handler.js";
-import * as wordService from "./word.service.js";
+import { translateWord } from "../ai/generateContent.js";
 import * as wordAiService from "./word.ai.service.js";
+import * as wordService from "./word.service.js";
 import { ListWordsQuery } from "./word.validation.js";
 
 export const list = asyncHandler(async (req: Request, res: Response) => {
   const query = (req as Request & { validatedQuery: ListWordsQuery })
     .validatedQuery;
   const { items, meta } = await wordService.list(query);
-  sendSuccess(res, 200, "Words fetched", items, meta);
+  sendSuccess(res, 200, "Words fetched", { items, meta });
 });
 
 export const getOne = asyncHandler(async (req: Request, res: Response) => {
@@ -33,6 +34,13 @@ export const remove = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const processWord = asyncHandler(async (req: Request, res: Response) => {
-  const word = await wordAiService.processNewWord(req.body.text);
+  const arabicRegex = /^[\u0600-\u06FF\s]+$/;
+  let text = req.body.text;
+  if (!arabicRegex.test(req.body.text)) {
+    text = await translateWord(text);
+    console.log({ ai: "ai generated" });
+  }
+
+  const word = await wordAiService.processNewWord(text);
   sendSuccess(res, 201, "Word generated", word);
 });

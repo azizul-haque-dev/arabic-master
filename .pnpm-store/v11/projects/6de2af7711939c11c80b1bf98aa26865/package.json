@@ -9,6 +9,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "test": "tsx watch src/text.ts",
     "worker": "node dist/worker.js",
     "worker:dev": "tsx watch src/worker.ts",
     "build": "prisma generate && tsc -p tsconfig.json && node scripts/rewrite-aliases.mjs",

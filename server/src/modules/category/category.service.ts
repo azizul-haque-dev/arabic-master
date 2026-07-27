@@ -1,9 +1,22 @@
 import { prisma } from "@/config/database.js";
 import { ApiError } from "@/utils/api-error.js";
+import {
+  cacheGet,
+  cacheKey,
+  cacheNamespaces,
+  cacheSet,
+  invalidateCacheNamespace,
+} from "@/utils/cache.js";
 import { createCategorySchema } from "./category.validation.js";
 
 export async function list() {
-  return prisma.category.findMany({ orderBy: { nameEn: "asc" } });
+  const key = cacheKey(cacheNamespaces.categories);
+  const cached = await cacheGet<Awaited<ReturnType<typeof prisma.category.findMany>>>(key);
+  if (cached) return cached;
+
+  const categories = await prisma.category.findMany({ orderBy: { nameEn: "asc" } });
+  await cacheSet(key, categories, 600);
+  return categories;
 }
 
 export async function getById(id: string) {
@@ -13,7 +26,9 @@ export async function getById(id: string) {
 }
 
 export async function create(data: { nameEn: string; nameBn: string }) {
-  return prisma.category.create({ data });
+  const category = await prisma.category.create({ data });
+  await invalidateCategoryRelatedCaches();
+  return category;
 }
 
 export async function update(
@@ -21,12 +36,15 @@ export async function update(
   data: { nameEn?: string; nameBn?: string },
 ) {
   await getById(id); // 404s early if it doesn't exist
-  return prisma.category.update({ where: { id }, data });
+  const category = await prisma.category.update({ where: { id }, data });
+  await invalidateCategoryRelatedCaches();
+  return category;
 }
 
 export async function remove(id: string): Promise<void> {
   await getById(id);
   await prisma.category.delete({ where: { id } });
+  await invalidateCategoryRelatedCaches();
 }
 
 interface GetOrCreateCategoryInput {
@@ -64,5 +82,14 @@ export async function getOrCreateCategory({
   const createNew = await prisma.category.create({
     data: validation.data,
   });
+  await invalidateCategoryRelatedCaches();
   return createNew.id;
+}
+
+async function invalidateCategoryRelatedCaches() {
+  await Promise.all([
+    invalidateCacheNamespace(cacheNamespaces.categories),
+    invalidateCacheNamespace(cacheNamespaces.words),
+    invalidateCacheNamespace(cacheNamespaces.sentences),
+  ]);
 }

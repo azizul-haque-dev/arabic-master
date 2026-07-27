@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from "express";
 import { Prisma } from "@/generated/prisma/client.js";
+import { NextFunction, Request, Response } from "express";
 import z from "zod";
 import { isProd } from "../config/env.js";
 import { logger } from "../config/logger.js";
@@ -18,7 +18,7 @@ export function errorHandler(
   let message = "Internal server error";
 
   if (err instanceof z.ZodError) {
-    message = err.errors.map((issue) => issue.message).join(", ");
+    message = err.issues.map((issue: any) => issue.message).join(", ");
     statusCode = 400;
   } else if (err instanceof ApiError) {
     statusCode = err.statusCode;
@@ -39,9 +39,15 @@ export function errorHandler(
   }
 
   if (statusCode >= 500) {
-    logger.error({ err, path: req.path, method: req.method }, "Unhandled error");
+    logger.error(
+      { err, path: req.path, method: req.method },
+      "Unhandled error",
+    );
   } else {
-    logger.warn({ path: req.path, method: req.method, message }, "Request error");
+    logger.warn(
+      { path: req.path, method: req.method, message },
+      "Request error",
+    );
   }
 
   return sendError(res, statusCode, message);

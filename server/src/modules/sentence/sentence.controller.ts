@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { sendSuccess } from "../../utils/api-response.js";
 import { asyncHandler } from "../../utils/async-handler.js";
+import { translateWord } from "../ai/generateContent.js";
 import * as sentenceService from "./sentence.service.js";
 import { ListSentencesQuery } from "./sentence.validation.js";
 
@@ -35,7 +36,12 @@ export const remove = asyncHandler(async (req: Request, res: Response) => {
 });
 export const processSentence = asyncHandler(
   async (req: Request, res: Response) => {
-    const result = await sentenceService.processNewSentence(req.body.text);
+    const arabicRegex = /^[\u0600-\u06FF\s]+$/;
+    let text = req.body.text;
+    if (!arabicRegex.test(req.body.text)) {
+      text = await translateWord(text);
+    }
+    const result = await sentenceService.processNewSentence(text);
     sendSuccess(res, 202, "Sentence queued for AI processing", result);
   },
 );

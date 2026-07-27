@@ -112,6 +112,7 @@ export function WordsPage() {
           words={data?.items || []}
           openEdit={openEdit}
           openAddMedia={openAddMedia}
+          onDelete={setPendingDelete}
         />
 
         {data?.meta && (

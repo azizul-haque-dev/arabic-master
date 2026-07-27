@@ -45,3 +45,9 @@ export interface WordInput {
   status?: Prisma.WordCreateInput["status"];
   categoryIds?: string[];
 }
+const arabicRegex = /^[\u0600-\u06FF\s]+$/;
+export const arabicTextSchema = z.object({
+  text: z.string().regex(arabicRegex, {
+    message: "Arabic Text only",
+  }),
+});

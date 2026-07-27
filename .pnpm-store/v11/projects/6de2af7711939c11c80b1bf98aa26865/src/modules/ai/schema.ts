@@ -48,3 +48,9 @@ export const AIResponseSchema = z.object({
 });
 
 export type AiResponse = z.infer<typeof AIResponseSchema>;
+
+export const SaudiArabicTranslationSchema = z.object({
+  traslatedText: z.string().min(1),
+});
+
+export type TrasnlateTextType = z.infer<typeof SaudiArabicTranslationSchema>;

@@ -16,6 +16,7 @@ interface WordsTableProps {
   words: Word[];
   openEdit: (word: Word) => void;
   openAddMedia: (word: Word) => void;
+  onDelete: (word: Word) => void;
 }
 
 export function WordsTable({
@@ -23,6 +24,7 @@ export function WordsTable({
   words,
   openEdit,
   openAddMedia,
+  onDelete,
 }: WordsTableProps) {
   if (isLoading) {
     return (
@@ -81,6 +83,7 @@ export function WordsTable({
               <DropdownMenuDestructive
                 openEdit={() => openEdit(word)}
                 openAddMedia={() => openAddMedia(word)}
+                onDelete={onDelete}
                 word={word}
               />
             </TableCell>

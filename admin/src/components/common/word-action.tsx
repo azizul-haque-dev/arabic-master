@@ -14,10 +14,12 @@ export function DropdownMenuDestructive({
   openEdit,
   word,
   openAddMedia,
+  onDelete,
 }: {
   openEdit: (word: Word) => void;
   word: Word;
   openAddMedia: (word: Word) => void;
+  onDelete: (word: Word) => void;
 }) {
   return (
     <DropdownMenu>
@@ -39,7 +41,12 @@ export function DropdownMenuDestructive({
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>Delete</DropdownMenuItem>
+          <DropdownMenuItem
+            className="text-destructive focus:text-destructive"
+            onClick={() => onDelete(word)}
+          >
+            Delete
+          </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

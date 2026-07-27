@@ -76,6 +76,8 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     setAccessCookie(res, accessToken);
     sendSuccess(res, 200, "Logged in successfully.", {
       user,
+      accessToken,
+      refresh,
     });
   } else {
     sendSuccess(res, 200, "Logged in successfully", {

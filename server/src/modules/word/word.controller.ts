@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { sendSuccess } from "../../utils/api-response.js";
 import { asyncHandler } from "../../utils/async-handler.js";
+import { translateWord } from "../ai/generateContent.js";
 import * as wordAiService from "./word.ai.service.js";
 import * as wordService from "./word.service.js";
 import { ListWordsQuery } from "./word.validation.js";
@@ -34,13 +35,12 @@ export const remove = asyncHandler(async (req: Request, res: Response) => {
 
 export const processWord = asyncHandler(async (req: Request, res: Response) => {
   const arabicRegex = /^[\u0600-\u06FF\s]+$/;
-  console.log({
-    isRegex: arabicRegex.test(req.body.text),
-    text: req.body.text,
-  });
-  // if (!arabicRegex.test(req.body.text)) {
-  //   throw ApiError.badRequest("Arabic Text only");
-  // }
-  const word = await wordAiService.processNewWord(req.body.text);
+  let text = req.body.text;
+  if (!arabicRegex.test(req.body.text)) {
+    text = await translateWord(text);
+    console.log({ ai: "ai generated" });
+  }
+
+  const word = await wordAiService.processNewWord(text);
   sendSuccess(res, 201, "Word generated", word);
 });
