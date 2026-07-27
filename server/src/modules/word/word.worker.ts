@@ -29,15 +29,9 @@ export const wordWorker = new Worker(
       categoryBn: aiData.categoryBn,
     });
     const { prisma } = await import("@/config/database.js");
-
-    const update = await prisma.arabicText.update({
-      where: { id: word.arabicId },
-      data: { text: aiData.text },
-    });
     await prisma.$transaction([
       prisma.wordCategory.deleteMany({ where: { wordId: word.id } }),
       prisma.wordCategory.create({ data: { wordId: word.id, categoryId } }),
-
       prisma.word.update({
         where: { id: word.id },
         data: {
