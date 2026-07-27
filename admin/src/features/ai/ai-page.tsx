@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useMutation } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import {
   BookOpen,
   Loader2,
@@ -42,7 +43,13 @@ export function AiPage() {
       );
       setText("");
     },
-    onError: () => toast.error("Generation failed. Please try again."),
+    onError: (e) => {
+      const message =
+        e instanceof AxiosError
+          ? (e.response?.data?.message ?? "Generation failed. Please try again.")
+          : "Generation failed. Please try again.";
+      toast.error(message);
+    },
   });
 
   function submit(event: FormEvent<HTMLFormElement>) {

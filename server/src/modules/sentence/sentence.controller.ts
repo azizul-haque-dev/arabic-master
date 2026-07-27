@@ -8,7 +8,7 @@ export const list = asyncHandler(async (req: Request, res: Response) => {
   const query = (req as Request & { validatedQuery: ListSentencesQuery })
     .validatedQuery;
   const { items, meta } = await sentenceService.list(query);
-  sendSuccess(res, 200, "Sentences fetched", items, meta);
+  sendSuccess(res, 200, "Sentences fetched", { items, meta });
 });
 
 export const getOne = asyncHandler(async (req: Request, res: Response) => {

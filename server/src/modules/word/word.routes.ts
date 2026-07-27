@@ -3,6 +3,7 @@ import { requireAuth } from "../../middlewares/auth.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import * as controller from "./word.controller.js";
 import {
+  arabicTextSchema,
   createWordSchema,
   listWordsQuerySchema,
   updateWordSchema,
@@ -25,7 +26,12 @@ router.post(
   validate({ body: createWordSchema }),
   controller.create,
 );
-router.post("/ai", requireAuth, controller.processWord);
+router.post(
+  "/ai",
+  validate({ body: arabicTextSchema }),
+  requireAuth,
+  controller.processWord,
+);
 router.patch(
   "/:id",
   requireAuth,

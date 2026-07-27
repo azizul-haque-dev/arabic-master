@@ -1,6 +1,6 @@
 import type { PaginatedResult } from "@/features/words/api";
 import { api } from "@/lib/axios";
-import type { ApiResponse, Sentence, Status } from "@/types";
+import type { ApiResponse, PaginatedData, Sentence, Status } from "@/types";
 
 export interface ListSentencesParams {
   page?: number;
@@ -13,10 +13,10 @@ export interface ListSentencesParams {
 export async function fetchSentences(
   params: ListSentencesParams,
 ): Promise<PaginatedResult<Sentence>> {
-  const { data } = await api.get<ApiResponse<Sentence[]>>("/sentences", {
+  const { data } = await api.get<ApiResponse<PaginatedData<Sentence>>>("/sentences", {
     params,
   });
-  return { items: data.data, meta: data.meta! };
+  return data.data;
 }
 
 export interface SentenceWordInput {

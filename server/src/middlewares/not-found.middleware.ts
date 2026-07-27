@@ -1,9 +1,7 @@
 // Catches any request that didn't match a route.
 import { Request, Response } from "express";
+import { sendError } from "../utils/api-response.js";
 
 export function notFoundHandler(req: Request, res: Response) {
-  res.status(404).json({
-    success: false,
-    message: `Route ${req.method} ${req.originalUrl} not found`,
-  });
+  return sendError(res, 404, `Route ${req.method} ${req.originalUrl} not found`);
 }

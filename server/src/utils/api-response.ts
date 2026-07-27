@@ -1,26 +1,27 @@
-// Small helper to keep every success response in the same shape:
-// { success, message, data, meta }. Consistency here makes the
-// frontend's response handling trivial.
+// Successful API responses always use one envelope. `data` is omitted when
+// an action has no payload.
 import { Response } from "express";
 
-interface Meta {
+export interface PaginationMeta {
   page?: number;
   limit?: number;
   total?: number;
   totalPages?: number;
 }
 
-export function sendSuccess(
+export function sendSuccess<T>(
   res: Response,
   statusCode: number,
   message: string,
-  data: unknown = null,
-  meta?: Meta
+  data?: T,
 ) {
   return res.status(statusCode).json({
     success: true,
     message,
-    data,
-    ...(meta ? { meta } : {}),
+    ...(data !== undefined ? { data } : {}),
   });
+}
+
+export function sendError(res: Response, statusCode: number, message: string) {
+  return res.status(statusCode).json({ success: false, message });
 }

@@ -64,15 +64,41 @@ export interface Sentence {
   updatedAt: string;
 }
 
-// Matches the { success, message, data, meta } envelope every endpoint returns.
+// Successful responses always have this shape. Endpoints with no payload omit
+// the `data` key; endpoints typed with ApiResponse<T> always return it.
 export interface ApiResponse<T> {
-  success: boolean;
+  success: true;
   message: string;
   data: T;
-  meta?: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
+}
+
+export interface ApiSuccessResponse {
+  success: true;
+  message: string;
+  data?: unknown;
+}
+
+export interface ApiErrorResponse {
+  success: false;
+  message: string;
+}
+
+export type ApiEnvelope<T = unknown> = ApiResponse<T> | ApiErrorResponse;
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface PaginatedData<T> {
+  items: T[];
+  meta: PaginationMeta;
+}
+
+export interface ApiResponseWithOptionalData<T = unknown> {
+  success: true;
+  message: string;
+  data?: T;
 }

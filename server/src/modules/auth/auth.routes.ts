@@ -3,6 +3,7 @@ import passport from "passport";
 import { requireAuth } from "../../middlewares/auth.middleware.js";
 import { authLimiter } from "../../middlewares/rate-limit.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
+import { sendError } from "../../utils/api-response.js";
 import * as controller from "./auth.controller.js";
 import {
   forgotPasswordSchema,
@@ -62,10 +63,8 @@ router.get(
   }),
   controller.googleCallback,
 );
-router.get("/google/failure", (_req, res) => {
-  res
-    .status(401)
-    .json({ success: false, message: "Google authentication failed" });
-});
+router.get("/google/failure", (_req, res) =>
+  sendError(res, 401, "Google authentication failed"),
+);
 
 export default router;
