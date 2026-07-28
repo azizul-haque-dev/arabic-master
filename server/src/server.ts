@@ -8,6 +8,13 @@ import { logger } from "./config/logger.js";
 async function bootstrap() {
   await connectDatabase();
 
+  // Local development is more convenient with the HTTP API and BullMQ
+  // consumers in one process. Production keeps workers in a separate Render
+  // Background Worker service, so API replicas never consume jobs.
+
+  await import("./worker.js");
+  logger.info("Background workers started in development mode");
+
   const app = createApp();
   const server = app.listen(env.PORT, () => {
     logger.info(`Server listening on port ${env.PORT} [${env.NODE_ENV}]`);

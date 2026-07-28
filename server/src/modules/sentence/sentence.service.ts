@@ -2,6 +2,13 @@ import { Prisma } from "@/generated/prisma/client.js";
 import { cleanTextAndSpaces } from "@/utils/utils.js";
 import { prisma } from "../../config/database.js";
 import { ApiError } from "../../utils/api-error.js";
+import {
+  cacheGet,
+  cacheKey,
+  cacheNamespaces,
+  cacheSet,
+  invalidateCacheNamespace,
+} from "../../utils/cache.js";
 import { aiSententceService } from "../ai/sentence/ai.sentence.services.js";
 import { createWordViaAi } from "../ai/word/word.services.js";
 import { enQueueSentenceProcessing } from "./sentence.queue.js";
@@ -30,7 +37,16 @@ function present(sentence: SentenceWithRelations) {
   };
 }
 
+type SentenceListResult = {
+  items: ReturnType<typeof present>[];
+  meta: { page: number; limit: number; total: number; totalPages: number };
+};
+
 export async function list(query: ListSentencesQuery) {
+  const key = cacheKey(cacheNamespaces.sentences, query);
+  const cached = await cacheGet<SentenceListResult>(key);
+  if (cached) return cached;
+
   const { page, limit, status, categoryId, search } = query;
 
   const where: Prisma.SentenceWhereInput = {
@@ -58,7 +74,7 @@ export async function list(query: ListSentencesQuery) {
     prisma.sentence.count({ where }),
   ]);
 
-  return {
+  const result: SentenceListResult = {
     items: items.map(present),
     meta: {
       page,
@@ -67,6 +83,8 @@ export async function list(query: ListSentencesQuery) {
       totalPages: Math.max(1, Math.ceil(total / limit)),
     },
   };
+  await cacheSet(key, result, 60);
+  return result;
 }
 
 export async function getById(id: string) {
@@ -100,7 +118,9 @@ export async function create(input: SentenceInput) {
     include: SENTENCE_INCLUDE,
   });
 
-  return present(sentence);
+  const result = present(sentence);
+  await invalidateCacheNamespace(cacheNamespaces.sentences);
+  return result;
 }
 
 export async function update(id: string, input: Partial<SentenceInput>) {
@@ -134,7 +154,9 @@ export async function update(id: string, input: Partial<SentenceInput>) {
     include: SENTENCE_INCLUDE,
   });
 
-  return present(sentence);
+  const result = present(sentence);
+  await invalidateCacheNamespace(cacheNamespaces.sentences);
+  return result;
 }
 
 export async function remove(id: string): Promise<void> {
@@ -143,6 +165,7 @@ export async function remove(id: string): Promise<void> {
 
   // Cascades to Sentence + its category/word links via ArabicText's onDelete.
   await prisma.arabicText.delete({ where: { id: sentence.arabicId } });
+  await invalidateCacheNamespace(cacheNamespaces.sentences);
 }
 
 export async function getOrCreateWord(arabicText: string) {
@@ -220,6 +243,7 @@ export async function processNewSentence(input: string) {
   // 3. Create a pending sentence record in the database
 
   const sentence = await aiSententceService.createPendingSentence(input);
+  await invalidateCacheNamespace(cacheNamespaces.sentences);
 
   // 4. Dispatch the job to the background queue for asynchronous processing
   await enQueueSentenceProcessing(sentence.id);

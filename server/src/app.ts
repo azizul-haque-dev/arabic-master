@@ -23,6 +23,13 @@ export function createApp(): Express {
   // and rate limiting see the real client IP instead of the proxy's.
   app.set("trust proxy", 1);
 
+  // Admin API responses can contain private data. Redis handles server-side
+  // caching, while browsers and intermediary proxies must not store it.
+  app.use((_req, res, next) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    next();
+  });
+
   app.use(helmet());
   app.use(
     cors({

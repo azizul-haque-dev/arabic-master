@@ -1,6 +1,13 @@
 import { Prisma } from "@/generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
 import { ApiError } from "../../utils/api-error.js";
+import {
+  cacheGet,
+  cacheKey,
+  cacheNamespaces,
+  cacheSet,
+  invalidateCacheNamespace,
+} from "../../utils/cache.js";
 import { ListWordsQuery, WordInput } from "./word.validation.js";
 
 // Shared include so every response returns the Arabic text + categories
@@ -19,7 +26,16 @@ function present(
   return { ...rest, categories: categories.map((c) => c.category) };
 }
 
+type WordListResult = {
+  items: ReturnType<typeof present>[];
+  meta: { page: number; limit: number; total: number; totalPages: number };
+};
+
 export async function list(query: ListWordsQuery) {
+  const key = cacheKey(cacheNamespaces.words, query);
+  const cached = await cacheGet<WordListResult>(key);
+  if (cached) return cached;
+
   const { page, limit, status, categoryId, search } = query;
 
   const where: Prisma.WordWhereInput = {
@@ -57,7 +73,7 @@ export async function list(query: ListWordsQuery) {
     }),
     prisma.word.count({ where }),
   ]);
-  return {
+  const result: WordListResult = {
     items: items.map(present),
     meta: {
       page,
@@ -66,6 +82,8 @@ export async function list(query: ListWordsQuery) {
       totalPages: Math.max(1, Math.ceil(total / limit)),
     },
   };
+  await cacheSet(key, result, 60);
+  return result;
 }
 
 export async function getById(id: string) {
@@ -98,7 +116,9 @@ export async function create(input: WordInput) {
     include: WORD_INCLUDE,
   });
 
-  return present(word);
+  const result = present(word);
+  await invalidateCacheNamespace(cacheNamespaces.words);
+  return result;
 }
 
 export async function update(id: string, input: Partial<WordInput>) {
@@ -132,7 +152,9 @@ export async function update(id: string, input: Partial<WordInput>) {
     include: WORD_INCLUDE,
   });
 
-  return present(word);
+  const result = present(word);
+  await invalidateCacheNamespace(cacheNamespaces.words);
+  return result;
 }
 
 export async function remove(id: string): Promise<void> {
@@ -141,4 +163,5 @@ export async function remove(id: string): Promise<void> {
 
   // Deleting the ArabicText cascades to Word and its category links.
   await prisma.arabicText.delete({ where: { id: word.arabicId } });
+  await invalidateCacheNamespace(cacheNamespaces.words);
 }
