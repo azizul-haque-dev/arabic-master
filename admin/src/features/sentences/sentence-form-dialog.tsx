@@ -1,42 +1,86 @@
-import { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { AxiosError } from "axios";
+import { CategoryMultiSelect } from "@/components/category-multi-select";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { CategoryMultiSelect } from "@/components/category-multi-select";
-import { WordPickerRows } from "./word-picker-rows";
-import { createSentence, updateSentence } from "./api";
+import { Textarea } from "@/components/ui/textarea";
 import type { Sentence } from "@/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { createSentence, updateSentence } from "./api";
+import { WordPickerRows } from "./word-picker-rows";
 
 const sentenceSchema = z.object({
   text: z.string().trim().min(1, "Arabic text is required"),
-  audioUrl: z.string().trim().url("Must be a valid URL").optional().or(z.literal("")),
+  audioUrl: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .optional()
+    .or(z.literal("")),
   pronunciationEn: z.string().trim().min(1, "Required"),
   pronunciationBn: z.string().trim().min(1, "Required"),
   meaningEn: z.string().trim().min(1, "Required"),
   meaningBn: z.string().trim().min(1, "Required"),
   whenToUseEn: z.string().trim().optional(),
   whenToUseBn: z.string().trim().optional(),
-  status: z.enum(["DRAFT", "PUBLISHED", "ACTIVE", "DISABLED"]),
+  status: z.enum([
+    "DRAFT",
+    "PUBLISHED",
+    "ACTIVE",
+    "DISABLED",
+    "PENDING",
+    "PROCESSING",
+    "COMPLETED",
+    "FAILED",
+  ]),
   categoryIds: z.array(z.string()).default([]),
-  words: z.array(z.object({ wordId: z.string().min(1, "Choose a word"), position: z.number().int().nonnegative() })).default([]),
+  words: z
+    .array(
+      z.object({
+        wordId: z.string().min(1, "Choose a word"),
+        position: z.number().int().nonnegative(),
+      }),
+    )
+    .min(1, "At least one word is required")
+    .superRefine((words, ctx) => {
+      const ids = words.map((w) => w.wordId);
+      const duplicates = ids.filter((id, i) => ids.indexOf(id) !== i);
+      if (duplicates.length > 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Duplicate word in sentence",
+        });
+      }
+    }),
 });
 
 export type SentenceValues = z.infer<typeof sentenceSchema>;
@@ -47,9 +91,15 @@ interface SentenceFormDialogProps {
   sentence?: Sentence | null;
 }
 
-export function SentenceFormDialog({ open, onOpenChange, sentence }: SentenceFormDialogProps) {
+export function SentenceFormDialog({
+  open,
+  onOpenChange,
+  sentence,
+}: SentenceFormDialogProps) {
+  console.log("render");
   const queryClient = useQueryClient();
   const isEditing = Boolean(sentence);
+  console.log(isEditing);
 
   const form = useForm<SentenceValues>({
     resolver: zodResolver(sentenceSchema),
@@ -65,6 +115,7 @@ export function SentenceFormDialog({ open, onOpenChange, sentence }: SentenceFor
     },
   });
 
+  // useEffect dependency ঠিক করা — object reference না, শুধু id দিয়ে
   useEffect(() => {
     if (open) {
       form.reset({
@@ -78,15 +129,27 @@ export function SentenceFormDialog({ open, onOpenChange, sentence }: SentenceFor
         whenToUseBn: sentence?.whenToUseBn ?? "",
         status: sentence?.status ?? "DRAFT",
         categoryIds: sentence?.categories.map((c) => c.id) ?? [],
-        words: sentence?.words.map((w) => ({ wordId: w.id, position: w.position })) ?? [],
+        words:
+          sentence?.words
+            .sort((a, b) => a.position - b.position)
+            .map((w, i) => ({ wordId: w.id, position: i })) ?? [],
       });
     }
-  }, [open, sentence, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, sentence?.id]);
 
+  // submit-এর আগে position সবসময় array order থেকে re-derive —
+  // drag/move যাই হোক, final payload-এ সবসময় sequential 0,1,2... থাকবে
   const mutation = useMutation({
     mutationFn: (values: SentenceValues) => {
-      const payload = { ...values, audioUrl: values.audioUrl || undefined };
-      return isEditing ? updateSentence(sentence!.id, payload) : createSentence(payload);
+      const payload = {
+        ...values,
+        audioUrl: values.audioUrl || undefined,
+        words: values.words.map((w, i) => ({ ...w, position: i })),
+      };
+      return isEditing
+        ? updateSentence(sentence!.id, payload)
+        : createSentence(payload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sentences"] });
@@ -94,7 +157,11 @@ export function SentenceFormDialog({ open, onOpenChange, sentence }: SentenceFor
       onOpenChange(false);
     },
     onError: (err) => {
-      const message = err instanceof AxiosError ? err.response?.data?.message ?? "Something went wrong" : "Something went wrong";
+      console.log({ err });
+      const message =
+        err instanceof AxiosError
+          ? (err.response?.data?.message ?? "Something went wrong")
+          : "Something went wrong";
       toast.error(message);
     },
   });
@@ -103,12 +170,20 @@ export function SentenceFormDialog({ open, onOpenChange, sentence }: SentenceFor
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit sentence" : "New sentence"}</DialogTitle>
-          <DialogDescription>A full Arabic sentence with its translation, usage notes and constituent words.</DialogDescription>
+          <DialogTitle>
+            {isEditing ? "Edit sentence" : "New sentence"}
+          </DialogTitle>
+          <DialogDescription>
+            A full Arabic sentence with its translation, usage notes and
+            constituent words.
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="text"
@@ -116,7 +191,11 @@ export function SentenceFormDialog({ open, onOpenChange, sentence }: SentenceFor
                 <FormItem>
                   <FormLabel>Arabic text</FormLabel>
                   <FormControl>
-                    <Input className="arabic-text text-lg" placeholder="أنا أحب القراءة" {...field} />
+                    <Input
+                      className="arabic-text text-lg"
+                      placeholder="أنا أحب القراءة"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -249,7 +328,12 @@ export function SentenceFormDialog({ open, onOpenChange, sentence }: SentenceFor
                 <Controller
                   control={form.control}
                   name="categoryIds"
-                  render={({ field }) => <CategoryMultiSelect value={field.value} onChange={field.onChange} />}
+                  render={({ field }) => (
+                    <CategoryMultiSelect
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  )}
                 />
               </div>
             </div>
@@ -258,13 +342,25 @@ export function SentenceFormDialog({ open, onOpenChange, sentence }: SentenceFor
 
             <div className="space-y-1.5">
               <Label>Words in this sentence (in order)</Label>
-              <WordPickerRows control={form.control} />
+              <WordPickerRows
+                control={form.control}
+                existingWords={sentence?.words ?? []}
+              />
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
                 Cancel
               </Button>
+              {Object.keys(form.formState.errors).length > 0 && (
+                <pre className="text-xs text-red-500">
+                  {JSON.stringify(form.formState.errors, null, 2)}
+                </pre>
+              )}
               <Button type="submit" disabled={mutation.isPending}>
                 {mutation.isPending ? "Saving…" : "Save"}
               </Button>

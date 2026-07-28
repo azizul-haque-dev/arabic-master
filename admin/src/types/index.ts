@@ -1,7 +1,15 @@
 // Shared shapes mirroring the API's response payloads. Kept intentionally
 // close to the Prisma models so the admin UI stays a thin layer over them.
 
-export type Status = "DRAFT" | "PUBLISHED" | "ACTIVE" | "DISABLED";
+export type Status =
+  | "DRAFT"
+  | "PUBLISHED"
+  | "ACTIVE"
+  | "DISABLED"
+  | "PENDING"
+  | "PROCESSING"
+  | "COMPLETED"
+  | "FAILED";
 
 export interface User {
   id: string;
