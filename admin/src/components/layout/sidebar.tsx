@@ -1,10 +1,10 @@
 import { cn } from "@/lib/utils";
 import {
   BookText,
-  Sparkles,
   FileHeadphone,
   LayoutGrid,
   MessageSquareText,
+  Sparkles,
   Tags,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
