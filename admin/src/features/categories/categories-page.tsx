@@ -80,10 +80,10 @@ export function CategoriesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {categories.map((category) => (
+              {categories.map((category, index) => (
                 <TableRow key={category.id}>
                   <TableCell className="font-medium text-ink">
-                    {category.nameEn}
+                    {category.nameEn} and {index + 1}
                   </TableCell>
                   <TableCell>{category.nameBn}</TableCell>
                   <TableCell className="text-right">

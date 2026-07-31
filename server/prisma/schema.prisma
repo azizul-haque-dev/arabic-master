@@ -34,7 +34,7 @@ enum SentenceStatus {
   PUBLISHED
   ACTIVE
   DISABLED
-  
+ 
 }
 
 // ─── Auth ──────────────────────────────────────────────
@@ -159,7 +159,6 @@ model Category {
   id     String @id @default(cuid())
   nameEn String @map("name_en")
   nameBn String? @map("name_bn")
-
   words     WordCategory[]
   sentences SentenceCategory[]
 

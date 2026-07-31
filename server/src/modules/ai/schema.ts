@@ -1,18 +1,11 @@
 import z from "zod";
+import { categoryBnValues, categoryEnValues } from "./helper.js";
 
 export const AIResponseSchema = z.object({
   text: z.string().describe("The exact Arabic word or expression"),
 
-  categoryBn: z
-    .string()
-    .describe(
-      "The category of the word in Bangla (e.g., অভিবাদন, খাদ্য, ব্যবসা)",
-    ),
-  categoryEn: z
-    .string()
-    .describe(
-      "The category of the word in English (e.g., Greetings, Food, Business)",
-    ),
+  categoryBn: z.enum(categoryBnValues),
+  categoryEn: z.enum(categoryEnValues),
 
   meaningBn: z
     .string()
