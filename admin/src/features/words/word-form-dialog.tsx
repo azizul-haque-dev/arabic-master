@@ -100,7 +100,7 @@ export function WordFormDialog({
         whenToUseBn: word?.whenToUseBn ?? "",
         pronunciationEn: word?.pronunciationEn ?? "",
         pronunciationBn: word?.pronunciationBn ?? "",
-        status: word?.status ?? "DRAFT",
+        status: (word?.status as WordValues["status"]) ?? "DRAFT",
         categoryIds: word?.categories.map((c) => c.id) ?? [],
       });
     }

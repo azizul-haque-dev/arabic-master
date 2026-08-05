@@ -9,6 +9,10 @@ const STATUS_STYLES: Record<
   PUBLISHED: { label: "Published", variant: "default" },
   ACTIVE: { label: "Active", variant: "default" },
   DISABLED: { label: "Disabled", variant: "destructive" },
+  PENDING: { label: "Pending", variant: "warning" },
+  PROCESSING: { label: "Processing", variant: "warning" },
+  COMPLETED: { label: "Completed", variant: "default" },
+  FAILED: { label: "Failed", variant: "destructive" },
 };
 
 export function StatusBadge({ status }: { status: Status }) {
