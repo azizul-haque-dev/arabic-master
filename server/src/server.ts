@@ -1,7 +1,6 @@
 // Entry point: boots the HTTP server and wires up graceful shutdown so
 // in-flight requests finish and DB connections close cleanly on deploy/restart.
 import { createApp } from "./app.js";
-import { main } from "./categorySeed.js";
 import { connectDatabase, disconnectDatabase } from "./config/database.js";
 import { env } from "./config/env.js";
 import { logger } from "./config/logger.js";
@@ -18,7 +17,6 @@ async function bootstrap() {
 
   const app = createApp();
   const server = app.listen(env.PORT, async () => {
-    main().then((res) => console.log("category has been seeded successfully"));
     logger.info(`Server listening on port ${env.PORT} [${env.NODE_ENV}]`);
   });
 
