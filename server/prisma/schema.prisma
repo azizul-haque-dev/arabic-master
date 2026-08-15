@@ -183,13 +183,17 @@ model Sentence {
 
   whenToUseEn String? @map("when_to_use_en") @db.Text
   whenToUseBn String? @map("when_to_use_bn") @db.Text
-  feminineBn  String? @map("feminine_bn") @db.Text
-  feminineEn  String? @map("feminine_En") @db.Text
-  status      SentenceStatus  @default(DRAFT)
+  feminineBn String? @map("feminine_bn") @db.Text
+  feminineEn String? @map("feminine_En") @db.Text
+
+  status SentenceStatus @default(DRAFT)
   errorMessage String?
 
-  words      SentenceWord[]
+  words SentenceWord[]
   categories SentenceCategory[]
+
+  // conversation related
+  conversationLines ConversationLine[]
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
