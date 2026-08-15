@@ -239,3 +239,76 @@ model SentenceWord {
   @@index([wordId])
   @@map("sentence_words")
 }
+
+model Topic {
+  id  String  @id  @default(cuid())
+
+  titleEn  String  @map("title_en")
+  titleBn  String? @map("title_bn")
+
+  conversations  TopicConversation[]
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  
+  @@unique([titleEn])
+  @@map("topics")
+}
+
+
+model TopicConversation{
+  id  String @id @default(cuid())
+  topicId String @map("topic_id")
+  topic Topic @relation(fields:[topicId],references:[id],onDelete:Cascade)
+
+  titleEn  String  @map("title_en")
+  titleBn  String? @map("title_bn")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+
+@@index([topicId])
+@@map("topic_conversations")
+}
+
+model Conversation{
+    id  String @id @default(cuid())
+
+    topicConversationId String @map("topic_conversation_id")
+    topicConversation TopicConversation @relation(fields:[topicConversationId],references:[id],onDelete:Cascade)
+
+    lines  ConversationLine[]
+
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+    @@index([topicId])
+    @@map("topicConversationId")
+}
+
+model ConversationLine{
+
+  id  String @id @default(cuid())
+  conversationId String @map("conversation_id")
+
+  conversation Conversation @relation(fields:[conversationId],references:[id],onDelete:Cascade)
+
+  meaningBn  String? @map("meaning_bn")
+  meaningEn  String? @map("meaning_en")
+
+  sentenceId String @map("sentence_id")
+  sentence Sentence @relation(fields:[sentenceId],references:[id],onDelete:Cascade)
+
+  speaker String @db.VarChar(50)
+  position Int
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([conversationId,position])
+
+  @@index([sentenceId])
+  @@map("conversation_line")
+
+}
