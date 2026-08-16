@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const ALLOWED_CATEGORIES = `
+/*
 Allowed Categories (MUST use ONLY one of these):
 
 1. Greetings & Introductions
@@ -39,7 +39,7 @@ Allowed Categories (MUST use ONLY one of these):
 34. Quantity & Counting
 35. Storytelling & Conversation Flow
 36. High-Frequency Mixed Vocabulary & Sentences
-`;
+*/
 
 export const createCategorySchema = z.object({
   nameEn: z.string().trim().toLowerCase().min(1).max(120),
