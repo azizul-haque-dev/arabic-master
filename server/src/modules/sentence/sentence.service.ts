@@ -1,4 +1,5 @@
 import { Prisma } from "@/generated/prisma/client.js";
+import { CACHE_TTL } from "@/shared/constants.js";
 import { cleanTextAndSpaces } from "@/utils/text.js";
 import { ApiError } from "@/lib/api-error.js";
 import {
@@ -58,7 +59,7 @@ export async function list(query: ListSentencesQuery) {
       totalPages: Math.max(1, Math.ceil(total / limit)),
     },
   };
-  await cacheSet(key, result, 60);
+  await cacheSet(key, result, CACHE_TTL.SENTENCES);
   return result;
 }
 

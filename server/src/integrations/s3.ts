@@ -4,6 +4,7 @@
  */
 
 import { env } from "@/config/env.js";
+import { S3 } from "@/shared/constants.js";
 import {
   DeleteObjectCommand,
   PutObjectCommand,
@@ -69,7 +70,7 @@ export async function uploadFile(
       Key: key,
       Body: file.buffer,
       ContentType: file.mimetype,
-      CacheControl: "public, max-age=31536000, immutable",
+      CacheControl: `public, max-age=${S3.CACHE_MAX_AGE_S}, immutable`,
     }),
   );
 

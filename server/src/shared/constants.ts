@@ -12,6 +12,12 @@ export const TOKEN_EXPIRY = {
   VERIFY_EMAIL: "1d" as const, // Email verification token (alternative format)
 } as const;
 
+// === Token Expiry (in milliseconds) ===
+export const TOKEN_EXPIRY_MS = {
+  ACCESS_TOKEN: 15 * 60 * 1000,          // 15m
+  REFRESH_TOKEN: 7 * 24 * 60 * 60 * 1000, // 7d
+} as const;
+
 // === Cache TTLs (in seconds) ===
 export const CACHE_TTL = {
   CATEGORIES: 3600, // 1 hour
@@ -39,7 +45,7 @@ export const RATE_LIMITS = {
 // === File Upload ===
 export const UPLOAD_LIMITS = {
   MAX_FILE_SIZE: 10 * 1024 * 1024, // 10 MB
-  ALLOWED_AUDIO_TYPES: ["audio/mpeg", "audio/wav", "audio/ogg", "audio/webm"],
+  ALLOWED_AUDIO_TYPES: ["audio/mpeg", "audio/mp3", "audio/wav", "audio/ogg", "audio/webm"],
 } as const;
 
 // === Validation Constraints ===
@@ -78,10 +84,22 @@ export const AI_PROCESSING = {
   QUEUE_RETRY_DELAY_MS: 5000,
   QUEUE_TIMEOUT_MS: 60000, // 1 minute
   BATCH_SIZE: 10,
+  QUEUE_JOB_CLEANUP_COMPLETE_S: 3600, // 1 hour
+  QUEUE_JOB_CLEANUP_FAIL_S: 86400, // 24 hours
 } as const;
 
 // === HTTP ===
 export const HTTP = {
   REQUEST_TIMEOUT_MS: 30000, // 30 seconds
   MAX_REQUEST_SIZE: "1mb" as const,
+} as const;
+
+// === Auth Config ===
+export const AUTH = {
+  TOKEN_BYTES: 32,
+} as const;
+
+// === S3 Storage ===
+export const S3 = {
+  CACHE_MAX_AGE_S: 31536000, // 1 year
 } as const;

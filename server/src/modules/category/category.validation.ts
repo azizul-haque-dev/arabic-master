@@ -1,3 +1,4 @@
+import { VALIDATION } from "@/shared/constants.js";
 import { z } from "zod";
 
 /*
@@ -42,8 +43,8 @@ Allowed Categories (MUST use ONLY one of these):
 */
 
 export const createCategorySchema = z.object({
-  nameEn: z.string().trim().toLowerCase().min(1).max(120),
-  nameBn: z.string().trim().toLowerCase().min(1).max(120),
+  nameEn: z.string().trim().toLowerCase().min(VALIDATION.CATEGORY_NAME.MIN_LENGTH).max(VALIDATION.CATEGORY_NAME.MAX_LENGTH),
+  nameBn: z.string().trim().toLowerCase().min(VALIDATION.CATEGORY_NAME.MIN_LENGTH).max(VALIDATION.CATEGORY_NAME.MAX_LENGTH),
 });
 
 export const updateCategorySchema = createCategorySchema.partial();

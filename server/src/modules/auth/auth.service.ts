@@ -14,7 +14,7 @@ import {
   hashToken,
   signAccessToken,
 } from "@/lib/jwt.js";
-import { TOKEN_EXPIRY } from "@/shared/constants.js";
+import { AUTH, TOKEN_EXPIRY } from "@/shared/constants.js";
 import { LoginInput, RegisterInput } from "./auth.validation.js";
 import { AuthRepository } from "./auth.repository.js";
 
@@ -105,7 +105,7 @@ async function sendVerificationEmail(
   email: string,
   name: string,
 ): Promise<void> {
-  const rawToken = crypto.randomBytes(32).toString("hex");
+  const rawToken = crypto.randomBytes(AUTH.TOKEN_BYTES).toString("hex");
 
   await AuthRepository.createVerifyToken({
     userId,
@@ -139,7 +139,7 @@ export async function forgotPassword(email: string): Promise<void> {
   // endpoint can't be used to enumerate registered emails.
   if (!user || user.provider !== "LOCAL") return;
 
-  const rawToken = crypto.randomBytes(32).toString("hex");
+  const rawToken = crypto.randomBytes(AUTH.TOKEN_BYTES).toString("hex");
 
   await AuthRepository.createResetToken({
     userId: user.id,

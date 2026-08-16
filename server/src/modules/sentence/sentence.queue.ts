@@ -1,21 +1,22 @@
 import { queueRedis } from "@/config/redis.js";
 import { Queue } from "bullmq";
+import { AI_PROCESSING } from "@/shared/constants.js";
 
 export const SENTENCE_QUEUE_NAME = "sentence-ai-processing";
 
 export const sentenceQueue = new Queue(SENTENCE_QUEUE_NAME, {
   connection: queueRedis,
   defaultJobOptions: {
-    attempts: 5,
+    attempts: AI_PROCESSING.QUEUE_RETRY_ATTEMPTS,
     backoff: {
       type: "exponential",
-      delay: 2000,
+      delay: AI_PROCESSING.QUEUE_RETRY_DELAY_MS,
     },
     removeOnComplete: {
-      age: 3600,
+      age: AI_PROCESSING.QUEUE_JOB_CLEANUP_COMPLETE_S,
     },
     removeOnFail: {
-      age: 86400,
+      age: AI_PROCESSING.QUEUE_JOB_CLEANUP_FAIL_S,
     },
   },
 });

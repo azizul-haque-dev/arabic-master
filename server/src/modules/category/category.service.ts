@@ -1,4 +1,5 @@
 import { ApiError } from "@/lib/api-error.js";
+import { CACHE_TTL } from "@/shared/constants.js";
 import {
   cacheGet,
   cacheKey,
@@ -15,7 +16,7 @@ export async function list() {
   if (cached) return cached;
 
   const categories = await CategoryRepository.findMany();
-  await cacheSet(key, categories, 600);
+  await cacheSet(key, categories, CACHE_TTL.CATEGORIES);
   return categories;
 }
 

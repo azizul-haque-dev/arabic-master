@@ -1,9 +1,10 @@
+import { VALIDATION } from "@/shared/constants.js";
 import { z } from "zod";
 
 export const registerSchema = z.object({
-  name: z.string().trim().min(2).max(120),
+  name: z.string().trim().min(VALIDATION.NAME.MIN_LENGTH).max(VALIDATION.NAME.MAX_LENGTH),
   email: z.string().trim().toLowerCase().email(),
-  password: z.string().min(8).max(72), // 72 is bcrypt/argon practical limit
+  password: z.string().min(VALIDATION.PASSWORD.MIN_LENGTH).max(VALIDATION.PASSWORD.MAX_LENGTH),
 });
 
 export const loginSchema = z.object({
@@ -21,7 +22,7 @@ export const forgotPasswordSchema = z.object({
 
 export const resetPasswordSchema = z.object({
   token: z.string().min(1),
-  password: z.string().min(8).max(72),
+  password: z.string().min(VALIDATION.PASSWORD.MIN_LENGTH).max(VALIDATION.PASSWORD.MAX_LENGTH),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;

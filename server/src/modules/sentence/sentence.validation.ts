@@ -1,3 +1,4 @@
+import { PAGINATION, VALIDATION } from "@/shared/constants.js";
 import { Status } from "@/generated/prisma/enums.js";
 import { z } from "zod";
 
@@ -8,7 +9,7 @@ const sentenceWordSchema = z.object({
 });
 
 export const createSentenceSchema = z.object({
-  text: z.string().trim().min(1, "Arabic text is required"),
+  text: z.string().trim().min(VALIDATION.ARABIC_TEXT.MIN_LENGTH, "Arabic text is required"),
   audioUrl: z.string().url().optional(),
 
   pronunciationEn: z.string().trim().min(1),
@@ -26,7 +27,7 @@ export const createSentenceSchema = z.object({
 export const updateSentenceSchema = createSentenceSchema.partial();
 
 export const generateSentenceSchema = z.object({
-  text: z.string().trim().min(1, "Arabic text is required"),
+  text: z.string().trim().min(VALIDATION.ARABIC_TEXT.MIN_LENGTH, "Arabic text is required"),
 });
 
 export const sentenceIdParamSchema = z.object({
@@ -34,8 +35,8 @@ export const sentenceIdParamSchema = z.object({
 });
 
 export const listSentencesQuerySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(20),
+  page: z.coerce.number().int().positive().default(PAGINATION.DEFAULT_PAGE),
+  limit: z.coerce.number().int().positive().max(PAGINATION.MAX_LIMIT).default(PAGINATION.DEFAULT_LIMIT),
   status: z.enum(Status).optional(),
   categoryId: z.string().optional(),
   search: z.string().trim().optional(),
