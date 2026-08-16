@@ -1,33 +1,20 @@
 import { Prisma } from "@/generated/prisma/client.js";
-import { prisma } from "../../config/database.js";
-import { ApiError } from "../../utils/api-error.js";
+import { ApiError } from "@/lib/api-error.js";
 import {
   cacheGet,
   cacheKey,
   cacheNamespaces,
   cacheSet,
   invalidateCacheNamespace,
-} from "../../utils/cache.js";
+} from "@/integrations/cache.js";
 import { ListWordsQuery, WordInput } from "./word.validation.js";
+import { WordRepository, presentWord } from "./word.repository.js";
 
-// Shared include so every response returns the Arabic text + categories
-// in a consistent shape, without repeating the same object everywhere.
-export const WORD_INCLUDE = {
-  arabic: true,
-  categories: { include: { category: true } },
-} satisfies Prisma.WordInclude;
-
-// Flattens the WordCategory join rows into a plain array of categories
-// so the API response doesn't leak the join-table shape to clients.
-function present(
-  word: Prisma.WordGetPayload<{ include: typeof WORD_INCLUDE }>,
-) {
-  const { categories, ...rest } = word;
-  return { ...rest, categories: categories.map((c) => c.category) };
-}
+// Re-export for controllers and other modules
+export { WORD_INCLUDE } from "./word.repository.js";
 
 type WordListResult = {
-  items: ReturnType<typeof present>[];
+  items: ReturnType<typeof presentWord>[];
   meta: { page: number; limit: number; total: number; totalPages: number };
 };
 
@@ -52,29 +39,13 @@ export async function list(query: ListWordsQuery) {
       : {}),
   };
 
-  // const [items, total] = await prisma.$transaction([
-  //   prisma.word.findMany({
-  //     where,
-  //     include: WORD_INCLUDE,
-  //     orderBy: { createdAt: "desc" },
-  //     skip: (page - 1) * limit,
-  //     take: limit,
-  //   }),
-  //   prisma.word.count({ where }),
-  // ]);
-
   const [items, total] = await Promise.all([
-    prisma.word.findMany({
-      where,
-      include: WORD_INCLUDE,
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * limit,
-      take: limit,
-    }),
-    prisma.word.count({ where }),
+    WordRepository.findMany(where, (page - 1) * limit, limit),
+    WordRepository.count(where),
   ]);
+
   const result: WordListResult = {
-    items: items.map(present),
+    items: items.map(presentWord),
     meta: {
       page,
       limit,
@@ -87,81 +58,39 @@ export async function list(query: ListWordsQuery) {
 }
 
 export async function getById(id: string) {
-  const word = await prisma.word.findUnique({
-    where: { id },
-    include: WORD_INCLUDE,
-  });
+  const word = await WordRepository.findById(id);
   if (!word) throw ApiError.notFound("Word not found");
-  return present(word);
+  return presentWord(word);
 }
 
 export async function create(input: WordInput) {
-  const { text, audioUrl, categoryIds, ...wordFields } = input;
+  const { text } = input;
 
-  const existingText = await prisma.arabicText.findUnique({ where: { text } });
+  const existingText = await WordRepository.findArabicTextByText(text);
   if (existingText) throw ApiError.conflict("This Arabic text already exists");
 
-  const word = await prisma.word.create({
-    data: {
-      ...wordFields,
-      arabic: { create: { text, audioUrl } },
-      ...(categoryIds?.length
-        ? {
-            categories: {
-              create: categoryIds.map((categoryId) => ({ categoryId })),
-            },
-          }
-        : {}),
-    },
-    include: WORD_INCLUDE,
-  });
+  const word = await WordRepository.create(input);
 
-  const result = present(word);
+  const result = presentWord(word as any);
   await invalidateCacheNamespace(cacheNamespaces.words);
   return result;
 }
 
 export async function update(id: string, input: Partial<WordInput>) {
-  const { text, audioUrl, categoryIds, ...wordFields } = input;
   await getById(id); // ensures 404 before attempting the update
 
-  const word = await prisma.word.update({
-    where: { id },
-    data: {
-      ...wordFields,
-      ...(text || audioUrl
-        ? {
-            arabic: {
-              update: {
-                ...(text ? { text } : {}),
-                ...(audioUrl ? { audioUrl } : {}),
-              },
-            },
-          }
-        : {}),
-      // Replacing category links: drop the old set, attach the new one.
-      ...(categoryIds
-        ? {
-            categories: {
-              deleteMany: {},
-              create: categoryIds.map((categoryId) => ({ categoryId })),
-            },
-          }
-        : {}),
-    },
-    include: WORD_INCLUDE,
-  });
+  const word = await WordRepository.update(id, input);
 
-  const result = present(word);
+  const result = presentWord(word);
   await invalidateCacheNamespace(cacheNamespaces.words);
   return result;
 }
 
 export async function remove(id: string): Promise<void> {
-  const word = await prisma.word.findUnique({ where: { id } });
+  const word = await WordRepository.findById(id);
   if (!word) throw ApiError.notFound("Word not found");
 
   // Deleting the ArabicText cascades to Word and its category links.
-  await prisma.arabicText.delete({ where: { id: word.arabicId } });
+  await WordRepository.delete(id);
   await invalidateCacheNamespace(cacheNamespaces.words);
 }

@@ -2,12 +2,12 @@
 // return a URL to be attached to a Word/Sentence's audioUrl field.
 
 import { prisma } from "@/config/database.js";
-import { sendSuccess } from "@/utils/api-response.js";
-import { deleteFile, uploadFile, UploadFileResult } from "@/utils/s3.js";
+import { sendSuccess } from "@/lib/api-response.js";
+import { deleteFile, uploadFile, UploadFileResult } from "@/integrations/s3.js";
 import { Request, Response, Router } from "express";
 import { uploadAudio } from "../../middlewares/upload.middleware.js";
-import { ApiError } from "../../utils/api-error.js";
-import { asyncHandler } from "../../utils/async-handler.js";
+import { ApiError } from "@/lib/api-error.js";
+import { asyncHandler } from "@/lib/async-handler.js";
 
 const router = Router();
 

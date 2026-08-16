@@ -1,8 +1,9 @@
 import { CookieOptions, Request, Response } from "express";
 import { env, isProd } from "../../config/env.js";
-import { ApiError } from "../../utils/api-error.js";
-import { sendSuccess } from "../../utils/api-response.js";
-import { asyncHandler } from "../../utils/async-handler.js";
+import { ApiError } from "@/lib/api-error.js";
+import { sendSuccess } from "@/lib/api-response.js";
+import { asyncHandler } from "@/lib/async-handler.js";
+import { TOKEN_EXPIRY_MS } from "@/shared/constants.js";
 import * as authService from "./auth.service.js";
 
 const REFRESH_COOKIE_NAME = "refreshToken";
@@ -24,11 +25,11 @@ const baseCookieOptions: CookieOptions = {
 
 const refreshCookieOptions: CookieOptions = {
   ...baseCookieOptions,
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+  maxAge: TOKEN_EXPIRY_MS.REFRESH_TOKEN,
 };
 const accessCookieOptions: CookieOptions = {
   ...baseCookieOptions,
-  maxAge: 15 * 60 * 1000,
+  maxAge: TOKEN_EXPIRY_MS.ACCESS_TOKEN,
 };
 
 function setRefreshCookie(res: Response, token: string) {

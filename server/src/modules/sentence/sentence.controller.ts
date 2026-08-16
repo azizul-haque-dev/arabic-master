@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { sendSuccess } from "../../utils/api-response.js";
-import { asyncHandler } from "../../utils/async-handler.js";
+import { sendSuccess } from "@/lib/api-response.js";
+import { asyncHandler } from "@/lib/async-handler.js";
 import { translateWord } from "../ai/generateContent.js";
 import * as sentenceService from "./sentence.service.js";
 import { ListSentencesQuery } from "./sentence.validation.js";

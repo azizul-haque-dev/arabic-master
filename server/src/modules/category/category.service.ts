@@ -1,32 +1,32 @@
-import { prisma } from "@/config/database.js";
-import { ApiError } from "@/utils/api-error.js";
+import { ApiError } from "@/lib/api-error.js";
 import {
   cacheGet,
   cacheKey,
   cacheNamespaces,
   cacheSet,
   invalidateCacheNamespace,
-} from "@/utils/cache.js";
+} from "@/integrations/cache.js";
 import { createCategorySchema } from "./category.validation.js";
+import { CategoryRepository } from "./category.repository.js";
 
 export async function list() {
   const key = cacheKey(cacheNamespaces.categories);
-  const cached = await cacheGet<Awaited<ReturnType<typeof prisma.category.findMany>>>(key);
+  const cached = await cacheGet<Awaited<ReturnType<typeof CategoryRepository.findMany>>>(key);
   if (cached) return cached;
 
-  const categories = await prisma.category.findMany({ orderBy: { nameEn: "asc" } });
+  const categories = await CategoryRepository.findMany();
   await cacheSet(key, categories, 600);
   return categories;
 }
 
 export async function getById(id: string) {
-  const category = await prisma.category.findUnique({ where: { id } });
+  const category = await CategoryRepository.findById(id);
   if (!category) throw ApiError.notFound("Category not found");
   return category;
 }
 
 export async function create(data: { nameEn: string; nameBn: string }) {
-  const category = await prisma.category.create({ data });
+  const category = await CategoryRepository.create(data);
   await invalidateCategoryRelatedCaches();
   return category;
 }
@@ -36,14 +36,14 @@ export async function update(
   data: { nameEn?: string; nameBn?: string },
 ) {
   await getById(id); // 404s early if it doesn't exist
-  const category = await prisma.category.update({ where: { id }, data });
+  const category = await CategoryRepository.update(id, data);
   await invalidateCategoryRelatedCaches();
   return category;
 }
 
 export async function remove(id: string): Promise<void> {
   await getById(id);
-  await prisma.category.delete({ where: { id } });
+  await CategoryRepository.delete(id);
   await invalidateCategoryRelatedCaches();
 }
 
@@ -58,11 +58,9 @@ export async function getOrCreateCategory({
 }: GetOrCreateCategoryInput): Promise<string> {
   const normalizedCategoryEn = categoryEn.toLowerCase().trim();
 
-  const existingCategory = await prisma.category.findUnique({
-    where: {
-      nameEn: normalizedCategoryEn,
-    },
-  });
+  const existingCategory = await CategoryRepository.findByNameEn(
+    normalizedCategoryEn,
+  );
 
   if (existingCategory) {
     return existingCategory.id;
@@ -79,9 +77,7 @@ export async function getOrCreateCategory({
     throw ApiError.badRequest("Validation failed", validation.error.flatten());
   }
 
-  const createNew = await prisma.category.create({
-    data: validation.data,
-  });
+  const createNew = await CategoryRepository.create(validation.data);
   await invalidateCategoryRelatedCaches();
   return createNew.id;
 }

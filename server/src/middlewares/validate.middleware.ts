@@ -3,7 +3,7 @@
 // here, keeping validation declarative and out of the controllers.
 import { NextFunction, Request, Response } from "express";
 import { ZodType } from "zod";
-import { ApiError } from "../utils/api-error.js";
+import { ApiError } from "@/lib/api-error.js";
 
 interface ValidationSchemas {
   body?: ZodType;

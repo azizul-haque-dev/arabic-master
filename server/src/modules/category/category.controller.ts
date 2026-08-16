@@ -1,5 +1,5 @@
-import { sendSuccess } from "@/utils/api-response.js";
-import { asyncHandler } from "@/utils/async-handler.js";
+import { sendSuccess } from "@/lib/api-response.js";
+import { asyncHandler } from "@/lib/async-handler.js";
 import { Request, Response } from "express";
 import * as categoryService from "./category.service.js";
 

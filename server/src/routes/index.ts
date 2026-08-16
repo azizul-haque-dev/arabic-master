@@ -6,7 +6,7 @@ import mediaRoutes from "../modules/media/media.routes.js";
 import sentenceRoutes from "../modules/sentence/sentence.routes.js";
 import userRoutes from "../modules/user/user.routes.js";
 import wordRoutes from "../modules/word/word.routes.js";
-import { sendSuccess } from "../utils/api-response.js";
+import { sendSuccess } from "@/lib/api-response.js";
 
 const router = Router();
 

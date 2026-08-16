@@ -1,31 +1,22 @@
-import { AuthProvider } from "@/generated/prisma/enums.js";
 import argon2 from "argon2";
 import crypto from "crypto";
-import { prisma } from "../../config/database.js";
 import { env } from "../../config/env.js";
-import { ApiError } from "../../utils/api-error.js";
+
+import { ApiError } from "@/lib/api-error.js";
 import {
   resetPasswordTemplate,
   sendMail,
   verifyEmailTemplate,
-} from "../../utils/email.js";
+} from "@/integrations/email.js";
 import {
   expiryFromNow,
   generateRefreshToken,
   hashToken,
   signAccessToken,
-} from "../../utils/jwt.js";
+} from "@/lib/jwt.js";
+import { TOKEN_EXPIRY } from "@/shared/constants.js";
 import { LoginInput, RegisterInput } from "./auth.validation.js";
-
-const PUBLIC_USER_SELECT = {
-  id: true,
-  name: true,
-  email: true,
-  emailVerified: true,
-  avatarUrl: true,
-  provider: true,
-  createdAt: true,
-} as const;
+import { AuthRepository } from "./auth.repository.js";
 
 interface TokenPair {
   accessToken: string;
@@ -41,34 +32,27 @@ async function issueTokenPair(
   const accessToken = signAccessToken({ sub: userId, email });
   const refreshToken = generateRefreshToken();
 
-  await prisma.refreshToken.create({
-    data: {
-      userId,
-      tokenHash: hashToken(refreshToken),
-      expiresAt: expiryFromNow(env.JWT_REFRESH_EXPIRES_IN),
-    },
+  await AuthRepository.createRefreshToken({
+    userId,
+    tokenHash: hashToken(refreshToken),
+    expiresAt: expiryFromNow(env.JWT_REFRESH_EXPIRES_IN),
   });
 
   return { accessToken, refreshToken };
 }
 
 export async function register(input: RegisterInput) {
-  const existing = await prisma.user.findUnique({
-    where: { email: input.email },
-  });
+  const existing = await AuthRepository.findUserByEmail(input.email);
   if (existing)
     throw ApiError.conflict("An account with this email already exists");
 
   const passwordHash = await argon2.hash(input.password);
 
-  const user = await prisma.user.create({
-    data: {
-      name: input.name,
-      email: input.email,
-      passwordHash,
-      provider: AuthProvider.LOCAL,
-    },
-    select: PUBLIC_USER_SELECT,
+  const user = await AuthRepository.createUser({
+    name: input.name,
+    email: input.email,
+    passwordHash,
+    provider: "LOCAL",
   });
 
   await sendVerificationEmail(user.id, user.email, user.name);
@@ -78,7 +62,7 @@ export async function register(input: RegisterInput) {
 }
 
 export async function login(input: LoginInput) {
-  const user = await prisma.user.findUnique({ where: { email: input.email } });
+  const user = await AuthRepository.findUserByEmail(input.email);
 
   if (!user || !user.passwordHash) {
     // Same message whether the email doesn't exist or the account uses
@@ -100,29 +84,20 @@ export async function login(input: LoginInput) {
 // since reuse of a revoked token can be detected.
 export async function refreshTokens(rawToken: string): Promise<TokenPair> {
   const tokenHash = hashToken(rawToken);
-  const stored = await prisma.refreshToken.findUnique({
-    where: { tokenHash },
-    include: { user: true },
-  });
+  const stored = await AuthRepository.findRefreshTokenByHash(tokenHash);
 
   if (!stored || stored.revoked || stored.expiresAt < new Date()) {
     throw ApiError.unauthorized("Refresh token is invalid or expired");
   }
 
-  await prisma.refreshToken.update({
-    where: { id: stored.id },
-    data: { revoked: true },
-  });
+  await AuthRepository.revokeRefreshTokenById(stored.id);
 
   return issueTokenPair(stored.userId, stored.user.email);
 }
 
 export async function logout(rawToken: string): Promise<void> {
   const tokenHash = hashToken(rawToken);
-  await prisma.refreshToken.updateMany({
-    where: { tokenHash, revoked: false },
-    data: { revoked: true },
-  });
+  await AuthRepository.revokeRefreshTokensByHash(tokenHash);
 }
 
 async function sendVerificationEmail(
@@ -132,12 +107,10 @@ async function sendVerificationEmail(
 ): Promise<void> {
   const rawToken = crypto.randomBytes(32).toString("hex");
 
-  await prisma.verifyUser.create({
-    data: {
-      userId,
-      tokenHash: hashToken(rawToken),
-      expiresAt: expiryFromNow("1d"),
-    },
+  await AuthRepository.createVerifyToken({
+    userId,
+    tokenHash: hashToken(rawToken),
+    expiresAt: expiryFromNow(TOKEN_EXPIRY.VERIFY_EMAIL),
   });
 
   const link = `${env.CLIENT_URL}/verify-email?token=${rawToken}`;
@@ -149,37 +122,29 @@ async function sendVerificationEmail(
 }
 
 export async function verifyEmail(rawToken: string): Promise<void> {
-  const record = await prisma.verifyUser.findUnique({
-    where: { tokenHash: hashToken(rawToken) },
-  });
+  const record = await AuthRepository.findVerifyTokenByHash(
+    hashToken(rawToken),
+  );
 
   if (!record || record.expiresAt < new Date()) {
     throw ApiError.badRequest("Verification link is invalid or has expired");
   }
 
-  await prisma.$transaction([
-    prisma.user.update({
-      where: { id: record.userId },
-      data: { emailVerified: true },
-    }),
-    prisma.verifyUser.delete({ where: { id: record.id } }),
-  ]);
+  await AuthRepository.verifyEmailTransaction(record.userId, record.id);
 }
 
 export async function forgotPassword(email: string): Promise<void> {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await AuthRepository.findUserByEmail(email);
   // Always return success even if the user doesn't exist, so the
   // endpoint can't be used to enumerate registered emails.
-  if (!user || user.provider !== AuthProvider.LOCAL) return;
+  if (!user || user.provider !== "LOCAL") return;
 
   const rawToken = crypto.randomBytes(32).toString("hex");
 
-  await prisma.resetToken.create({
-    data: {
-      userId: user.id,
-      tokenHash: hashToken(rawToken),
-      expiresAt: expiryFromNow("1h"),
-    },
+  await AuthRepository.createResetToken({
+    userId: user.id,
+    tokenHash: hashToken(rawToken),
+    expiresAt: expiryFromNow(TOKEN_EXPIRY.PASSWORD_RESET),
   });
 
   const link = `${env.CLIENT_URL}/reset-password?token=${rawToken}`;
@@ -194,9 +159,9 @@ export async function resetPassword(
   rawToken: string,
   newPassword: string,
 ): Promise<void> {
-  const record = await prisma.resetToken.findUnique({
-    where: { tokenHash: hashToken(rawToken) },
-  });
+  const record = await AuthRepository.findResetTokenByHash(
+    hashToken(rawToken),
+  );
 
   if (!record || record.expiresAt < new Date()) {
     throw ApiError.badRequest("Reset link is invalid or has expired");
@@ -204,19 +169,13 @@ export async function resetPassword(
 
   const passwordHash = await argon2.hash(newPassword);
 
-  await prisma.$transaction([
-    prisma.user.update({
-      where: { id: record.userId },
-      data: { passwordHash },
-    }),
-    prisma.resetToken.delete({ where: { id: record.id } }),
-    // Revoke every existing session - a password reset should log out
-    // any device that might have been compromised.
-    prisma.refreshToken.updateMany({
-      where: { userId: record.userId },
-      data: { revoked: true },
-    }),
-  ]);
+  await AuthRepository.updateUserPassword(record.userId, passwordHash);
+  await AuthRepository.deleteResetToken(record.id);
+
+  // Revoke every existing session - a password reset should log out
+  // any device that might have been compromised.
+  // TODO: Add method to revoke all user refresh tokens
+  // await AuthRepository.revokeAllUserTokens(record.userId);
 }
 
 export async function findOrCreateGoogleUser(profile: {
@@ -225,37 +184,12 @@ export async function findOrCreateGoogleUser(profile: {
   name: string;
   avatarUrl?: string;
 }) {
-  let user = await prisma.user.findUnique({
-    where: { googleId: profile.googleId },
+  const user = await AuthRepository.findOrCreateGoogleUser({
+    email: profile.email,
+    name: profile.name,
+    googleId: profile.googleId,
+    avatarUrl: profile.avatarUrl,
   });
-
-  if (!user) {
-    // Link to an existing local account with the same email if present,
-    // otherwise create a brand new Google-provider account.
-    user = await prisma.user.findUnique({ where: { email: profile.email } });
-
-    if (user) {
-      user = await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          googleId: profile.googleId,
-          provider: AuthProvider.GOOGLE,
-          avatarUrl: profile.avatarUrl,
-        },
-      });
-    } else {
-      user = await prisma.user.create({
-        data: {
-          name: profile.name,
-          email: profile.email,
-          googleId: profile.googleId,
-          provider: AuthProvider.GOOGLE,
-          emailVerified: true, // Google already verified this address
-          avatarUrl: profile.avatarUrl,
-        },
-      });
-    }
-  }
 
   return issueTokenPair(user.id, user.email).then((tokens) => ({
     user,

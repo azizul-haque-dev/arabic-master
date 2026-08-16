@@ -1,13 +1,13 @@
-import { prisma } from "@/config/database.js";
 import { workerRedis } from "@/config/redis.js";
 import { SentenceStatus } from "@/generated/prisma/enums.js";
 import { getOrCreateCategory } from "@/modules/category/category.service.js";
-import { ApiError } from "@/utils/api-error.js";
+import { ApiError } from "@/lib/api-error.js";
 import { Job, Worker } from "bullmq";
 import { generateContent } from "../ai/generateContent.js";
 import { AIResponseSchema } from "../ai/schema.js";
 import { SENTENCE_QUEUE_NAME } from "./sentence.queue.js";
 import { getOrCreateWord } from "./sentence.service.js";
+import { SentenceRepository } from "./sentence.repository.js";
 
 const processSentenceJob = async (job: Job<{ sentenceId: string }>) => {
   const { sentenceId } = job.data;
@@ -15,10 +15,7 @@ const processSentenceJob = async (job: Job<{ sentenceId: string }>) => {
   console.log(`[Worker] Job ${job.id} started processing.`);
 
   // Load sentence
-  const sentence = await prisma.sentence.findUnique({
-    where: { id: sentenceId },
-    include: { arabic: true },
-  });
+  const sentence = await SentenceRepository.findById(sentenceId);
   console.log("worker got the sentence:", sentence);
 
   if (!sentence) {
@@ -26,10 +23,7 @@ const processSentenceJob = async (job: Job<{ sentenceId: string }>) => {
   }
 
   // Update sentence status to PROCESSING
-  await prisma.sentence.update({
-    where: { id: sentenceId },
-    data: { status: SentenceStatus.PROCESSING },
-  });
+  await SentenceRepository.updateStatus(sentenceId, SentenceStatus.PROCESSING);
 
   try {
     // All expensive AI enrichment happens in this worker, never in the API.
@@ -52,40 +46,20 @@ const processSentenceJob = async (job: Job<{ sentenceId: string }>) => {
       position: item.position,
     }));
 
-    // Use a Prisma transaction to ensure both idempotency and atomicity
-    await prisma.$transaction(async (tx) => {
-      // Idempotency Layer: Clean up any partial data from previous failed attempts
-      await tx.sentenceWord.deleteMany({
-        where: { sentenceId: sentenceId },
-      });
-
-      // Insert clean data only if the array contains words
-      if (sentenceWordsData.length > 0) {
-        await tx.sentenceWord.createMany({
-          data: sentenceWordsData,
-        });
-      }
-
-      await tx.sentenceCategory.deleteMany({ where: { sentenceId } });
-      await tx.sentenceCategory.create({ data: { sentenceId, categoryId } });
-
-      // Update sentence status to COMPLETED inside the same atomic block
-      await tx.sentence.update({
-        where: { id: sentenceId },
-        data: {
-          meaningEn: aiData.meaningEn,
-          meaningBn: aiData.meaningBn,
-          pronunciationEn: aiData.pronunciationEn,
-          pronunciationBn: aiData.pronunciationBn,
-          whenToUseEn: aiData.whenToUseEn,
-          whenToUseBn: aiData.whenToUseBn,
-          feminineBn: aiData.feminineBn,
-          feminineEn: aiData.feminineEn,
-          errorMessage: null,
-          status: SentenceStatus.COMPLETED,
-        },
-      });
-    });
+    // Use the repository method which handles the transaction atomically
+    await SentenceRepository.updateStatusAndCategory(
+      sentenceId,
+      categoryId,
+      sentenceWordsData,
+      {
+        meaningEn: aiData.meaningEn,
+        meaningBn: aiData.meaningBn,
+        pronunciationEn: aiData.pronunciationEn,
+        pronunciationBn: aiData.pronunciationBn,
+        whenToUseEn: aiData.whenToUseEn,
+        whenToUseBn: aiData.whenToUseBn,
+      },
+    );
 
     const duration = Date.now() - startTime;
     console.log(
@@ -95,13 +69,10 @@ const processSentenceJob = async (job: Job<{ sentenceId: string }>) => {
     console.log(`[Worker] Error processing job ${job.id}:`, error.stack);
 
     // Fallback status update if the processing fails completely
-    await prisma.sentence.update({
-      where: { id: sentenceId },
-      data: {
-        status: SentenceStatus.FAILED,
-        errorMessage:
-          error.message || "Unknown error occurred during processing",
-      },
+    await SentenceRepository.updateWithStatus(sentenceId, {
+      status: SentenceStatus.FAILED,
+      errorMessage:
+        error.message || "Unknown error occurred during processing",
     });
 
     throw error;

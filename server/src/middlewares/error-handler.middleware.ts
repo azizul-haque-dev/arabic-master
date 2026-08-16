@@ -3,8 +3,8 @@ import { NextFunction, Request, Response } from "express";
 import z from "zod";
 import { isProd } from "../config/env.js";
 import { logger } from "../config/logger.js";
-import { ApiError } from "../utils/api-error.js";
-import { sendError } from "../utils/api-response.js";
+import { ApiError } from "@/lib/api-error.js";
+import { sendError } from "@/lib/api-response.js";
 
 // Converts every thrown error into the public error envelope:
 // { success: false, message: "reason" }.

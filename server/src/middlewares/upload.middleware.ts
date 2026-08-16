@@ -2,7 +2,7 @@
 // streamed to S3. Limits keep the process from being overwhelmed by
 // oversized uploads.
 import multer from "multer";
-import { ApiError } from "../utils/api-error.js";
+import { ApiError } from "@/lib/api-error.js";
 
 const ALLOWED_MIME_TYPES = new Set([
   "audio/mpeg",

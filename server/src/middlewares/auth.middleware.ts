@@ -1,9 +1,9 @@
 // Protects routes by requiring a valid access token in the
 // Authorization header ("Bearer <token>").
 import { NextFunction, Request, Response } from "express";
-import { ApiError } from "../utils/api-error.js";
-import { asyncHandler } from "../utils/async-handler.js";
-import { verifyAccessToken } from "../utils/jwt.js";
+import { ApiError } from "@/lib/api-error.js";
+import { asyncHandler } from "@/lib/async-handler.js";
+import { verifyAccessToken } from "@/lib/jwt.js";
 
 // Declared on Express.User (not Request directly) so this merges cleanly
 // with passport's own type augmentation instead of conflicting with it.

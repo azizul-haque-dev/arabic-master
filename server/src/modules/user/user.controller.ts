@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { sendSuccess } from "../../utils/api-response.js";
-import { asyncHandler } from "../../utils/async-handler.js";
+import { sendSuccess } from "@/lib/api-response.js";
+import { asyncHandler } from "@/lib/async-handler.js";
 import * as userService from "./user.service.js";
 
 export const getMe = asyncHandler(async (req: Request, res: Response) => {

@@ -3,7 +3,7 @@ import passport from "passport";
 import { requireAuth } from "../../middlewares/auth.middleware.js";
 import { authLimiter } from "../../middlewares/rate-limit.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
-import { sendError } from "../../utils/api-response.js";
+import { sendError } from "@/lib/api-response.js";
 import * as controller from "./auth.controller.js";
 import {
   forgotPasswordSchema,
