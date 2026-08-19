@@ -146,6 +146,11 @@ model Word {
 
   arabicId String     @unique @map("arabic_id")
   arabic   ArabicText @relation(fields: [arabicId], references: [id], onDelete: Cascade)
+    meaningEn String? @map("meaning_en") @db.Text
+  meaningBn String? @map("meaning_bn") @db.Text
+
+  whenToUseEn String? @map("when_to_use_en") @db.Text
+  whenToUseBn String? @map("when_to_use_bn") @db.Text
 
   categories WordCategory[]
   sentences  SentenceWord[]
@@ -178,6 +183,11 @@ model Sentence {
 
   arabicId String     @unique @map("arabic_id")
   arabic   ArabicText @relation(fields: [arabicId], references: [id], onDelete: Cascade)
+  meaningEn String? @map("meaning_en") @db.Text
+  meaningBn String? @map("meaning_bn") @db.Text
+
+  whenToUseEn String? @map("when_to_use_en") @db.Text
+  whenToUseBn String? @map("when_to_use_bn") @db.Text
 
   words             SentenceWord[]
   categories        SentenceCategory[]
