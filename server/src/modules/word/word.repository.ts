@@ -105,6 +105,11 @@ export const WordRepository = {
       where: { id },
     }),
 
+  deleteArabicText: (arabicId: string) =>
+    prisma.arabicText.delete({
+      where: { id: arabicId },
+    }),
+
   updateWithStatus: (
     id: string,
     data: {

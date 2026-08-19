@@ -93,6 +93,6 @@ export async function remove(id: string): Promise<void> {
   if (!word) throw ApiError.notFound("Word not found");
 
   // Deleting the ArabicText cascades to Word and its category links.
-  await WordRepository.delete(id);
+  await WordRepository.deleteArabicText(word.arabicId);
   await invalidateCacheNamespace(cacheNamespaces.words);
 }

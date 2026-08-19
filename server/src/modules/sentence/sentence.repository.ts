@@ -145,6 +145,11 @@ export const SentenceRepository = {
       include: { arabic: true },
     }),
 
+  deleteArabicText: (arabicId: string) =>
+    prisma.arabicText.delete({
+      where: { id: arabicId },
+    }),
+
   updateStatus: (id: string, status: string, errorMessage?: string) =>
     prisma.sentence.update({
       where: { id },

@@ -15,6 +15,7 @@ import { createPendingSentence } from "./sentence.ai.service.js";
 import { enQueueSentenceProcessing } from "./sentence.queue.js";
 import { SentenceRepository, presentSentence } from "./sentence.repository.js";
 import { ListSentencesQuery, SentenceInput } from "./sentence.validation.js";
+import { prisma } from "@/config/database.js";
 
 // Re-export for controllers and other modules
 export { SENTENCE_INCLUDE } from "./sentence.repository.js";
@@ -36,12 +37,12 @@ export async function list(query: ListSentencesQuery) {
     ...(categoryId ? { categories: { some: { categoryId } } } : {}),
     ...(search
       ? {
-          OR: [
-            { arabic: { text: { contains: search, mode: "insensitive" } } },
-            { meaningEn: { contains: search, mode: "insensitive" } },
-            { meaningBn: { contains: search, mode: "insensitive" } },
-          ],
-        }
+        OR: [
+          { arabic: { text: { contains: search, mode: "insensitive" } } },
+          { meaningEn: { contains: search, mode: "insensitive" } },
+          { meaningBn: { contains: search, mode: "insensitive" } },
+        ],
+      }
       : {}),
   };
 
@@ -98,8 +99,8 @@ export async function remove(id: string): Promise<void> {
   const sentence = await SentenceRepository.findById(id);
   if (!sentence) throw ApiError.notFound("Sentence not found");
 
-  // Cascades to Sentence + its category/word links via ArabicText's onDelete.
-  await SentenceRepository.delete(id);
+  // Deleting the ArabicText cascades to Sentence + its category/word links via ArabicText's onDelete.
+  await SentenceRepository.deleteArabicText(sentence.arabicId);
   await invalidateCacheNamespace(cacheNamespaces.sentences);
 }
 
@@ -177,7 +178,21 @@ export async function processNewSentence(input: string) {
     //   where: { id: existingText.id },
     // });
     // console.log(deleted);
-    throw ApiError.conflict("This Arabic text already exists");
+    const isSentence = await prisma.sentence.findUnique({
+      where: { arabicId: existingText.id },
+    });
+    if (isSentence && isSentence.pronunciationEn !== "") {
+      throw ApiError.conflict("This Arabic text already exists as a sentence");
+    } else {
+      await prisma.arabicText.delete({
+        where: { id: existingText.id },
+      });
+
+    }
+
+
+
+
   }
 
   // 3. Create a pending sentence record in the database

@@ -1,7 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
   provider = "prisma-client"
@@ -11,6 +7,7 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
 // ─── Enums ─────────────────────────────────────────────
 
 enum Status {
@@ -26,21 +23,16 @@ enum AuthProvider {
 }
 
 enum LessonLevel {
- BEGINNER
- INTERMEDIATE
- ADVANCED
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
 }
 
-enum SentenceStatus {
+enum GenerationStatus {
   PENDING
   PROCESSING
   COMPLETED
   FAILED
-  DRAFT
-  PUBLISHED
-  ACTIVE
-  DISABLED
- 
 }
 
 // ─── Auth ──────────────────────────────────────────────
@@ -122,11 +114,30 @@ model ArabicText {
   text     String  @unique @db.Text
   audioUrl String? @map("audio_url")
   audioKey String? @map("audio_key")
+
+  meaningEn String? @map("meaning_en") @db.Text
+  meaningBn String? @map("meaning_bn") @db.Text
+
+  whenToUseEn String? @map("when_to_use_en") @db.Text
+  whenToUseBn String? @map("when_to_use_bn") @db.Text
+
+  pronunciationEn String? @map("pronunciation_en")
+  pronunciationBn String? @map("pronunciation_bn")
+  feminineBn      String? @map("feminine_bn") @db.Text
+  feminineEn      String? @map("feminine_en") @db.Text
+
+  errorMessage String?
+  status       Status           @default(DRAFT)
+  aiStatus     GenerationStatus @default(PENDING) @map("ai_status")
+
   word     Word?
   sentence Sentence?
+
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
+  @@index([status])
+  @@index([aiStatus])
   @@map("arabic_texts")
 }
 
@@ -136,35 +147,22 @@ model Word {
   arabicId String     @unique @map("arabic_id")
   arabic   ArabicText @relation(fields: [arabicId], references: [id], onDelete: Cascade)
 
-  meaningEn String? @map("meaning_en") @db.Text
-  meaningBn String? @map("meaning_bn") @db.Text
-
-  whenToUseEn String? @map("when_to_use_en") @db.Text
-  whenToUseBn String? @map("when_to_use_bn") @db.Text
-  
-
-  pronunciationEn String? @map("pronunciation_en")
-  pronunciationBn String? @map("pronunciation_bn")
-  feminineBn  String? @map("feminine_bn") @db.Text
-  feminineEn  String? @map("feminine_En") @db.Text
-  status          Status  @default(DRAFT)
-
   categories WordCategory[]
   sentences  SentenceWord[]
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  @@index([status])
   @@index([arabicId])
   @@index([createdAt])
   @@map("words")
 }
 
 model Category {
-  id     String @id @default(cuid())
-  nameEn String @map("name_en")
+  id     String  @id @default(cuid())
+  nameEn String  @map("name_en")
   nameBn String? @map("name_bn")
+
   words     WordCategory[]
   sentences SentenceCategory[]
 
@@ -181,30 +179,13 @@ model Sentence {
   arabicId String     @unique @map("arabic_id")
   arabic   ArabicText @relation(fields: [arabicId], references: [id], onDelete: Cascade)
 
-  pronunciationEn String? @map("pronunciation_en")
-  pronunciationBn String? @map("pronunciation_bn")
-
-  meaningEn String? @map("meaning_en") @db.Text
-  meaningBn String? @map("meaning_bn") @db.Text
-
-  whenToUseEn String? @map("when_to_use_en") @db.Text
-  whenToUseBn String? @map("when_to_use_bn") @db.Text
-  feminineBn String? @map("feminine_bn") @db.Text
-  feminineEn String? @map("feminine_En") @db.Text
-
-  status SentenceStatus @default(DRAFT)
-  errorMessage String?
-
-  words SentenceWord[]
-  categories SentenceCategory[]
-
-  // conversation related
+  words             SentenceWord[]
+  categories        SentenceCategory[]
   conversationLines ConversationLine[]
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  @@index([status])
   @@index([arabicId])
   @@map("sentences")
 }
@@ -251,78 +232,72 @@ model SentenceWord {
 }
 
 model Topic {
-  id  String  @id  @default(cuid())
+  id String @id @default(cuid())
 
-  titleEn  String  @map("title_en")
-  titleBn  String? @map("title_bn")
+  titleEn String  @map("title_en")
+  titleBn String? @map("title_bn")
 
-  conversations  TopicConversation[]
+  conversations TopicConversation[]
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  
+
   @@unique([titleEn])
   @@map("topics")
 }
 
-
-model TopicConversation{
-  id  String @id @default(cuid())
+model TopicConversation {
+  id      String @id @default(cuid())
   topicId String @map("topic_id")
-  topic Topic @relation(fields:[topicId],references:[id],onDelete:Cascade)
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
-  titleEn  String  @map("title_en")
-  titleBn  String? @map("title_bn")
+  titleEn String  @map("title_en")
+  titleBn String? @map("title_bn")
 
   conversations Conversation[]
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-
-@@index([topicId])
-@@map("topic_conversations")
+  @@index([topicId])
+  @@map("topic_conversations")
 }
 
-model Conversation{
-    id  String @id @default(cuid())
-    
-    topicConversationId String @map("topic_conversation_id")
-    topicConversation TopicConversation @relation(fields:[topicConversationId],references:[id],onDelete:Cascade)
+model Conversation {
+  id String @id @default(cuid())
 
-    level String LessonLevel @default(BEGINNER)
+  topicConversationId String            @map("topic_conversation_id")
+  topicConversation   TopicConversation @relation(fields: [topicConversationId], references: [id], onDelete: Cascade)
 
-    lines  ConversationLine[]
+  level LessonLevel @default(BEGINNER)
 
-    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  lines ConversationLine[]
 
-    @@index([topicConversationId])
-    @@map("conversations")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([topicConversationId])
+  @@map("conversations")
 }
 
-model ConversationLine{
+model ConversationLine {
+  id             String       @id @default(cuid())
+  conversationId String       @map("conversation_id")
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
-  id  String @id @default(cuid())
-  conversationId String @map("conversation_id")
+  meaningBn String? @map("meaning_bn")
+  meaningEn String? @map("meaning_en")
 
-  conversation Conversation @relation(fields:[conversationId],references:[id],onDelete:Cascade)
+  sentenceId String   @map("sentence_id")
+  sentence   Sentence @relation(fields: [sentenceId], references: [id], onDelete: Cascade)
 
-  meaningBn  String? @map("meaning_bn")
-  meaningEn  String? @map("meaning_en")
-
-  sentenceId String @map("sentence_id")
-  sentence Sentence @relation(fields:[sentenceId],references:[id],onDelete:Cascade)
-
-  speaker String @db.VarChar(50)
+  speaker  String @db.VarChar(50)
   position Int
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  @@unique([conversationId,position])
-
+  @@unique([conversationId, position])
   @@index([sentenceId])
   @@map("conversation_line")
-
 }
