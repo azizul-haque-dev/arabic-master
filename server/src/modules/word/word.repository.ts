@@ -1,6 +1,6 @@
 // Database access layer for word operations.
 
-import { Prisma } from "@/generated/prisma/client.js";
+import { Prisma, Status } from "@/generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
 import { WordInput } from "./word.validation.js";
 
@@ -28,8 +28,7 @@ export const WordRepository = {
       take,
     }),
 
-  count: (where: Prisma.WordWhereInput) =>
-    prisma.word.count({ where }),
+  count: (where: Prisma.WordWhereInput) => prisma.word.count({ where }),
 
   findById: (id: string) =>
     prisma.word.findUnique({
@@ -138,8 +137,11 @@ export const WordRepository = {
       meaningBn?: string;
       pronunciationEn?: string;
       pronunciationBn?: string;
+      feminineBn?: string;
+      feminineEn?: string;
       whenToUseEn?: string;
       whenToUseBn?: string;
+      status: Status;
     },
   ) =>
     prisma.$transaction([

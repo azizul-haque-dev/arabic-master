@@ -3,9 +3,9 @@
  * Handles cache operations with namespace support
  */
 
-import { createHash } from "node:crypto";
-import { cacheRedis } from "@/config/redis.js";
 import { logger } from "@/config/logger.js";
+import { cacheRedis } from "@/config/redis.js";
+import { createHash } from "node:crypto";
 
 const CACHE_PREFIX = "arabic-master:cache:v1";
 
@@ -13,6 +13,10 @@ export const cacheNamespaces = {
   categories: `${CACHE_PREFIX}:categories`,
   words: `${CACHE_PREFIX}:words`,
   sentences: `${CACHE_PREFIX}:sentences`,
+  topics: `${CACHE_PREFIX}:topics`,
+  topicConversations: `${CACHE_PREFIX}:topic-conversations`,
+  conversations: `${CACHE_PREFIX}:conversations`,
+  conversationLines: `${CACHE_PREFIX}:conversation-lines`,
 } as const;
 
 /**
@@ -52,7 +56,11 @@ export async function cacheGet<T>(key: string): Promise<T | null> {
  * @param value Value to cache
  * @param ttlSeconds Time to live in seconds
  */
-export async function cacheSet(key: string, value: unknown, ttlSeconds: number) {
+export async function cacheSet(
+  key: string,
+  value: unknown,
+  ttlSeconds: number,
+) {
   try {
     await cacheRedis.set(key, JSON.stringify(value), "EX", ttlSeconds);
   } catch (err) {

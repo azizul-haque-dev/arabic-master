@@ -4,6 +4,7 @@ import { getOrCreateCategory } from "@/modules/category/category.service.js";
 import { ApiError } from "@/lib/api-error.js";
 import { Job, Worker } from "bullmq";
 
+import { Status } from "@/generated/prisma/enums.js";
 import { generateContent } from "../ai/generateContent.js";
 import { AIResponseSchema } from "../ai/schema.js";
 import { WORD_QUEUE_NAME } from "./word.queue.js";
@@ -32,6 +33,9 @@ export const wordWorker = new Worker(
       pronunciationBn: aiData.pronunciationBn,
       whenToUseEn: aiData.whenToUseEn,
       whenToUseBn: aiData.whenToUseBn,
+      feminineBn: aiData.feminineBn,
+      feminineEn: aiData.feminineEn,
+      status: Status.DRAFT,
     });
   },
   { connection: workerRedis, concurrency: 5 },

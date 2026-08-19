@@ -6,19 +6,23 @@ import {
 import {
   AIResponseSchema,
   AiResponse,
+  GenerateContentInputSchema,
   SaudiArabicTranslationSchema,
   TrasnlateTextType,
 } from "./schema.js";
 
 export async function generateContent(query: string): Promise<AiResponse> {
+  const validatedQuery = GenerateContentInputSchema.parse(query);
+
   const { model } = createChatModel();
-  const message = createSaudiTeacherPrompt(query);
+
+  const message = createSaudiTeacherPrompt(validatedQuery);
 
   const structured = model.withStructuredOutput(AIResponseSchema);
 
-  const result: AiResponse = await structured.invoke(message);
+  const result = await structured.invoke(message);
 
-  return result;
+  return AIResponseSchema.parse(result);
 }
 export async function translateWord(text: string) {
   const { model } = createChatModel();

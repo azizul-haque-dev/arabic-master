@@ -1,6 +1,6 @@
 // Database access layer for sentence operations.
 
-import { Prisma } from "@/generated/prisma/client.js";
+import { Prisma, SentenceStatus } from "@/generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
 import { SentenceInput } from "./sentence.validation.js";
 
@@ -35,8 +35,7 @@ export const SentenceRepository = {
       take,
     }),
 
-  count: (where: Prisma.SentenceWhereInput) =>
-    prisma.sentence.count({ where }),
+  count: (where: Prisma.SentenceWhereInput) => prisma.sentence.count({ where }),
 
   findById: (id: string) =>
     prisma.sentence.findUnique({
@@ -47,6 +46,11 @@ export const SentenceRepository = {
   findArabicTextByText: (text: string) =>
     prisma.arabicText.findUnique({
       where: { text },
+    }),
+  findByArabicText: (text: string) =>
+    prisma.sentence.findFirst({
+      where: { arabic: { text } },
+      include: SENTENCE_INCLUDE,
     }),
 
   create: (data: {
@@ -62,7 +66,8 @@ export const SentenceRepository = {
     categoryIds?: string[];
     words?: Array<{ wordId: string; position: number }>;
   }) => {
-    const { text, audioUrl, categoryIds, words, status, ...sentenceFields } = data;
+    const { text, audioUrl, categoryIds, words, status, ...sentenceFields } =
+      data;
     return prisma.sentence.create({
       data: {
         ...sentenceFields,
@@ -137,25 +142,36 @@ export const SentenceRepository = {
   delete: (id: string) =>
     prisma.sentence.delete({
       where: { id },
+      include: { arabic: true },
     }),
 
   updateStatus: (id: string, status: string, errorMessage?: string) =>
     prisma.sentence.update({
       where: { id },
-      data: { status: status as any, ...(errorMessage ? { errorMessage } : {}) },
+      data: {
+        status: status as any,
+        ...(errorMessage ? { errorMessage } : {}),
+      },
     }),
 
   updateStatusAndCategory: (
     sentenceId: string,
     categoryId: string,
-    sentenceWordsData: Array<{ sentenceId: string; wordId: string; position: number }>,
+    sentenceWordsData: Array<{
+      sentenceId: string;
+      wordId: string;
+      position: number;
+    }>,
     data: {
       meaningEn?: string;
       meaningBn?: string;
       pronunciationEn?: string;
       pronunciationBn?: string;
+      feminineBn?: string;
+      feminineEn?: string;
       whenToUseEn?: string;
       whenToUseBn?: string;
+      status: SentenceStatus;
     },
   ) =>
     prisma.$transaction(async (tx) => {

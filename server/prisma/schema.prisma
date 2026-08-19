@@ -25,6 +25,12 @@ enum AuthProvider {
   GOOGLE
 }
 
+enum LessonLevel {
+ BEGINNER
+ INTERMEDIATE
+ ADVANCED
+}
+
 enum SentenceStatus {
   PENDING
   PROCESSING
@@ -280,9 +286,11 @@ model TopicConversation{
 
 model Conversation{
     id  String @id @default(cuid())
-
+    
     topicConversationId String @map("topic_conversation_id")
     topicConversation TopicConversation @relation(fields:[topicConversationId],references:[id],onDelete:Cascade)
+
+    level String LessonLevel @default(BEGINNER)
 
     lines  ConversationLine[]
 

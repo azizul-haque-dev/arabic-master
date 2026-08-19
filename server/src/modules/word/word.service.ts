@@ -1,6 +1,4 @@
 import { Prisma } from "@/generated/prisma/client.js";
-import { CACHE_TTL } from "@/shared/constants.js";
-import { ApiError } from "@/lib/api-error.js";
 import {
   cacheGet,
   cacheKey,
@@ -8,8 +6,10 @@ import {
   cacheSet,
   invalidateCacheNamespace,
 } from "@/integrations/cache.js";
-import { ListWordsQuery, WordInput } from "./word.validation.js";
+import { ApiError } from "@/lib/api-error.js";
+import { CACHE_TTL } from "@/shared/constants.js";
 import { WordRepository, presentWord } from "./word.repository.js";
+import { ListWordsQuery, WordInput } from "./word.validation.js";
 
 // Re-export for controllers and other modules
 export { WORD_INCLUDE } from "./word.repository.js";
@@ -65,6 +65,7 @@ export async function getById(id: string) {
 }
 
 export async function create(input: WordInput) {
+  console.log("WordInput");
   const { text } = input;
 
   const existingText = await WordRepository.findArabicTextByText(text);

@@ -1,7 +1,4 @@
 import { Prisma } from "@/generated/prisma/client.js";
-import { CACHE_TTL } from "@/shared/constants.js";
-import { cleanTextAndSpaces } from "@/utils/text.js";
-import { ApiError } from "@/lib/api-error.js";
 import {
   cacheGet,
   cacheKey,
@@ -9,12 +6,15 @@ import {
   cacheSet,
   invalidateCacheNamespace,
 } from "@/integrations/cache.js";
-import { createPendingSentence } from "./sentence.ai.service.js";
+import { ApiError } from "@/lib/api-error.js";
+import { CACHE_TTL } from "@/shared/constants.js";
+import { cleanTextAndSpaces } from "@/utils/text.js";
 import { createWordViaAi } from "../word/word.ai.service.js";
-import { enQueueSentenceProcessing } from "./sentence.queue.js";
-import { ListSentencesQuery, SentenceInput } from "./sentence.validation.js";
-import { SentenceRepository, presentSentence } from "./sentence.repository.js";
 import { WordRepository } from "../word/word.repository.js";
+import { createPendingSentence } from "./sentence.ai.service.js";
+import { enQueueSentenceProcessing } from "./sentence.queue.js";
+import { SentenceRepository, presentSentence } from "./sentence.repository.js";
+import { ListSentencesQuery, SentenceInput } from "./sentence.validation.js";
 
 // Re-export for controllers and other modules
 export { SENTENCE_INCLUDE } from "./sentence.repository.js";
@@ -70,9 +70,11 @@ export async function getById(id: string) {
 }
 
 export async function create(input: SentenceInput) {
+  console.log("SentenceInput");
   const { text } = input;
 
   const existingText = await SentenceRepository.findArabicTextByText(text);
+  console.log({ existingText });
   if (existingText) throw ApiError.conflict("This Arabic text already exists");
 
   const sentence = await SentenceRepository.create(input);
@@ -168,7 +170,13 @@ export async function getOrCreateWord(arabicText: string) {
 export async function processNewSentence(input: string) {
   // 1. Check if the text already exists in the database
   const existingText = await SentenceRepository.findArabicTextByText(input);
+  console.log(existingText);
+
   if (existingText) {
+    // const deleted = await prisma.arabicText.delete({
+    //   where: { id: existingText.id },
+    // });
+    // console.log(deleted);
     throw ApiError.conflict("This Arabic text already exists");
   }
 

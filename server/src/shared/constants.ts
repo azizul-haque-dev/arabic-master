@@ -14,7 +14,7 @@ export const TOKEN_EXPIRY = {
 
 // === Token Expiry (in milliseconds) ===
 export const TOKEN_EXPIRY_MS = {
-  ACCESS_TOKEN: 15 * 60 * 1000,          // 15m
+  ACCESS_TOKEN: 15 * 60 * 1000, // 15m
   REFRESH_TOKEN: 7 * 24 * 60 * 60 * 1000, // 7d
 } as const;
 
@@ -22,8 +22,12 @@ export const TOKEN_EXPIRY_MS = {
 export const CACHE_TTL = {
   CATEGORIES: 3600, // 1 hour
   WORDS: 1800, // 30 minutes
-  SENTENCES: 1800, // 30 minutes
   USER_PROFILE: 300, // 5 minutes
+  SENTENCES: 1800, // 30 minutes
+  TOPICS: 1800, // 30 minutes
+  TOPIC_CONVERSATIONS: 1800, // 30 minutes
+  CONVERSATIONS: 1800,
+  CONVERSATION_LINES: 1800,
 } as const;
 
 // === Rate Limiting ===
@@ -45,7 +49,13 @@ export const RATE_LIMITS = {
 // === File Upload ===
 export const UPLOAD_LIMITS = {
   MAX_FILE_SIZE: 10 * 1024 * 1024, // 10 MB
-  ALLOWED_AUDIO_TYPES: ["audio/mpeg", "audio/mp3", "audio/wav", "audio/ogg", "audio/webm"],
+  ALLOWED_AUDIO_TYPES: [
+    "audio/mpeg",
+    "audio/mp3",
+    "audio/wav",
+    "audio/ogg",
+    "audio/webm",
+  ],
 } as const;
 
 // === Validation Constraints ===

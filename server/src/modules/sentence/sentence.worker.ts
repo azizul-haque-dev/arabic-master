@@ -1,13 +1,13 @@
 import { workerRedis } from "@/config/redis.js";
 import { SentenceStatus } from "@/generated/prisma/enums.js";
-import { getOrCreateCategory } from "@/modules/category/category.service.js";
 import { ApiError } from "@/lib/api-error.js";
+import { getOrCreateCategory } from "@/modules/category/category.service.js";
 import { Job, Worker } from "bullmq";
 import { generateContent } from "../ai/generateContent.js";
 import { AIResponseSchema } from "../ai/schema.js";
 import { SENTENCE_QUEUE_NAME } from "./sentence.queue.js";
-import { getOrCreateWord } from "./sentence.service.js";
 import { SentenceRepository } from "./sentence.repository.js";
+import { getOrCreateWord } from "./sentence.service.js";
 
 const processSentenceJob = async (job: Job<{ sentenceId: string }>) => {
   const { sentenceId } = job.data;
@@ -58,6 +58,9 @@ const processSentenceJob = async (job: Job<{ sentenceId: string }>) => {
         pronunciationBn: aiData.pronunciationBn,
         whenToUseEn: aiData.whenToUseEn,
         whenToUseBn: aiData.whenToUseBn,
+        feminineBn: aiData.feminineBn,
+        feminineEn: aiData.feminineEn,
+        status: SentenceStatus.COMPLETED,
       },
     );
 
@@ -71,8 +74,7 @@ const processSentenceJob = async (job: Job<{ sentenceId: string }>) => {
     // Fallback status update if the processing fails completely
     await SentenceRepository.updateWithStatus(sentenceId, {
       status: SentenceStatus.FAILED,
-      errorMessage:
-        error.message || "Unknown error occurred during processing",
+      errorMessage: error.message || "Unknown error occurred during processing",
     });
 
     throw error;
