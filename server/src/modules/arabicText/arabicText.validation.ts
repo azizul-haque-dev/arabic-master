@@ -16,3 +16,4 @@ export const createArabicTextSchema = z.object({
     status: z.enum(Status).optional(),
     aiStatus: z.enum(GenerationStatus).optional()
 });
+
