@@ -5,11 +5,14 @@ export type Status =
   | "DRAFT"
   | "PUBLISHED"
   | "ACTIVE"
-  | "DISABLED"
+  | "DISABLED";
+
+export type AiGenerationStatus =
   | "PENDING"
   | "PROCESSING"
   | "COMPLETED"
   | "FAILED";
+
 
 export interface User {
   id: string;
@@ -29,16 +32,32 @@ export interface Category {
   updatedAt: string;
 }
 
-export interface ArabicText {
+export interface ArabicTextEntry {
   id: string;
   text: string;
   audioUrl: string | null;
+  audioKey: string | null;
+  meaningEn: string | null;
+  meaningBn: string | null;
+  whenToUseEn: string | null;
+  whenToUseBn: string | null;
+  pronunciationEn: string | null;
+  pronunciationBn: string | null;
+  feminineEn: string | null;
+  feminineBn: string | null;
+  errorMessage: string | null;
+  status: Status;
+  aiStatus: AiGenerationStatus;
+  word: { id: string } | null;
+  sentence: { id: string } | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Word {
   id: string;
   arabicId: string;
-  arabic: ArabicText;
+  arabic: ArabicTextEntry;
   meaningEn: string | null;
   meaningBn: string | null;
   whenToUseEn: string | null;
@@ -54,18 +73,32 @@ export interface Word {
 export interface SentenceWordRef extends Word {
   position: number;
 }
+export interface SentenceArabicText {
+  id: string;
+  text: string;
+  audioUrl: string | null;
+  audioKey: string | null;
+  meaningEn: string | null;
+  meaningBn: string | null;
+  whenToUseEn: string | null;
+  whenToUseBn: string | null;
+  pronunciationEn: string | null;
+  pronunciationBn: string | null;
+  feminineEn: string | null;
+  feminineBn: string | null;
+  errorMessage: string | null;
+  status: Status;
+  aiStatus: AiGenerationStatus;
+}
 
 export interface Sentence {
   id: string;
   arabicId: string;
-  arabic: ArabicText;
-  pronunciationEn: string;
-  pronunciationBn: string;
-  meaningEn: string;
-  meaningBn: string;
+  arabic: SentenceArabicText;
+  meaningEn: string | null;
+  meaningBn: string | null;
   whenToUseEn: string | null;
   whenToUseBn: string | null;
-  status: Status;
   categories: Category[];
   words: SentenceWordRef[];
   createdAt: string;
@@ -110,3 +143,10 @@ export interface ApiResponseWithOptionalData<T = unknown> {
   message: string;
   data?: T;
 }
+
+
+
+
+
+
+

@@ -1,11 +1,15 @@
 import type { PaginatedResult } from "@/features/words/api";
 import { api } from "@/lib/axios";
-import type { ApiResponse, PaginatedData, Sentence, Status } from "@/types";
+import type {
+  AiGenerationStatus,
+  ApiResponse,
+  PaginatedData,
+  Sentence,
+} from "@/types";
 
 export interface ListSentencesParams {
   page?: number;
   limit?: number;
-  status?: Status;
   categoryId?: string;
   search?: string;
 }
@@ -13,9 +17,10 @@ export interface ListSentencesParams {
 export async function fetchSentences(
   params: ListSentencesParams,
 ): Promise<PaginatedResult<Sentence>> {
-  const { data } = await api.get<ApiResponse<PaginatedData<Sentence>>>("/sentences", {
-    params,
-  });
+  const { data } = await api.get<ApiResponse<PaginatedData<Sentence>>>(
+    "/sentences",
+    { params },
+  );
   return data.data;
 }
 
@@ -27,13 +32,10 @@ export interface SentenceWordInput {
 export interface SentenceInput {
   text: string;
   audioUrl?: string;
-  pronunciationEn: string;
-  pronunciationBn: string;
-  meaningEn: string;
-  meaningBn: string;
+  meaningEn?: string;
+  meaningBn?: string;
   whenToUseEn?: string;
   whenToUseBn?: string;
-  status?: Status;
   categoryIds?: string[];
   words?: SentenceWordInput[];
 }
@@ -58,7 +60,21 @@ export async function deleteSentence(id: string): Promise<void> {
   await api.delete(`/sentences/${id}`);
 }
 
-export async function generateAiSentenceContent(input: string) {
-  const { data } = await api.post(`/sentences/ai`, input);
-  return data;
+export interface GenerateSentenceResponse {
+  sentenceId: string;
+  aiStatus: AiGenerationStatus;
+}
+
+// POST /sentences/ai - fire-and-forget: creates/attaches a PENDING sentence
+// and queues AI enrichment (meaning, pronunciation, words, etc).
+// Body must be { text } - a raw string body will not populate req.body.text
+// on the server.
+export async function generateAiSentenceContent(
+  text: string,
+): Promise<GenerateSentenceResponse> {
+  const { data } = await api.post<ApiResponse<GenerateSentenceResponse>>(
+    "/sentences/ai",
+    { text },
+  );
+  return data.data;
 }

@@ -11,6 +11,7 @@ import sentenceRoutes from "../modules/sentence/sentence.routes.js";
 import topicConversationRoutes from "../modules/topicConversation/topic_conversation.routes.js";
 import userRoutes from "../modules/user/user.routes.js";
 import wordRoutes from "../modules/word/word.routes.js";
+import arabicTextRoutes from "../modules/arabicText/arabicText.route.js";
 
 const router = Router();
 
@@ -24,6 +25,7 @@ router.use("/topic-conversations", topicConversationRoutes);
 router.use("/auth", authRoutes);
 router.use("/users", userRoutes);
 router.use("/categories", categoryRoutes);
+router.use("/arabic-texts", arabicTextRoutes);
 router.use("/words", wordRoutes);
 router.use("/sentences", sentenceRoutes);
 router.use("/media", mediaRoutes);

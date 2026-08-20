@@ -1,8 +1,8 @@
 import { Badge } from "@/components/ui/badge";
-import type { Status } from "@/types";
+import type { AiGenerationStatus, Status } from "@/types";
 
 const STATUS_STYLES: Record<
-  Status,
+  Status | AiGenerationStatus,
   { label: string; variant: "default" | "outline" | "warning" | "destructive" }
 > = {
   DRAFT: { label: "Draft", variant: "outline" },
@@ -15,7 +15,7 @@ const STATUS_STYLES: Record<
   FAILED: { label: "Failed", variant: "destructive" },
 };
 
-export function StatusBadge({ status }: { status: Status }) {
+export function StatusBadge({ status }: { status: Status | AiGenerationStatus }) {
   const currentStyle = STATUS_STYLES[status] || {
     label: typeof status === "string" ? status : "Unknown",
     variant: "outline" as const,
@@ -25,3 +25,4 @@ export function StatusBadge({ status }: { status: Status }) {
 
   return <Badge variant={variant}>{label}</Badge>;
 }
+

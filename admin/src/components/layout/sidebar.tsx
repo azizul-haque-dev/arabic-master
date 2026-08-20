@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import {
   BookText,
   FileHeadphone,
+  Languages,
   LayoutGrid,
   MessageSquareText,
   Sparkles,
@@ -12,6 +13,7 @@ import { NavLink } from "react-router-dom";
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutGrid, end: true },
   { to: "/ai", label: "AI Studio", icon: Sparkles },
+  { to: "/arabic-texts", label: "Arabic Texts", icon: Languages },
   { to: "/words", label: "Words", icon: BookText },
   { to: "/sentences", label: "Sentences", icon: MessageSquareText },
   { to: "/media", label: "Media", icon: FileHeadphone },

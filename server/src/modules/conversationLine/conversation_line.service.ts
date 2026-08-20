@@ -9,13 +9,14 @@ import { ApiError } from "@/lib/api-error.js";
 import { CACHE_TTL } from "@/shared/constants.js";
 import { ConversationRepository } from "../conversation/conversation.repository.js";
 import { SentenceRepository } from "../sentence/sentence.repository.js";
-import { processNewSentence } from "../sentence/sentence.service.js";
+
 import { ConversationLineRepository } from "./conversation_line.repository.js";
 import {
   CreateConversationLineInput,
   ListConversationLinesQuery,
   UpdateConversationLineInput,
 } from "./conversation_line.validation.js";
+import { processNewSentence } from "../sentence/sentence.ai.service.js";
 
 type ConversationLineListResult = {
   items: Awaited<ReturnType<typeof ConversationLineRepository.findMany>>;

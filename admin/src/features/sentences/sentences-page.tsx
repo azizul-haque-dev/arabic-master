@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { fetchCategories } from "@/features/categories/api";
-import type { Sentence, Status } from "@/types";
+import type { Sentence } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ChevronLeft,
@@ -41,10 +41,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import {
-  deleteSentence,
-  fetchSentences,
-} from "./api";
+import { deleteSentence, fetchSentences } from "./api";
 import { SentenceFormDialog } from "./sentence-form-dialog";
 
 export function SentencesPage() {
@@ -53,7 +50,8 @@ export function SentencesPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [status, setStatus] = useState<Status | "ALL">("ALL");
+  // Status filtering removed - the sentence list endpoint no longer accepts
+  // a `status` query param (Sentence itself has no status field anymore).
   const [categoryId, setCategoryId] = useState<string>("ALL");
 
   const [formOpen, setFormOpen] = useState(false);
@@ -74,15 +72,11 @@ export function SentencesPage() {
   });
 
   const { data, isLoading, isPlaceholderData } = useQuery({
-    queryKey: [
-      "sentences",
-      { page, status, categoryId, search: debouncedSearch },
-    ],
+    queryKey: ["sentences", { page, categoryId, search: debouncedSearch }],
     queryFn: () =>
       fetchSentences({
         page,
         limit: 15,
-        status: status === "ALL" ? undefined : status,
         categoryId: categoryId === "ALL" ? undefined : categoryId,
         search: debouncedSearch || undefined,
       }),
@@ -136,25 +130,6 @@ export function SentencesPage() {
         </div>
 
         <Select
-          value={status}
-          onValueChange={(v) => {
-            setStatus(v as Status | "ALL");
-            setPage(1);
-          }}
-        >
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">All statuses</SelectItem>
-            <SelectItem value="DRAFT">Draft</SelectItem>
-            <SelectItem value="PUBLISHED">Published</SelectItem>
-            <SelectItem value="ACTIVE">Active</SelectItem>
-            <SelectItem value="DISABLED">Disabled</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select
           value={categoryId}
           onValueChange={(v) => {
             setCategoryId(v);
@@ -190,7 +165,7 @@ export function SentencesPage() {
                   <TableHead>Arabic</TableHead>
                   <TableHead>Meaning</TableHead>
                   <TableHead>Words</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>AI status</TableHead>
                   <TableHead className="w-24 text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -201,13 +176,13 @@ export function SentencesPage() {
                       {sentence.arabic.text}
                     </TableCell>
                     <TableCell className="max-w-xs text-muted">
-                      {sentence.meaningEn}
+                      {sentence.meaningEn || "—"}
                     </TableCell>
                     <TableCell className="text-sm text-muted">
                       {sentence.words.length}
                     </TableCell>
                     <TableCell>
-                      <StatusBadge status={sentence.status} />
+                      <StatusBadge status={sentence.arabic.aiStatus} />
                     </TableCell>
                     <TableCell className="text-right">
                       <Button
@@ -280,7 +255,8 @@ export function SentencesPage() {
               "{pendingDelete?.arabic.text}"
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This sentence will be permanently deleted.
+              This sentence will be permanently deleted, along with its
+              underlying Arabic text entry.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

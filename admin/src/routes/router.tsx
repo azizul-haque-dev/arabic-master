@@ -8,6 +8,7 @@ import { MediaPage } from "@/features/media/media-page";
 import { SentencesPage } from "@/features/sentences/sentences-page";
 import { WordsPage } from "@/features/words/words-page";
 import { createBrowserRouter } from "react-router-dom";
+import { ArabicTextsPage } from "@/features/arabic-texts/arabic-texts-page";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -19,6 +20,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "/", element: <DashboardPage /> },
           { path: "/ai", element: <AiPage /> },
+          { path: "/arabic-texts", element: <ArabicTextsPage /> },
           { path: "/words", element: <WordsPage /> },
           { path: "/sentences", element: <SentencesPage /> },
           { path: "/media", element: <MediaPage /> },
