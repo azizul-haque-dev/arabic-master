@@ -1,8 +1,3 @@
-/**
- * Word Module Types
- * Request/Response DTOs and related type definitions
- */
-
 import { z } from "zod";
 import {
   updateWordSchema,
@@ -10,17 +5,29 @@ import {
 } from "./word.validation.js";
 import type { WordInput } from "./word.validation.js";
 
-// Request Input Types
 export type { WordInput };
 export type UpdateWordInput = z.infer<typeof updateWordSchema>;
 export type ListWordsQuery = z.infer<typeof listWordsQuerySchema>;
 
-// Response Types
+// Full ArabicText shape as returned by Prisma - includes fields this
+// module never writes (pronunciation/feminine/status/aiStatus) since
+// they come back on the relation regardless of who owns the write.
 export interface WordArabicText {
   id: string;
   text: string;
   audioUrl?: string | null;
   audioKey?: string | null;
+  meaningEn?: string | null;
+  meaningBn?: string | null;
+  whenToUseEn?: string | null;
+  whenToUseBn?: string | null;
+  pronunciationEn?: string | null;
+  pronunciationBn?: string | null;
+  feminineEn?: string | null;
+  feminineBn?: string | null;
+  errorMessage?: string | null;
+  status?: "DRAFT" | "PUBLISHED" | "ACTIVE" | "DISABLED";
+  aiStatus?: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
 }
 
 export interface WordCategory {
@@ -36,9 +43,6 @@ export interface WordResponse {
   meaningBn?: string | null;
   whenToUseEn?: string | null;
   whenToUseBn?: string | null;
-  pronunciationEn?: string | null;
-  pronunciationBn?: string | null;
-  status: "DRAFT" | "PUBLISHED" | "ACTIVE" | "DISABLED";
   categories: WordCategory[];
   createdAt?: Date;
   updatedAt?: Date;
@@ -64,10 +68,4 @@ export interface ListWordsResponse {
   page: number;
   limit: number;
   hasMore: boolean;
-}
-
-export interface ProcessWordResponse {
-  message: string;
-  wordId: string;
-  status: string;
 }

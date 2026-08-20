@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { sendSuccess } from "@/lib/api-response.js";
 import { asyncHandler } from "@/lib/async-handler.js";
-import { translateWord } from "../ai/generateContent.js";
 import * as sentenceService from "./sentence.service.js";
 import { ListSentencesQuery } from "./sentence.validation.js";
+import { translateWord } from "../ai/generateContent.js";
+import * as sentenceAiService from "./sentence.ai.service.js";
 
 export const list = asyncHandler(async (req: Request, res: Response) => {
   const query = (req as Request & { validatedQuery: ListSentencesQuery })
@@ -34,14 +35,13 @@ export const remove = asyncHandler(async (req: Request, res: Response) => {
   await sentenceService.remove(req.params.id as string);
   sendSuccess(res, 200, "Sentence deleted");
 });
-export const processSentence = asyncHandler(
-  async (req: Request, res: Response) => {
-    const arabicRegex = /^[\u0600-\u06FF\s]+$/;
-    let text = req.body.text;
-    if (!arabicRegex.test(req.body.text)) {
-      text = await translateWord(text);
-    }
-    const result = await sentenceService.processNewSentence(text);
-    sendSuccess(res, 202, "Sentence queued for AI processing", result);
-  },
-);
+
+export const processSentence = asyncHandler(async (req: Request, res: Response) => {
+  const arabicRegex = /^[\u0600-\u06FF\s]+$/;
+  let text = req.body.text;
+  if (!arabicRegex.test(req.body.text)) {
+    text = await translateWord(text);
+  }
+  const result = await sentenceAiService.processNewSentence(text);
+  sendSuccess(res, 202, "Sentence queued for AI processing", result);
+});

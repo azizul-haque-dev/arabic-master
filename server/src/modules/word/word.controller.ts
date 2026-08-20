@@ -33,12 +33,14 @@ export const remove = asyncHandler(async (req: Request, res: Response) => {
   sendSuccess(res, 200, "Word deleted");
 });
 
+// NOT part of this CRUD rewrite - kept as-is, will break the build until
+// word.ai.service.ts's `createPendingWord` drops its `status: Status.DRAFT`
+// field (Word no longer has a status column).
 export const processWord = asyncHandler(async (req: Request, res: Response) => {
   const arabicRegex = /^[\u0600-\u06FF\s]+$/;
   let text = req.body.text;
   if (!arabicRegex.test(req.body.text)) {
     text = await translateWord(text);
-    console.log({ ai: "ai generated" });
   }
 
   const word = await wordAiService.processNewWord(text);

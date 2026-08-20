@@ -28,6 +28,7 @@ export const CACHE_TTL = {
   TOPIC_CONVERSATIONS: 1800, // 30 minutes
   CONVERSATIONS: 1800,
   CONVERSATION_LINES: 1800,
+  ARABIC_TEXTS: 1800, // 30 minutes
 } as const;
 
 // === Rate Limiting ===

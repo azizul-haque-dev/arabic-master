@@ -2,12 +2,14 @@
 // the HTTP server so scaling API replicas never multiplies worker processes.
 import { connectDatabase, disconnectDatabase } from "./config/database.js";
 import { logger } from "./config/logger.js";
+import { arabicTextWorker } from "./modules/arabicText/arabicText.worker.js";
 import { sentenceWorker } from "./modules/sentence/sentence.worker.js";
 import { wordWorker } from "./modules/word/word.worker.js";
 
 async function bootstrap() {
   await connectDatabase();
   logger.info("Sentence worker started");
+  logger.info("Arabic text worker started");
 
   let shuttingDown = false;
   const shutdown = async (signal: string) => {
@@ -19,6 +21,7 @@ async function bootstrap() {
     // Worker#close waits for the active job to finish before releasing Redis.
     await sentenceWorker.close();
     await wordWorker.close();
+    await arabicTextWorker.close();
     await disconnectDatabase();
     logger.info("Worker shutdown complete");
   };

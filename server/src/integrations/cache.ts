@@ -17,6 +17,7 @@ export const cacheNamespaces = {
   topicConversations: `${CACHE_PREFIX}:topic-conversations`,
   conversations: `${CACHE_PREFIX}:conversations`,
   conversationLines: `${CACHE_PREFIX}:conversation-lines`,
+  arabicTexts: `${CACHE_PREFIX}:arabic-texts`,
 } as const;
 
 /**
