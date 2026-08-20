@@ -5,6 +5,7 @@ import { generateContent } from "../ai/generateContent.js";
 import { AIResponseSchema } from "../ai/schema.js";
 import { ARABIC_TEXT_QUEUE_NAME } from "./arabicText.queue.js";
 import { ArabicTextRepository } from "./arabicText.repository.js";
+import { cacheNamespaces, invalidateCacheNamespace } from "@/integrations/cache.js";
 
 const processArabicTextJob = async (job: Job<{ arabicTextId: string }>) => {
     const { arabicTextId } = job.data;
@@ -18,7 +19,7 @@ const processArabicTextJob = async (job: Job<{ arabicTextId: string }>) => {
     await ArabicTextRepository.updateAiResult(arabicTextId, {
         aiStatus: "PROCESSING",
     });
-
+    await invalidateCacheNamespace(cacheNamespaces.arabicTexts);
     try {
         // All expensive AI enrichment happens in this worker, never in the API.
         const aiResponse = await generateContent(arabicText.text);
@@ -46,6 +47,7 @@ const processArabicTextJob = async (job: Job<{ arabicTextId: string }>) => {
         });
 
         console.log(`[ArabicText Worker] Job ${job.id} finished.`);
+        await invalidateCacheNamespace(cacheNamespaces.arabicTexts);
     } catch (error: any) {
         console.log(`[ArabicText Worker] Error processing job ${job.id}:`, error);
 
@@ -53,6 +55,7 @@ const processArabicTextJob = async (job: Job<{ arabicTextId: string }>) => {
             aiStatus: "FAILED",
             errorMessage: error.message || "Unknown error occurred during processing",
         });
+        await invalidateCacheNamespace(cacheNamespaces.arabicTexts);
 
         throw error;
     }

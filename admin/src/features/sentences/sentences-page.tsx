@@ -82,6 +82,7 @@ export function SentencesPage() {
       }),
     placeholderData: (prev) => prev,
   });
+  console.log('data', data?.items[0])
 
   const deleteMutation = useMutation({
     mutationFn: deleteSentence,
@@ -102,6 +103,8 @@ export function SentencesPage() {
     setEditing(sentence);
     setFormOpen(true);
   }
+
+
 
   return (
     <div className="space-y-5">
@@ -173,6 +176,7 @@ export function SentencesPage() {
                 {data.items.map((sentence) => (
                   <TableRow key={sentence.id}>
                     <TableCell className="arabic-text max-w-xs text-lg text-ink">
+                      {sentence.arabic.pronunciationBn || ''} <br />
                       {sentence.arabic.text}
                     </TableCell>
                     <TableCell className="max-w-xs text-muted">

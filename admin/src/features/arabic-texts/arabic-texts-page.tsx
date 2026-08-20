@@ -48,7 +48,7 @@ import { toast } from "sonner";
 import { deleteArabicText, fetchArabicTexts } from "./api";
 import { ArabicTextFormDialog } from "./arabic-text-form-dialog";
 import { GenerateArabicTextDialog } from "./generate-ai-dialog";
-import { DropdownMenuDestructive } from "@/components/common/word-action";
+import RefreshButton from "@/components/common/RefreshButton";
 
 export function ArabicTextsPage() {
     const queryClient = useQueryClient();
@@ -177,6 +177,7 @@ export function ArabicTextsPage() {
                         <SelectItem value="FAILED">Failed</SelectItem>
                     </SelectContent>
                 </Select>
+                <RefreshButton featureKey="arabic-texts" />
             </div>
 
             <Card>
@@ -192,10 +193,10 @@ export function ArabicTextsPage() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Arabic</TableHead>
-                                    <TableHead>Meaning</TableHead>
+                                    <TableHead className="hidden md:flex">Meaning</TableHead>
                                     <TableHead>Linked to</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead>AI status</TableHead>
+                                    <TableHead className="hidden md:flex">AI status</TableHead>
                                     <TableHead className="w-24 text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -203,9 +204,10 @@ export function ArabicTextsPage() {
                                 {data.items.map((entry) => (
                                     <TableRow key={entry.id}>
                                         <TableCell className="arabic-text max-w-xs text-lg text-ink">
+                                            {entry.pronunciationBn} <br />
                                             {entry.text}
                                         </TableCell>
-                                        <TableCell className="max-w-xs text-muted">
+                                        <TableCell className="max-w-xs text-muted truncate hidden md:felx">
                                             {entry.meaningEn || "—"}
                                         </TableCell>
                                         <TableCell>
@@ -220,7 +222,7 @@ export function ArabicTextsPage() {
                                         <TableCell>
                                             <StatusBadge status={entry.status} />
                                         </TableCell>
-                                        <TableCell>
+                                        <TableCell className="hidden md:flex">
                                             <StatusBadge status={entry.aiStatus} />
                                         </TableCell>
 

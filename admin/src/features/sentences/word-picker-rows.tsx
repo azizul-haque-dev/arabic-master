@@ -66,8 +66,8 @@ function WordSearchCombobox({
   const { data, isLoading, isError } = useQuery({
     queryKey: ["words", "search", debouncedSearch],
     queryFn: () => fetchWords({ search: debouncedSearch, limit: 10 }),
-    enabled: isOpen, // dialog বন্ধ থাকলে বা popover বন্ধ থাকলে fetch হবে না
-    staleTime: 30_000, // ঘন ঘন same query re-fetch এড়ানো
+    enabled: isOpen, // do not fetch when dialog is off
+    staleTime: 30_000, // avoid re-fetch same query
   });
 
   const selectedWord = data?.items.find((word) => word.id === value);

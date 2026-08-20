@@ -1,5 +1,4 @@
 import { AppLayout } from "@/components/layout/app-layout";
-import { AiPage } from "@/features/ai/ai-page";
 import { ProtectedRoute } from "@/components/layout/protected-route";
 import { LoginPage } from "@/features/auth/login-page";
 import { CategoriesPage } from "@/features/categories/categories-page";
@@ -19,7 +18,6 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { path: "/", element: <DashboardPage /> },
-          { path: "/ai", element: <AiPage /> },
           { path: "/arabic-texts", element: <ArabicTextsPage /> },
           { path: "/words", element: <WordsPage /> },
           { path: "/sentences", element: <SentencesPage /> },
