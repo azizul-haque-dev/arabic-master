@@ -5,6 +5,7 @@ import {
   Languages,
   LayoutGrid,
   MessageSquareText,
+  MessagesSquare,
   Tags,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
@@ -14,6 +15,7 @@ const navItems = [
   { to: "/arabic-texts", label: "Arabic Texts", icon: Languages },
   { to: "/words", label: "Words", icon: BookText },
   { to: "/sentences", label: "Sentences", icon: MessageSquareText },
+  { to: "/topics", label: "Conversations", icon: MessagesSquare },
   { to: "/media", label: "Media", icon: FileHeadphone },
   { to: "/categories", label: "Categories", icon: Tags },
 ];
