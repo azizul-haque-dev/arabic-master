@@ -93,9 +93,12 @@ export function ConversationBuilderPage() {
         : 0;
       return createConversationLine({
         conversationId,
-        sentenceId: values.sentenceId,
         speaker: values.speaker,
         position: nextPosition,
+        // Exactly one of these two — never both — per the backend schema.
+        ...(values.mode === "search"
+          ? { sentenceId: values.sentenceId }
+          : { text: values.text }),
         meaningEn: values.meaningEn || undefined,
         meaningBn: values.meaningBn || undefined,
       });
@@ -111,8 +114,10 @@ export function ConversationBuilderPage() {
   const updateMutation = useMutation({
     mutationFn: ({ id, values }: { id: string; values: LineValues }) =>
       updateConversationLine(id, {
-        sentenceId: values.sentenceId,
         speaker: values.speaker,
+        ...(values.mode === "search"
+          ? { sentenceId: values.sentenceId }
+          : { text: values.text }),
         meaningEn: values.meaningEn || undefined,
         meaningBn: values.meaningBn || undefined,
       }),

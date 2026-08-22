@@ -16,19 +16,42 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Sparkles } from "lucide-react";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import type { ConversationLine } from "@/types/conversation";
 import { SentenceSearchCombobox } from "./sentence-search-combobox";
 
-const lineSchema = z.object({
-  speaker: z.string().trim().min(1, "Speaker is required").max(50),
-  sentenceId: z.string().min(1, "Choose a sentence"),
-  meaningEn: z.string().trim().optional(),
-  meaningBn: z.string().trim().optional(),
-});
+// Mirrors the backend's XOR rule: exactly one of sentenceId / text.
+const lineSchema = z
+  .object({
+    mode: z.enum(["search", "generate"]),
+    speaker: z.string().trim().min(1, "Speaker is required").max(50),
+    sentenceId: z.string().optional(),
+    text: z.string().trim().optional(),
+    meaningEn: z.string().trim().optional(),
+    meaningBn: z.string().trim().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.mode === "search" && !data.sentenceId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Choose a sentence",
+        path: ["sentenceId"],
+      });
+    }
+    if (data.mode === "generate" && !data.text) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Enter the line's text",
+        path: ["text"],
+      });
+    }
+  });
 
 export type LineValues = z.infer<typeof lineSchema>;
 
@@ -54,20 +77,31 @@ export function ConversationLineFormDialog({
 
   const form = useForm<LineValues>({
     resolver: zodResolver(lineSchema),
-    defaultValues: { speaker: "", sentenceId: "", meaningEn: "", meaningBn: "" },
+    defaultValues: {
+      mode: "search",
+      speaker: "",
+      sentenceId: "",
+      text: "",
+      meaningEn: "",
+      meaningBn: "",
+    },
   });
 
   useEffect(() => {
     if (open) {
       form.reset({
+        mode: "search",
         speaker: line?.speaker ?? knownSpeakers[0] ?? "",
         sentenceId: line?.sentenceId ?? "",
+        text: "",
         meaningEn: line?.meaningEn ?? "",
         meaningBn: line?.meaningBn ?? "",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, line?.id]);
+
+  const mode = form.watch("mode");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -114,20 +148,66 @@ export function ConversationLineFormDialog({
               <FormLabel>Sentence</FormLabel>
               <Controller
                 control={form.control}
-                name="sentenceId"
+                name="mode"
                 render={({ field }) => (
-                  <SentenceSearchCombobox
+                  <Tabs
                     value={field.value}
-                    onChange={(id) => field.onChange(id)}
-                    initialLabel={line?.sentence?.arabic.text}
-                  />
+                    onValueChange={(v) => field.onChange(v as "search" | "generate")}
+                  >
+                    <TabsList>
+                      <TabsTrigger value="search">Pick existing</TabsTrigger>
+                      <TabsTrigger value="generate">Type new</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="search">
+                      <Controller
+                        control={form.control}
+                        name="sentenceId"
+                        render={({ field: sentenceField }) => (
+                          <SentenceSearchCombobox
+                            value={sentenceField.value ?? ""}
+                            onChange={(id) => sentenceField.onChange(id)}
+                            initialLabel={
+                              isEditing ? line?.sentence?.arabic.text : undefined
+                            }
+                          />
+                        )}
+                      />
+                      {form.formState.errors.sentenceId && (
+                        <p className="mt-1 text-xs font-medium text-destructive">
+                          {form.formState.errors.sentenceId.message}
+                        </p>
+                      )}
+                    </TabsContent>
+
+                    <TabsContent value="generate">
+                      <Controller
+                        control={form.control}
+                        name="text"
+                        render={({ field: textField }) => (
+                          <Textarea
+                            placeholder="e.g. أين أقرب مطعم؟ — or type in English/Bangla, it'll be translated"
+                            className="arabic-text"
+                            dir="auto"
+                            rows={2}
+                            {...textField}
+                          />
+                        )}
+                      />
+                      <p className="mt-1.5 flex items-start gap-1.5 text-xs text-muted">
+                        <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
+                        Matches an existing sentence with this text, or creates a new
+                        one and lets AI fill in pronunciation, meaning and words.
+                      </p>
+                      {form.formState.errors.text && (
+                        <p className="mt-1 text-xs font-medium text-destructive">
+                          {form.formState.errors.text.message}
+                        </p>
+                      )}
+                    </TabsContent>
+                  </Tabs>
                 )}
               />
-              {form.formState.errors.sentenceId && (
-                <p className="text-xs font-medium text-destructive">
-                  {form.formState.errors.sentenceId.message}
-                </p>
-              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -166,7 +246,11 @@ export function ConversationLineFormDialog({
                 Cancel
               </Button>
               <Button type="submit" disabled={isSaving}>
-                {isSaving ? "Saving…" : "Save line"}
+                {isSaving
+                  ? mode === "generate"
+                    ? "Generating…"
+                    : "Saving…"
+                  : "Save line"}
               </Button>
             </DialogFooter>
           </form>

@@ -2,17 +2,23 @@ import { api } from "@/lib/axios";
 import type { ApiResponse } from "@/types";
 import type { ConversationLine } from "@/types/conversation";
 
-export interface ConversationLineInput {
+// Mirrors createConversationLineSchema / updateConversationLineSchema exactly:
+// exactly one of `sentenceId` (reuse an existing sentence) or `text` (raw
+// text — Arabic or not, auto-translated — that gets matched to an existing
+// sentence or created fresh via the AI flow) must be provided, never both.
+
+export interface CreateConversationLineInput {
   conversationId: string;
-  sentenceId: string;
   speaker: string;
   position: number;
+  sentenceId?: string;
+  text?: string;
   meaningEn?: string;
   meaningBn?: string;
 }
 
 export async function createConversationLine(
-  input: ConversationLineInput,
+  input: CreateConversationLineInput,
 ): Promise<ConversationLine> {
   const { data } = await api.post<ApiResponse<ConversationLine>>(
     "/conversation-lines",
@@ -21,9 +27,21 @@ export async function createConversationLine(
   return data.data;
 }
 
+export interface UpdateConversationLineInput {
+  speaker?: string;
+  position?: number;
+  sentenceId?: string;
+  text?: string;
+  meaningEn?: string;
+  meaningBn?: string;
+}
+
+// Note: conversationId is intentionally never accepted here — the backend
+// fixes a line to its conversation at create time (moving a line between
+// conversations is an unresolved product decision on the API side).
 export async function updateConversationLine(
   id: string,
-  input: Partial<Omit<ConversationLineInput, "conversationId">>,
+  input: UpdateConversationLineInput,
 ): Promise<ConversationLine> {
   const { data } = await api.patch<ApiResponse<ConversationLine>>(
     `/conversation-lines/${id}`,

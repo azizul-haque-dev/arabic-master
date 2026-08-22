@@ -64,6 +64,7 @@ export function SentenceSearchCombobox({
       <PopoverTrigger
         render={
           <Button
+            type="button"
             variant="outline"
             role="combobox"
             aria-expanded={open}
@@ -75,7 +76,7 @@ export function SentenceSearchCombobox({
           </Button>
         }
       />
-      <PopoverContent className="w-[320px] p-0">
+      <PopoverContent className="z-[60] w-[320px] p-0">
         <Command shouldFilter={false}>
           <CommandInput
             placeholder="Search Arabic or meaning…"

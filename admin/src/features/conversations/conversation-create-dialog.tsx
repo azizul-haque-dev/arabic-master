@@ -24,24 +24,47 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { Sparkles } from "lucide-react";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
+import { createConversationLine } from "@/features/conversation-lines/api";
 import { SentenceSearchCombobox } from "./sentence-search-combobox";
 import { createConversation } from "./api";
 
-const schema = z.object({
-    level: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]),
-    speaker: z.string().trim().min(1, "Speaker is required").max(50),
-    sentenceId: z.string().min(1, "Choose the first sentence"),
-    meaningEn: z.string().trim().optional(),
-    meaningBn: z.string().trim().optional(),
-});
+const schema = z
+    .object({
+        level: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]),
+        speaker: z.string().trim().min(1, "Speaker is required").max(50),
+        mode: z.enum(["search", "generate"]),
+        sentenceId: z.string().optional(),
+        text: z.string().trim().optional(),
+        meaningEn: z.string().trim().optional(),
+        meaningBn: z.string().trim().optional(),
+    })
+    .superRefine((data, ctx) => {
+        if (data.mode === "search" && !data.sentenceId) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Choose a sentence",
+                path: ["sentenceId"],
+            });
+        }
+        if (data.mode === "generate" && !data.text) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Enter the line's text",
+                path: ["text"],
+            });
+        }
+    });
 
 type Values = z.infer<typeof schema>;
 
@@ -66,7 +89,9 @@ export function ConversationCreateDialog({
         defaultValues: {
             level: "BEGINNER",
             speaker: "",
+            mode: "search",
             sentenceId: "",
+            text: "",
             meaningEn: "",
             meaningBn: "",
         },
@@ -77,28 +102,36 @@ export function ConversationCreateDialog({
             form.reset({
                 level: "BEGINNER",
                 speaker: "",
+                mode: "search",
                 sentenceId: "",
+                text: "",
                 meaningEn: "",
                 meaningBn: "",
             });
         }
     }, [open, form]);
 
+    const mode = form.watch("mode");
+
+    // Two real calls, chained: create the (empty) conversation, then create
+    // its first line against the returned id — mirrors how the builder page
+    // adds every subsequent line. If the second call fails, the conversation
+    // still exists and is reachable from the list to finish setting up.
     const mutation = useMutation({
-        mutationFn: (values: Values) =>
-            createConversation({
-                topicConversationId: tcId,
-                level: values.level,
-                lines: [
-                    {
-                        sentenceId: values.sentenceId,
-                        speaker: values.speaker,
-                        position: 0,
-                        meaningEn: values.meaningEn || undefined,
-                        meaningBn: values.meaningBn || undefined,
-                    },
-                ],
-            }),
+        mutationFn: async (values: Values) => {
+            const conversation = await createConversation(tcId, values.level);
+            await createConversationLine({
+                conversationId: conversation.id,
+                speaker: values.speaker,
+                position: 0,
+                ...(values.mode === "search"
+                    ? { sentenceId: values.sentenceId }
+                    : { text: values.text }),
+                meaningEn: values.meaningEn || undefined,
+                meaningBn: values.meaningBn || undefined,
+            });
+            return conversation;
+        },
         onSuccess: (conversation) => {
             queryClient.invalidateQueries({ queryKey: ["conversations", tcId] });
             toast.success("Conversation created");
@@ -170,19 +203,63 @@ export function ConversationCreateDialog({
                             <FormLabel>First sentence</FormLabel>
                             <Controller
                                 control={form.control}
-                                name="sentenceId"
+                                name="mode"
                                 render={({ field }) => (
-                                    <SentenceSearchCombobox
+                                    <Tabs
                                         value={field.value}
-                                        onChange={(id) => field.onChange(id)}
-                                    />
+                                        onValueChange={(v) => field.onChange(v as "search" | "generate")}
+                                    >
+                                        <TabsList>
+                                            <TabsTrigger value="search">Pick existing</TabsTrigger>
+                                            <TabsTrigger value="generate">Type new</TabsTrigger>
+                                        </TabsList>
+
+                                        <TabsContent value="search">
+                                            <Controller
+                                                control={form.control}
+                                                name="sentenceId"
+                                                render={({ field: sentenceField }) => (
+                                                    <SentenceSearchCombobox
+                                                        value={sentenceField.value ?? ""}
+                                                        onChange={(id) => sentenceField.onChange(id)}
+                                                    />
+                                                )}
+                                            />
+                                            {form.formState.errors.sentenceId && (
+                                                <p className="mt-1 text-xs font-medium text-destructive">
+                                                    {form.formState.errors.sentenceId.message}
+                                                </p>
+                                            )}
+                                        </TabsContent>
+
+                                        <TabsContent value="generate">
+                                            <Controller
+                                                control={form.control}
+                                                name="text"
+                                                render={({ field: textField }) => (
+                                                    <Textarea
+                                                        placeholder="e.g. أين أقرب مطعم؟ — or type in English/Bangla"
+                                                        className="arabic-text"
+                                                        dir="auto"
+                                                        rows={2}
+                                                        {...textField}
+                                                    />
+                                                )}
+                                            />
+                                            <p className="mt-1.5 flex items-start gap-1.5 text-xs text-muted">
+                                                <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
+                                                Matches an existing sentence, or creates a new one and lets AI
+                                                fill in the rest.
+                                            </p>
+                                            {form.formState.errors.text && (
+                                                <p className="mt-1 text-xs font-medium text-destructive">
+                                                    {form.formState.errors.text.message}
+                                                </p>
+                                            )}
+                                        </TabsContent>
+                                    </Tabs>
                                 )}
                             />
-                            {form.formState.errors.sentenceId && (
-                                <p className="text-xs font-medium text-destructive">
-                                    {form.formState.errors.sentenceId.message}
-                                </p>
-                            )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">

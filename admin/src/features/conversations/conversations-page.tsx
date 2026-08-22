@@ -24,7 +24,6 @@ import { fetchTopicConversations } from "@/features/topic-conversations/api";
 import { deleteConversation, fetchConversations } from "./api";
 import { ConversationCreateDialog } from "./conversation-create-dialog";
 
-
 export function ConversationsPage() {
   const { topicId = "", tcId = "" } = useParams();
   const navigate = useNavigate();

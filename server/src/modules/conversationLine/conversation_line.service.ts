@@ -23,11 +23,7 @@ type ConversationLineListResult = {
   meta: { page: number; limit: number; total: number; totalPages: number };
 };
 
-// Reuse or create the sentence a line points to.
-// - sentenceId given -> must already exist.
-// - text given -> reuse if that Arabic text already has a Sentence,
-//   otherwise create it as PENDING and hand it to the existing AI
-//   background job (sentence.worker.ts fills in the rest, including words).
+
 async function resolveSentenceId(input: {
   sentenceId?: string;
   text?: string;
@@ -46,9 +42,6 @@ async function resolveSentenceId(input: {
   return sentenceId;
 }
 
-// FIX (position uniqueness): throws a clean 409 if another line in the
-// same conversation already occupies `position`. Called from both
-// create and update.
 async function assertPositionAvailable(
   conversationId: string,
   position: number,
@@ -128,15 +121,7 @@ export async function create(input: CreateConversationLineInput) {
   return line;
 }
 
-// FIX: previously called ConversationLineRepository.update directly with
-// no existence check - a bad id fell straight through to a raw Prisma
-// P2025 instead of a clean 404. Now checks existence first via `exists`
-// (lightweight, no heavy include).
-//
-// conversationId is intentionally NEVER accepted here - whether a line
-// can move between conversations is an open, unresolved product decision
-// (see project notes). Until that's decided, conversationId stays fixed
-// at create time.
+
 export async function update(id: string, input: UpdateConversationLineInput) {
   const current = await ConversationLineRepository.exists(id);
   if (!current) throw ApiError.notFound("Conversation line not found");
@@ -163,8 +148,7 @@ export async function update(id: string, input: UpdateConversationLineInput) {
   return line;
 }
 
-// FIX: same missing-404 problem as update - delete on a non-existent id
-// previously threw a raw Prisma error instead of ApiError.notFound.
+
 export async function remove(id: string): Promise<void> {
   const current = await ConversationLineRepository.exists(id);
   if (!current) throw ApiError.notFound("Conversation line not found");

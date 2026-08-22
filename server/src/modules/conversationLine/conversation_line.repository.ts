@@ -2,11 +2,7 @@
 import { Prisma } from "@/generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
 
-// FIX: previously only included `sentence: { include: { arabic: true } }`,
-// which meant a conversation line's response never surfaced the sentence's
-// words even after the AI worker filled them in. Now mirrors
-// SENTENCE_INCLUDE's word shape so callers don't have to hit the sentence
-// endpoint separately.
+
 export const CONVERSATION_LINE_INCLUDE = {
   sentence: {
     include: {
@@ -69,10 +65,7 @@ export const ConversationLineRepository = {
       select: { id: true, conversationId: true, position: true },
     }),
 
-  // FIX (position uniqueness): finds another line in the same
-  // conversation already sitting at `position`, optionally excluding
-  // the line currently being updated (so a no-op position write
-  // doesn't collide with itself).
+
   findByConversationAndPosition: (
     conversationId: string,
     position: number,
