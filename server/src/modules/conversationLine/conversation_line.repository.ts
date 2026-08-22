@@ -2,8 +2,22 @@
 import { Prisma } from "@/generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
 
+// FIX: previously only included `sentence: { include: { arabic: true } }`,
+// which meant a conversation line's response never surfaced the sentence's
+// words even after the AI worker filled them in. Now mirrors
+// SENTENCE_INCLUDE's word shape so callers don't have to hit the sentence
+// endpoint separately.
 export const CONVERSATION_LINE_INCLUDE = {
-  sentence: { include: { arabic: true } },
+  sentence: {
+    include: {
+      arabic: true,
+      categories: { include: { category: true } },
+      words: {
+        include: { word: { include: { arabic: true } } },
+        orderBy: { position: "asc" },
+      },
+    },
+  },
 } satisfies Prisma.ConversationLineInclude;
 
 export interface CreateConversationLineData {
@@ -44,6 +58,33 @@ export const ConversationLineRepository = {
     prisma.conversationLine.findUnique({
       where: { id },
       include: CONVERSATION_LINE_INCLUDE,
+    }),
+
+  // Raw existence check without the heavy include - used before
+  // update/delete so we're not paying for the full sentence/word
+  // fetch just to know whether the row exists.
+  exists: (id: string) =>
+    prisma.conversationLine.findUnique({
+      where: { id },
+      select: { id: true, conversationId: true, position: true },
+    }),
+
+  // FIX (position uniqueness): finds another line in the same
+  // conversation already sitting at `position`, optionally excluding
+  // the line currently being updated (so a no-op position write
+  // doesn't collide with itself).
+  findByConversationAndPosition: (
+    conversationId: string,
+    position: number,
+    excludeId?: string,
+  ) =>
+    prisma.conversationLine.findFirst({
+      where: {
+        conversationId,
+        position,
+        ...(excludeId ? { id: { not: excludeId } } : {}),
+      },
+      select: { id: true },
     }),
 
   create: (data: CreateConversationLineData) =>
