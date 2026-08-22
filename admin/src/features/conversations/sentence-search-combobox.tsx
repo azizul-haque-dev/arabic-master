@@ -47,10 +47,13 @@ export function SentenceSearchCombobox({
   const [search, setSearch] = React.useState("");
   const debouncedSearch = useDebounce(search);
 
+  // Use state (not ref) so the query re-renders after the first open.
+  const [hasOpened, setHasOpened] = React.useState(false);
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ["sentences", "search", debouncedSearch],
     queryFn: () => fetchSentences({ search: debouncedSearch, limit: 10 }),
-    enabled: open,
+    enabled: hasOpened,
     staleTime: 30_000,
   });
 
@@ -59,8 +62,14 @@ export function SentenceSearchCombobox({
     ? selected.arabic.text
     : (initialLabel ?? (value ? "Selected sentence" : "Search a sentence…"));
 
+  function handleOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen);
+    if (nextOpen && !hasOpened) setHasOpened(true);
+    if (!nextOpen) setSearch("");
+  }
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger
         render={
           <Button
@@ -76,7 +85,7 @@ export function SentenceSearchCombobox({
           </Button>
         }
       />
-      <PopoverContent className="z-[60] w-[320px] p-0">
+      <PopoverContent className="w-[320px] p-0">
         <Command shouldFilter={false}>
           <CommandInput
             placeholder="Search Arabic or meaning…"
@@ -108,6 +117,8 @@ export function SentenceSearchCombobox({
                   <CommandItem
                     key={sentence.id}
                     value={sentence.id}
+                    // Prevent the popover from stealing focus/close before onSelect fires
+                    onPointerDown={(e) => e.preventDefault()}
                     onSelect={() => {
                       onChange(sentence.id, sentence.arabic.text);
                       setOpen(false);
@@ -115,7 +126,7 @@ export function SentenceSearchCombobox({
                   >
                     <Check
                       className={cn(
-                        "mr-2 h-4 w-4",
+                        "mr-2 h-4 w-4 shrink-0",
                         value === sentence.id ? "opacity-100" : "opacity-0",
                       )}
                     />
