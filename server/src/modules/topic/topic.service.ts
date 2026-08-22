@@ -27,11 +27,11 @@ export async function list(query: ListTopicQuery) {
   const { page, limit, search } = query;
   const where = search
     ? {
-        OR: [
-          { titleEn: { contains: search, mode: "insensitive" as const } },
-          { titleBn: { contains: search, mode: "insensitive" as const } },
-        ],
-      }
+      OR: [
+        { titleEn: { contains: search, mode: "insensitive" as const } },
+        { titleBn: { contains: search, mode: "insensitive" as const } },
+      ],
+    }
     : {};
   const skip = (page - 1) * limit;
   const [items, total] = await Promise.all([
@@ -60,8 +60,10 @@ export async function getById(id: string) {
 export async function create(data: CreateTopicInput) {
   const existingTopic = await TopicRepository.findByTitleEn(data.titleEn);
 
-  if (!existingTopic)
+  if (existingTopic) {
     throw ApiError.conflict("A topic with this title already exists");
+  }
+
   const topic = await TopicRepository.create(data);
   await invalidateCacheNamespace(cacheNamespaces.topics);
 

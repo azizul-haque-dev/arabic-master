@@ -21,13 +21,16 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import type { Conversation } from "@/types/conversation";
 import { fetchTopicConversations } from "@/features/topic-conversations/api";
-import { createConversation, deleteConversation, fetchConversations } from "./api";
+import { deleteConversation, fetchConversations } from "./api";
+import { ConversationCreateDialog } from "./conversation-create-dialog";
+
 
 export function ConversationsPage() {
   const { topicId = "", tcId = "" } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const [createOpen, setCreateOpen] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<Conversation | null>(null);
 
   const { data: topic } = useQuery({
@@ -49,17 +52,6 @@ export function ConversationsPage() {
     queryKey: ["conversations", tcId],
     queryFn: () => fetchConversations({ topicConversationId: tcId, limit: 100 }),
     enabled: !!tcId,
-  });
-
-  const createMutation = useMutation({
-    mutationFn: () => createConversation(tcId),
-    onSuccess: (conversation) => {
-      queryClient.invalidateQueries({ queryKey: ["conversations", tcId] });
-      navigate(
-        `/topics/${topicId}/topic-conversations/${tcId}/conversations/${conversation.id}`,
-      );
-    },
-    onError: () => toast.error("Could not create a new conversation"),
   });
 
   const deleteMutation = useMutation({
@@ -93,9 +85,9 @@ export function ConversationsPage() {
             Individual conversations built line by line from your sentence bank.
           </p>
         </div>
-        <Button onClick={() => createMutation.mutate()} disabled={createMutation.isPending}>
+        <Button onClick={() => setCreateOpen(true)}>
           <Plus className="h-4 w-4" />
-          {createMutation.isPending ? "Creating…" : "New conversation"}
+          New conversation
         </Button>
       </div>
 
@@ -167,6 +159,13 @@ export function ConversationsPage() {
           })}
         </div>
       )}
+
+      <ConversationCreateDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        topicId={topicId}
+        tcId={tcId}
+      />
 
       <AlertDialog
         open={!!pendingDelete}

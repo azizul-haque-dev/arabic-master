@@ -38,11 +38,11 @@ export async function list(query: ListTopicConversationsQuery) {
     ...(topicId ? { topicId } : {}),
     ...(search
       ? {
-          OR: [
-            { titleEn: { contains: search, mode: "insensitive" } as const },
-            { titleBn: { contains: search, mode: "insensitive" } as const },
-          ],
-        }
+        OR: [
+          { titleEn: { contains: search, mode: "insensitive" } as const },
+          { titleBn: { contains: search, mode: "insensitive" } as const },
+        ],
+      }
       : {}),
   };
   const skip = (page - 1) * limit;
@@ -73,6 +73,12 @@ export async function getById(id: string) {
 export async function create(data: CreateTopicConversationInput) {
   const topic = await TopicRepository.findById(data.topicId);
   if (!topic) throw ApiError.badRequest("Topic dose not exist");
+
+  const existingTopicConversation = await TopicConversationRepository.findByTitleEn(data.titleEn);
+
+  if (existingTopicConversation) {
+    throw ApiError.conflict("A topic conversation with this title already exists");
+  }
   const topicConversation = await TopicConversationRepository.create(data);
   await invalidateCacheNamespace(cacheNamespaces.topicConversations);
   return presentTopicConversation(topicConversation);

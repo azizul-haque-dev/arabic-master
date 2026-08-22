@@ -41,6 +41,12 @@ export const TopicConversationRepository = {
       include: TOPIC_CONVERSATION_INCLUDE,
     }),
 
+  findByTitleEn: (titleEn: string) =>
+    prisma.topicConversation.findFirst({
+      where: { titleEn },
+      include: TOPIC_CONVERSATION_INCLUDE,
+    }),
+
   create: (data: { topicId: string; titleEn: string; titleBn?: string }) =>
     prisma.topicConversation.create({
       data,

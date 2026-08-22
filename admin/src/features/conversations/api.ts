@@ -26,9 +26,11 @@ export async function fetchConversation(id: string): Promise<Conversation> {
 
 export async function createConversation(
   topicConversationId: string,
+  level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" = "BEGINNER",
 ): Promise<Conversation> {
   const { data } = await api.post<ApiResponse<Conversation>>("/conversations", {
     topicConversationId,
+    level,
   });
   return data.data;
 }

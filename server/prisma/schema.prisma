@@ -270,6 +270,7 @@ model TopicConversation {
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@index([topicId])
+  @@unique([titleEn])
   @@map("topic_conversations")
 }
 
