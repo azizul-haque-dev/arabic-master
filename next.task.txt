@@ -1,0 +1,13 @@
+
+
+/*
+1: link word with sentences
+
+2: link arabic text to sentence 
+
+3: link arabic text to word
+
+4: generate word and sentence with ai ui
+
+*/
+

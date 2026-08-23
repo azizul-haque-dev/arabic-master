@@ -26,8 +26,12 @@ function arabicMirrorFields(data: Partial<WordInput>) {
   return {
     ...(data.meaningEn !== undefined ? { meaningEn: data.meaningEn } : {}),
     ...(data.meaningBn !== undefined ? { meaningBn: data.meaningBn } : {}),
-    ...(data.whenToUseEn !== undefined ? { whenToUseEn: data.whenToUseEn } : {}),
-    ...(data.whenToUseBn !== undefined ? { whenToUseBn: data.whenToUseBn } : {}),
+    ...(data.whenToUseEn !== undefined
+      ? { whenToUseEn: data.whenToUseEn }
+      : {}),
+    ...(data.whenToUseBn !== undefined
+      ? { whenToUseBn: data.whenToUseBn }
+      : {}),
   };
 }
 
@@ -55,7 +59,15 @@ export const WordRepository = {
     }),
 
   create: (data: WordInput) => {
-    const { text, audioUrl, categoryIds, meaningEn, meaningBn, whenToUseEn, whenToUseBn } = data;
+    const {
+      text,
+      audioUrl,
+      categoryIds,
+      meaningEn,
+      meaningBn,
+      whenToUseEn,
+      whenToUseBn,
+    } = data;
 
     return prisma.word.create({
       data: {
@@ -72,10 +84,10 @@ export const WordRepository = {
         },
         ...(categoryIds?.length
           ? {
-            categories: {
-              create: categoryIds.map((categoryId) => ({ categoryId })),
-            },
-          }
+              categories: {
+                create: categoryIds.map((categoryId) => ({ categoryId })),
+              },
+            }
           : {}),
       },
       include: WORD_INCLUDE,
@@ -100,11 +112,11 @@ export const WordRepository = {
           : {}),
         ...(categoryIds
           ? {
-            categories: {
-              deleteMany: {},
-              create: categoryIds.map((categoryId) => ({ categoryId })),
-            },
-          }
+              categories: {
+                deleteMany: {},
+                create: categoryIds.map((categoryId) => ({ categoryId })),
+              },
+            }
           : {}),
       },
       include: WORD_INCLUDE,
@@ -143,6 +155,7 @@ export const WordRepository = {
     wordId: string,
     categoryId: string,
     data: {
+      status: Status;
       meaningEn?: string;
       meaningBn?: string;
       whenToUseEn?: string;
@@ -228,5 +241,4 @@ export const WordRepository = {
         include: WORD_INCLUDE,
       }),
     ]),
-
 };

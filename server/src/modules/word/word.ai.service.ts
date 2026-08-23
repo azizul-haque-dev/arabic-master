@@ -6,9 +6,9 @@
 import { GenerationStatus, Status } from "@/generated/prisma/enums.js";
 import { ApiError } from "@/lib/api-error.js";
 import { getOrCreateCategory } from "@/modules/category/category.service.js";
-import { ArabicTextRepository } from "../arabicText/arabicText.repository.js";
 import { generateContent } from "../ai/generateContent.js";
 import { AiResponse } from "../ai/schema.js";
+import { ArabicTextRepository } from "../arabicText/arabicText.repository.js";
 import { enqueueWordProcessing } from "./word.queue.js";
 import { WordRepository } from "./word.repository.js";
 
@@ -25,7 +25,9 @@ export async function createPendingWord(text: string) {
       throw ApiError.conflict("A word already exists for this Arabic text");
     }
 
-    const word = await WordRepository.createForExistingArabic(existingArabic.id);
+    const word = await WordRepository.createForExistingArabic(
+      existingArabic.id,
+    );
     await enqueueWordProcessing(word.id);
     return word;
   }
@@ -130,6 +132,7 @@ export async function createWordViaAi(input: string) {
     word.id,
     categoryId,
     {
+      status: Status.DRAFT,
       meaningEn: arabicText.meaningEn ?? undefined,
       meaningBn: arabicText.meaningBn ?? undefined,
       whenToUseEn: arabicText.whenToUseEn ?? undefined,

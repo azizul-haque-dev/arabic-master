@@ -6,8 +6,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cacheNamespaces } from "@/lib/cache";
 import type { Status } from "@/types";
 import { Search } from "lucide-react";
+import RefreshButton from "../common/RefreshButton";
 
 interface WordsFiltersProps {
   search: string;
@@ -66,6 +68,7 @@ export function WordsFilters({
           ))}
         </SelectContent>
       </Select>
+      <RefreshButton featureKey={"words"} cacheKey={cacheNamespaces.words} />
     </div>
   );
 }

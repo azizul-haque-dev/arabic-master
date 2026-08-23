@@ -1,13 +1,17 @@
 import { workerRedis } from "@/config/redis.js";
 import { ApiError } from "@/lib/api-error.js";
-import { getOrCreateCategory } from "@/modules/category/category.service.js";
+
+import { Status } from "@/generated/prisma/enums.js";
+import {
+  cacheNamespaces,
+  invalidateCacheNamespace,
+} from "@/integrations/cache.js";
 import { Job, Worker } from "bullmq";
 import { generateContent } from "../ai/generateContent.js";
 import { AIResponseSchema } from "../ai/schema.js";
 import { ArabicTextRepository } from "../arabicText/arabicText.repository.js";
 import { WORD_QUEUE_NAME } from "./word.queue.js";
 import { WordRepository } from "./word.repository.js";
-import { Status } from "@/generated/prisma/enums.js";
 
 const processWordJob = async (job: Job<{ wordId: string }>) => {
   const { wordId } = job.data;
@@ -27,11 +31,6 @@ const processWordJob = async (job: Job<{ wordId: string }>) => {
       throw ApiError.internal("AI failed to generate valid word content.");
     }
     const aiData = parsed.data;
-
-    // const categoryId = await getOrCreateCategory({
-    //   categoryEn: aiData.categoryEn,
-    //   categoryBn: aiData.categoryBn,
-    // });
 
     // ArabicText: owns pronunciation/feminine/aiStatus outright, and
     // gets the mirrored copy of meaning/whenToUse.
@@ -60,7 +59,7 @@ const processWordJob = async (job: Job<{ wordId: string }>) => {
       feminineEn: aiData.feminineEn,
       status: Status.DRAFT,
     });
-
+    await invalidateCacheNamespace(cacheNamespaces.words);
   } catch (error: any) {
     await ArabicTextRepository.updateAiResult(word.arabicId, {
       aiStatus: "FAILED",

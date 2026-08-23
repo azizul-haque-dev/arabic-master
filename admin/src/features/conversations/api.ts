@@ -20,7 +20,9 @@ export async function fetchConversations(
 
 // Expected to include nested `lines` (each with its `sentence`).
 export async function fetchConversation(id: string): Promise<Conversation> {
-  const { data } = await api.get<ApiResponse<Conversation>>(`/conversations/${id}`);
+  const { data } = await api.get<ApiResponse<Conversation>>(
+    `/conversations/${id}`,
+  );
   return data.data;
 }
 
@@ -32,6 +34,7 @@ export async function createConversation(
     topicConversationId,
     level,
   });
+  console.log("createConversation", topicConversationId, level);
   return data.data;
 }
 

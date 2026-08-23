@@ -1,41 +1,50 @@
 import { Button } from "@/components/ui/button";
+import { api } from "@/lib/axios";
 import { useQueryClient } from "@tanstack/react-query";
 import { RefreshCw } from "lucide-react";
 import { useState } from "react";
 
 interface RefreshButtonProps {
-    featureKey: string | readonly unknown[];
-    className?: string;
+  featureKey: string | readonly unknown[];
+  className?: string;
+  cacheKey: string;
 }
 
-export default function RefreshButton({ featureKey, className }: RefreshButtonProps) {
-    const queryClient = useQueryClient();
-    const [isRefreshing, setIsRefreshing] = useState(false);
+export default function RefreshButton({
+  featureKey,
+  className,
+  cacheKey,
+}: RefreshButtonProps) {
+  const queryClient = useQueryClient();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-    const handleRefresh = async () => {
-        setIsRefreshing(true);
+  const handleRefresh = async () => {
+    try {
+      setIsRefreshing(true);
+      // Normalize string key to array format for TanStack Query
+      const queryKey =
+        typeof featureKey === "string" ? [featureKey] : featureKey;
 
-        // Normalize string key to array format for TanStack Query
-        const queryKey = typeof featureKey === "string" ? [featureKey] : featureKey;
+      await queryClient.invalidateQueries({ queryKey });
+      await api.post("/clear-cache", { cacheKey });
+    } catch (error) {
+    } finally {
+      // Slight delay for smooth visual spinner feedback
 
-        await queryClient.invalidateQueries({ queryKey });
+      setIsRefreshing(false);
+    }
+  };
 
-        // Slight delay for smooth visual spinner feedback
-        setTimeout(() => {
-            setIsRefreshing(false);
-        }, 500);
-    };
-
-    return (
-        <Button
-            variant="outline"
-            size="icon"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className={className}
-            title="Refresh data"
-        >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-        </Button>
-    );
+  return (
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={handleRefresh}
+      disabled={isRefreshing}
+      className={className}
+      title="Refresh data"
+    >
+      <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+    </Button>
+  );
 }

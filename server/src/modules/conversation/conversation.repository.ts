@@ -41,20 +41,25 @@ export const ConversationRepository = {
     prisma.conversation.create({
       data: {
         topicConversationId: data.topicConversationId,
-        lines: { create: data.lines },
+        ...(data.level ? { level: data.level } : {}),
+        ...(data.lines?.length ? { lines: { create: data.lines } } : {}),
       },
       include: CONVERSATION_INCLUDE,
     }),
 
   // Replaces all lines in one transaction when `lines` is provided, otherwise
-  // just patches topicConversationId.
+  // just patches topicConversationId/level.
   update: (id: string, data: UpdateConversationInput) => {
-    const { lines, topicConversationId } = data;
+    const { lines, topicConversationId, level } = data;
+    const scalarData = {
+      ...(topicConversationId ? { topicConversationId } : {}),
+      ...(level ? { level } : {}),
+    };
 
     if (!lines) {
       return prisma.conversation.update({
         where: { id },
-        data: { ...(topicConversationId ? { topicConversationId } : {}) },
+        data: scalarData,
         include: CONVERSATION_INCLUDE,
       });
     }
@@ -66,7 +71,7 @@ export const ConversationRepository = {
       });
       return tx.conversation.update({
         where: { id },
-        data: { ...(topicConversationId ? { topicConversationId } : {}) },
+        data: scalarData,
         include: CONVERSATION_INCLUDE,
       });
     });

@@ -1,324 +1,324 @@
+import RefreshButton from "@/components/common/RefreshButton";
 import { StatusBadge } from "@/components/status-badge";
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
-import type {
-    AiGenerationStatus,
-    ArabicTextEntry,
-    Status,
-} from "@/types";
+import { cacheNamespaces } from "@/lib/cache";
+import type { AiGenerationStatus, ArabicTextEntry, Status } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-    ChevronLeft,
-    ChevronRight,
-    Pencil,
-    Plus,
-    Search,
-    Trash2,
+  ChevronLeft,
+  ChevronRight,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { deleteArabicText, fetchArabicTexts } from "./api";
 import { ArabicTextFormDialog } from "./arabic-text-form-dialog";
 import { GenerateArabicTextDialog } from "./generate-ai-dialog";
-import RefreshButton from "@/components/common/RefreshButton";
 
 export function ArabicTextsPage() {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    const [page, setPage] = useState(1);
-    const [search, setSearch] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
-    const [status, setStatus] = useState<Status | "ALL">("ALL");
-    const [aiStatus, setAiStatus] = useState<AiGenerationStatus | "ALL">("ALL");
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [status, setStatus] = useState<Status | "ALL">("ALL");
+  const [aiStatus, setAiStatus] = useState<AiGenerationStatus | "ALL">("ALL");
 
-    const [formOpen, setFormOpen] = useState(false);
-    const [editing, setEditing] = useState<ArabicTextEntry | null>(null);
-    const [pendingDelete, setPendingDelete] = useState<ArabicTextEntry | null>(
-        null,
-    );
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<ArabicTextEntry | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<ArabicTextEntry | null>(
+    null,
+  );
 
-    // Debounce free-text search so we don't refetch on every keystroke.
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            setDebouncedSearch(search);
-            setPage(1);
-        }, 350);
-        return () => clearTimeout(timeout);
-    }, [search]);
+  // Debounce free-text search so we don't refetch on every keystroke.
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 350);
+    return () => clearTimeout(timeout);
+  }, [search]);
 
-    const { data, isLoading, isPlaceholderData } = useQuery({
-        queryKey: [
-            "arabic-texts",
-            { page, status, aiStatus, search: debouncedSearch },
-        ],
-        queryFn: () =>
-            fetchArabicTexts({
-                page,
-                limit: 15,
-                status: status === "ALL" ? undefined : status,
-                aiStatus: aiStatus === "ALL" ? undefined : aiStatus,
-                search: debouncedSearch || undefined,
-            }),
-        placeholderData: (prev) => prev,
-    });
+  const { data, isLoading, isPlaceholderData } = useQuery({
+    queryKey: [
+      "arabic-texts",
+      { page, status, aiStatus, search: debouncedSearch },
+    ],
+    queryFn: () =>
+      fetchArabicTexts({
+        page,
+        limit: 15,
+        status: status === "ALL" ? undefined : status,
+        aiStatus: aiStatus === "ALL" ? undefined : aiStatus,
+        search: debouncedSearch || undefined,
+      }),
+    placeholderData: (prev) => prev,
+  });
 
-    const deleteMutation = useMutation({
-        mutationFn: deleteArabicText,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["arabic-texts"] });
-            toast.success("Arabic text deleted");
-            setPendingDelete(null);
-        },
-        onError: () => toast.error("Could not delete this entry"),
-    });
+  const deleteMutation = useMutation({
+    mutationFn: deleteArabicText,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["arabic-texts"] });
+      toast.success("Arabic text deleted");
+      setPendingDelete(null);
+    },
+    onError: () => toast.error("Could not delete this entry"),
+  });
 
-    function openCreate() {
-        setEditing(null);
-        setFormOpen(true);
-    }
+  function openCreate() {
+    setEditing(null);
+    setFormOpen(true);
+  }
 
-    function openEdit(entry: ArabicTextEntry) {
-        setEditing(entry);
-        setFormOpen(true);
-    }
+  function openEdit(entry: ArabicTextEntry) {
+    setEditing(entry);
+    setFormOpen(true);
+  }
 
-    return (
-        <div className="space-y-5">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                    <h1 className="text-xl font-semibold text-ink">Arabic texts</h1>
-                    <p className="text-sm text-muted">
-                        Standalone Arabic text entries — generated by AI or entered
-                        manually.
-                    </p>
-                </div>
-                <div className="flex gap-2">
-                    <GenerateArabicTextDialog />
-                    <Button onClick={openCreate}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        New entry
-                    </Button>
-                </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-                <div className="relative w-64">
-                    <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted" />
-                    <Input
-                        placeholder="Search Arabic text…"
-                        className="pl-8"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                </div>
-
-                <Select
-                    value={status}
-                    onValueChange={(v) => {
-                        setStatus(v as Status | "ALL");
-                        setPage(1);
-                    }}
-                >
-                    <SelectTrigger className="w-40">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="ALL">All statuses</SelectItem>
-                        <SelectItem value="DRAFT">Draft</SelectItem>
-                        <SelectItem value="PUBLISHED">Published</SelectItem>
-                        <SelectItem value="ACTIVE">Active</SelectItem>
-                        <SelectItem value="DISABLED">Disabled</SelectItem>
-                    </SelectContent>
-                </Select>
-
-                <Select
-                    value={aiStatus}
-                    onValueChange={(v) => {
-                        setAiStatus(v as AiGenerationStatus | "ALL");
-                        setPage(1);
-                    }}
-                >
-                    <SelectTrigger className="w-44">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="ALL">All AI statuses</SelectItem>
-                        <SelectItem value="PENDING">Pending</SelectItem>
-                        <SelectItem value="PROCESSING">Processing</SelectItem>
-                        <SelectItem value="COMPLETED">Completed</SelectItem>
-                        <SelectItem value="FAILED">Failed</SelectItem>
-                    </SelectContent>
-                </Select>
-                <RefreshButton featureKey="arabic-texts" />
-            </div>
-
-            <Card>
-                {isLoading ? (
-                    <div className="space-y-3 p-5">
-                        {Array.from({ length: 6 }).map((_, i) => (
-                            <Skeleton key={i} className="h-10 w-full" />
-                        ))}
-                    </div>
-                ) : data && data.items.length > 0 ? (
-                    <>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Arabic</TableHead>
-                                    <TableHead className="hidden md:flex">Meaning</TableHead>
-                                    <TableHead>Linked to</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="hidden md:flex">AI status</TableHead>
-                                    <TableHead className="w-24 text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {data.items.map((entry) => (
-                                    <TableRow key={entry.id}>
-                                        <TableCell className="arabic-text max-w-xs text-lg text-ink">
-                                            {entry.pronunciationBn} <br />
-                                            {entry.text}
-                                        </TableCell>
-                                        <TableCell className="max-w-xs text-muted truncate hidden md:felx">
-                                            {entry.meaningEn || "—"}
-                                        </TableCell>
-                                        <TableCell>
-                                            {entry.word ? (
-                                                <Badge variant="outline">Word</Badge>
-                                            ) : entry.sentence ? (
-                                                <Badge variant="outline">Sentence</Badge>
-                                            ) : (
-                                                <span className="text-xs text-muted">Unlinked</span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            <StatusBadge status={entry.status} />
-                                        </TableCell>
-                                        <TableCell className="hidden md:flex">
-                                            <StatusBadge status={entry.aiStatus} />
-                                        </TableCell>
-
-                                        <TableCell className="text-right">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => openEdit(entry)}
-                                            >
-                                                <Pencil className="h-4 w-4" />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => setPendingDelete(entry)}
-                                            >
-                                                <Trash2 className="h-4 w-4 text-destructive" />
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-
-                        <div className="flex items-center justify-between border-t border-border p-3">
-                            <p className="text-xs text-muted">
-                                Page {data.meta.page} of {data.meta.totalPages} ·{" "}
-                                {data.meta.total} entries
-                            </p>
-                            <div className="flex gap-2">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    disabled={page <= 1}
-                                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                                >
-                                    <ChevronLeft className="h-4 w-4" />
-                                    Prev
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    disabled={isPlaceholderData || page >= data.meta.totalPages}
-                                    onClick={() => setPage((p) => p + 1)}
-                                >
-                                    Next
-                                    <ChevronRight className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        </div>
-                    </>
-                ) : (
-                    <div className="p-10 text-center text-sm text-muted">
-                        No Arabic texts match these filters.
-                    </div>
-                )}
-            </Card>
-
-            <ArabicTextFormDialog
-                open={formOpen}
-                onOpenChange={(open) => {
-                    setFormOpen(open);
-                    if (!open) setEditing(null);
-                }}
-                arabicText={editing}
-            />
-
-            <AlertDialog
-                open={!!pendingDelete}
-                onOpenChange={(open) => !open && setPendingDelete(null)}
-            >
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle className="arabic-text">
-                            "{pendingDelete?.text}"
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This Arabic text will be permanently deleted
-                            {pendingDelete?.word || pendingDelete?.sentence
-                                ? ", along with its linked Word/Sentence (cascade delete)."
-                                : "."}
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={() =>
-                                pendingDelete && deleteMutation.mutate(pendingDelete.id)
-                            }
-                            disabled={deleteMutation.isPending}
-                        >
-                            Delete
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold text-ink">Arabic texts</h1>
+          <p className="text-sm text-muted">
+            Standalone Arabic text entries — generated by AI or entered
+            manually.
+          </p>
         </div>
-    );
+        <div className="flex gap-2">
+          <GenerateArabicTextDialog />
+          <Button onClick={openCreate}>
+            <Plus className="h-4 w-4 mr-2" />
+            New entry
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative w-64">
+          <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted" />
+          <Input
+            placeholder="Search Arabic text…"
+            className="pl-8"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        <Select
+          value={status}
+          onValueChange={(v) => {
+            setStatus(v as Status | "ALL");
+            setPage(1);
+          }}
+        >
+          <SelectTrigger className="w-40">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All statuses</SelectItem>
+            <SelectItem value="DRAFT">Draft</SelectItem>
+            <SelectItem value="PUBLISHED">Published</SelectItem>
+            <SelectItem value="ACTIVE">Active</SelectItem>
+            <SelectItem value="DISABLED">Disabled</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={aiStatus}
+          onValueChange={(v) => {
+            setAiStatus(v as AiGenerationStatus | "ALL");
+            setPage(1);
+          }}
+        >
+          <SelectTrigger className="w-44">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All AI statuses</SelectItem>
+            <SelectItem value="PENDING">Pending</SelectItem>
+            <SelectItem value="PROCESSING">Processing</SelectItem>
+            <SelectItem value="COMPLETED">Completed</SelectItem>
+            <SelectItem value="FAILED">Failed</SelectItem>
+          </SelectContent>
+        </Select>
+        <RefreshButton
+          featureKey="arabic-texts"
+          cacheKey={cacheNamespaces.arabicTexts}
+        />
+      </div>
+
+      <Card>
+        {isLoading ? (
+          <div className="space-y-3 p-5">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-10 w-full" />
+            ))}
+          </div>
+        ) : data && data.items.length > 0 ? (
+          <>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Arabic</TableHead>
+                  <TableHead className="hidden md:flex">Meaning</TableHead>
+                  <TableHead>Linked to</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="hidden md:flex">AI status</TableHead>
+                  <TableHead className="w-24 text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.items.map((entry) => (
+                  <TableRow key={entry.id}>
+                    <TableCell className="arabic-text max-w-xs text-lg text-ink">
+                      {entry.pronunciationBn} <br />
+                      {entry.text}
+                    </TableCell>
+                    <TableCell className="max-w-xs text-muted truncate hidden md:felx">
+                      {entry.meaningEn || "—"}
+                    </TableCell>
+                    <TableCell>
+                      {entry.word ? (
+                        <Badge variant="outline">Word</Badge>
+                      ) : entry.sentence ? (
+                        <Badge variant="outline">Sentence</Badge>
+                      ) : (
+                        <span className="text-xs text-muted">Unlinked</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={entry.status} />
+                    </TableCell>
+                    <TableCell className="hidden md:flex">
+                      <StatusBadge status={entry.aiStatus} />
+                    </TableCell>
+
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openEdit(entry)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setPendingDelete(entry)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+
+            <div className="flex items-center justify-between border-t border-border p-3">
+              <p className="text-xs text-muted">
+                Page {data.meta.page} of {data.meta.totalPages} ·{" "}
+                {data.meta.total} entries
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Prev
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={isPlaceholderData || page >= data.meta.totalPages}
+                  onClick={() => setPage((p) => p + 1)}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="p-10 text-center text-sm text-muted">
+            No Arabic texts match these filters.
+          </div>
+        )}
+      </Card>
+
+      <ArabicTextFormDialog
+        open={formOpen}
+        onOpenChange={(open) => {
+          setFormOpen(open);
+          if (!open) setEditing(null);
+        }}
+        arabicText={editing}
+      />
+
+      <AlertDialog
+        open={!!pendingDelete}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="arabic-text">
+              "{pendingDelete?.text}"
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This Arabic text will be permanently deleted
+              {pendingDelete?.word || pendingDelete?.sentence
+                ? ", along with its linked Word/Sentence (cascade delete)."
+                : "."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() =>
+                pendingDelete && deleteMutation.mutate(pendingDelete.id)
+              }
+              disabled={deleteMutation.isPending}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
 }

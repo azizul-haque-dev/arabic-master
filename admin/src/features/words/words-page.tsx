@@ -56,6 +56,7 @@ export function WordsPage() {
       }),
     placeholderData: (prev) => prev,
   });
+  console.log({ data });
 
   const deleteMutation = useMutation({
     mutationFn: deleteWord,

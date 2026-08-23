@@ -1,3 +1,4 @@
+import { BreadcrumbNav } from "@/components/common/breadcrumb-nav";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,22 +12,21 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BreadcrumbNav } from "@/components/common/breadcrumb-nav";
-import { fetchTopic } from "@/features/topics/api";
+import {
+  createConversationLine,
+  deleteConversationLine,
+  updateConversationLine,
+} from "@/features/conversation-lines/api";
 import { fetchTopicConversations } from "@/features/topic-conversations/api";
+import { fetchTopic } from "@/features/topics/api";
+import type { ConversationLine } from "@/types/conversation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { ArrowDown, ArrowUp, Pencil, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
-import type { ConversationLine } from "@/types/conversation";
 import { fetchConversation } from "./api";
-import {
-  createConversationLine,
-  deleteConversationLine,
-  updateConversationLine,
-} from "@/features/conversation-lines/api";
 import {
   ConversationLineFormDialog,
   type LineValues,
@@ -66,23 +66,29 @@ export function ConversationBuilderPage() {
   });
 
   const lines = useMemo(
-    () => [...(conversation?.lines ?? [])].sort((a, b) => a.position - b.position),
+    () =>
+      [...(conversation?.lines ?? [])].sort((a, b) => a.position - b.position),
     [conversation],
   );
 
   const speakerOrder = useMemo(() => {
     const order: string[] = [];
-    for (const l of lines) if (!order.includes(l.speaker)) order.push(l.speaker);
+    for (const l of lines)
+      if (!order.includes(l.speaker)) order.push(l.speaker);
     return order;
   }, [lines]);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingLine, setEditingLine] = useState<ConversationLine | null>(null);
-  const [pendingDelete, setPendingDelete] = useState<ConversationLine | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<ConversationLine | null>(
+    null,
+  );
   const [reorderingId, setReorderingId] = useState<string | null>(null);
 
   function invalidate() {
-    queryClient.invalidateQueries({ queryKey: ["conversations", "detail", conversationId] });
+    queryClient.invalidateQueries({
+      queryKey: ["conversations", "detail", conversationId],
+    });
     queryClient.invalidateQueries({ queryKey: ["conversations", tcId] });
   }
 
@@ -127,7 +133,8 @@ export function ConversationBuilderPage() {
       setFormOpen(false);
       setEditingLine(null);
     },
-    onError: (err) => toast.error(axiosMessage(err, "Could not update this line")),
+    onError: (err) =>
+      toast.error(axiosMessage(err, "Could not update this line")),
   });
 
   const deleteMutation = useMutation({
@@ -139,23 +146,29 @@ export function ConversationBuilderPage() {
     },
     onError: () => toast.error("Could not remove this line"),
   });
-
-  // Swap two adjacent lines' positions. Routed through a temporary negative
-  // position first since [conversationId, position] is unique and each PATCH
-  // is its own request/transaction — a direct swap would collide mid-flight.
+  // Swap two adjacent lines' positions. Routed through a temporary position
+  // first since [conversationId, position] is unique and each PATCH is its
+  // own request/transaction — a direct swap would collide mid-flight.
+  // NOTE: the backend requires position to be nonnegative (baseFields.position
+  // uses .nonnegative()), so the old "-1 sentinel" approach always 400s.
+  // Use a value above the current maximum so sparse/legacy positions cannot clash.
   async function move(index: number, direction: -1 | 1) {
     const current = lines[index];
     const other = lines[index + direction];
     if (!current || !other) return;
 
+    const tempPosition =
+      Math.max(...lines.map((line) => line.position), -1) + 1;
+
     setReorderingId(current.id);
     try {
-      await updateConversationLine(current.id, { position: -1 });
+      await updateConversationLine(current.id, { position: tempPosition });
       await updateConversationLine(other.id, { position: current.position });
       await updateConversationLine(current.id, { position: other.position });
       invalidate();
-    } catch {
+    } catch (error) {
       toast.error("Could not reorder lines");
+      console.log({ error });
       invalidate();
     } finally {
       setReorderingId(null);
@@ -324,7 +337,9 @@ export function ConversationBuilderPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => pendingDelete && deleteMutation.mutate(pendingDelete.id)}
+              onClick={() =>
+                pendingDelete && deleteMutation.mutate(pendingDelete.id)
+              }
               disabled={deleteMutation.isPending}
             >
               Remove

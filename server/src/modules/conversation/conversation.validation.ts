@@ -12,15 +12,19 @@ const conversationLineSchema = z.object({
 
 export const createConversationSchema = z.object({
   topicConversationId: z.string().min(1),
-  lines: z
-    .array(conversationLineSchema)
-    .min(1, "At least one line is required"),
+  level: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]).optional(),
+  // No longer required — the admin UI creates the conversation first, then
+  // adds lines one at a time via /conversation-lines (sentenceId/text XOR
+  // + AI flow), so a bare conversation with zero lines is a valid interim
+  // state. Still supported if a caller wants to submit lines directly.
+  lines: z.array(conversationLineSchema).optional(),
 });
 
 // On update, `lines` (if provided) fully replaces the existing set - same
 // replace-all-then-recreate approach sentence.repository.ts uses for categories.
 export const updateConversationSchema = z.object({
   topicConversationId: z.string().min(1).optional(),
+  level: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]).optional(),
   lines: z.array(conversationLineSchema).optional(),
 });
 

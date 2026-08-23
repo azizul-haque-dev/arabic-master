@@ -1,4 +1,8 @@
 import { workerRedis } from "@/config/redis.js";
+import {
+  cacheNamespaces,
+  invalidateCacheNamespace,
+} from "@/integrations/cache.js";
 import { ApiError } from "@/lib/api-error.js";
 import { Job, Worker } from "bullmq";
 import { generateContent } from "../ai/generateContent.js";
@@ -60,6 +64,7 @@ const processSentenceJob = async (job: Job<{ sentenceId: string }>) => {
       whenToUseEn: aiData.whenToUseEn,
       whenToUseBn: aiData.whenToUseBn,
     });
+    await invalidateCacheNamespace(cacheNamespaces.sentences);
   } catch (error: any) {
     await ArabicTextRepository.updateAiResult(sentence.arabicId, {
       aiStatus: "FAILED",
@@ -70,10 +75,14 @@ const processSentenceJob = async (job: Job<{ sentenceId: string }>) => {
   }
 };
 
-export const sentenceWorker = new Worker(SENTENCE_QUEUE_NAME, processSentenceJob, {
-  connection: workerRedis,
-  concurrency: 5,
-});
+export const sentenceWorker = new Worker(
+  SENTENCE_QUEUE_NAME,
+  processSentenceJob,
+  {
+    connection: workerRedis,
+    concurrency: 5,
+  },
+);
 
 sentenceWorker.on("failed", (job, error) => {
   console.log(
