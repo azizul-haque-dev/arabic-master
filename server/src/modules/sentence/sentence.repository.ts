@@ -33,8 +33,12 @@ function arabicMirrorFields(data: Partial<SentenceInput>) {
   return {
     ...(data.meaningEn !== undefined ? { meaningEn: data.meaningEn } : {}),
     ...(data.meaningBn !== undefined ? { meaningBn: data.meaningBn } : {}),
-    ...(data.whenToUseEn !== undefined ? { whenToUseEn: data.whenToUseEn } : {}),
-    ...(data.whenToUseBn !== undefined ? { whenToUseBn: data.whenToUseBn } : {}),
+    ...(data.whenToUseEn !== undefined
+      ? { whenToUseEn: data.whenToUseEn }
+      : {}),
+    ...(data.whenToUseBn !== undefined
+      ? { whenToUseBn: data.whenToUseBn }
+      : {}),
   };
 }
 
@@ -73,8 +77,16 @@ export const SentenceRepository = {
     }),
 
   create: (data: SentenceInput) => {
-    const { text, audioUrl, categoryIds, words, meaningEn, meaningBn, whenToUseEn, whenToUseBn } =
-      data;
+    const {
+      text,
+      audioUrl,
+      categoryIds,
+      words,
+      meaningEn,
+      meaningBn,
+      whenToUseEn,
+      whenToUseBn,
+    } = data;
 
     return prisma.sentence.create({
       data: {
@@ -91,10 +103,10 @@ export const SentenceRepository = {
         },
         ...(categoryIds?.length
           ? {
-            categories: {
-              create: categoryIds.map((categoryId) => ({ categoryId })),
-            },
-          }
+              categories: {
+                create: categoryIds.map((categoryId) => ({ categoryId })),
+              },
+            }
           : {}),
         ...(words?.length ? { words: { create: words } } : {}),
       },
@@ -120,11 +132,11 @@ export const SentenceRepository = {
           : {}),
         ...(categoryIds
           ? {
-            categories: {
-              deleteMany: {},
-              create: categoryIds.map((categoryId) => ({ categoryId })),
-            },
-          }
+              categories: {
+                deleteMany: {},
+                create: categoryIds.map((categoryId) => ({ categoryId })),
+              },
+            }
           : {}),
         // FIX: old code destructured `words` out and silently dropped it.
         // Now it gets the same replace-all treatment as categories.
@@ -139,7 +151,11 @@ export const SentenceRepository = {
   // category is never touched by this path.
   updateAiResult: (
     sentenceId: string,
-    sentenceWordsData: Array<{ sentenceId: string; wordId: string; position: number }>,
+    sentenceWordsData: Array<{
+      sentenceId: string;
+      wordId: string;
+      position: number;
+    }>,
     data: {
       meaningEn?: string;
       meaningBn?: string;
@@ -165,8 +181,38 @@ export const SentenceRepository = {
       include: { arabic: true },
     }),
 
-  // 1:1 relation - deleting ArabicText cascades to Sentence + its
   // category/word links.
   deleteArabicText: (arabicId: string) =>
     prisma.arabicText.delete({ where: { id: arabicId } }),
+
+  syncWords: (
+    sentenceId: string,
+    sentenceWordsData: Array<{
+      sentenceId: string;
+      wordId: string;
+      position: number;
+    }>,
+  ) =>
+    prisma.$transaction(async (tx) => {
+      await tx.sentenceWord.deleteMany({ where: { sentenceId } });
+      if (sentenceWordsData.length) {
+        await tx.sentenceWord.createMany({ data: sentenceWordsData });
+      }
+    }),
+
+  findSentenceWord: (sentenceId: string, wordId: string) => {
+    return prisma.sentenceWord.findFirst({ where: { sentenceId, wordId } });
+  },
+  findWordAtPosition: (sentenceId: string, position: number) =>
+    prisma.sentenceWord.findFirst({ where: { sentenceId, position } }),
+
+  createSentenceWord: (sentenceId: string, wordId: string, position: number) =>
+    prisma.sentenceWord.create({ data: { sentenceId, wordId, position } }),
+
+  // NOTE: deletes ALL SentenceWord rows for this (sentenceId, wordId) pair.
+  // If the same word is linked at multiple positions in one sentence,
+  // this removes every occurrence, not just one. Flagged, not fixed -
+
+  deleteSentenceWordByWordId: (sentenceId: string, wordId: string) =>
+    prisma.sentenceWord.deleteMany({ where: { sentenceId, wordId } }),
 };

@@ -5,11 +5,13 @@ import type {
   ApiResponse,
   PaginatedData,
   Sentence,
+  Status,
 } from "@/types";
 
 export interface ListSentencesParams {
   page?: number;
   limit?: number;
+  status: Status;
   categoryId?: string;
   search?: string;
 }

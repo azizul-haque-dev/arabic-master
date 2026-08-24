@@ -75,14 +75,34 @@ const processSentenceJob = async (job: Job<{ sentenceId: string }>) => {
   }
 };
 
-export const sentenceWorker = new Worker(
-  SENTENCE_QUEUE_NAME,
-  processSentenceJob,
-  {
-    connection: workerRedis,
-    concurrency: 5,
-  },
-);
+const processResyncWordsJob = async (job: Job<{ sentenceId: string }>) => {
+  // destruc sentence id
+  const { sentenceId } = job.data;
+  // find sentence
+  const sentence = await SentenceRepository.findById(sentenceId);
+  if (!sentence)
+    throw ApiError.badRequest(`Sentence not found by id ${sentenceId}`);
+  // re-split and resolve every word in the sentence
+  const wordsWithPosition = await getOrCreateWord(sentence.arabic.text);
+  const sentenceData = wordsWithPosition.map((word) => ({
+    sentenceId,
+    wordId: word.wordId,
+    position: word.position,
+  }));
+  await SentenceRepository.syncWords(sentenceId, sentenceData);
+};
+
+const dispatch = async (job: Job) => {
+  if (job.name === "resync-sentence-words") {
+    return processResyncWordsJob(job as Job<{ sentenceId: string }>);
+  }
+  return processSentenceJob(job as Job<{ sentenceId: string }>);
+};
+
+export const sentenceWorker = new Worker(SENTENCE_QUEUE_NAME, dispatch, {
+  connection: workerRedis,
+  concurrency: 5,
+});
 
 sentenceWorker.on("failed", (job, error) => {
   console.log(

@@ -1,7 +1,13 @@
 
 
 /*
-1: link word with sentences
+1: link word with sentences{
+    Type 'Status | undefined' is not assignable to type 'Status'.
+  Type 'undefined' is not assignable to type 'Status'.
+api.ts(14, 3): The expected type comes from property 'status' which is declared here on type 'ListSentencesParams'
+
+in sentence page
+}
 
 2: link arabic text to sentence 
 

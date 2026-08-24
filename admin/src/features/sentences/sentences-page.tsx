@@ -1,3 +1,4 @@
+import { SentenceActionMenu } from "@/components/common/sentence-action";
 import { StatusBadge } from "@/components/status-badge";
 import {
   AlertDialog,
@@ -29,16 +30,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { fetchCategories } from "@/features/categories/api";
-import type { Sentence } from "@/types";
+import type { Sentence, Status } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Pencil,
-  Plus,
-  Search,
-  Trash2,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { deleteSentence, fetchSentences } from "./api";
@@ -50,8 +44,7 @@ export function SentencesPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  // Status filtering removed - the sentence list endpoint no longer accepts
-  // a `status` query param (Sentence itself has no status field anymore).
+  const [status, setStatus] = useState<Status | "ALL">("ALL");
   const [categoryId, setCategoryId] = useState<string>("ALL");
 
   const [formOpen, setFormOpen] = useState(false);
@@ -72,17 +65,20 @@ export function SentencesPage() {
   });
 
   const { data, isLoading, isPlaceholderData } = useQuery({
-    queryKey: ["sentences", { page, categoryId, search: debouncedSearch }],
+    queryKey: [
+      "sentences",
+      { page, status, categoryId, search: debouncedSearch },
+    ],
     queryFn: () =>
       fetchSentences({
         page,
         limit: 15,
+        status: status === "ALL" ? undefined : status,
         categoryId: categoryId === "ALL" ? undefined : categoryId,
         search: debouncedSearch || undefined,
       }),
     placeholderData: (prev) => prev,
   });
-  console.log('data', data?.items[0])
 
   const deleteMutation = useMutation({
     mutationFn: deleteSentence,
@@ -103,8 +99,6 @@ export function SentencesPage() {
     setEditing(sentence);
     setFormOpen(true);
   }
-
-
 
   return (
     <div className="space-y-5">
@@ -131,6 +125,25 @@ export function SentencesPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+
+        <Select
+          value={status}
+          onValueChange={(v) => {
+            setStatus(v as Status | "ALL");
+            setPage(1);
+          }}
+        >
+          <SelectTrigger className="w-40">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All statuses</SelectItem>
+            <SelectItem value="DRAFT">Draft</SelectItem>
+            <SelectItem value="PUBLISHED">Published</SelectItem>
+            <SelectItem value="ACTIVE">Active</SelectItem>
+            <SelectItem value="DISABLED">Disabled</SelectItem>
+          </SelectContent>
+        </Select>
 
         <Select
           value={categoryId}
@@ -168,7 +181,7 @@ export function SentencesPage() {
                   <TableHead>Arabic</TableHead>
                   <TableHead>Meaning</TableHead>
                   <TableHead>Words</TableHead>
-                  <TableHead>AI status</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead className="w-24 text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -176,33 +189,23 @@ export function SentencesPage() {
                 {data.items.map((sentence) => (
                   <TableRow key={sentence.id}>
                     <TableCell className="arabic-text max-w-xs text-lg text-ink">
-                      {sentence.arabic.pronunciationBn || ''} <br />
                       {sentence.arabic.text}
                     </TableCell>
                     <TableCell className="max-w-xs text-muted">
-                      {sentence.meaningEn || "—"}
+                      {sentence.meaningEn}
                     </TableCell>
                     <TableCell className="text-sm text-muted">
                       {sentence.words.length}
                     </TableCell>
                     <TableCell>
-                      <StatusBadge status={sentence.arabic.aiStatus} />
+                      <StatusBadge status={sentence.status} />
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openEdit(sentence)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setPendingDelete(sentence)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                      <SentenceActionMenu
+                        openEdit={openEdit}
+                        sentence={sentence}
+                        onDelete={setPendingDelete}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -259,8 +262,7 @@ export function SentencesPage() {
               "{pendingDelete?.arabic.text}"
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This sentence will be permanently deleted, along with its
-              underlying Arabic text entry.
+              This sentence will be permanently deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

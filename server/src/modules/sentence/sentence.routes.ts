@@ -37,5 +37,11 @@ router.delete(
   controller.remove,
 );
 router.post("/ai", requireAuth, controller.processSentence);
+router.post(
+  "/:id/resync-words",
+  requireAuth,
+  validate({ params: sentenceIdParamSchema }),
+  controller.resyncWords,
+);
 
 export default router;

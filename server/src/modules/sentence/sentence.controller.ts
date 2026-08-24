@@ -1,10 +1,10 @@
-import { Request, Response } from "express";
 import { sendSuccess } from "@/lib/api-response.js";
 import { asyncHandler } from "@/lib/async-handler.js";
-import * as sentenceService from "./sentence.service.js";
-import { ListSentencesQuery } from "./sentence.validation.js";
+import { Request, Response } from "express";
 import { translateWord } from "../ai/generateContent.js";
 import * as sentenceAiService from "./sentence.ai.service.js";
+import * as sentenceService from "./sentence.service.js";
+import { ListSentencesQuery } from "./sentence.validation.js";
 
 export const list = asyncHandler(async (req: Request, res: Response) => {
   const query = (req as Request & { validatedQuery: ListSentencesQuery })
@@ -30,18 +30,34 @@ export const update = asyncHandler(async (req: Request, res: Response) => {
   );
   sendSuccess(res, 200, "Sentence updated", sentence);
 });
+export const linkWordToSentence = asyncHandler(
+  async (req: Request, res: Response) => {
+    const sentence = await sentenceService.update(
+      req.params.id as string,
+      req.body,
+    );
+    sendSuccess(res, 200, "Sentence updated", sentence);
+  },
+);
 
 export const remove = asyncHandler(async (req: Request, res: Response) => {
   await sentenceService.remove(req.params.id as string);
   sendSuccess(res, 200, "Sentence deleted");
 });
 
-export const processSentence = asyncHandler(async (req: Request, res: Response) => {
-  const arabicRegex = /^[\u0600-\u06FF\s]+$/;
-  let text = req.body.text;
-  if (!arabicRegex.test(req.body.text)) {
-    text = await translateWord(text);
-  }
-  const result = await sentenceAiService.processNewSentence(text);
-  sendSuccess(res, 202, "Sentence queued for AI processing", result);
+export const processSentence = asyncHandler(
+  async (req: Request, res: Response) => {
+    const arabicRegex = /^[\u0600-\u06FF\s]+$/;
+    let text = req.body.text;
+    if (!arabicRegex.test(req.body.text)) {
+      text = await translateWord(text);
+    }
+    const result = await sentenceAiService.processNewSentence(text);
+    sendSuccess(res, 202, "Sentence queued for AI processing", result);
+  },
+);
+
+export const resyncWords = asyncHandler(async (req: Request, res: Response) => {
+  const result = sentenceAiService.resyncSentenceWords(req.params.id as string);
+  sendSuccess(res, 202, "Sentence word links queued for resync", result);
 });

@@ -5,13 +5,16 @@
 
 import { GenerationStatus, Status } from "@/generated/prisma/enums.js";
 
+import { ApiError } from "@/lib/api-error.js";
 import { cleanTextAndSpaces } from "@/utils/text.js";
 import { ArabicTextRepository } from "../arabicText/arabicText.repository.js";
 import { createWordViaAi } from "../word/word.ai.service.js";
 import { WordRepository } from "../word/word.repository.js";
-import { enQueueSentenceProcessing } from "./sentence.queue.js";
+import {
+  enqueueResyncSentenceWords,
+  enQueueSentenceProcessing,
+} from "./sentence.queue.js";
 import { SentenceRepository } from "./sentence.repository.js";
-
 
 /**
  * Async path used by POST /sentences/ai and conversation-line's
@@ -22,12 +25,19 @@ export async function createPendingSentence(text: string) {
   const existingArabic = await ArabicTextRepository.findByText(text);
 
   if (existingArabic) {
-    const linkedSentence = await SentenceRepository.findByArabicId(existingArabic.id);
+    const linkedSentence = await SentenceRepository.findByArabicId(
+      existingArabic.id,
+    );
     if (linkedSentence) {
-      return { sentenceId: linkedSentence.id, aiStatus: existingArabic.aiStatus };
+      return {
+        sentenceId: linkedSentence.id,
+        aiStatus: existingArabic.aiStatus,
+      };
     }
 
-    const sentence = await SentenceRepository.createForExistingArabic(existingArabic.id);
+    const sentence = await SentenceRepository.createForExistingArabic(
+      existingArabic.id,
+    );
     await enQueueSentenceProcessing(sentence.id);
     return { sentenceId: sentence.id, aiStatus: existingArabic.aiStatus };
   }
@@ -38,7 +48,9 @@ export async function createPendingSentence(text: string) {
     aiStatus: GenerationStatus.PENDING,
   });
 
-  const sentence = await SentenceRepository.createForExistingArabic(arabicText.id);
+  const sentence = await SentenceRepository.createForExistingArabic(
+    arabicText.id,
+  );
   await enQueueSentenceProcessing(sentence.id);
 
   return { sentenceId: sentence.id, aiStatus: arabicText.aiStatus };
@@ -65,7 +77,9 @@ export async function getOrCreateWord(arabicText: string) {
 
   for (const wordData of wordsArr) {
     try {
-      const arabicTextRecord = await ArabicTextRepository.findByText(wordData.word);
+      const arabicTextRecord = await ArabicTextRepository.findByText(
+        wordData.word,
+      );
       const existingWord = arabicTextRecord
         ? await WordRepository.findByArabicId(arabicTextRecord.id)
         : null;
@@ -77,7 +91,9 @@ export async function getOrCreateWord(arabicText: string) {
       } else {
         const newWord = await createWordViaAi(wordData.word);
         if (!newWord) {
-          console.error(`AI failed to generate word structure for: "${wordData.word}"`);
+          console.error(
+            `AI failed to generate word structure for: "${wordData.word}"`,
+          );
           continue;
         }
         wordId = newWord.id;
@@ -93,4 +109,12 @@ export async function getOrCreateWord(arabicText: string) {
   }
 
   return wordIdsWithPosition;
+}
+
+export async function resyncSentenceWords(sentenceId: string) {
+  const senteence = await SentenceRepository.findById(sentenceId);
+  if (!senteence)
+    throw ApiError.badRequest(`Sentence not found by ${sentenceId}`);
+  await enqueueResyncSentenceWords(sentenceId);
+  return { sentenceId };
 }

@@ -8,7 +8,10 @@ const sentenceWordSchema = z.object({
 });
 
 export const createSentenceSchema = z.object({
-  text: z.string().trim().min(VALIDATION.ARABIC_TEXT.MIN_LENGTH, "Arabic text is required"),
+  text: z
+    .string()
+    .trim()
+    .min(VALIDATION.ARABIC_TEXT.MIN_LENGTH, "Arabic text is required"),
   audioUrl: z.string().url().optional(),
 
   meaningEn: z.string().trim().optional(),
@@ -44,3 +47,15 @@ export const listSentencesQuerySchema = z.object({
 
 export type ListSentencesQuery = z.infer<typeof listSentencesQuerySchema>;
 export type SentenceInput = z.infer<typeof createSentenceSchema>;
+
+export const linkSentenceWordSchema = z.object({
+  wordId: z.string().min(1),
+  position: z.coerce.number().int().nonnegative(),
+});
+
+export const sentenceWordParamSchema = z.object({
+  id: z.string().min(1),
+  wordId: z.string().min(1),
+});
+
+export type LinkSentenceWordInput = z.infer<typeof linkSentenceWordSchema>;
