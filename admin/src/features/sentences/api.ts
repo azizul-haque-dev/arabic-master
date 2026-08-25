@@ -11,7 +11,7 @@ import type {
 export interface ListSentencesParams {
   page?: number;
   limit?: number;
-  status: Status;
+  status: Status | undefined;
   categoryId?: string;
   search?: string;
 }

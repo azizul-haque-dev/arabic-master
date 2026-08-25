@@ -2,12 +2,16 @@
 // return a URL to be attached to a Word/Sentence's audioUrl field.
 
 import { prisma } from "@/config/database.js";
-import { sendSuccess } from "@/lib/api-response.js";
+import {
+  cacheNamespaces,
+  invalidateCacheNamespace,
+} from "@/integrations/cache.js";
 import { deleteFile, uploadFile, UploadFileResult } from "@/integrations/s3.js";
+import { ApiError } from "@/lib/api-error.js";
+import { sendSuccess } from "@/lib/api-response.js";
+import { asyncHandler } from "@/lib/async-handler.js";
 import { Request, Response, Router } from "express";
 import { uploadAudio } from "../../middlewares/upload.middleware.js";
-import { ApiError } from "@/lib/api-error.js";
-import { asyncHandler } from "@/lib/async-handler.js";
 
 const router = Router();
 
@@ -57,6 +61,7 @@ router.post(
           audioUrl: uploadedResult.publicUrl,
         },
       });
+      await invalidateCacheNamespace(cacheNamespaces.arabicTexts);
     } catch (error) {
       // Rollback uploaded file if DB update fails
       await deleteFile(uploadedResult.key).catch(() => {});

@@ -198,7 +198,7 @@ export function SentencesPage() {
                       {sentence.words.length}
                     </TableCell>
                     <TableCell>
-                      <StatusBadge status={sentence.status} />
+                      <StatusBadge status={sentence.arabic.status} />
                     </TableCell>
                     <TableCell className="text-right">
                       <SentenceActionMenu

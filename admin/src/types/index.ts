@@ -1,18 +1,13 @@
 // Shared shapes mirroring the API's response payloads. Kept intentionally
 // close to the Prisma models so the admin UI stays a thin layer over them.
 
-export type Status =
-  | "DRAFT"
-  | "PUBLISHED"
-  | "ACTIVE"
-  | "DISABLED";
+export type Status = "DRAFT" | "PUBLISHED" | "ACTIVE" | "DISABLED";
 
 export type AiGenerationStatus =
   | "PENDING"
   | "PROCESSING"
   | "COMPLETED"
   | "FAILED";
-
 
 export interface User {
   id: string;
@@ -95,6 +90,7 @@ export interface Sentence {
   id: string;
   arabicId: string;
   arabic: SentenceArabicText;
+  status: Status;
   meaningEn: string | null;
   meaningBn: string | null;
   whenToUseEn: string | null;
@@ -143,10 +139,3 @@ export interface ApiResponseWithOptionalData<T = unknown> {
   message: string;
   data?: T;
 }
-
-
-
-
-
-
-

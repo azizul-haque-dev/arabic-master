@@ -165,7 +165,7 @@ export function SentenceFormDialog({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
-            className="space-y-4"
+            className="space-y-4 max-w-2xl"
           >
             <FormField
               control={form.control}
@@ -175,7 +175,7 @@ export function SentenceFormDialog({
                   <FormLabel>Arabic text</FormLabel>
                   <FormControl>
                     <Input
-                      className="arabic-text text-lg"
+                      className="arabic-text text-lg "
                       placeholder="أنا أحب القراءة"
                       {...field}
                     />
@@ -272,7 +272,7 @@ export function SentenceFormDialog({
             {isEditing && arabic && (
               <>
                 <Separator />
-                <div className="space-y-2 rounded-md border border-border bg-background p-3">
+                <div className="space-y-2 rounded-md border border-border bg-background p-3 max-w-2xl">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs uppercase tracking-wide text-muted">
                       AI-generated info (read-only)
@@ -287,13 +287,17 @@ export function SentenceFormDialog({
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       {arabic.pronunciationEn && (
                         <p>
-                          <span className="text-muted">Pronunciation (En): </span>
+                          <span className="text-muted">
+                            Pronunciation (En):{" "}
+                          </span>
                           {arabic.pronunciationEn}
                         </p>
                       )}
                       {arabic.pronunciationBn && (
                         <p>
-                          <span className="text-muted">Pronunciation (Bn): </span>
+                          <span className="text-muted">
+                            Pronunciation (Bn):{" "}
+                          </span>
                           {arabic.pronunciationBn}
                         </p>
                       )}
@@ -313,8 +317,11 @@ export function SentenceFormDialog({
                   ) : (
                     <p className="text-sm text-muted">
                       {arabic.aiStatus === "FAILED"
-                        ? `AI generation failed${arabic.errorMessage ? `: ${arabic.errorMessage}` : "."
-                        }`
+                        ? `AI generation failed${
+                            arabic.errorMessage
+                              ? `: ${arabic.errorMessage}`
+                              : "."
+                          }`
                         : "Not generated yet."}
                     </p>
                   )}
@@ -327,8 +334,7 @@ export function SentenceFormDialog({
             <div className="space-y-1.5">
               <Label>Words in this sentence (in order)</Label>
               <p className="text-xs text-muted">
-                Optional - leave empty to let AI generation fill this in
-                later.
+                Optional - leave empty to let AI generation fill this in later.
               </p>
               <WordPickerRows
                 control={form.control}
