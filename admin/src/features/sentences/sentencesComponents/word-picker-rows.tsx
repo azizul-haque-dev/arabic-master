@@ -88,20 +88,22 @@ function WordSearchCombobox({
 
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          role="combobox"
-          aria-expanded={isOpen}
-          aria-label="Select word"
-          className="w-full min-w-0 justify-between font-normal"
-        >
-          <span className="min-w-0 truncate text-left">{label}</span>
+      <PopoverTrigger
+        render={
+          <Button
+            type="button"
+            variant="outline"
+            role="combobox"
+            aria-expanded={isOpen}
+            aria-label="Select word"
+            className="w-full min-w-0 justify-between font-normal"
+          >
+            <span className="min-w-0 truncate text-left">{label}</span>
 
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        }
+      />
 
       <PopoverContent
         className="w-[400px] max-w-[calc(100vw-2rem)] p-0"
