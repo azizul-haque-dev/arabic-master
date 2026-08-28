@@ -1,3 +1,4 @@
+import { BreadcrumbNav } from "@/components/common/shared/breadcrumb-nav";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,15 +13,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BreadcrumbNav } from "@/components/common/breadcrumb-nav";
+import { fetchTopicConversations } from "@/features/topic-conversations/api";
 import { fetchTopic } from "@/features/topics/api";
+import type { Conversation } from "@/types/conversation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronRight, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import type { Conversation } from "@/types/conversation";
-import { fetchTopicConversations } from "@/features/topic-conversations/api";
 import { deleteConversation, fetchConversations } from "./api";
 import { ConversationCreateDialog } from "./conversation-create-dialog";
 
@@ -49,7 +49,8 @@ export function ConversationsPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["conversations", tcId],
-    queryFn: () => fetchConversations({ topicConversationId: tcId, limit: 100 }),
+    queryFn: () =>
+      fetchConversations({ topicConversationId: tcId, limit: 100 }),
     enabled: !!tcId,
   });
 
@@ -107,7 +108,9 @@ export function ConversationsPage() {
               (a, b) => a.position - b.position,
             );
             const firstLine = sortedLines[0];
-            const speakers = Array.from(new Set(sortedLines.map((l) => l.speaker)));
+            const speakers = Array.from(
+              new Set(sortedLines.map((l) => l.speaker)),
+            );
 
             return (
               <Card
@@ -131,7 +134,9 @@ export function ConversationsPage() {
                     {firstLine.sentence.arabic.text}
                   </p>
                 ) : (
-                  <p className="text-sm italic text-muted">No lines added yet</p>
+                  <p className="text-sm italic text-muted">
+                    No lines added yet
+                  </p>
                 )}
 
                 <div className="flex items-center justify-between">
@@ -174,13 +179,16 @@ export function ConversationsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this conversation?</AlertDialogTitle>
             <AlertDialogDescription>
-              All of its lines will be permanently deleted. This can't be undone.
+              All of its lines will be permanently deleted. This can't be
+              undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => pendingDelete && deleteMutation.mutate(pendingDelete.id)}
+              onClick={() =>
+                pendingDelete && deleteMutation.mutate(pendingDelete.id)
+              }
               disabled={deleteMutation.isPending}
             >
               Delete

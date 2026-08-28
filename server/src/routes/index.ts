@@ -19,7 +19,7 @@ const router = Router();
 router.get("/health", (_req, res) =>
   sendSuccess(res, 200, "OK", { timestamp: new Date().toISOString() }),
 );
-router.post("api/v1/clear-cache", async (req: Request, res: Response) => {
+router.post("/clear-cache", async (req: Request, res: Response) => {
   try {
     const key = req.body.cacheKey as string;
     console.log({ key });

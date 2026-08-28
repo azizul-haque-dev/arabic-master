@@ -1,4 +1,6 @@
-import { SentenceActionMenu } from "@/components/common/sentence-action";
+import { AudioUploadDialog } from "@/components/common/shared/add-word-audio";
+import RefreshButton from "@/components/common/shared/RefreshButton";
+import { SentenceActionMenu } from "@/components/common/shared/sentence-action";
 import { StatusBadge } from "@/components/status-badge";
 import {
   AlertDialog,
@@ -30,13 +32,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { fetchCategories } from "@/features/categories/api";
+import { cacheNamespaces } from "@/lib/cache";
 import type { Sentence, Status } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { deleteSentence, fetchSentences } from "./api";
-import { SentenceFormDialog } from "./sentence-form-dialog";
+import { SentenceFormDialog } from "./sentencesComponents/sentence-form-dialog";
+import SentencesHeader from "./sentencesComponents/sentences-header";
 
 export function SentencesPage() {
   const queryClient = useQueryClient();
@@ -46,6 +50,9 @@ export function SentencesPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState<Status | "ALL">("ALL");
   const [categoryId, setCategoryId] = useState<string>("ALL");
+
+  const [isAudioFormOpen, setAudioFormOpen] = useState(false);
+  const [sentenceData, setSentenceData] = useState<Sentence | null>(null);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Sentence | null>(null);
@@ -99,22 +106,18 @@ export function SentencesPage() {
     setEditing(sentence);
     setFormOpen(true);
   }
+  const openAddMedia = (sentence: Sentence) => {
+    setAudioFormOpen(true);
+    setSentenceData(sentence);
+  };
+  const closeMediaDialog = () => {
+    setAudioFormOpen(!isAudioFormOpen);
+    setSentenceData(null);
+  };
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-ink">Sentences</h1>
-          <p className="text-sm text-muted">
-            Full example sentences built from your word bank.
-          </p>
-        </div>
-        <Button onClick={openCreate}>
-          <Plus className="h-4 w-4" />
-          New sentence
-        </Button>
-      </div>
-
+      <SentencesHeader openCreate={openCreate} />
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative w-64">
           <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted" />
@@ -128,8 +131,8 @@ export function SentencesPage() {
 
         <Select
           value={status}
-          onValueChange={(v) => {
-            setStatus(v as Status | "ALL");
+          onValueChange={(val) => {
+            setStatus(val as Status | "ALL");
             setPage(1);
           }}
         >
@@ -164,7 +167,18 @@ export function SentencesPage() {
             ))}
           </SelectContent>
         </Select>
+        <RefreshButton
+          featureKey={"sentences"}
+          cacheKey={cacheNamespaces.sentences}
+        />
       </div>
+      {sentenceData && sentenceData?.arabicId && (
+        <AudioUploadDialog
+          entity={sentenceData}
+          queryKeyToInvalidate={["sentences"]}
+          onOpenChange={closeMediaDialog}
+        />
+      )}
 
       <Card>
         {isLoading ? (
@@ -205,6 +219,7 @@ export function SentencesPage() {
                         openEdit={openEdit}
                         sentence={sentence}
                         onDelete={setPendingDelete}
+                        openAddMedia={openAddMedia}
                       />
                     </TableCell>
                   </TableRow>

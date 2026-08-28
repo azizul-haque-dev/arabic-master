@@ -1,3 +1,4 @@
+import { BreadcrumbNav } from "@/components/common/shared/breadcrumb-nav";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,14 +12,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BreadcrumbNav } from "@/components/common/breadcrumb-nav";
 import { fetchTopic } from "@/features/topics/api";
+import type { TopicConversation } from "@/types/conversation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronRight, MessageSquareText, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  ChevronRight,
+  MessageSquareText,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import type { TopicConversation } from "@/types/conversation";
 import { deleteTopicConversation, fetchTopicConversations } from "./api";
 import { TopicConversationFormDialog } from "./topic-conversation-form-dialog";
 
@@ -29,7 +35,9 @@ export function TopicConversationsPage() {
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<TopicConversation | null>(null);
-  const [pendingDelete, setPendingDelete] = useState<TopicConversation | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<TopicConversation | null>(
+    null,
+  );
 
   const { data: topic, isLoading: topicLoading } = useQuery({
     queryKey: ["topics", topicId],
@@ -46,7 +54,9 @@ export function TopicConversationsPage() {
   const deleteMutation = useMutation({
     mutationFn: deleteTopicConversation,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["topic-conversations", topicId] });
+      queryClient.invalidateQueries({
+        queryKey: ["topic-conversations", topicId],
+      });
       toast.success("Conversation set deleted");
       setPendingDelete(null);
     },
@@ -99,12 +109,16 @@ export function TopicConversationsPage() {
           {items.map((tc) => (
             <Card
               key={tc.id}
-              onClick={() => navigate(`/topics/${topicId}/topic-conversations/${tc.id}`)}
+              onClick={() =>
+                navigate(`/topics/${topicId}/topic-conversations/${tc.id}`)
+              }
               className="group flex cursor-pointer flex-col justify-between gap-3 p-4 transition-shadow hover:shadow-md"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <h3 className="truncate font-medium text-ink">{tc.titleEn}</h3>
+                  <h3 className="truncate font-medium text-ink">
+                    {tc.titleEn}
+                  </h3>
                   {tc.titleBn && (
                     <p className="truncate text-sm text-muted">{tc.titleBn}</p>
                   )}
@@ -161,16 +175,20 @@ export function TopicConversationsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete "{pendingDelete?.titleEn}"?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Delete "{pendingDelete?.titleEn}"?
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This deletes every conversation and line inside this set. This can't
-              be undone.
+              This deletes every conversation and line inside this set. This
+              can't be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => pendingDelete && deleteMutation.mutate(pendingDelete.id)}
+              onClick={() =>
+                pendingDelete && deleteMutation.mutate(pendingDelete.id)
+              }
               disabled={deleteMutation.isPending}
             >
               Delete

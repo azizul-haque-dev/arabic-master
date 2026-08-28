@@ -9,7 +9,7 @@ import {
 import { cacheNamespaces } from "@/lib/cache";
 import type { Status } from "@/types";
 import { Search } from "lucide-react";
-import RefreshButton from "../common/RefreshButton";
+import RefreshButton from "../common/shared/RefreshButton";
 
 interface WordsFiltersProps {
   search: string;

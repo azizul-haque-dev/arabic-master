@@ -1,41 +1,24 @@
-import { CategoryMultiSelect } from "@/components/category-multi-select";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Form } from "@/components/ui/form";
 import type { Word } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
+
+// Local imports
+import { DialogFooterActions } from "@/components/common/form/DialogFooterActions";
+import { DialogHeaderSection } from "@/components/common/form/DialogHeaderSection";
+import { FormFieldAudioUrl } from "@/components/common/form/FormFieldAudioUrl";
+import { FormFieldCategories } from "@/components/common/form/FormFieldCategories";
+import { FormFieldStatus } from "@/components/common/form/FormFieldStatus";
+import { FormFieldText } from "@/components/common/form/FormFieldText";
+import { FormGroupMeaning } from "@/components/common/form/FormGroupMeaning";
+import { FormGroupWhenToUse } from "@/components/common/form/FormGroupWhenToUse";
+import { useFormDialog } from "@/hooks/useFormDialog";
 import { createWord, updateWord } from "./api";
 
+// Schema definition
 const wordSchema = z.object({
   text: z.string().trim().min(1, "Arabic text is required"),
   audioUrl: z
@@ -48,8 +31,6 @@ const wordSchema = z.object({
   meaningBn: z.string().trim().optional(),
   whenToUseEn: z.string().trim().optional(),
   whenToUseBn: z.string().trim().optional(),
-  pronunciationEn: z.string().trim().optional(),
-  pronunciationBn: z.string().trim().optional(),
   status: z.enum(["DRAFT", "PUBLISHED", "ACTIVE", "DISABLED"]),
   categoryIds: z.array(z.string()).default([]),
 });
@@ -67,11 +48,8 @@ export function WordFormDialog({
   onOpenChange,
   word,
 }: WordFormDialogProps) {
-  const queryClient = useQueryClient();
   const isEditing = Boolean(word);
 
-  // Added all missing default values to prevent uncontrolled input warnings
-  // and silent validation blocks.
   const form = useForm<WordValues>({
     resolver: zodResolver(wordSchema),
     defaultValues: {
@@ -79,8 +57,6 @@ export function WordFormDialog({
       audioUrl: "",
       meaningEn: "",
       meaningBn: "",
-      pronunciationEn: "",
-      pronunciationBn: "",
       whenToUseEn: "",
       whenToUseBn: "",
       status: "DRAFT",
@@ -90,223 +66,82 @@ export function WordFormDialog({
 
   useEffect(() => {
     if (!open) return;
-    if (open) {
-      form.reset({
-        text: word?.arabic.text ?? "",
-        audioUrl: word?.arabic.audioUrl ?? "",
-        meaningEn: word?.meaningEn ?? "",
-        meaningBn: word?.meaningBn ?? "",
-        whenToUseEn: word?.whenToUseEn ?? "",
-        whenToUseBn: word?.whenToUseBn ?? "",
-        pronunciationEn: word?.pronunciationEn ?? "",
-        pronunciationBn: word?.pronunciationBn ?? "",
-        status: (word?.status as WordValues["status"]) ?? "DRAFT",
-        categoryIds: word?.categories.map((c) => c.id) ?? [],
-      });
-    }
+    form.reset({
+      text: word?.arabic.text ?? "",
+      audioUrl: word?.arabic.audioUrl ?? "",
+      meaningEn: word?.meaningEn ?? "",
+      meaningBn: word?.meaningBn ?? "",
+      whenToUseEn: word?.whenToUseEn ?? "",
+      whenToUseBn: word?.whenToUseBn ?? "",
+      status: (word?.status as WordValues["status"]) ?? "DRAFT",
+      categoryIds: word?.categories.map((c) => c.id) ?? [],
+    });
   }, [open, word, form]);
 
-  const mutation = useMutation({
-    mutationFn: (values: WordValues) => {
-      const payload = { ...values, audioUrl: values.audioUrl || undefined };
-      return isEditing ? updateWord(word!.id, payload) : createWord(payload);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["words"] });
-      toast.success(isEditing ? "Word updated" : "Word created");
-      onOpenChange(false);
-    },
-    onError: (err) => {
-      const message =
-        err instanceof AxiosError
-          ? (err.response?.data?.message ?? "Something went wrong")
-          : "Something went wrong";
-      toast.error(message);
+  const { mutation } = useFormDialog<WordValues, Word>({
+    queryKey: ["words"],
+    createFn: createWord,
+    updateFn: updateWord,
+    entityId: word?.id,
+    onSuccess: () => onOpenChange(false),
+    successMessage: {
+      create: "Word created",
+      update: "Word updated",
     },
   });
+
+  const onSubmit = (values: WordValues) => {
+    const payload = { ...values, audioUrl: values.audioUrl || undefined };
+    mutation.mutate(payload);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit word" : "New word"}</DialogTitle>
-          <DialogDescription>
-            The Arabic text and its English/Bangla meaning, pronunciation and
-            usage.
-          </DialogDescription>
-        </DialogHeader>
+        <DialogHeaderSection
+          title={isEditing ? "Edit word" : "New word"}
+          description="The Arabic text and its English/Bangla meaning, pronunciation and usage."
+        />
 
         <Form {...form}>
-          {/* Added an error callback to log Zod failures to the console */}
           <form
-            onSubmit={form.handleSubmit(
-              (values) => mutation.mutate(values),
-              (errors) => console.error("Zod Validation Errors:", errors),
+            onSubmit={form.handleSubmit(onSubmit, (errors) =>
+              console.error("Zod Validation Errors:", errors),
             )}
             className="space-y-4"
           >
-            <FormField
+            <FormFieldText
               control={form.control}
               name="text"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Arabic text</FormLabel>
-                  <FormControl>
-                    <Input
-                      className="arabic-text text-lg"
-                      placeholder="كتاب"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Arabic text"
+              placeholder="كتاب"
+              className="arabic-text text-lg"
+              required
             />
 
-            <FormField
+            <FormFieldAudioUrl control={form.control} name="audioUrl" />
+
+            <FormGroupMeaning
               control={form.control}
-              name="audioUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Audio URL (optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://…" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              nameEn="meaningEn"
+              nameBn="meaningBn"
+            />
+
+            <FormGroupWhenToUse
+              control={form.control}
+              nameEn="whenToUseEn"
+              nameBn="whenToUseBn"
             />
 
             <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="meaningEn"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Meaning (English)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Book" {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="meaningBn"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Meaning (Bangla)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="বই" {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+              <FormFieldStatus control={form.control} name="status" />
+              <FormFieldCategories control={form.control} name="categoryIds" />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="pronunciationEn"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Pronunciation (English)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="ki-taab" {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="pronunciationBn"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Pronunciation (Bangla)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="কিতাব" {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="whenToUseEn"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>When to use (English)</FormLabel>
-                    <FormControl>
-                      <Textarea rows={2} {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="whenToUseBn"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>When to use (Bangla)</FormLabel>
-                    <FormControl>
-                      <Textarea rows={2} {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label>Status</Label>
-                <Controller
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="DRAFT">Draft</SelectItem>
-                        <SelectItem value="PUBLISHED">Published</SelectItem>
-                        <SelectItem value="ACTIVE">Active</SelectItem>
-                        <SelectItem value="DISABLED">Disabled</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label>Categories</Label>
-                <Controller
-                  control={form.control}
-                  name="categoryIds"
-                  render={({ field }) => (
-                    <CategoryMultiSelect
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  )}
-                />
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? "Saving…" : "Save"}
-              </Button>
-            </DialogFooter>
+            <DialogFooterActions
+              onCancel={() => onOpenChange(false)}
+              isPending={mutation.isPending}
+            />
           </form>
         </Form>
       </DialogContent>

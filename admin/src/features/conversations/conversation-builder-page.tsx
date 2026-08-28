@@ -1,4 +1,4 @@
-import { BreadcrumbNav } from "@/components/common/breadcrumb-nav";
+import { BreadcrumbNav } from "@/components/common/shared/breadcrumb-nav";
 import {
   AlertDialog,
   AlertDialogAction,

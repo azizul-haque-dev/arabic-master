@@ -1,4 +1,3 @@
-import { DropdownMenuDestructive } from "@/components/common/word-action";
 import { StatusBadge } from "@/components/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -10,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Word } from "@/types";
+import { WordActionMenu } from "../common/shared/word-action";
 
 interface WordsTableProps {
   isLoading: boolean;
@@ -80,7 +80,7 @@ export function WordsTable({
               <StatusBadge status={word.status} />
             </TableCell>
             <TableCell className="text-right">
-              <DropdownMenuDestructive
+              <WordActionMenu
                 openEdit={() => openEdit(word)}
                 openAddMedia={() => openAddMedia(word)}
                 onDelete={onDelete}

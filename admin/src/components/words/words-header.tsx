@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { GenerateAiDialog } from "@/features/arabic-texts/generate-ai-dialog";
 import { Plus } from "lucide-react";
 
 interface WordsHeaderProps {
@@ -14,10 +15,13 @@ export function WordsHeader({ onOpenCreate }: WordsHeaderProps) {
           Individual Arabic vocabulary entries.
         </p>
       </div>
-      <Button onClick={onOpenCreate}>
-        <Plus className="h-4 w-4 mr-2" />
-        New word
-      </Button>
+      <div className="flex gap-2">
+        <GenerateAiDialog apiPath={"word"} />
+        <Button onClick={onOpenCreate}>
+          <Plus className="h-4 w-4 mr-2" />
+          New word
+        </Button>
+      </div>
     </div>
   );
 }

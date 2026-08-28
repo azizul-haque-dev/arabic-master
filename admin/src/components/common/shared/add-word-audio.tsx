@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Word } from "@/types";
+import { Sentence, Word } from "@/types";
 
 import { Loader2, Upload } from "lucide-react";
 
@@ -24,14 +24,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
-import { Input } from "../ui/input";
+} from "../../ui/form";
+import { Input } from "../../ui/input";
 
 // New imports for preview functionality
 import { useEffect, useMemo } from "react";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const ACCEPTED_TYPES = ["audio/mpeg", "audio/mp3", "audio/wav", "audio/ogg"];
+const ACCEPTED_TYPES = [
+  "audio/mpeg",
+  "audio/mp3",
+  "audio/wav",
+  "audio/ogg",
+  "audio/webm",
+];
 const audioFileSchema = z.object({
   file: z
     .instanceof(FileList)
@@ -54,13 +60,13 @@ interface UploadAudioResponse {
   };
 }
 interface AudioUploadDialogProps {
-  word: Word;
+  entity: Word | Sentence;
   queryKeyToInvalidate: unknown[];
   onOpenChange: () => void;
 }
 
 export function AudioUploadDialog({
-  word,
+  entity,
   queryKeyToInvalidate,
   onOpenChange,
 }: AudioUploadDialogProps) {
@@ -74,7 +80,7 @@ export function AudioUploadDialog({
 
   // 2. Generate a preview URL if a valid file is selected
   // Extract existing audio URL if it exists
-  const existingAudioUrl = word?.arabic?.audioUrl;
+  const existingAudioUrl = entity?.arabic?.audioUrl;
   const previewUrl = useMemo(() => {
     if (selectedFile && selectedFile.length > 0) {
       return URL.createObjectURL(selectedFile[0]);
@@ -95,7 +101,7 @@ export function AudioUploadDialog({
     mutationFn: async (values: AudioUploadValues) => {
       const formData = new FormData();
       formData.append("file", values.file[0]);
-      formData.append("textId", word.arabicId);
+      formData.append("textId", entity?.arabicId);
 
       const { data } = await api.post<UploadAudioResponse>(
         "/media/audio",
@@ -113,10 +119,9 @@ export function AudioUploadDialog({
       onOpenChange();
     },
   });
-  console.log({ previewUrl, word, existingAudioUrl });
 
   return (
-    <Dialog open={!!word} onOpenChange={onOpenChange}>
+    <Dialog open={!!entity} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button variant={"outline"} size={"sm"}>
           <Upload className="mr-2 size-4" />
@@ -142,7 +147,7 @@ export function AudioUploadDialog({
                   <FormControl>
                     <Input
                       type="file"
-                      accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg"
+                      accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg,audio/webm"
                       onChange={(e) => onChange(e.target.files)}
                       onBlur={onBlur}
                       name={name}

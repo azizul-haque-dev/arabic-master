@@ -57,8 +57,6 @@ export interface Word {
   meaningBn: string | null;
   whenToUseEn: string | null;
   whenToUseBn: string | null;
-  pronunciationEn: string | null;
-  pronunciationBn: string | null;
   status: Status;
   categories: Category[];
   createdAt: string;
@@ -68,28 +66,11 @@ export interface Word {
 export interface SentenceWordRef extends Word {
   position: number;
 }
-export interface SentenceArabicText {
-  id: string;
-  text: string;
-  audioUrl: string | null;
-  audioKey: string | null;
-  meaningEn: string | null;
-  meaningBn: string | null;
-  whenToUseEn: string | null;
-  whenToUseBn: string | null;
-  pronunciationEn: string | null;
-  pronunciationBn: string | null;
-  feminineEn: string | null;
-  feminineBn: string | null;
-  errorMessage: string | null;
-  status: Status;
-  aiStatus: AiGenerationStatus;
-}
 
 export interface Sentence {
   id: string;
   arabicId: string;
-  arabic: SentenceArabicText;
+  arabic: ArabicTextEntry;
   status: Status;
   meaningEn: string | null;
   meaningBn: string | null;

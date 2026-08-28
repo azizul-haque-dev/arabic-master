@@ -81,14 +81,18 @@ export async function uploadFile(
 
 /**
  * Delete a file from S3/R2
- * @param fileUrl Full public URL of the file to delete
+ * @param fileUrl Full public URL or stored object key of the file to delete
  */
 export async function deleteFile(fileUrl: string): Promise<void> {
-  if (!env.R2_PUBLIC_URL || !fileUrl.startsWith(env.R2_PUBLIC_URL as string)) {
-    return;
-  }
+  let key = fileUrl;
 
-  const key = fileUrl.replace(env.R2_PUBLIC_URL as string, "").replace(/^\//, "");
+  if (env.R2_PUBLIC_URL) {
+    if (fileUrl.startsWith(env.R2_PUBLIC_URL)) {
+      key = fileUrl.replace(env.R2_PUBLIC_URL, "").replace(/^\//, "");
+    } else if (fileUrl.includes("://")) {
+      return;
+    }
+  }
 
   if (!key) {
     return;

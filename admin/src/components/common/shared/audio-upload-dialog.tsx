@@ -26,7 +26,13 @@ import { useForm } from "react-hook-form";
 import z from "zod";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const ACCEPTED_TYPES = ["audio/mpeg", "audio/mp3", "audio/wav", "audio/ogg"];
+const ACCEPTED_TYPES = [
+  "audio/mpeg",
+  "audio/mp3",
+  "audio/wav",
+  "audio/ogg",
+  "audio/webm",
+];
 
 const audioFileSchema = z.object({
   file: z
@@ -150,7 +156,7 @@ export function AudioUploadDialog({
                   <FormControl>
                     <Input
                       type="file"
-                      accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg"
+                      accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg,audio/webm"
                       onChange={(e) => onChange(e.target.files)}
                       onBlur={onBlur}
                       name={name}

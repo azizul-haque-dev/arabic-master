@@ -9,7 +9,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { AudioUploadDialog } from "@/components/common/add-word-audio";
+import { AudioUploadDialog } from "@/components/common/shared/add-word-audio";
 import { deleteWord, fetchWords } from "./api";
 import { WordFormDialog } from "./word-form-dialog";
 
@@ -138,7 +138,7 @@ export function WordsPage() {
 
       {wordData && wordData?.arabicId && (
         <AudioUploadDialog
-          word={wordData}
+          entity={wordData}
           queryKeyToInvalidate={["words"]}
           onOpenChange={closeMediaDialog}
         />

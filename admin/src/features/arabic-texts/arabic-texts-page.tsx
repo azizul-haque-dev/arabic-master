@@ -1,6 +1,6 @@
-import { ArabicTextActions } from "@/components/common/arabic-text-actions";
-import { AudioUploadDialog } from "@/components/common/audio-upload-dialog";
-import RefreshButton from "@/components/common/RefreshButton";
+import { ArabicTextActions } from "@/components/common/shared/arabic-text-actions";
+import { AudioUploadDialog } from "@/components/common/shared/audio-upload-dialog";
+import RefreshButton from "@/components/common/shared/RefreshButton";
 import { StatusBadge } from "@/components/status-badge";
 import {
   AlertDialog,
@@ -40,7 +40,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { deleteArabicText, fetchArabicTexts } from "./api";
 import { ArabicTextFormDialog } from "./arabic-text-form-dialog";
-import { GenerateArabicTextDialog } from "./generate-ai-dialog";
+import { GenerateAiDialog } from "./generate-ai-dialog";
 
 export function ArabicTextsPage() {
   const queryClient = useQueryClient();
@@ -115,7 +115,7 @@ export function ArabicTextsPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <GenerateArabicTextDialog />
+            <GenerateAiDialog apiPath="arabic-text" />
             <Button onClick={openCreate}>
               <Plus className="h-4 w-4 mr-2" />
               New entry
@@ -227,7 +227,7 @@ export function ArabicTextsPage() {
                         <ArabicTextActions
                           arabicText={entry}
                           onEdit={openEdit}
-                          onAddAudio={(entry) => {
+                          openAddMedia={(entry) => {
                             setAudioTarget(entry);
                             setAudioDialogOpen(true);
                           }}

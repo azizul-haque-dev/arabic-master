@@ -61,7 +61,11 @@ router.post(
           audioUrl: uploadedResult.publicUrl,
         },
       });
-      await invalidateCacheNamespace(cacheNamespaces.arabicTexts);
+      await Promise.all([
+        invalidateCacheNamespace(cacheNamespaces.arabicTexts),
+        invalidateCacheNamespace(cacheNamespaces.words),
+        invalidateCacheNamespace(cacheNamespaces.sentences),
+      ]);
     } catch (error) {
       // Rollback uploaded file if DB update fails
       await deleteFile(uploadedResult.key).catch(() => {});
