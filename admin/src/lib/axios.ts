@@ -1,12 +1,15 @@
 import { useAuthStore } from "@/stores/auth.store";
-import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
+import axios, {
+  AxiosError,
+  AxiosHeaders,
+  type InternalAxiosRequestConfig,
+} from "axios";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
 });
 
-// Scalable Exclusion List: Add any public endpoint patterns that should NEVER trigger a 401 token refresh loop
 const PUBLIC_AUTH_ROUTES = [
   "/auth/login",
   "/auth/register",
@@ -19,34 +22,61 @@ const PUBLIC_AUTH_ROUTES = [
 let refreshPromise: Promise<void> | null = null;
 let isRedirectingToLogin = false;
 
-async function refreshAccessToken(): Promise<void> {
-  await axios.post(
-    `${import.meta.env.VITE_API_URL}/auth/refresh`,
-    {},
-    { withCredentials: true },
-  );
+function getRequestPath(url?: string): string {
+  if (!url) return "";
+  return url.startsWith("http") ? new URL(url).pathname : url;
 }
+
+function isPublicAuthRoute(url?: string): boolean {
+  const path = getRequestPath(url);
+  return PUBLIC_AUTH_ROUTES.some((route) => path.includes(route));
+}
+
+function getCookieValue(name: string): string | null {
+  if (typeof document === "undefined") return null;
+
+  const match = document.cookie
+    .split("; ")
+    .find((cookie) => cookie.startsWith(`${name}=`));
+
+  return match ? decodeURIComponent(match.split("=").slice(1).join("=")) : null;
+}
+
+async function refreshAccessToken(): Promise<void> {
+  await api.post("/auth/refresh", {}, { withCredentials: true });
+}
+
+api.interceptors.request.use((config) => {
+  if (config.withCredentials === false || isPublicAuthRoute(config.url)) {
+    return config;
+  }
+
+  const accessToken = getCookieValue("accessToken");
+  if (!accessToken) {
+    return config;
+  }
+
+  const headers = config.headers ?? new AxiosHeaders();
+  headers.set("Authorization", `Bearer ${accessToken}`);
+  config.headers = headers;
+
+  return config;
+});
 
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    // Cast explicitly matching Axios internal type definitions plus your custom flag
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
 
-    const isPublicAuthRoute = originalRequest?.url
-      ? PUBLIC_AUTH_ROUTES.some((route) => originalRequest.url?.includes(route))
-      : false;
-
-    // Notice the safe check on originalRequest
     if (
       error.response?.status === 401 &&
       originalRequest &&
       !originalRequest._retry &&
-      !isPublicAuthRoute
+      !isPublicAuthRoute(originalRequest.url)
     ) {
-      originalRequest._retry = true; // No type errors here now
+      originalRequest._retry = true;
 
       try {
         refreshPromise ??= refreshAccessToken().finally(() => {
@@ -55,7 +85,6 @@ api.interceptors.response.use(
 
         await refreshPromise;
 
-        //  Passing it back to api() works flawlessly now because types match up
         return api(originalRequest);
       } catch (refreshError) {
         useAuthStore.getState().clear();

@@ -1,9 +1,9 @@
-import { CookieOptions, Request, Response } from "express";
-import { env, isProd } from "../../config/env.js";
 import { ApiError } from "@/lib/api-error.js";
 import { sendSuccess } from "@/lib/api-response.js";
 import { asyncHandler } from "@/lib/async-handler.js";
 import { TOKEN_EXPIRY_MS } from "@/shared/constants.js";
+import { CookieOptions, Request, Response } from "express";
+import { env, isProd } from "../../config/env.js";
 import * as authService from "./auth.service.js";
 
 const REFRESH_COOKIE_NAME = "refreshToken";
@@ -78,13 +78,13 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     sendSuccess(res, 200, "Logged in successfully.", {
       user,
       accessToken,
-      refresh,
+      refreshToken,
     });
   } else {
     sendSuccess(res, 200, "Logged in successfully", {
       user,
       accessToken,
-      refresh,
+      refreshToken,
     });
   }
 });
@@ -101,7 +101,7 @@ export const refresh = asyncHandler(async (req: Request, res: Response) => {
   if (platform !== "mobile") {
     setRefreshCookie(res, refreshToken);
     setAccessCookie(res, accessToken);
-    sendSuccess(res, 200, "Token refreshed");
+    sendSuccess(res, 200, "Token refreshed", { accessToken, refreshToken });
   } else {
     sendSuccess(res, 200, "Token refreshed", { accessToken, refreshToken });
   }
