@@ -1,14 +1,9 @@
 /** @type {import('tailwindcss').Config} */
-
 module.exports = {
-  content: [
-    "./auth/**/*.html",
-    "./onboarding/**/*.html",
-    "./public/**/*.html",
-    "./assets/app.js",
-  ],
-
-  theme: {
+  // NOTE: Update this to include the paths to all files that contain Nativewind classes.
+  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  presets: [require("nativewind/preset")],
+theme: {
     extend: {
       colors: {
         // ─── Education Primary ─────────────────────
@@ -68,4 +63,5 @@ module.exports = {
       },
     },
   },
-};
+  plugins: [],
+}

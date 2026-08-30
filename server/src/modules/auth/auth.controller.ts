@@ -90,7 +90,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const refresh = asyncHandler(async (req: Request, res: Response) => {
-  const rawToken = req.cookies?.refreshToken;
+  const rawToken = req.cookies?.refreshToken || req.body.refreshToken;
 
   if (!rawToken) throw ApiError.unauthorized("No refresh token provided");
 

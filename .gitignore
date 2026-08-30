@@ -83,3 +83,30 @@ coverage/
 # TypeScript
 # ==========================
 **/*.tsbuildinfo
+
+
+# ==========================
+# Mobile App / Expo / React Native
+# ==========================
+mobile-app/.expo/
+mobile-app/.expo-shared/
+mobile-app/dist/
+mobile-app/web-build/
+mobile-app/ios/
+mobile-app/android/
+mobile-app/.metro-health-check*
+mobile-app/*.orig.*
+mobile-app/*.jks
+mobile-app/*.p8
+mobile-app/*.p12
+mobile-app/*.key
+mobile-app/*.mobileprovision
+mobile-app/.env
+mobile-app/.env.*
+!mobile-app/.env.example
+mobile-app/*.log
+mobile-app/npm-debug.*
+mobile-app/yarn-debug.*
+mobile-app/yarn-error.*
+mobile-app/coverage/
+mobile-app/.cache/

@@ -1,48 +1,55 @@
 <!doctype html>
-<html lang="en" class="h-full bg-[#FAFAFA]" dir="ltr">
+<html lang="en" class="h-full bg-background" dir="ltr">
   <head>
     <meta charset="UTF-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>Log In — Premium Design System</title>
+    <title>Log In — Arabic Master</title>
+
     <link rel="stylesheet" href="../assets/app.css" />
     <script defer src="../assets/app.js"></script>
   </head>
+
   <body
-    class="h-full lang-en text-[#111827] antialiased overflow-hidden selection:bg-[#FCE7F3] selection:text-[#DB2777]"
+    class="h-full lang-en overflow-hidden bg-background text-text-main antialiased selection:bg-primary-light selection:text-primary"
   >
+    <!-- Language Switcher -->
     <div class="fixed top-4 right-4 z-50 flex gap-2">
       <button
         onclick="setLanguage('en')"
-        class="text-xs bg-white border border-gray-200 rounded px-2 py-1 shadow-sm font-semibold text-gray-700 hover:text-brand-primary ux-motion"
+        class="ux-motion rounded-lg border border-border bg-surface px-2.5 py-1 text-xs font-semibold text-muted shadow-sm hover:text-brand-primary"
       >
         EN
       </button>
+
       <button
         onclick="setLanguage('ar')"
-        class="text-xs bg-white border border-gray-200 rounded px-2 py-1 shadow-sm font-semibold text-gray-700 hover:text-brand-primary ux-motion"
+        class="ux-motion rounded-lg border border-border bg-surface px-2.5 py-1 text-xs font-semibold text-muted shadow-sm hover:text-brand-primary"
       >
         AR
       </button>
+
       <button
         onclick="setLanguage('bn')"
-        class="text-xs bg-white border border-gray-200 rounded px-2 py-1 shadow-sm font-semibold text-gray-700 hover:text-brand-primary ux-motion"
+        class="ux-motion rounded-lg border border-border bg-surface px-2.5 py-1 text-xs font-semibold text-muted shadow-sm hover:text-brand-primary"
       >
         BN
       </button>
     </div>
 
+    <!-- Main Container -->
     <div
-      class="mx-auto flex h-full max-w-md flex-col bg-[#FAFAFA] shadow-2xl md:max-w-xl md:border-x md:border-[#E5E7EB] relative"
+      class="relative mx-auto flex h-full max-w-md flex-col bg-background shadow-2xl md:max-w-xl md:border-x md:border-border"
     >
-      <header class="px-6 pt-6 pb-2 shrink-0 z-10 bg-[#FAFAFA]">
+      <!-- Header -->
+      <header class="z-10 shrink-0 bg-background px-6 pb-2 pt-6">
         <div class="flex items-center">
           <button
             type="button"
             aria-label="Go back"
-            class="flex h-12 w-12 -ms-3 items-center justify-center rounded-full text-[#6B7280] hover:text-[#111827] hover:bg-gray-100 focus-visible:outline-[3px] focus-visible:outline-brand-accent ux-motion"
+            class="ux-motion -ms-3 flex h-12 w-12 items-center justify-center rounded-full text-muted hover:bg-slate-100 hover:text-text-main focus-visible:outline-[3px] focus-visible:outline-primary"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -62,22 +69,26 @@
         </div>
       </header>
 
-      <div class="flex-1 overflow-y-auto no-scrollbar relative px-6 pb-36">
-        <div class="space-y-2 pt-2 pb-8 text-start">
+      <!-- Scrollable Content -->
+      <div class="no-scrollbar relative flex-1 overflow-y-auto px-6 pb-36">
+        <!-- Heading -->
+        <div class="space-y-2 pb-8 pt-2 text-start">
           <h1
             id="title-main"
-            class="text-3xl font-bold tracking-tight text-[#111827]"
+            class="text-3xl font-bold tracking-tight text-text-main"
           >
             Welcome back
           </h1>
-          <p id="title-sub" class="text-base text-[#6B7280]">
+
+          <p id="title-sub" class="text-base text-muted">
             Log in to continue your learning journey.
           </p>
         </div>
 
+        <!-- Google Login -->
         <button
           type="button"
-          class="ux-motion flex h-12 w-full items-center justify-center gap-3 rounded-2xl border border-[#E5E7EB] bg-white font-semibold text-[#111827] shadow-sm hover:bg-gray-50 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-brand-accent active:scale-[0.98]"
+          class="ux-motion flex h-12 w-full items-center justify-center gap-3 rounded-2xl border border-border bg-surface font-semibold text-text-main shadow-sm hover:bg-slate-50 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-[0.98]"
         >
           <svg
             class="h-5 w-5"
@@ -102,59 +113,70 @@
               fill="#EA4335"
             />
           </svg>
-          <span id="btn-google">Continue with Google</span>
+
+          <span id="btn-google"> Continue with Google </span>
         </button>
 
+        <!-- Divider -->
         <div class="relative my-8">
           <div class="absolute inset-0 flex items-center" aria-hidden="true">
-            <div class="w-full border-t border-[#E5E7EB]"></div>
+            <div class="w-full border-t border-border"></div>
           </div>
+
           <div class="relative flex justify-center">
             <span
               id="lbl-or"
-              class="bg-[#FAFAFA] px-4 text-sm font-medium text-[#6B7280]"
+              class="bg-background px-4 text-sm font-medium text-muted"
             >
               Or log in with email
             </span>
           </div>
         </div>
 
+        <!-- Login Form -->
         <form
           id="login-form"
           class="space-y-5"
           novalidate
           oninput="validateForm()"
         >
+          <!-- Email -->
           <div>
             <label
               id="lbl-email"
               for="email"
-              class="block text-sm font-medium text-[#111827] mb-1.5"
-              >Email address</label
+              class="mb-1.5 block text-sm font-medium text-text-main"
             >
+              Email address
+            </label>
+
             <input
               type="email"
               id="email"
               required
               placeholder="you@example.com"
-              class="ux-motion block h-12 w-full rounded-xl border border-[#E5E7EB] bg-white px-4 text-[#111827] placeholder:text-[#9CA3AF] focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary"
+              class="ux-motion block h-12 w-full rounded-xl border border-border bg-surface px-4 text-text-main placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
 
+          <!-- Password -->
           <div>
-            <div class="flex items-center justify-between mb-1.5">
+            <div class="mb-1.5 flex items-center justify-between">
               <label
                 id="lbl-password"
                 for="password"
-                class="block text-sm font-medium text-[#111827]"
-                >Password</label
+                class="block text-sm font-medium text-text-main"
               >
+                Password
+              </label>
+
               <a
                 href="#"
                 id="link-forgot"
                 class="text-sm font-semibold text-brand-primary hover:text-brand-hover focus:outline-none focus:underline"
-                >Forgot password?</a
               >
+                Forgot password?
+              </a>
             </div>
 
             <div class="relative">
@@ -163,14 +185,15 @@
                 id="password"
                 required
                 placeholder="••••••••"
-                class="ux-motion block h-12 w-full rounded-xl border border-[#E5E7EB] bg-white px-4 pe-12 text-[#111827] placeholder:text-[#9CA3AF] focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary"
+                class="ux-motion block h-12 w-full rounded-xl border border-border bg-surface px-4 pe-12 text-text-main placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
 
+              <!-- Toggle Password -->
               <button
                 type="button"
                 onclick="togglePassword()"
                 aria-label="Toggle password visibility"
-                class="absolute inset-y-0 end-0 flex items-center justify-center w-12 text-[#6B7280] hover:text-[#111827] focus:outline-none"
+                class="absolute inset-y-0 end-0 flex w-12 items-center justify-center text-muted hover:text-text-main focus:outline-none"
               >
                 <svg
                   id="eye-icon"
@@ -179,13 +202,14 @@
                   viewBox="0 0 24 24"
                   stroke-width="2"
                   stroke="currentColor"
-                  class="w-5 h-5"
+                  class="h-5 w-5"
                 >
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
                   />
+
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -198,26 +222,30 @@
         </form>
       </div>
 
+      <!-- Bottom CTA -->
       <footer
-        class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#FAFAFA] via-[#FAFAFA] to-transparent px-6 pb-8 pt-10 shrink-0 z-20"
+        class="absolute bottom-0 left-0 z-20 w-full shrink-0 bg-gradient-to-t from-background via-background to-transparent px-6 pb-8 pt-10"
       >
         <button
           type="button"
           id="final-cta"
           disabled
           onclick="submitForm()"
-          class="ux-motion flex h-14 w-full items-center justify-center rounded-2xl bg-[#E5E7EB] font-semibold text-base text-[#9CA3AF] cursor-not-allowed focus-visible:outline-[3px] focus-visible:outline-offset-4 focus-visible:outline-brand-accent"
+          class="ux-motion flex h-14 w-full cursor-not-allowed items-center justify-center rounded-2xl bg-slate-200 text-base font-semibold text-slate-400 focus-visible:outline-[3px] focus-visible:outline-offset-4 focus-visible:outline-primary"
         >
           Log in
         </button>
-        <p class="mt-4 text-center text-sm text-[#6B7280]">
-          <span id="lbl-account">Don't have an account?</span>
+
+        <p class="mt-4 text-center text-sm text-muted">
+          <span id="lbl-account"> Don't have an account? </span>
+
           <a
-            href="#"
+            href="/html/auth/register.html"
             id="link-signup"
             class="font-semibold text-brand-primary hover:text-brand-hover focus:outline-none focus:underline"
-            >Sign up</a
           >
+            Sign up
+          </a>
         </p>
       </footer>
     </div>
