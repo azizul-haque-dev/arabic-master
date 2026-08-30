@@ -8,7 +8,7 @@ export default function Index() {
       <Text className="text-green-500 text-bold">
         Edit src/app/index.tsx to edit this screen.
       </Text>
-      <Link href="/login">Go to login </Link>
+      <Link href="/(auth)/login">Go to login </Link>
     </View>
   );
 }

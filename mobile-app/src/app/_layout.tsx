@@ -5,7 +5,7 @@ import { Stack } from "expo-router";
 export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Stack />;
+      <Stack screenOptions={{ headerShown: false }} />;
     </QueryClientProvider>
   );
 }

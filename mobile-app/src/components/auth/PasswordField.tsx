@@ -1,32 +1,42 @@
-import type { LoginFormValues } from "@/schemas/authSchema";
 import { Link } from "expo-router";
 import { Eye, EyeOff } from "lucide-react-native";
 import { useState } from "react";
-import type { Control } from "react-hook-form";
+import type { Control, FieldValues, Path } from "react-hook-form";
 import { Pressable } from "react-native";
 import { FormField } from "./FormField";
 
-export function PasswordField({
+interface PasswordFieldProps<T extends FieldValues> {
+  control: Control<T>;
+  name: Path<T>;
+  disabled?: boolean;
+  showForgotPassword?: boolean;
+}
+
+export function PasswordField<T extends FieldValues>({
   control,
-}: {
-  control: Control<LoginFormValues>;
-}) {
+  name,
+  disabled,
+  showForgotPassword = true,
+}: PasswordFieldProps<T>) {
   const [visible, setVisible] = useState(false);
 
   return (
     <FormField
       control={control}
-      name="password"
+      name={name}
       label="Password"
-      placeholder="••••••••"
+      placeholder="Enter your password"
       secureTextEntry={!visible}
+      editable={!disabled}
       labelRight={
-        <Link
-          href="/(auth)/forgot-password"
-          className="text-sm font-semibold text-brand-primary"
-        >
-          Forgot password?
-        </Link>
+        showForgotPassword ? (
+          <Link
+            href="/(auth)/forgot-password"
+            className="text-sm font-semibold text-brand-primary"
+          >
+            Forgot password?
+          </Link>
+        ) : undefined
       }
       rightElement={
         <Pressable
