@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
+import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
 import { useForm } from "react-hook-form";
@@ -11,18 +12,20 @@ import {
   Text,
   View,
 } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppleLoginButton } from "@/components/auth/AppleLoginButton";
-import { BackButton } from "@/components/auth/BackButton";
 import { Divider } from "@/components/auth/Divider";
+import { FormError } from "@/components/auth/FormError";
 import { FormField } from "@/components/auth/FormField";
 import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 import { Logo } from "@/components/auth/Logo";
 import { PasswordField } from "@/components/auth/PasswordField";
 import { TermsCheckbox } from "@/components/auth/TermsCheckbox";
+import { BackButton } from "@/components/shared/BackButton";
 import { useRegister } from "@/hooks/useRegister";
 import { registerSchema, type RegisterFormValues } from "@/schemas/authSchema";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 function getRegisterErrorMessage(error: unknown): string | null {
   if (!error) return null;
@@ -58,6 +61,12 @@ export default function RegisterScreen() {
 
   const { mutate: register, isPending, error } = useRegister();
   const errorMessage = getRegisterErrorMessage(error);
+  const isInactive = !isValid || isPending;
+
+  const handleSubmitPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    handleSubmit((values) => register(values))();
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -75,62 +84,57 @@ export default function RegisterScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Logo />
+          <Animated.View entering={FadeIn.duration(300)}>
+            <Logo />
 
-          <View className="gap-2 pb-8 pt-6">
-            <Text className="text-center text-3xl font-bold tracking-tight text-text-main">
-              Create your account
-            </Text>
-            <Text className="text-center text-base text-muted">
-              Start your Arabic learning journey.
-            </Text>
-          </View>
+            <View className="gap-2 pb-8 pt-6">
+              <Text className="text-center text-3xl font-bold tracking-tight text-text-main">
+                Create your account
+              </Text>
+              <Text className="text-center text-base text-muted">
+                Start your Arabic learning journey.
+              </Text>
+            </View>
 
-          <GoogleLoginButton onPress={() => {}} disabled={isPending} />
-          <AppleLoginButton onPress={() => {}} disabled={isPending} />
+            <GoogleLoginButton onPress={() => {}} disabled={isPending} />
+            <AppleLoginButton onPress={() => {}} disabled={isPending} />
 
-          <Divider label="or continue with email" />
+            <Divider label="or continue with email" />
 
-          <View className="gap-5">
-            <FormField
-              control={control}
-              name="fullName"
-              label="Full Name"
-              placeholder="Enter your full name"
-              autoCapitalize="words"
-              autoComplete="name"
-              editable={!isPending}
-            />
+            <View className="gap-5">
+              <FormField
+                control={control}
+                name="fullName"
+                label="Full Name"
+                placeholder="Enter your full name"
+                autoCapitalize="words"
+                autoComplete="name"
+                editable={!isPending}
+              />
 
-            <FormField
-              control={control}
-              name="email"
-              label="Email"
-              placeholder="Enter your email"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-              editable={!isPending}
-            />
+              <FormField
+                control={control}
+                name="email"
+                label="Email"
+                placeholder="Enter your email"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                editable={!isPending}
+              />
 
-            <PasswordField
-              control={control}
-              name="password"
-              disabled={isPending}
-              showForgotPassword={false}
-            />
+              <PasswordField
+                control={control}
+                name="password"
+                disabled={isPending}
+                showForgotPassword={false}
+              />
 
-            <TermsCheckbox control={control} name="acceptedTerms" />
-          </View>
+              <TermsCheckbox control={control} name="acceptedTerms" />
+            </View>
 
-          {errorMessage && (
-            <Text
-              className="mt-4 text-center text-sm text-red-500"
-              accessibilityLiveRegion="polite"
-            >
-              {errorMessage}
-            </Text>
-          )}
+            <FormError message={errorMessage} />
+          </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -142,15 +146,15 @@ export default function RegisterScreen() {
       >
         <View className="px-6 pb-8 pt-10">
           <Pressable
-            onPress={handleSubmit((values) => register(values))}
-            disabled={!isValid || isPending}
-            className={`h-14 w-full items-center justify-center rounded-2xl ${
-              !isValid || isPending ? "bg-slate-200" : "bg-primary"
+            onPress={handleSubmitPress}
+            disabled={isInactive}
+            className={`h-14 w-full items-center justify-center rounded-2xl active:scale-[0.98] ${
+              isInactive ? "bg-slate-200" : "bg-primary shadow-brand-sm"
             }`}
           >
             <Text
               className={`text-base font-semibold ${
-                !isValid || isPending ? "text-slate-400" : "text-white"
+                isInactive ? "text-slate-400" : "text-white"
               }`}
             >
               {isPending ? "Creating account..." : "Create Account"}

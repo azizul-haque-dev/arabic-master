@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useState } from "react";
 import {
   Controller,
   type Control,
@@ -23,6 +24,8 @@ export function FormField<T extends FieldValues>({
   rightElement,
   ...inputProps
 }: FormFieldProps<T>) {
+  const [focused, setFocused] = useState(false);
+
   return (
     <Controller
       control={control}
@@ -33,7 +36,13 @@ export function FormField<T extends FieldValues>({
       }) => (
         <View>
           <View className="mb-1.5 flex-row items-center justify-between">
-            <Text className="text-sm font-medium text-text-main">{label}</Text>
+            <Text
+              className={`text-sm font-medium ${
+                focused ? "text-brand-primary" : "text-text-main"
+              }`}
+            >
+              {label}
+            </Text>
             {labelRight}
           </View>
 
@@ -41,18 +50,28 @@ export function FormField<T extends FieldValues>({
             <TextInput
               value={value}
               onChangeText={onChange}
-              onBlur={onBlur}
+              onFocus={() => setFocused(true)}
+              onBlur={() => {
+                setFocused(false);
+                onBlur();
+              }}
               placeholderTextColor="#94a3b8"
-              className={`h-12 w-full rounded-xl border bg-surface px-4 text-text-main ${
-                rightElement ? "pe-12" : ""
-              } ${error ? "border-red-500" : "border-border"}`}
+              className={`h-14 w-full rounded-2xl border-[1.5px] bg-surface px-5 text-base text-text-main ${
+                rightElement ? "pe-14" : ""
+              } ${
+                error
+                  ? "border-danger"
+                  : focused
+                    ? "border-brand-primary"
+                    : "border-border"
+              }`}
               {...inputProps}
             />
             {rightElement}
           </View>
 
           {error && (
-            <Text className="mt-1 text-xs text-red-500">{error.message}</Text>
+            <Text className="mt-1 text-xs text-danger">{error.message}</Text>
           )}
         </View>
       )}

@@ -1,3 +1,4 @@
+// mobile-app/src/components/auth/TermsCheckbox.tsx
 import { Link } from "expo-router";
 import { Check } from "lucide-react-native";
 import {
@@ -7,6 +8,10 @@ import {
   type Path,
 } from "react-hook-form";
 import { Pressable, Text, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  withSpring,
+} from "react-native-reanimated";
 
 interface TermsCheckboxProps<T extends FieldValues> {
   control: Control<T>;
@@ -29,14 +34,7 @@ export function TermsCheckbox<T extends FieldValues>({
             accessibilityRole="checkbox"
             accessibilityState={{ checked: !!value }}
           >
-            <View
-              className={`mt-0.5 h-5 w-5 items-center justify-center rounded-md border ${
-                value ? "border-primary bg-primary" : "border-border bg-surface"
-              }`}
-            >
-              {value && <Check size={14} color="#ffffff" strokeWidth={3} />}
-            </View>
-
+            <CheckBox checked={!!value} />
             <Text className="flex-1 text-sm text-muted">
               I agree to the{" "}
               <Link
@@ -56,12 +54,32 @@ export function TermsCheckbox<T extends FieldValues>({
           </Pressable>
 
           {error && (
-            <Text className="ml-8 mt-1 text-xs text-red-500">
+            <Text className="ml-8 mt-1 text-xs text-danger">
               {error.message}
             </Text>
           )}
         </View>
       )}
     />
+  );
+}
+
+function CheckBox({ checked }: { checked: boolean }) {
+  const style = useAnimatedStyle(() => ({
+    transform: [
+      { scale: withSpring(checked ? 1 : 0, { damping: 12, stiffness: 220 }) },
+    ],
+  }));
+
+  return (
+    <View
+      className={`mt-0.5 h-5 w-5 items-center justify-center rounded-md border ${
+        checked ? "border-primary bg-primary" : "border-border bg-surface"
+      }`}
+    >
+      <Animated.View style={style}>
+        <Check size={14} color="#ffffff" strokeWidth={3} />
+      </Animated.View>
+    </View>
   );
 }

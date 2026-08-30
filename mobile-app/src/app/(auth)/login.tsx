@@ -9,18 +9,20 @@ import {
   Text,
   View,
 } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppleLoginButton } from "@/components/auth/AppleLoginButton";
-import { BackButton } from "@/components/auth/BackButton";
 import { BottomCTA } from "@/components/auth/BottomCTA";
 import { Divider } from "@/components/auth/Divider";
+import { FormError } from "@/components/auth/FormError";
 import { FormField } from "@/components/auth/FormField";
 import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 import { Logo } from "@/components/auth/Logo";
 import { PasswordField } from "@/components/auth/PasswordField";
+import { BackButton } from "@/components/shared/BackButton";
 import { useLogin } from "@/hooks/useLogin";
 import { loginSchema, type LoginFormValues } from "@/schemas/authSchema";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 function getLoginErrorMessage(error: unknown): string | null {
   if (!error) return null;
@@ -68,49 +70,44 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Logo />
+          <Animated.View entering={FadeIn.duration(300)}>
+            <Logo />
 
-          <View className="gap-2 pb-8 pt-6">
-            <Text className="text-center text-3xl font-bold tracking-tight text-text-main">
-              Welcome back 👋
-            </Text>
-            <Text className="text-center text-base text-muted">
-              Continue your Arabic learning journey.
-            </Text>
-          </View>
+            <View className="gap-2 pb-8 pt-6">
+              <Text className="text-center text-3xl font-bold tracking-tight text-text-main">
+                Welcome back 👋
+              </Text>
+              <Text className="text-center text-base text-muted">
+                Continue your Arabic learning journey.
+              </Text>
+            </View>
 
-          <GoogleLoginButton onPress={() => {}} disabled={isPending} />
-          <AppleLoginButton onPress={() => {}} disabled={isPending} />
+            <GoogleLoginButton onPress={() => {}} disabled={isPending} />
+            <AppleLoginButton onPress={() => {}} disabled={isPending} />
 
-          <Divider label="or continue with email" />
+            <Divider label="or continue with email" />
 
-          <View className="gap-5">
-            <FormField
-              control={control}
-              name="email"
-              label="Email"
-              placeholder="Enter your email"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-              editable={!isPending}
-            />
+            <View className="gap-5">
+              <FormField
+                control={control}
+                name="email"
+                label="Email"
+                placeholder="Enter your email"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                editable={!isPending}
+              />
 
-            <PasswordField
-              control={control}
-              name="password"
-              disabled={isPending}
-            />
-          </View>
+              <PasswordField
+                control={control}
+                name="password"
+                disabled={isPending}
+              />
+            </View>
 
-          {errorMessage && (
-            <Text
-              className="mt-4 text-center text-sm text-red-500"
-              accessibilityLiveRegion="polite"
-            >
-              {errorMessage}
-            </Text>
-          )}
+            <FormError message={errorMessage} />
+          </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
 

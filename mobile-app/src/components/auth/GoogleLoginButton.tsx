@@ -1,3 +1,4 @@
+import * as Haptics from "expo-haptics";
 import { Pressable, Text } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
@@ -33,11 +34,16 @@ export function GoogleLoginButton({
   onPress,
   disabled,
 }: GoogleLoginButtonProps) {
+  const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onPress();
+  };
+
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
       disabled={disabled}
-      className="h-12 w-full flex-row items-center justify-center gap-3 rounded-2xl border border-border bg-surface active:bg-slate-50 active:scale-[0.98] disabled:opacity-50"
+      className="h-12 w-full flex-row items-center justify-center gap-3 rounded-2xl border border-border bg-surface shadow-card-sm active:scale-[0.98] active:bg-slate-50 disabled:opacity-50"
     >
       <GoogleIcon />
       <Text className="font-semibold text-text-main">Continue with Google</Text>

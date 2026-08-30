@@ -42,7 +42,7 @@ export function PasswordField<T extends FieldValues>({
         <Pressable
           onPress={() => setVisible((v) => !v)}
           accessibilityLabel="Toggle password visibility"
-          className="absolute inset-y-0 end-0 w-12 items-center justify-center"
+          className="absolute inset-y-0 end-0 w-14 items-center justify-center"
         >
           {visible ? (
             <EyeOff size={20} color="#64748b" />

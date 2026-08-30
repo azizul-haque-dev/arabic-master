@@ -9,6 +9,9 @@ export default function Index() {
         Edit src/app/index.tsx to edit this screen.
       </Text>
       <Link href="/(auth)/login">Go to login </Link>
+      <Link className="mt-5" href="/(onboarding)/language">
+        Go to language{" "}
+      </Link>
     </View>
   );
 }
