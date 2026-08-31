@@ -2,66 +2,104 @@
 module.exports = {
   // NOTE: Update this to include the paths to all files that contain Nativewind classes.
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
-  presets: [require("nativewind/preset")],
-theme: {
+ presets: [require("nativewind/preset")],
+  theme: {
     extend: {
       colors: {
-        // ─── Education Primary ─────────────────────
-        primary: {
-          DEFAULT: "#0F766E", // Deep Emerald
-          hover: "#115E59",   // Darker Emerald
-          light: "#CCFBF1",   // Very Light Teal
-        },
-
-        // ─── Brand ─────────────────────────────────
-        brand: {
-          primary: "#0F766E",
-          hover: "#115E59",
-          accent: "#F59E0B", // Warm Amber
-        },
-
-        // ─── Accent ────────────────────────────────
-        accent: "#F59E0B",
-
-        // ─── UI ────────────────────────────────────
-        background: "#F8FAFC",
-        surface: "#FFFFFF",
-
-        // ─── Typography ────────────────────────────
-        "text-main": "#0F172A",
-        muted: "#64748B",
-
-        // ─── Feedback ──────────────────────────────
-        success: "#22C55E",
-        warning: "#F59E0B",
-        danger: "#EF4444",
-
-        // ─── Borders ──────────────────────────────
-        border: "#E2E8F0",
+        "on-surface": "#191c1d",
+        "on-background": "#191c1d",
+        "primary-fixed": "#7efba4",
+        "inverse-surface": "#2e3132",
+        "on-primary": "#ffffff",
+        "on-error": "#ffffff",
+        outline: "#6d7a6e",
+        "on-secondary": "#ffffff",
+        "outline-variant": "#bccabc",
+        error: "#ba1a1a",
+        "on-primary-fixed": "#00210c",
+        "surface-dim": "#d9dadb",
+        "tertiary-fixed-dim": "#4bddb7",
+        "on-secondary-container": "#5d6466",
+        "secondary-fixed-dim": "#c1c8ca",
+        "surface-variant": "#e1e3e4",
+        "on-secondary-fixed": "#161d1f",
+        "inverse-on-surface": "#f0f1f2",
+        "secondary-fixed": "#dde4e6",
+        "on-error-container": "#93000a",
+        "on-primary-container": "#00391a",
+        "primary-container": "#27ae60",
+        "tertiary-fixed": "#6dfad2",
+        "on-tertiary": "#ffffff",
+        "on-surface-variant": "#3d4a3f",
+        surface: "#f8f9fa",
+        primary: "#006d37",
+        background: "#f8f9fa",
+        "surface-bright": "#f8f9fa",
+        secondary: "#586062",
+        "surface-tint": "#006d37",
+        "on-tertiary-container": "#00392c",
+        "on-secondary-fixed-variant": "#41484a",
+        "inverse-primary": "#61de8a",
+        "on-primary-fixed-variant": "#005228",
+        "on-tertiary-fixed-variant": "#005140",
+        "on-tertiary-fixed": "#002018",
+        "error-container": "#ffdad6",
+        "surface-container-lowest": "#ffffff",
+        "surface-container": "#edeeef",
+        "primary-fixed-dim": "#61de8a",
+        "secondary-container": "#dae1e3",
+        "surface-container-highest": "#e1e3e4",
+        "surface-container-high": "#e7e8e9",
+        "tertiary-container": "#00ad8b",
+        tertiary: "#006b55",
+        "surface-container-low": "#f3f4f5",
       },
-
+      borderRadius: {
+        DEFAULT: "0.25rem",
+        lg: "0.5rem",
+        xl: "0.75rem",
+        full: "9999px",
+      },
+      spacing: {
+        base: "4px",
+        lg: "40px",
+        xs: "8px",
+        md: "24px",
+        gutter: "20px",
+        sm: "16px",
+        "container-max": "1200px",
+        xl: "64px",
+      },
+      // ⚠️ ফন্ট নামগুলো placeholder — expo-font দিয়ে যে key দিয়ে ফন্ট লোড করবেন,
+      // সেই exact key এখানে বসাতে হবে, নাহলে fallback system font দেখাবে
       fontFamily: {
-        sans: [
-          "Inter",
-          "Noto Sans Arabic",
-          "Hind Siliguri",
-          "system-ui",
-          "sans-serif",
+        "headline-md": ["PlusJakartaSans_600SemiBold"],
+        "body-lg": ["Inter_400Regular"],
+        "display-lg": ["PlusJakartaSans_700Bold"],
+        "headline-lg-mobile": ["PlusJakartaSans_700Bold"],
+        "body-md": ["Inter_400Regular"],
+        "label-md": ["Inter_600SemiBold"],
+        "arabic-display": ["Inter_500Medium"],
+        "headline-lg": ["PlusJakartaSans_700Bold"],
+      },
+      fontSize: {
+        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+        "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+        "display-lg": [
+          "48px",
+          { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" },
         ],
-
-        arabic: [
-          "Noto Sans Arabic",
-          "system-ui",
-          "sans-serif",
-        ],
-
-        bangla: [
-          "Hind Siliguri",
-          "system-ui",
-          "sans-serif",
+        "headline-lg-mobile": ["28px", { lineHeight: "36px", fontWeight: "700" }],
+        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+        "label-md": ["14px", { lineHeight: "20px", fontWeight: "600" }],
+        "arabic-display": ["40px", { lineHeight: "60px", fontWeight: "500" }],
+        "headline-lg": [
+          "32px",
+          { lineHeight: "40px", letterSpacing: "-0.01em", fontWeight: "700" },
         ],
       },
     },
   },
   plugins: [],
-}
+};
+ 

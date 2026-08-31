@@ -25,7 +25,7 @@ export function useCompleteOnboarding() {
       markCompleted();
 
       // Leave onboarding flow
-      router.replace("/(tabs)/home");
+      router.replace("/");
     },
   });
 }

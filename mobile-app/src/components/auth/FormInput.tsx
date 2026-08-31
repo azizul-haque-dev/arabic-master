@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Controller,
   type Control,
@@ -6,20 +7,20 @@ import {
 } from "react-hook-form";
 import { Text, TextInput, View, type TextInputProps } from "react-native";
 
-type FormFieldProps<T extends FieldValues> = {
+type FormInputProps<T extends FieldValues> = {
   control: Control<T>;
   name: Path<T>;
   label: string;
-  placeholder?: string;
 } & Omit<TextInputProps, "value" | "onChangeText" | "onBlur">;
 
-export function FormField<T extends FieldValues>({
+export function FormInput<T extends FieldValues>({
   control,
   name,
   label,
-  placeholder,
   ...inputProps
-}: FormFieldProps<T>) {
+}: FormInputProps<T>) {
+  const [isFocused, setIsFocused] = useState(false);
+
   return (
     <Controller
       control={control}
@@ -34,12 +35,19 @@ export function FormField<T extends FieldValues>({
           </Text>
           <TextInput
             className={`h-14 rounded-lg border bg-surface-container-lowest px-4 font-body-md text-body-md text-on-surface shadow-sm ${
-              error ? "border-error" : "border-surface-container-highest"
+              error
+                ? "border-error"
+                : isFocused
+                  ? "border-primary"
+                  : "border-surface-container-highest"
             }`}
             value={value}
             onChangeText={onChange}
-            onBlur={onBlur}
-            placeholder={placeholder}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => {
+              setIsFocused(false);
+              onBlur();
+            }}
             placeholderTextColor="#3d4a3f99"
             autoCapitalize="none"
             {...inputProps}

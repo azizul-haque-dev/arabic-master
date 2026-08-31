@@ -15,7 +15,7 @@ export function useLogin() {
         refreshToken: data.refreshToken,
         user: data.user,
       });
-      router.replace("/(tabs)/home");
+      router.replace("/");
     },
   });
 }

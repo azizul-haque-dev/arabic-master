@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/apiClient";
-import type { LoginFormValues, RegisterFormValues } from "@/schemas/authSchema";
+import type { LoginFormValues, SignupFormValues } from "@/schemas/authSchema";
 
 interface AuthResponse {
   accessToken: string;
@@ -16,7 +16,7 @@ export const authService = {
     const { data } = await apiClient.post<AuthResponse>("/auth/login", payload);
     return data;
   },
-  register: async (payload: RegisterFormValues): Promise<AuthResponse> => {
+  register: async (payload: SignupFormValues): Promise<AuthResponse> => {
     // acceptedTerms just client-side gate,
     const { fullName, email, password } = payload;
     const { data } = await apiClient.post<AuthResponse>("/auth/register", {
