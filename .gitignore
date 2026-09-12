@@ -162,3 +162,22 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ==========================
+# Next.js — admin-new
+# ==========================
+# Next.js build output folder
+admin-new/.next/
+admin-new/out/
+admin-new/build/
+
+# Next.js generated type file
+admin-new/next-env.d.ts
+
+# Next.js local / tooling artifacts
+admin-new/.vercel/
+admin-new/.turbo/
+admin-new/.swc/
+admin-new/coverage/
+admin-new/node_modules/
+

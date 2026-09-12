@@ -1,31 +1,54 @@
+import { RootShell } from "@/components/layout/root-shell";
 import type { Metadata } from "next";
-import { Hind_Siliguri, Noto_Serif_Bengali } from "next/font/google";
-
+import {
+  Inter,
+  Noto_Naskh_Arabic,
+  Noto_Sans_Bengali,
+  Plus_Jakarta_Sans,
+} from "next/font/google";
 import "./globals.css";
 
-const serif = Noto_Serif_Bengali({
-  subsets: ["bengali", "latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-serif",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
+  subsets: ["latin"],
+  weight: ["600", "700"],
 });
 
-const sans = Hind_Siliguri({
-  subsets: ["bengali", "latin"],
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
   weight: ["400", "500", "600"],
-  variable: "--font-sans",
+});
+
+const notoArabic = Noto_Naskh_Arabic({
+  variable: "--font-noto-arabic",
+  subsets: ["arabic"],
+  weight: ["400", "500", "700"],
+});
+
+const notoBengali = Noto_Sans_Bengali({
+  variable: "--font-noto-bengali",
+  subsets: ["bengali"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
-  title: "Arabic Master — Admin Console",
-  description: "Content and admin management console",
+  title: "Arabic Master Admin — Arabic Entities",
+  description: "Manage the canonical Arabic text layer for Arabic Master.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="bn" className={`${serif.variable} ${sans.variable}`}>
-      <body className="font-sans antialiased">{children}</body>
+    <html lang="en">
+      <body
+        className={`${jakarta.variable} ${inter.variable} ${notoArabic.variable} ${notoBengali.variable} antialiased`}
+      >
+        <RootShell>{children}</RootShell>
+      </body>
     </html>
   );
 }
