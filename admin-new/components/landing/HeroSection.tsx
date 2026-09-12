@@ -27,7 +27,7 @@ export function HeroSection() {
 
           <div className="flex flex-col sm:flex-row items-center gap-space-md w-full sm:w-auto mb-space-md">
             <Link
-              href="/signup"
+              href="/register"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs h-12 px-space-xl rounded-xl bg-primary-container text-on-primary font-title-md text-title-md shadow-md transition-all duration-200 hover:bg-primary-dark hover:shadow-lg active:translate-y-[1px]"
             >
               <span>Start Learning Free</span>

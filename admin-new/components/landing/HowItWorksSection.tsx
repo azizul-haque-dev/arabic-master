@@ -37,7 +37,7 @@ export function HowItWorksSection() {
 
         <div className="text-center">
           <Link
-            href="/signup"
+            href="/register"
             className="inline-flex items-center justify-center gap-space-xs h-12 px-space-xl bg-primary-container text-on-primary font-title-md text-title-md rounded-xl shadow-md hover:bg-primary transition-all"
           >
             <span>Start Learning Free</span>

@@ -17,7 +17,7 @@ export function FinalCTASection() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-space-md mb-space-md">
               <Link
-                href="/signup"
+                href="/register"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs h-12 px-space-xl rounded-xl bg-surface-container-lowest text-primary font-title-md text-title-md shadow-md transition-all duration-200 hover:bg-primary-light hover:text-primary-dark hover:shadow-lg active:translate-y-[1px]"
               >
                 <span>Start Learning Free</span>

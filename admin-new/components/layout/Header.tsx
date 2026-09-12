@@ -45,7 +45,7 @@ export function Header() {
             Log in
           </Link>
           <Link
-            href="/signup"
+            href="/register"
             className="hidden h-10 items-center justify-center gap-1.5 rounded-lg bg-primary px-4 font-label-md text-label-md font-semibold text-on-primary shadow-sm transition-colors hover:bg-primary-dark active:translate-y-px sm:inline-flex"
           >
             Start learning

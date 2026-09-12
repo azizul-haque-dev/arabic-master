@@ -44,7 +44,7 @@ export function MobileNav() {
             Log In
           </Link>
           <Link
-            href="/signup"
+            href="/register"
             onClick={() => setOpen(false)}
             className="mt-1 inline-flex h-11 items-center justify-center rounded-xl bg-primary px-4 font-label-md text-label-md font-semibold text-on-primary transition-colors hover:bg-primary-dark"
           >
