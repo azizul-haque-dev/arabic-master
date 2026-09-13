@@ -7,7 +7,7 @@ import { AuthShell } from "@/components/layout/auth-shell";
 import { usePathname } from "next/navigation";
 
 const adminRoutePrefixes = ["/arabic-entities", "/words", "/sentences"];
-const authRoutePrefixes = ["/login", "/register", "/signup"];
+const authRoutePrefixes = ["/login", "/register", "/signup", "/forgot-password", "/reset-password",];
 
 function matchesPrefix(pathname: string, prefixes: string[]) {
   return prefixes.some(
