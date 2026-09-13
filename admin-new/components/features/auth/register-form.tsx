@@ -2,80 +2,52 @@
 
 import { GoogleIcon } from "@/components/features/auth/google-icon";
 import { PasswordInput } from "@/components/features/auth/password-input";
+import { AuthField } from "@/components/features/auth/auth-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import * as React from "react";
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-interface RegisterErrors {
-  name?: string;
-  email?: string;
-  password?: string;
-}
+import { useForm } from "react-hook-form";
+import { registerAction } from "./register-action";
+import { registerSchema, type RegisterFormValues } from "./register-schema";
 
 export function RegisterForm() {
   const router = useRouter();
-
-  const [name, setName] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-
-  const [errors, setErrors] = React.useState<RegisterErrors>({});
   const [formError, setFormError] = React.useState<string | null>(null);
   const [notice, setNotice] = React.useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  function validate(): RegisterErrors {
-    const next: RegisterErrors = {};
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { name: "", email: "", password: "" },
+  });
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = form;
 
-    if (!name.trim()) {
-      next.name = "Name is required.";
-    }
-
-    if (!email.trim()) {
-      next.email = "Email is required.";
-    } else if (!EMAIL_PATTERN.test(email.trim())) {
-      next.email = "Enter a valid email address.";
-    }
-
-    if (!password) {
-      next.password = "Password is required.";
-    } else if (password.length < 8) {
-      next.password = "Password must be at least 8 characters.";
-    }
-
-    return next;
-  }
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  async function handleRegister(values: RegisterFormValues) {
     setNotice(null);
     setFormError(null);
 
-    const nextErrors = validate();
-    setErrors(nextErrors);
-
-    if (Object.keys(nextErrors).length > 0) return;
-
-    setIsSubmitting(true);
-
-    try {
-      // TODO: replace with the real POST /auth/register request
-      await new Promise((resolve) => setTimeout(resolve, 900));
-
-      router.push("/login");
-    } catch {
-      setFormError(
-        "We couldn't create your account. Please check your details and try again.",
-      );
-      setIsSubmitting(false);
+    const result = await registerAction(values);
+    if (!result.success) {
+      setFormError(result.message);
+      for (const field of ["name", "email", "password"] as const) {
+        const message = result.fieldErrors?.[field]?.[0];
+        if (message) {
+          setError(field, { type: "server", message });
+        }
+      }
+      return;
     }
+
+    setNotice(result.message);
+    router.push("/login");
   }
 
   function handleGoogleSignUp() {
@@ -130,89 +102,63 @@ export function RegisterForm() {
         <span className="h-px flex-1 bg-border" />
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-space-md" noValidate>
-        {/* Name */}
-        <div>
-          <Label htmlFor="register-name">Name</Label>
-
+      <form
+        onSubmit={handleSubmit(handleRegister)}
+        className="space-y-space-md"
+        noValidate
+      >
+        <AuthField
+          id="register-name"
+          label="Name"
+          error={errors.name}
+        >
           <Input
             id="register-name"
-            name="name"
             type="text"
             autoComplete="name"
             placeholder="Your name"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
+            {...register("name")}
             aria-invalid={Boolean(errors.name)}
             aria-describedby={errors.name ? "register-name-error" : undefined}
             disabled={isSubmitting}
           />
+        </AuthField>
 
-          {errors.name ? (
-            <p
-              id="register-name-error"
-              className="mt-1.5 font-body-sm text-body-sm text-error-text"
-            >
-              {errors.name}
-            </p>
-          ) : null}
-        </div>
-
-        {/* Email */}
-        <div>
-          <Label htmlFor="register-email">Email</Label>
-
+        <AuthField
+          id="register-email"
+          label="Email"
+          error={errors.email}
+        >
           <Input
             id="register-email"
-            name="email"
             type="email"
             inputMode="email"
             autoComplete="email"
             placeholder="you@example.com"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            {...register("email")}
             aria-invalid={Boolean(errors.email)}
             aria-describedby={errors.email ? "register-email-error" : undefined}
             disabled={isSubmitting}
           />
+        </AuthField>
 
-          {errors.email ? (
-            <p
-              id="register-email-error"
-              className="mt-1.5 font-body-sm text-body-sm text-error-text"
-            >
-              {errors.email}
-            </p>
-          ) : null}
-        </div>
-
-        {/* Password */}
-        <div>
-          <Label htmlFor="register-password">Password</Label>
-
+        <AuthField
+          id="register-password"
+          label="Password"
+          error={errors.password}
+        >
           <PasswordInput
             id="register-password"
-            name="password"
             autoComplete="new-password"
             placeholder="••••••••"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            {...register("password")}
             aria-invalid={Boolean(errors.password)}
             aria-describedby={
               errors.password ? "register-password-error" : undefined
             }
             disabled={isSubmitting}
           />
-
-          {errors.password ? (
-            <p
-              id="register-password-error"
-              className="mt-1.5 font-body-sm text-body-sm text-error-text"
-            >
-              {errors.password}
-            </p>
-          ) : null}
-        </div>
+        </AuthField>
 
         {formError ? (
           <p

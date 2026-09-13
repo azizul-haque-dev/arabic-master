@@ -1,64 +1,50 @@
 "use client";
 
+import { AuthField } from "@/components/features/auth/auth-field";
 import { GoogleIcon } from "@/components/features/auth/google-icon";
 import { PasswordInput } from "@/components/features/auth/password-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import * as React from "react";
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-interface LoginErrors {
-  email?: string;
-  password?: string;
-}
+import { useForm } from "react-hook-form";
+import { loginAction } from "./login-action";
+import { loginSchema, type LoginFormValues } from "./login-schema";
 
 export function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [errors, setErrors] = React.useState<LoginErrors>({});
   const [formError, setFormError] = React.useState<string | null>(null);
   const [notice, setNotice] = React.useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  function validate(): LoginErrors {
-    const next: LoginErrors = {};
-    if (!email.trim()) {
-      next.email = "Email is required.";
-    } else if (!EMAIL_PATTERN.test(email.trim())) {
-      next.email = "Enter a valid email address.";
-    }
-    if (!password) {
-      next.password = "Password is required.";
-    }
-    return next;
-  }
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function handleLogin(values: LoginFormValues) {
     setNotice(null);
     setFormError(null);
 
-    const nextErrors = validate();
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
-
-    setIsSubmitting(true);
-    try {
-      // TODO: replace with the real POST /auth/login request once the API is wired.
-      await new Promise((resolve) => setTimeout(resolve, 900));
-      router.push("/arabic-entities");
-    } catch {
-      setFormError(
-        "We couldn't sign you in. Please check your details and try again.",
-      );
-      setIsSubmitting(false);
+    const result = await loginAction(values);
+    if (!result.success) {
+      setFormError(result.message);
+      for (const field of ["email", "password"] as const) {
+        const message = result.fieldErrors?.[field]?.[0];
+        if (message) setError(field, { type: "server", message });
+      }
+      return;
     }
+
+    setNotice(result.message);
+    router.push("/arabic-entities");
   }
 
   function handleGoogleSignIn() {
@@ -110,37 +96,30 @@ export function LoginForm() {
         <span className="h-px flex-1 bg-border" />
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-space-md" noValidate>
-        <div>
-          <Label htmlFor="login-email">Email</Label>
+      <form
+        onSubmit={handleSubmit(handleLogin)}
+        className="space-y-space-md"
+        noValidate
+      >
+        <AuthField id="login-email" label="Email" error={errors.email}>
           <Input
             id="login-email"
-            name="email"
             type="email"
             inputMode="email"
             autoComplete="email"
             placeholder="you@example.com"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            {...register("email")}
             aria-invalid={Boolean(errors.email)}
             aria-describedby={errors.email ? "login-email-error" : undefined}
             disabled={isSubmitting}
           />
-          {errors.email ? (
-            <p
-              id="login-email-error"
-              className="mt-1.5 font-body-sm text-body-sm text-error-text"
-            >
-              {errors.email}
-            </p>
-          ) : null}
-        </div>
+        </AuthField>
 
         <div>
           <div className="mb-1.5 flex items-center justify-between gap-space-sm">
-            <Label htmlFor="login-password" className="mb-0">
+            <span className="font-body-sm text-body-sm font-medium text-on-surface">
               Password
-            </Label>
+            </span>
             <Link
               href="/forgot-password"
               className="font-label-sm text-label-sm font-medium text-primary transition-colors hover:text-primary-dark hover:underline"
@@ -148,27 +127,24 @@ export function LoginForm() {
               Forgot password?
             </Link>
           </div>
-          <PasswordInput
+          <AuthField
             id="login-password"
-            name="password"
-            autoComplete="current-password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            aria-invalid={Boolean(errors.password)}
-            aria-describedby={
-              errors.password ? "login-password-error" : undefined
-            }
-            disabled={isSubmitting}
-          />
-          {errors.password ? (
-            <p
-              id="login-password-error"
-              className="mt-1.5 font-body-sm text-body-sm text-error-text"
-            >
-              {errors.password}
-            </p>
-          ) : null}
+            label=""
+            error={errors.password}
+          >
+            <PasswordInput
+              id="login-password"
+              aria-label="Password"
+              autoComplete="current-password"
+              placeholder="••••••••"
+              {...register("password")}
+              aria-invalid={Boolean(errors.password)}
+              aria-describedby={
+                errors.password ? "login-password-error" : undefined
+              }
+              disabled={isSubmitting}
+            />
+          </AuthField>
         </div>
 
         {formError ? (
