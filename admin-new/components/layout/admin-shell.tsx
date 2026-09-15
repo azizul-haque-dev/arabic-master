@@ -2,18 +2,19 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
+import { AdminRole } from "@/lib/auth/get-current-user";
 import { RoleProvider } from "@/lib/role-context";
 import { AdminSidebarContent } from "@/components/layout/admin-sidebar";
 import { AdminTopbar } from "@/components/layout/admin-topbar";
 
-export function AdminShell({ children }: { children: React.ReactNode }) {
+export function AdminShell({ role, children }: { role: AdminRole; children: React.ReactNode; }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
     <RoleProvider>
       <div className="min-h-screen bg-background lg:flex">
         {/* Desktop sidebar */}
-        <aside className="hidden w-64 flex-shrink-0 border-r border-border bg-white lg:block">
+        <aside className="hidden w-64 shrink-0 border-r border-border bg-white lg:block">
           <AdminSidebarContent />
         </aside>
 

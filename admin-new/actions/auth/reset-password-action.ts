@@ -1,19 +1,17 @@
 "use server";
 
+import { ResetPasswordFormValues, resetPasswordSchema } from "@/schemas/auth.shema";
 import { z } from "zod";
-import {
-  resetPasswordSchema,
-  type ResetPasswordFormValues,
-} from "./reset-password-schema";
+
 
 export type ResetPasswordActionResult =
   | { success: true; message: string }
   | {
-      success: false;
-      message: string;
-      fieldErrors?: Partial<Record<keyof ResetPasswordFormValues, string[]>>;
-      tokenInvalid?: boolean;
-    };
+    success: false;
+    message: string;
+    fieldErrors?: Partial<Record<keyof ResetPasswordFormValues, string[]>>;
+    tokenInvalid?: boolean;
+  };
 
 const DEFAULT_ERROR_MESSAGE =
   "Unable to reset your password right now. Please try again.";

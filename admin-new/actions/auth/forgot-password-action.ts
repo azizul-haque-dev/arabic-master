@@ -1,15 +1,16 @@
 "use server";
 
+import { ForgotPasswordFormValues, forgotPasswordSchema } from "@/schemas/auth.shema";
 import { z } from "zod";
 
 
 export type ForgotPasswordActionResult =
   | { success: true; message: string }
   | {
-      success: false;
-      message: string;
-      fieldErrors?: Partial<Record<keyof ForgotPasswordFormValues, string[]>>;
-    };
+    success: false;
+    message: string;
+    fieldErrors?: Partial<Record<keyof ForgotPasswordFormValues, string[]>>;
+  };
 
 const GENERIC_SUCCESS_MESSAGE =
   "If an account exists for this email, we've sent a password reset link.";

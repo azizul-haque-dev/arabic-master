@@ -43,6 +43,7 @@ server/prisma/*.db-journal
 server-new/prisma/dev.db
 server-new/prisma/dev.db-journal
 server-new/prisma/*.db
+server-new/.claude
 server-new/prisma/*.db-journal
 SERVER_TROUBLESHOOTING.md
 

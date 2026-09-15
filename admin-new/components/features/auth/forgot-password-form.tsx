@@ -1,19 +1,17 @@
 "use client";
 
+import { forgotPasswordAction } from "@/actions/auth/forgot-password-action";
 import { AuthAlert } from "@/components/features/auth/auth-alert";
 import { AuthField } from "@/components/features/auth/auth-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ForgotPasswordFormValues, forgotPasswordSchema } from "@/schemas/auth.shema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { forgotPasswordAction } from "./forgot-password-action";
-import {
-  forgotPasswordSchema,
-  type ForgotPasswordFormValues,
-} from "./forgot-password-schema";
+
 
 export function ForgotPasswordForm() {
   const [formError, setFormError] = React.useState<string | null>(null);
@@ -53,7 +51,7 @@ export function ForgotPasswordForm() {
           Forgot your password?
         </h1>
         <p className="mt-1.5 font-body-sm text-body-sm text-on-surface-variant">
-          Enter your email and we&apos;ll send you a link to reset it.
+          Enter your email and we’ll send you a link to reset it.
         </p>
       </div>
 

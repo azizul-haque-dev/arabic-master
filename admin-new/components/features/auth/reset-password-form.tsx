@@ -1,20 +1,18 @@
 "use client";
 
+import { resetPasswordAction } from "@/actions/auth/reset-password-action";
 import { AuthAlert } from "@/components/features/auth/auth-alert";
 import { AuthField } from "@/components/features/auth/auth-field";
 import { PasswordInput } from "@/components/features/auth/password-input";
 import { Button } from "@/components/ui/button";
+import { ResetPasswordFormValues, resetPasswordSchema } from "@/schemas/auth.shema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { resetPasswordAction } from "./reset-password-action";
-import {
-  resetPasswordSchema,
-  type ResetPasswordFormValues,
-} from "./reset-password-schema";
+
 
 export function ResetPasswordForm({ token }: { token: string }) {
   const router = useRouter();
