@@ -13,13 +13,22 @@ export interface AdminNavItem {
   label: string;
   href: string;
   icon: LucideIcon;
-  /** Only "Arabic Entities" is implemented in this milestone. */
   implemented: boolean;
 }
 
 export const CONTENT_NAV: AdminNavItem[] = [
-  { label: "Courses", href: "/admin/courses", icon: BookOpen, implemented: false },
-  { label: "Sections", href: "/admin/sections", icon: Layers, implemented: false },
+  {
+    label: "Courses",
+    href: "/admin/courses",
+    icon: BookOpen,
+    implemented: false,
+  },
+  {
+    label: "Sections",
+    href: "/admin/sections",
+    icon: Layers,
+    implemented: false,
+  },
   {
     label: "Lessons",
     href: "/admin/lessons",
