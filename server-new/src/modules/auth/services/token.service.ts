@@ -27,16 +27,16 @@ export class TokenService {
         this.tokenHashSecret = this.configService.get<string>('auth.tokenHashSecret') as string;
     }
 
-    generateAccessToken(userId: string, sessionId: string): { token: string; jti: string } {
-        const jti = randomUUID();
-        const payload: AccessTokenPayload = { sub: userId, type: 'access', sid: sessionId, jti };
-        return { token: this.accessJwt.sign(payload), jti };
+    generateAccessToken(userId: string, sessionId: string): { token: string; jwtId: string } {
+        const jwtId = randomUUID();
+        const payload: AccessTokenPayload = { sub: userId, type: 'access', sessionId, jwtId };
+        return { token: this.accessJwt.sign(payload), jwtId };
     }
 
-    generateRefreshToken(userId: string, sessionId: string): { token: string; jti: string } {
-        const jti = randomUUID();
-        const payload: RefreshTokenPayload = { sub: userId, type: 'refresh', sid: sessionId, jti };
-        return { token: this.refreshJwt.sign(payload), jti };
+    generateRefreshToken(userId: string, sessionId: string): { token: string; jwtId: string } {
+        const jwtId = randomUUID();
+        const payload: RefreshTokenPayload = { sub: userId, type: 'refresh', sessionId, jwtId };
+        return { token: this.refreshJwt.sign(payload), jwtId };
     }
 
     verifyAccessToken(token: string): AccessTokenPayload {

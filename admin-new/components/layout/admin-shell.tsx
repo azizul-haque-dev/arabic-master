@@ -7,7 +7,7 @@ import { RoleProvider } from "@/lib/role-context";
 import { AdminSidebarContent } from "@/components/layout/admin-sidebar";
 import { AdminTopbar } from "@/components/layout/admin-topbar";
 
-export function AdminShell({ role, children }: { role: AdminRole; children: React.ReactNode; }) {
+export function AdminShell({ role = "ADMIN", children }: { role?: AdminRole; children: React.ReactNode; }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (

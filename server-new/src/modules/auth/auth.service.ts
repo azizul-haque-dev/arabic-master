@@ -51,7 +51,7 @@ export class AuthService {
 
         const user = await this.prisma.$transaction((tx: Prisma.TransactionClient) =>
             this.usersService.createWithPassword(
-                { email: dto.email, passwordHash, firstName: dto.firstName, lastName: dto.lastName },
+                { email: dto.email, passwordHash, fullName: dto.fullName },
                 tx,
             ),
         );
@@ -125,8 +125,8 @@ export class AuthService {
         const result = await this.sessionService.rotateRefreshToken({
             rawToken: refreshTokenPayload.rawToken,
             userId: refreshTokenPayload.sub,
-            sessionId: refreshTokenPayload.sid,
-            jti: refreshTokenPayload.jti,
+            sessionId: refreshTokenPayload.sessionId,
+            jwtId: refreshTokenPayload.jwtId,
             requestId: meta.requestId,
             ipAddress: meta.ipAddress,
             userAgent: meta.userAgent,
@@ -136,7 +136,7 @@ export class AuthService {
             event: 'REFRESH_SUCCESS',
             requestId: meta.requestId,
             userId: refreshTokenPayload.sub,
-            sessionId: refreshTokenPayload.sid,
+            sessionId: refreshTokenPayload.sessionId,
             ipAddress: meta.ipAddress,
             userAgent: meta.userAgent,
         });

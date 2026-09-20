@@ -28,7 +28,7 @@ export class SessionService {
         });
 
         const { token: accessToken } = this.tokenService.generateAccessToken(params.userId, session.id);
-        const { token: refreshToken, jti } = this.tokenService.generateRefreshToken(
+        const { token: refreshToken, jwtId } = this.tokenService.generateRefreshToken(
             params.userId,
             session.id,
         );
@@ -37,7 +37,7 @@ export class SessionService {
         await this.prisma.refreshToken.create({
             data: {
                 sessionId: session.id,
-                jti,
+                jwtId,
                 tokenHash: this.tokenService.hashToken(refreshToken),
                 expiresAt: refreshTokenExpiresAt,
             },
@@ -55,14 +55,14 @@ export class SessionService {
         rawToken: string;
         userId: string;
         sessionId: string;
-        jti: string;
+        jwtId: string;
         requestId: string;
         ipAddress?: string;
         userAgent?: string;
     }): Promise<{ accessToken: string; refreshToken: string; refreshTokenExpiresAt: Date }> {
-        const { rawToken, userId, sessionId, jti, requestId, ipAddress, userAgent } = params;
+        const { rawToken, userId, sessionId, jwtId, requestId, ipAddress, userAgent } = params;
 
-        const existing = await this.prisma.refreshToken.findUnique({ where: { jti } });
+        const existing = await this.prisma.refreshToken.findUnique({ where: { jwtId } });
 
         if (!existing || existing.sessionId !== sessionId) {
             throw new UnauthorizedException('Invalid or expired refresh token');
@@ -91,7 +91,7 @@ export class SessionService {
         }
 
         const { token: newAccessToken } = this.tokenService.generateAccessToken(userId, sessionId);
-        const { token: newRefreshToken, jti: newJti } = this.tokenService.generateRefreshToken(
+        const { token: newRefreshToken, jwtId: newJwtId } = this.tokenService.generateRefreshToken(
             userId,
             sessionId,
         );
@@ -112,7 +112,7 @@ export class SessionService {
                 }
 
                 const created = await tx.refreshToken.create({
-                    data: { sessionId, jti: newJti, tokenHash: newTokenHash, expiresAt: newExpiresAt },
+                    data: { sessionId, jwtId: newJwtId, tokenHash: newTokenHash, expiresAt: newExpiresAt },
                 });
 
                 await tx.refreshToken.update({

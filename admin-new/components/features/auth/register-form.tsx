@@ -11,7 +11,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { registerAction } from "./register-action";
+import { registerAction } from "@/actions/auth/register-action";
 import { registerSchema, type RegisterFormValues } from "./register-schema";
 
 export function RegisterForm() {
@@ -36,18 +36,26 @@ export function RegisterForm() {
 
     const result = await registerAction(values);
     if (!result.success) {
-      setFormError(result.message);
-      for (const field of ["name", "email", "password"] as const) {
-        const message = result.fieldErrors?.[field]?.[0];
-        if (message) {
-          setError(field, { type: "server", message });
+      setFormError(result.error);
+      if (result.fieldErrors) {
+        for (const [field, messages] of Object.entries(result.fieldErrors)) {
+          if (
+            messages &&
+            messages[0] &&
+            (field === "name" || field === "email" || field === "password")
+          ) {
+            setError(field as keyof RegisterFormValues, {
+              type: "server",
+              message: messages[0],
+            });
+          }
         }
       }
       return;
     }
 
-    setNotice(result.message);
-    router.push("/login");
+    setNotice("Account created successfully.");
+    window.location.href = "/arabic-entities";
   }
 
   function handleGoogleSignUp() {

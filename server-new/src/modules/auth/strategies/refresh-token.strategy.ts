@@ -7,14 +7,13 @@ import { RefreshTokenPayload } from '../types/jwt-payload.type.js';
 
 function extractRefreshToken(configService: ConfigService) {
     return (req: Request): string | null => {
+        const isNonCookieClient = Boolean(req.headers['x-client-type']);
+        if (isNonCookieClient) {
+            return req.body?.refreshToken ?? null;
+        }
+
         const cookieName = configService.get<string>('auth.cookie.name') as string;
-        const fromCookie = req.cookies?.[cookieName];
-        if (fromCookie) return fromCookie;
-
-        const fromBody = req.body?.refreshToken;
-        if (fromBody) return fromBody;
-
-        return ExtractJwt.fromAuthHeaderAsBearerToken()(req);
+        return req.cookies?.[cookieName] ?? null;
     };
 }
 
@@ -38,8 +37,9 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refres
             throw new UnauthorizedException('Invalid token type');
         }
 
+        const isNonCookieClient = Boolean(req.headers['x-client-type']);
         const cookieName = this.configService.get<string>('auth.cookie.name') as string;
-        const rawToken = req.cookies?.[cookieName] || req.body?.refreshToken;
+        const rawToken = isNonCookieClient ? req.body?.refreshToken : req.cookies?.[cookieName];
 
         if (!rawToken) {
             throw new UnauthorizedException('Invalid or expired refresh token');

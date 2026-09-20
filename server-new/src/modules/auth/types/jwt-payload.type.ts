@@ -1,15 +1,18 @@
+
+
+
 export interface AccessTokenPayload {
     sub: string;
     type: 'access';
-    sid: string;
-    jti: string;
+    sessionId: string;
+    jwtId: string;
 }
 
 export interface RefreshTokenPayload {
     sub: string;
     type: 'refresh';
-    sid: string;
-    jti: string;
+    sessionId: string;
+    jwtId: string;
 }
 
 export interface ValidatedRefreshToken extends RefreshTokenPayload {
@@ -19,5 +22,5 @@ export interface ValidatedRefreshToken extends RefreshTokenPayload {
 export interface RequestUser {
     userId: string;
     sessionId: string;
-    jti: string;
+    jwtId: string;
 }

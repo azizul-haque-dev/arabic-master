@@ -7,8 +7,7 @@ export interface GoogleProfilePayload {
     providerAccountId: string;
     email: string;
     emailVerified: boolean;
-    firstName: string;
-    lastName: string;
+    fullName: string;
 }
 
 @Injectable()
@@ -51,8 +50,7 @@ export class OAuthService {
             const user = await this.usersService.createFromOAuth(
                 {
                     email: profile.email,
-                    firstName: profile.firstName,
-                    lastName: profile.lastName,
+                    fullName: profile.fullName,
                     emailVerifiedAt: new Date(),
                 },
                 tx,

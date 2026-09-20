@@ -17,7 +17,7 @@ export class UsersService {
     }
 
     createWithPassword(
-        data: { email: string; passwordHash: string; firstName: string; lastName: string },
+        data: { email: string; passwordHash: string; fullName: string; },
         tx?: Prisma.TransactionClient,
     ): Promise<User> {
         const client = tx ?? this.prisma;
@@ -25,7 +25,7 @@ export class UsersService {
     }
 
     createFromOAuth(
-        data: { email: string; firstName: string; lastName: string; emailVerifiedAt: Date | null },
+        data: { email: string; fullName: string; emailVerifiedAt: Date | null },
         tx: Prisma.TransactionClient,
     ): Promise<User> {
         return tx.user.create({ data: { ...data, passwordHash: null } });
@@ -35,8 +35,7 @@ export class UsersService {
         return {
             id: user.id,
             email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
+            fullName: user.fullName,
             role: user.role,
             status: user.status,
             emailVerifiedAt: user.emailVerifiedAt,

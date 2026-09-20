@@ -11,7 +11,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { loginAction } from "./login-action";
+import { loginAction } from "@/actions/auth/login-action";
 import { loginSchema, type LoginFormValues } from "./login-schema";
 
 export function LoginForm() {
@@ -35,15 +35,20 @@ export function LoginForm() {
 
     const result = await loginAction(values);
     if (!result.success) {
-      setFormError(result.message);
-      for (const field of ["email", "password"] as const) {
-        const message = result.fieldErrors?.[field]?.[0];
-        if (message) setError(field, { type: "server", message });
+      setFormError(result.error);
+      if (result.fieldErrors) {
+        for (const [field, messages] of Object.entries(result.fieldErrors)) {
+          if (messages && messages[0] && (field === "email" || field === "password")) {
+            setError(field as keyof LoginFormValues, { type: "server", message: messages[0] });
+          }
+        }
       }
       return;
     }
+    console.log(result)
 
-    setNotice(result.message);
+    setNotice("Signed in successfully.");
+    // router push 
     router.push("/arabic-entities");
   }
 
@@ -61,7 +66,7 @@ export function LoginForm() {
           Welcome back
         </h1>
         <p className="mt-1.5 font-body-sm text-body-sm text-on-surface-variant">
-          Sign in to manage Arabic entities, words, and sentences.
+          Sign in to continue your Arabic learning journey.
         </p>
       </div>
 

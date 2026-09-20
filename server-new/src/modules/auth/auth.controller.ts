@@ -54,7 +54,15 @@ export class AuthController {
         @Ip() ip: string,
     ) {
         const result = await this.authService.register(dto, this.meta(req, ip));
-        this.setAuthCookies(res, result.tokens.refreshToken, result.tokens.refreshTokenExpiresAt);
+        const isNonCookie = this.isNonCookieClient(req);
+
+        if (!isNonCookie) {
+            this.setAuthCookies(res, result.tokens.refreshToken, result.tokens.refreshTokenExpiresAt);
+            return {
+                user: result.user,
+                accessToken: result.tokens.accessToken,
+            };
+        }
 
         return {
             user: result.user,
@@ -74,7 +82,15 @@ export class AuthController {
         @Ip() ip: string,
     ) {
         const result = await this.authService.login(dto, this.meta(req, ip));
-        this.setAuthCookies(res, result.tokens.refreshToken, result.tokens.refreshTokenExpiresAt);
+        const isNonCookie = this.isNonCookieClient(req);
+
+        if (!isNonCookie) {
+            this.setAuthCookies(res, result.tokens.refreshToken, result.tokens.refreshTokenExpiresAt);
+            return {
+                user: result.user,
+                accessToken: result.tokens.accessToken,
+            };
+        }
 
         return {
             user: result.user,
@@ -96,7 +112,12 @@ export class AuthController {
         @Ip() ip: string,
     ) {
         const result = await this.authService.refresh(refreshTokenPayload, this.meta(req, ip));
-        this.setAuthCookies(res, result.refreshToken, result.refreshTokenExpiresAt);
+        const isNonCookie = this.isNonCookieClient(req);
+
+        if (!isNonCookie) {
+            this.setAuthCookies(res, result.refreshToken, result.refreshTokenExpiresAt);
+            return { accessToken: result.accessToken };
+        }
 
         return { accessToken: result.accessToken, refreshToken: result.refreshToken };
     }
@@ -113,7 +134,9 @@ export class AuthController {
         @Ip() ip: string,
     ) {
         await this.authService.logout(user.sessionId, this.meta(req, ip));
-        this.clearAuthCookies(res);
+        if (!this.isNonCookieClient(req)) {
+            this.clearAuthCookies(res);
+        }
         return { message: 'Logged out' };
     }
 
@@ -129,7 +152,9 @@ export class AuthController {
         @Ip() ip: string,
     ) {
         await this.authService.logoutAll(user.userId, this.meta(req, ip));
-        this.clearAuthCookies(res);
+        if (!this.isNonCookieClient(req)) {
+            this.clearAuthCookies(res);
+        }
         return { message: 'Logged out of all sessions' };
     }
 
@@ -196,6 +221,10 @@ export class AuthController {
             ipAddress: ip,
             userAgent: req.headers['user-agent'],
         };
+    }
+
+    private isNonCookieClient(req: Request): boolean {
+        return Boolean(req.headers['x-client-type']);
     }
 
     private cookiePath(): string {

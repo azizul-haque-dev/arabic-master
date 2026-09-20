@@ -5,18 +5,18 @@ export type SecurityEventType =
     | 'REGISTER'
     | 'LOGIN_SUCCESS'
     | 'LOGIN_FAILED'
-    | 'LOGOUT'
-    | 'LOGOUT_ALL'
+    | 'ACCOUNT_UNAVAILABLE_LOGIN_ATTEMPT'
     | 'REFRESH_SUCCESS'
     | 'REFRESH_TOKEN_REUSE_DETECTED'
     | 'CONCURRENT_REFRESH_RACE_DETECTED'
+    | 'LOGOUT'
+    | 'LOGOUT_ALL'
     | 'PASSWORD_RESET_REQUESTED'
     | 'PASSWORD_RESET_SUCCESS'
-    | 'OAUTH_LOGIN'
-    | 'ACCOUNT_UNAVAILABLE_LOGIN_ATTEMPT';
+    | 'OAUTH_LOGIN';
 
 export interface SecurityEvent {
-    event: SecurityEventType;
+    event: SecurityEventType | (string & {});
     requestId: string;
     userId?: string;
     sessionId?: string;
@@ -27,11 +27,19 @@ export interface SecurityEvent {
 @Injectable()
 export class SecurityLoggerService {
     constructor(private readonly logger: PinoLogger) {
-        this.logger.setContext(SecurityLoggerService.name);
+        this.logger.setContext('Security');
     }
 
-    /** Only pass identifiers here — never raw passwords, tokens, or secrets. */
     log(event: SecurityEvent): void {
-        this.logger.info({ ...event, timestamp: new Date().toISOString() }, event.event);
+        this.logger.info(event, 'Security event logged');
     }
 }
+
+
+
+
+
+
+
+
+

@@ -14,9 +14,14 @@ export class CsrfGuard implements CanActivate {
 
     canActivate(context: ExecutionContext): boolean {
         const request = context.switchToHttp().getRequest<Request>();
-        const cookieName = this.configService.get<string>('auth.cookie.name') as string;
 
-        const usingCookieAuth = Boolean(request.cookies?.[cookieName]) && !request.body?.refreshToken;
+        const isNonCookieClient = Boolean(request.headers['x-client-type']);
+        if (isNonCookieClient) {
+            return true;
+        }
+
+        const cookieName = this.configService.get<string>('auth.cookie.name') as string;
+        const usingCookieAuth = Boolean(request.cookies?.[cookieName]);
 
         if (!usingCookieAuth) {
             return true;

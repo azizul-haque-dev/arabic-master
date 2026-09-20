@@ -4,6 +4,7 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { randomUUID } from 'crypto';
 import { LoggerModule } from 'nestjs-pino';
+import { join } from 'path';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor.js';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware.js';
@@ -26,46 +27,75 @@ import { AuthModule } from './modules/auth/auth.module.js';
     }),
     LoggerModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        pinoHttp: {
+      useFactory: (configService: ConfigService) => {
+        const isProd = configService.get<string>('app.env') === 'production';
+
+        // Define file rolling target
+        const fileTransportTarget = {
+          target: 'pino-roll',
+          options: {
+            file: join(process.cwd(), 'logs', 'app'), // Saves to your root directory /logs/app.YYYYMMDD.log
+            frequency: 'daily',
+            size: '10m',
+            mkdir: true,
+          },
           level: configService.get<string>('app.logLevel') ?? 'debug',
-          genReqId: (req: Record<string, any>, res: Record<string, any>) => {
-            const existing = req.headers['x-request-id'];
-            const id =
-              typeof existing === 'string' && existing.length > 0 ? existing : randomUUID();
-            res.setHeader('X-Request-Id', id);
-            return id;
-          },
-          redact: {
-            paths: [
-              'req.headers.authorization',
-              'req.headers.cookie',
-              'req.body.password',
-              'req.body.newPassword',
-              'req.body.refreshToken',
-              'req.body.accessToken',
-              'req.body.token',
-            ],
-            censor: '**redacted**',
-          },
-          transport:
-            configService.get<string>('app.env') === 'production'
-              ? undefined
+        };
+
+        // Define human-readable console target
+        const consolePrettyTarget = {
+          target: 'pino-pretty',
+          options: { singleLine: true, colorize: true, translateTime: 'SYS:standard' },
+          level: configService.get<string>('app.logLevel') ?? 'debug',
+        };
+
+        return {
+          pinoHttp: {
+            level: configService.get<string>('app.logLevel') ?? 'debug',
+            genReqId: (req: Record<string, any>, res: Record<string, any>) => {
+              const existing = req.headers['x-request-id'];
+              const id =
+                typeof existing === 'string' && existing.length > 0 ? existing : randomUUID();
+              res.setHeader('X-Request-Id', id);
+              return id;
+            },
+            redact: {
+              paths: [
+                'req.headers.authorization',
+                'req.headers.cookie',
+                'req.body.password',
+                'req.body.newPassword',
+                'req.body.refreshToken',
+                'req.body.accessToken',
+                'req.body.token',
+              ],
+              censor: '**redacted**',
+            },
+            // 👈 Custom transport configuration incorporating pino-roll
+            transport: isProd
+              ? {
+                targets: [
+                  fileTransportTarget,
+                  // If you also want standard JSON console streaming in production alongside files, add:
+                  { target: 'pino/file', options: { destination: 1 }, level: configService.get<string>('app.logLevel') ?? 'info' }
+                ]
+              }
               : {
-                target: 'pino-pretty',
-                options: { singleLine: true, colorize: true, translateTime: 'SYS:standard' },
+                targets: [
+                  consolePrettyTarget,
+                  fileTransportTarget // Still saves log files locally while developing
+                ]
               },
-        },
-      }),
+          },
+        };
+      },
     }),
-    // Generous global default; auth endpoints override this per-route with
-    // @Throttle({ default: { limit, ttl } }) for stricter brute-force limits.
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60000, limit: 100 }]),
-    PrismaModule,
     RedisModule,
     HealthModule,
     UsersModule,
     AuthModule,
+    PrismaModule
   ],
   providers: [
     { provide: APP_FILTER, useClass: HttpExceptionFilter },

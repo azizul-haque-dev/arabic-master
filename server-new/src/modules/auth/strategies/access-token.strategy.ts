@@ -23,11 +23,11 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt-access'
             throw new UnauthorizedException('Invalid token type');
         }
 
-        const revoked = await this.redis.isSessionRevoked(payload.sid);
+        const revoked = await this.redis.isSessionRevoked(payload.sessionId);
         if (revoked) {
             throw new UnauthorizedException('Session has been revoked');
         }
 
-        return { userId: payload.sub, sessionId: payload.sid, jti: payload.jti };
+        return { userId: payload.sub, sessionId: payload.sessionId, jwtId: payload.jwtId };
     }
 }

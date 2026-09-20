@@ -19,7 +19,7 @@ import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 
 @Module({
-    imports: [PassportModule, UsersModule],
+    imports: [PassportModule.register({ session: false }), UsersModule],
     controllers: [AuthController],
     providers: [
         AuthService,

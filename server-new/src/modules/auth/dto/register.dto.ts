@@ -8,17 +8,11 @@ export class RegisterDto {
     @Transform(({ value }) => String(value).trim().toLowerCase())
     email: string;
 
-    @ApiProperty({ example: 'John' })
+    @ApiProperty({ example: 'John Doe' })
     @IsString()
-    @MinLength(1)
+    @MinLength(2)
     @MaxLength(50)
-    firstName: string;
-
-    @ApiProperty({ example: 'Doe' })
-    @IsString()
-    @MinLength(1)
-    @MaxLength(50)
-    lastName: string;
+    fullName: string;
 
     @ApiProperty({ example: 'StrongPassword123!' })
     @IsString()

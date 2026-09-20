@@ -1,4 +1,3 @@
-// app/layout.tsx
 import type { Metadata } from "next";
 import {
   Inter,
@@ -6,6 +5,7 @@ import {
   Noto_Sans_Bengali,
   Plus_Jakarta_Sans,
 } from "next/font/google";
+import { RootShell } from "@/components/layout/root-shell";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({ variable: "--font-jakarta", subsets: ["latin"], weight: ["600", "700"] });
@@ -23,13 +23,12 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // suppressHydrationWarning
   return (
-    <html lang="en" >
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${jakarta.variable} ${inter.variable} ${notoArabic.variable} ${notoBengali.variable} antialiased`}
       >
-        {children}
+        <RootShell>{children}</RootShell>
       </body>
     </html>
   );

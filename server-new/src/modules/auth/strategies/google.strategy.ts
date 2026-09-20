@@ -43,8 +43,12 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
             providerAccountId: profile.id,
             email: email.toLowerCase(),
             emailVerified,
-            firstName: profile.name?.givenName ?? profile.displayName ?? 'Google',
-            lastName: profile.name?.familyName ?? 'User',
+            fullName:
+                profile.displayName ??
+                (
+                    `${profile.name?.givenName ?? ''} ${profile.name?.familyName ?? ''}`.trim() ||
+                    'Google User'
+                ),
         };
 
         done(null, payload);
