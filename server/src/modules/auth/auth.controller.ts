@@ -151,8 +151,9 @@ export const googleCallback = asyncHandler(
       setRefreshCookie(res, result.refreshToken);
       setAccessCookie(res, result.accessToken);
     }
-    res.redirect(
-      `${env.CLIENT_URL}/oauth/callback?accessToken=${result.accessToken}?refreshToken=${result.refreshToken}`,
-    );
+    const callbackUrl = new URL("/oauth/callback", env.CLIENT_URL);
+    callbackUrl.searchParams.set("accessToken", result.accessToken);
+    callbackUrl.searchParams.set("refreshToken", result.refreshToken);
+    res.redirect(callbackUrl.toString());
   },
 );

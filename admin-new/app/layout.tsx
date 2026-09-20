@@ -6,6 +6,7 @@ import {
   Plus_Jakarta_Sans,
 } from "next/font/google";
 import { RootShell } from "@/components/layout/root-shell";
+import { getAuthSession } from "@/lib/auth/session";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({ variable: "--font-jakarta", subsets: ["latin"], weight: ["600", "700"] });
@@ -18,17 +19,19 @@ export const metadata: Metadata = {
   description: "Learn the Arabic you actually need to speak.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { user } = await getAuthSession();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${jakarta.variable} ${inter.variable} ${notoArabic.variable} ${notoBengali.variable} antialiased`}
       >
-        <RootShell>{children}</RootShell>
+        <RootShell initialUser={user ?? null}>{children}</RootShell>
       </body>
     </html>
   );

@@ -5,7 +5,6 @@ import { mapHttpError, serverApiFetch } from "@/lib/auth/server-api";
 import { setAuthSession } from "@/lib/auth/session";
 import {
   ActionFieldErrors,
-  RegisterActionData,
   RegisterActionResult,
   SafeUser,
 } from "@/lib/types/auth";

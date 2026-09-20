@@ -1,5 +1,7 @@
 "use client";
 
+import { loginAction } from "@/actions/auth/login-action";
+import { googleAuthAction } from "@/actions/auth/google-action";
 import { AuthField } from "@/components/features/auth/auth-field";
 import { GoogleIcon } from "@/components/features/auth/google-icon";
 import { PasswordInput } from "@/components/features/auth/password-input";
@@ -11,8 +13,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { loginAction } from "@/actions/auth/login-action";
 import { loginSchema, type LoginFormValues } from "./login-schema";
+import { getPostLoginRedirect } from "@/lib/auth/redirect";
 
 export function LoginForm() {
   const router = useRouter();
@@ -38,26 +40,25 @@ export function LoginForm() {
       setFormError(result.error);
       if (result.fieldErrors) {
         for (const [field, messages] of Object.entries(result.fieldErrors)) {
-          if (messages && messages[0] && (field === "email" || field === "password")) {
-            setError(field as keyof LoginFormValues, { type: "server", message: messages[0] });
+          if (
+            messages &&
+            messages[0] &&
+            (field === "email" || field === "password")
+          ) {
+            setError(field as keyof LoginFormValues, {
+              type: "server",
+              message: messages[0],
+            });
           }
         }
       }
       return;
     }
-    console.log(result)
-
     setNotice("Signed in successfully.");
-    // router push 
-    router.push("/arabic-entities");
+    router.refresh();
+    router.push(getPostLoginRedirect(result.data.user.role));
   }
 
-  function handleGoogleSignIn() {
-    setFormError(null);
-    setNotice(
-      "Google sign-in isn't connected yet — use your email and password for now.",
-    );
-  }
 
   return (
     <div className="rounded-xl border border-border bg-surface p-6 shadow-[0_18px_45px_rgba(15,23,42,0.08)] sm:p-8">
@@ -70,16 +71,17 @@ export function LoginForm() {
         </p>
       </div>
 
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full"
-        onClick={handleGoogleSignIn}
-        disabled={isSubmitting}
-      >
-        <GoogleIcon className="h-[18px] w-[18px]" />
-        Continue with Google
-      </Button>
+      <form action={googleAuthAction}>
+        <Button
+          type="submit"
+          variant="outline"
+          className="w-full"
+          disabled={isSubmitting}
+        >
+          <GoogleIcon className="h-[18px] w-[18px]" />
+          Continue with Google
+        </Button>
+      </form>
 
       {notice ? (
         <p
@@ -132,11 +134,7 @@ export function LoginForm() {
               Forgot password?
             </Link>
           </div>
-          <AuthField
-            id="login-password"
-            label=""
-            error={errors.password}
-          >
+          <AuthField id="login-password" label="" error={errors.password}>
             <PasswordInput
               id="login-password"
               aria-label="Password"

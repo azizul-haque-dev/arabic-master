@@ -73,9 +73,10 @@ async function refreshAccessToken(): Promise<string | null> {
         return null;
       }
 
-      const data = await response.json();
-      const newAccessToken = data.accessToken;
-      const newRefreshToken = data.refreshToken || refreshToken;
+      const body = await response.json();
+      const data = body?.data ?? body;
+      const newAccessToken = data?.accessToken;
+      const newRefreshToken = data?.refreshToken || refreshToken;
 
       if (!newAccessToken) {
         await clearAuthSession();

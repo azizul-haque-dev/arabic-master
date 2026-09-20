@@ -1,9 +1,15 @@
+"use client";
+
 import { navLinks } from "@/lib/mock-data/landing";
 import { ArrowUpRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { MobileNav } from "./MobileNav";
+import { ProfileMenu } from "./profile-menu";
+import { useUser } from "@/lib/auth/user-context";
 
 export function Header() {
+  const { user } = useUser();
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5">
       <div className="mx-auto flex h-[68px] max-w-container-max items-center justify-between gap-3 rounded-2xl border border-border/80 bg-surface/90 px-3 shadow-[0_12px_35px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:px-4 lg:grid lg:grid-cols-[1fr_auto_1fr]">
@@ -37,20 +43,28 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-1.5 lg:justify-self-end">
-          <Link
-            href="/login"
-            className="hidden h-10 items-center justify-center rounded-lg px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface sm:inline-flex"
-          >
-            Log in
-          </Link>
-          <Link
-            href="/register"
-            className="hidden h-10 items-center justify-center gap-1.5 rounded-lg bg-primary px-4 font-label-md text-label-md font-semibold text-on-primary shadow-sm transition-colors hover:bg-primary-dark active:translate-y-px sm:inline-flex"
-          >
-            Start learning
-            <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
+        <div className="flex items-center gap-2 lg:justify-self-end">
+          {user ? (
+            <div className="hidden sm:inline-flex">
+              <ProfileMenu user={user} />
+            </div>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="hidden h-10 items-center justify-center rounded-lg px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface sm:inline-flex"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/register"
+                className="hidden h-10 items-center justify-center gap-1.5 rounded-lg bg-primary px-4 font-label-md text-label-md font-semibold text-on-primary shadow-sm transition-colors hover:bg-primary-dark active:translate-y-px sm:inline-flex"
+              >
+                Start learning
+                <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </>
+          )}
           <MobileNav />
         </div>
       </div>

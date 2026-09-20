@@ -39,11 +39,8 @@ export async function loginAction(
       method: "POST",
       body: JSON.stringify(result.data),
     });
-    console.log(response, "response")
-
     // 3. Read backend response
     const body = await response.json();
-    console.log("body", body)
 
     // 4. Login successful
     if (response.ok) {

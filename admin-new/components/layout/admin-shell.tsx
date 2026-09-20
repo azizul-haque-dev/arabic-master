@@ -11,7 +11,7 @@ export function AdminShell({ role = "ADMIN", children }: { role?: AdminRole; chi
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <RoleProvider>
+    <RoleProvider initialRole={role}>
       <div className="min-h-screen bg-background lg:flex">
         {/* Desktop sidebar */}
         <aside className="hidden w-64 shrink-0 border-r border-border bg-white lg:block">

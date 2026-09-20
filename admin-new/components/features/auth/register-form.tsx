@@ -12,6 +12,8 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { registerAction } from "@/actions/auth/register-action";
+import { googleAuthAction } from "@/actions/auth/google-action";
+import { getPostLoginRedirect } from "@/lib/auth/redirect";
 import { registerSchema, type RegisterFormValues } from "./register-schema";
 
 export function RegisterForm() {
@@ -55,15 +57,10 @@ export function RegisterForm() {
     }
 
     setNotice("Account created successfully.");
-    window.location.href = "/arabic-entities";
+    router.refresh();
+    router.push(getPostLoginRedirect(result.data.user.role));
   }
 
-  function handleGoogleSignUp() {
-    setFormError(null);
-    setNotice(
-      "Google sign-up isn't connected yet — use your email and password for now.",
-    );
-  }
 
   return (
     <div className="rounded-xl border border-border bg-surface p-6 shadow-[0_18px_45px_rgba(15,23,42,0.08)] sm:p-8">
@@ -77,16 +74,17 @@ export function RegisterForm() {
         </p>
       </div>
 
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full"
-        onClick={handleGoogleSignUp}
-        disabled={isSubmitting}
-      >
-        <GoogleIcon className="h-[18px] w-[18px]" />
-        Continue with Google
-      </Button>
+      <form action={googleAuthAction}>
+        <Button
+          type="submit"
+          variant="outline"
+          className="w-full"
+          disabled={isSubmitting}
+        >
+          <GoogleIcon className="h-[18px] w-[18px]" />
+          Continue with Google
+        </Button>
+      </form>
 
       {notice ? (
         <p

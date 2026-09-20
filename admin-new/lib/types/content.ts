@@ -110,7 +110,11 @@ export const WORD_TYPE_LABEL: Record<WordType, string> = {
  * `usedInConversations` here is what actually lets a Sentence be deleted
  * safely or not; it is independent of the source entity's own usage count.
  */
-export type DifficultyLevel = "BEGINNER" | "ELEMENTARY" | "INTERMEDIATE" | "ADVANCED";
+export type DifficultyLevel =
+  | "BEGINNER"
+  | "ELEMENTARY"
+  | "INTERMEDIATE"
+  | "ADVANCED";
 
 export interface Sentence {
   id: string;
@@ -151,6 +155,40 @@ export const DIFFICULTY_LABEL: Record<DifficultyLevel, string> = {
   INTERMEDIATE: "Intermediate",
   ADVANCED: "Advanced",
 };
+
+/**
+ * A Conversation is built from Sentences — NEVER directly from an
+ * ArabicEntity. This is the strictest relationship rule in the content
+ * model; the UI must not offer any path that lets a Conversation turn
+ * reference an entity instead of a sentence.
+ */
+export interface ConversationTurn {
+  id: string;
+  order: number;
+  speaker: string; // free text, e.g. "Customer", "Seller"
+  sentenceId: string;
+}
+
+export interface Conversation {
+  id: string;
+  conversationKey: string; // e.g. "CNV-3012"
+  title: string;
+  topic: string;
+  category: string;
+  turns: ConversationTurn[];
+  lessonName?: string;
+  status: ContentStatus;
+  rejectionReason?: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConversationMetaFormValues {
+  title: string;
+  topic: string;
+  category: string;
+}
 
 export const CONTENT_STATUS_LABEL: Record<ContentStatus, string> = {
   DRAFT: "Draft",

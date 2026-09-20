@@ -2,12 +2,13 @@
 
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
-import { AdminShell } from "@/components/layout/admin-shell";
 import { AuthShell } from "@/components/layout/auth-shell";
+import { UserProvider } from "@/lib/auth/user-context";
+import type { SafeUser } from "@/lib/types/auth";
 import { usePathname } from "next/navigation";
 
-const adminRoutePrefixes = ["/arabic-entities", "/words", "/sentences"];
-const authRoutePrefixes = ["/login", "/register", "/signup", "/forgot-password", "/reset-password",];
+const adminRoutePrefixes = ["/admin"];
+const authRoutePrefixes = ["/login", "/register", "/signup", "/forgot-password", "/reset-password"];
 
 function matchesPrefix(pathname: string, prefixes: string[]) {
   return prefixes.some(
@@ -15,24 +16,30 @@ function matchesPrefix(pathname: string, prefixes: string[]) {
   );
 }
 
-export function RootShell({ children }: { children: React.ReactNode }) {
+export function RootShell({
+  children,
+  initialUser = null,
+}: {
+  children: React.ReactNode;
+  initialUser?: SafeUser | null;
+}) {
   const pathname = usePathname();
   const isAdminRoute = matchesPrefix(pathname, adminRoutePrefixes);
   const isAuthRoute = matchesPrefix(pathname, authRoutePrefixes);
 
-  if (isAuthRoute) {
-    return <AuthShell>{children}</AuthShell>;
-  }
-
-  if (isAdminRoute) {
-    return <AdminShell>{children}</AdminShell>;
-  }
-
   return (
-    <>
-      <Header />
-      <main className="pt-24">{children}</main>
-      <Footer />
-    </>
+    <UserProvider initialUser={initialUser}>
+      {isAuthRoute ? (
+        <AuthShell>{children}</AuthShell>
+      ) : isAdminRoute ? (
+        <>{children}</>
+      ) : (
+        <>
+          <Header />
+          <main className="pt-24">{children}</main>
+          <Footer />
+        </>
+      )}
+    </UserProvider>
   );
 }

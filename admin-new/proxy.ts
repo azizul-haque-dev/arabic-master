@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { LOGIN, PUBLIC_ROUTES, ROOT } from "./lib/routes.data";
+import { getPostLoginRedirect } from "./lib/auth/redirect";
 
 const SESSION_COOKIE_NAME = "session_token";
 const USER_COOKIE_NAME = "user";
@@ -11,8 +12,6 @@ const ADMIN_ROLES = ["ADMIN", "CONTENT_MANAGER"] as const;
 export async function proxy(request: NextRequest) {
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const user = request.cookies.get(USER_COOKIE_NAME)?.value;
-  console.log("token", token)
-  console.log("user", user)
   const isPublicRoute =
     PUBLIC_ROUTES.find((route) => request.nextUrl.pathname.startsWith(route)) ||
     request.nextUrl.pathname === ROOT;
@@ -23,7 +22,15 @@ export async function proxy(request: NextRequest) {
 
   // Redirect authenticated users away from login/register pages
   if (token && (request.nextUrl.pathname === LOGIN || request.nextUrl.pathname === "/register")) {
-    return NextResponse.redirect(new URL("/arabic-entities", request.nextUrl), request);
+    let redirectPath = "/admin/arabic-entities";
+    if (user) {
+      try {
+        redirectPath = getPostLoginRedirect(JSON.parse(user).role);
+      } catch (error) {
+        console.error("Error parsing user cookie:", error);
+      }
+    }
+    return NextResponse.redirect(new URL(redirectPath, request.nextUrl), request);
   }
 
   if (user) {

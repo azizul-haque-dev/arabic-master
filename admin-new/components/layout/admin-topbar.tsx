@@ -1,12 +1,26 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Menu, LogOut } from "lucide-react";
 import { useRole } from "@/lib/role-context";
 import type { AdminRole } from "@/lib/types/content";
 import { cn } from "@/lib/utils";
+import { logoutAction } from "@/actions/auth/logout-action";
 
 export function AdminTopbar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
   const { role, setRole } = useRole();
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setProfileOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-white/90 px-4 backdrop-blur sm:px-6">
@@ -41,11 +55,29 @@ export function AdminTopbar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
           ))}
         </div>
 
-        <div
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-white"
-          title="Signed in as Nusrat Jahan"
-        >
-          NJ
+        <div className="relative" ref={profileRef}>
+          <button
+            type="button"
+            onClick={() => setProfileOpen(!profileOpen)}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            title="Signed in as Nusrat Jahan"
+          >
+            NJ
+          </button>
+          
+          {profileOpen && (
+            <div className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-default border border-border bg-white shadow-lg">
+              <form action={logoutAction}>
+                <button
+                  type="submit"
+                  className="flex w-full items-center gap-2 px-4 py-3 text-sm font-medium text-error-text transition-colors hover:bg-neutral-bg"
+                >
+                  <LogOut className="h-4 w-4" aria-hidden="true" />
+                  Logout
+                </button>
+              </form>
+            </div>
+          )}
         </div>
       </div>
     </header>

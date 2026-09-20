@@ -4,7 +4,7 @@ import { ShieldAlert } from "lucide-react"
 
 export default function ForbiddenPage() {
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-4 text-center">
+        <div className="flex h-full min-h-[calc(100vh-8rem)] flex-col items-center justify-center gap-4 bg-background px-4 py-12 text-center">
             <ShieldAlert className="h-10 w-10 text-error-text" aria-hidden="true" />
             <h1 className="font-heading text-xl font-semibold text-text">
                 Access denied

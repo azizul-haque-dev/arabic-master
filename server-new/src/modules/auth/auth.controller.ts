@@ -205,7 +205,10 @@ export class AuthController {
 
         const frontendUrl = this.configService.get<string>('auth.frontendUrl');
         if (frontendUrl) {
-            return res.redirect(`${frontendUrl}/oauth/callback?accessToken=${result.tokens.accessToken}`);
+            const callbackUrl = new URL('/oauth/callback', frontendUrl);
+            callbackUrl.searchParams.set('accessToken', result.tokens.accessToken);
+            callbackUrl.searchParams.set('refreshToken', result.tokens.refreshToken);
+            return res.redirect(callbackUrl.toString());
         }
 
         return res.json({

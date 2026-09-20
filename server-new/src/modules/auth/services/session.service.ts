@@ -143,8 +143,8 @@ export class SessionService {
     }
 
     async revokeSession(sessionId: string): Promise<void> {
-        await this.prisma.$transaction([
-            this.prisma.session.update({ where: { id: sessionId }, data: { revokedAt: new Date() } }),
+        await Promise.all([
+            this.prisma.session.updateMany({ where: { id: sessionId, revokedAt: null }, data: { revokedAt: new Date() } }),
             this.prisma.refreshToken.updateMany({
                 where: { sessionId, revokedAt: null },
                 data: { revokedAt: new Date() },
@@ -162,7 +162,7 @@ export class SessionService {
             select: { id: true },
         });
 
-        await this.prisma.$transaction([
+        await Promise.all([
             this.prisma.session.updateMany({
                 where: { userId, revokedAt: null },
                 data: { revokedAt: new Date() },

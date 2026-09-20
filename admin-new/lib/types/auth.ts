@@ -1,12 +1,12 @@
 export type AuthActionErrorCode =
-  | 'VALIDATION_ERROR'
-  | 'INVALID_CREDENTIALS'
-  | 'EMAIL_ALREADY_EXISTS'
-  | 'RATE_LIMITED'
-  | 'UNAUTHORIZED'
-  | 'FORBIDDEN'
-  | 'NETWORK_ERROR'
-  | 'SERVER_ERROR';
+  | "VALIDATION_ERROR"
+  | "INVALID_CREDENTIALS"
+  | "EMAIL_ALREADY_EXISTS"
+  | "RATE_LIMITED"
+  | "UNAUTHORIZED"
+  | "FORBIDDEN"
+  | "NETWORK_ERROR"
+  | "SERVER_ERROR";
 
 export type ActionFieldErrors = Record<string, string[]>;
 
@@ -28,8 +28,9 @@ export interface SafeUser {
   id: string;
   email: string;
   name?: string;
+  fullName?: string;
   role?: string;
-  [key: string]: unknown;
+  [key: string]: any;
 }
 
 export type LoginActionData = {

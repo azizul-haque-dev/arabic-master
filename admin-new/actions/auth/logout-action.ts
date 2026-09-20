@@ -2,9 +2,9 @@
 
 import { serverApiFetch } from "@/lib/auth/server-api";
 import { clearAuthSession } from "@/lib/auth/session";
-import { ActionResult } from "@/lib/types/auth";
+import { redirect } from "next/navigation";
 
-export async function logoutAction(): Promise<ActionResult<{ message: string }>> {
+export async function logoutAction(): Promise<never> {
   try {
     await serverApiFetch("/auth/logout", {
       method: "POST",
@@ -15,8 +15,5 @@ export async function logoutAction(): Promise<ActionResult<{ message: string }>>
     await clearAuthSession();
   }
 
-  return {
-    success: true,
-    data: { message: "Logged out successfully" },
-  };
+  redirect("/login");
 }

@@ -3,6 +3,6 @@
 import { loginAction as impl } from "@/actions/auth/login-action";
 import { LoginActionResult } from "@/lib/types/auth";
 
-export async function loginAction(input: unknown): Promise<LoginActionResult> {
+export async function loginAction(input: { email: string; password: string }): Promise<LoginActionResult> {
   return impl(input);
 }
