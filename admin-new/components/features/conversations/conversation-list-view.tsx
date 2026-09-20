@@ -62,7 +62,7 @@ export function ConversationListView() {
       updatedAt: new Date().toISOString(),
     };
     setConversations((prev) => [newConversation, ...prev]);
-    router.push(`/conversations/${newConversation.id}`);
+    router.push(`/admin/conversations/${newConversation.id}`);
   }
 
   function handleDelete(conversation: Conversation) {

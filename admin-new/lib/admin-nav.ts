@@ -18,30 +18,30 @@ export interface AdminNavItem {
 }
 
 export const CONTENT_NAV: AdminNavItem[] = [
-  { label: "Courses", href: "/courses", icon: BookOpen, implemented: false },
-  { label: "Sections", href: "/sections", icon: Layers, implemented: false },
+  { label: "Courses", href: "/admin/courses", icon: BookOpen, implemented: false },
+  { label: "Sections", href: "/admin/sections", icon: Layers, implemented: false },
   {
     label: "Lessons",
-    href: "/lessons",
+    href: "/admin/lessons",
     icon: GraduationCap,
     implemented: false,
   },
-  { label: "Words", href: "/words", icon: Type, implemented: true },
+  { label: "Words", href: "/admin/words", icon: Type, implemented: true },
   {
     label: "Sentences",
-    href: "/sentences",
+    href: "/admin/sentences",
     icon: MessageSquareText,
     implemented: true,
   },
   {
     label: "Conversations",
-    href: "/conversations",
+    href: "/admin/conversations",
     icon: MessagesSquare,
     implemented: true,
   },
   {
     label: "Arabic Entities",
-    href: "/arabic-entities",
+    href: "/admin/arabic-entities",
     icon: Sparkles,
     implemented: true,
   },
