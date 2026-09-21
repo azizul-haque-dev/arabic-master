@@ -204,7 +204,7 @@ export function EntityListView() {
           columns={columns}
           rows={filtered}
           rowKey={(e) => e.id}
-          onRowClick={(e) => router.push(`/arabic-entities/${e.id}`)}
+          onRowClick={(e) => router.push(`/admin/arabic-entities/${e.id}`)}
           selectable={role === "ADMIN"}
           selectedIds={selectedIds}
           onToggleSelect={toggleSelect}
@@ -240,7 +240,7 @@ export function EntityListView() {
         onSaveDraft={handleSaveDraft}
         onUseExisting={(entity) => {
           setCreateOpen(false);
-          router.push(`/arabic-entities/${entity.id}`);
+          router.push(`/admin/arabic-entities/${entity.id}`);
         }}
       />
 

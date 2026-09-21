@@ -140,7 +140,7 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
             </h2>
             {sourceEntity ? (
               <Link
-                href={`/arabic-entities/${sourceEntity.id}`}
+                href={`/admin/arabic-entities/${sourceEntity.id}`}
                 className="mt-3 flex items-center justify-between rounded-default border border-border px-3.5 py-2.5 transition-colors hover:border-primary/40 hover:bg-primary-light/10"
               >
                 <div>

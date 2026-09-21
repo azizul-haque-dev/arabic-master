@@ -28,7 +28,7 @@ export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntit
   return (
     <div className="flex flex-col gap-6">
       <nav className="flex items-center gap-1.5 text-xs text-text-muted" aria-label="Breadcrumb">
-        <Link href="/arabic-entities" className="hover:text-text">
+        <Link href="/admin/arabic-entities" className="hover:text-text">
           Arabic Entities
         </Link>
         <ChevronRight className="h-3 w-3" aria-hidden="true" />
@@ -157,7 +157,7 @@ export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntit
         onSaveDraft={(values) => setEntity((prev) => ({ ...prev, ...values, updatedAt: new Date().toISOString() }))}
         onUseExisting={(existing) => {
           setEditOpen(false);
-          router.push(`/arabic-entities/${existing.id}`);
+          router.push(`/admin/arabic-entities/${existing.id}`);
         }}
       />
 

@@ -10,7 +10,7 @@ export default function NotFound() {
       title="Entity not found"
       description="This Arabic entity doesn't exist or may have been deleted."
       action={
-        <Link href="/arabic-entities">
+        <Link href="/admin/arabic-entities">
           <Button variant="secondary">Back to Arabic Entities</Button>
         </Link>
       }

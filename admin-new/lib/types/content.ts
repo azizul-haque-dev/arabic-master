@@ -110,11 +110,7 @@ export const WORD_TYPE_LABEL: Record<WordType, string> = {
  * `usedInConversations` here is what actually lets a Sentence be deleted
  * safely or not; it is independent of the source entity's own usage count.
  */
-export type DifficultyLevel =
-  | "BEGINNER"
-  | "ELEMENTARY"
-  | "INTERMEDIATE"
-  | "ADVANCED";
+export type DifficultyLevel = "BEGINNER" | "ELEMENTARY" | "INTERMEDIATE" | "ADVANCED";
 
 export interface Sentence {
   id: string;
@@ -188,6 +184,94 @@ export interface ConversationMetaFormValues {
   title: string;
   topic: string;
   category: string;
+}
+
+/**
+ * Lessons are a content workspace, not a single form. `items` holds Word/
+ * Sentence/Conversation references grouped by type; `order` is scoped
+ * *within* a content type (Words are ordered independently from
+ * Sentences), matching the tabbed Words/Sentences/Conversations UI rather
+ * than one interleaved sequence.
+ *
+ * `sectionId` is a real foreign key (Course/Section screens now exist).
+ * Course is derived via the section, never stored redundantly on Lesson.
+ */
+export type LessonContentType = "WORD" | "SENTENCE" | "CONVERSATION";
+
+export interface LessonContentItem {
+  id: string;
+  order: number;
+  contentType: LessonContentType;
+  contentId: string; // id of a Word, Sentence, or Conversation
+}
+
+export interface Lesson {
+  id: string;
+  lessonKey: string; // e.g. "LSN-4021"
+  title: string;
+  /** Real FK now that Course/Section screens exist — no more freeform strings. */
+  sectionId: string;
+  items: LessonContentItem[];
+  /** Configurable per PRD §16/§17 — a recommendation, not a hard cap. */
+  maxItemsRecommended: number;
+  status: ContentStatus;
+  rejectionReason?: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LessonMetaFormValues {
+  title: string;
+  sectionId: string;
+  maxItemsRecommended: number;
+}
+
+/**
+ * Course → Section → Lesson hierarchy (PRD §10). `Course.level` reuses
+ * `DifficultyLevel` rather than a duplicate enum — same four values apply.
+ */
+export type CourseType = "FREE" | "PRO";
+
+export interface Course {
+  id: string;
+  courseKey: string; // e.g. "CRS-1001"
+  title: string;
+  description: string;
+  level: DifficultyLevel;
+  courseType: CourseType;
+  status: ContentStatus;
+  rejectionReason?: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CourseFormValues {
+  title: string;
+  description: string;
+  level: DifficultyLevel;
+  courseType: CourseType;
+}
+
+export interface Section {
+  id: string;
+  sectionKey: string; // e.g. "SEC-2001"
+  courseId: string;
+  title: string;
+  description: string;
+  order: number;
+  status: ContentStatus;
+  rejectionReason?: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SectionFormValues {
+  title: string;
+  description: string;
+  courseId: string;
 }
 
 export const CONTENT_STATUS_LABEL: Record<ContentStatus, string> = {

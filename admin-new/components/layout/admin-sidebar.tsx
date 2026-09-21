@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CONTENT_NAV } from "@/lib/admin-nav";
 
@@ -10,9 +11,21 @@ export function AdminSidebarContent({ onNavigate }: { onNavigate?: () => void })
 
   return (
     <nav className="flex h-full flex-col gap-6 overflow-y-auto px-4 py-6">
-      <Link href="/arabic-entities" className="px-2 font-heading text-lg font-bold text-text">
-        Arabic Master
-        <span className="block text-xs font-medium text-text-muted">Admin</span>
+      <Link
+        href="/admin/arabic-entities"
+        className="group flex items-center gap-3 px-2 py-1 transition-all"
+      >
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-dark to-primary text-white shadow-sm transition-all group-hover:scale-105 group-hover:shadow-md">
+          <BookOpen className="h-5 w-5" />
+        </div>
+        <div className="flex flex-col">
+          <span className="font-heading text-lg font-bold leading-tight tracking-tight text-text">
+            Arabic Master
+          </span>
+          <span className="text-[10px] font-semibold tracking-wider text-primary-dark uppercase">
+            Admin Workspace
+          </span>
+        </div>
       </Link>
 
       <div>

@@ -1,0 +1,40 @@
+import type { Course } from "@/lib/types/content";
+
+export const mockCourses: Course[] = [
+    {
+        id: "crs1",
+        courseKey: "CRS-1001",
+        title: "Free Words",
+        description: "Core vocabulary for daily life, shopping, restaurant, and travel situations.",
+        level: "BEGINNER",
+        courseType: "FREE",
+        status: "PUBLISHED",
+        createdBy: "Rahim Ahmed",
+        createdAt: "2026-05-01T09:00:00Z",
+        updatedAt: "2026-09-05T13:30:00Z",
+    },
+    {
+        id: "crs2",
+        courseKey: "CRS-1002",
+        title: "Free Sentences",
+        description: "Practical spoken sentences built around the same real-life situations as Free Words.",
+        level: "BEGINNER",
+        courseType: "FREE",
+        status: "PUBLISHED",
+        createdBy: "Rahim Ahmed",
+        createdAt: "2026-05-03T09:00:00Z",
+        updatedAt: "2026-09-01T16:45:00Z",
+    },
+    {
+        id: "crs3",
+        courseKey: "CRS-1003",
+        title: "Arabic Curriculum",
+        description: "Pro structured curriculum progressing from Beginner through Advanced.",
+        level: "BEGINNER",
+        courseType: "PRO",
+        status: "DRAFT",
+        createdBy: "Nusrat Jahan",
+        createdAt: "2026-08-15T09:00:00Z",
+        updatedAt: "2026-09-08T11:00:00Z",
+    },
+];

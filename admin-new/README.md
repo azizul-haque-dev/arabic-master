@@ -108,5 +108,5 @@ bun install   # or npm install
 bun dev       # or npm run dev
 ```
 
-Visits to `/` redirect to `/arabic-entities`. `/words` and `/words/[id]` are
+Visits to `/` redirect to `/admin/arabic-entities`. `/admin/words` and `/admin/words/[id]` are
 also live.
