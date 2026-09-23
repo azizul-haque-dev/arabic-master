@@ -6,82 +6,9 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
-
-model User {
-  id                  String               @id @default(uuid())
-  email               String               @unique
-  passwordHash        String?
-  role                Role                 @default(USER)
-  status              AccountStatus        @default(ACTIVE)
-  emailVerifiedAt     DateTime?
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  fullName            String
-  oauthAccounts       OAuthAccount[]
-  passwordResetTokens PasswordResetToken[]
-  sessions            Session[]
-
-  @@index([status])
-  @@map("users")
-}
-
-model OAuthAccount {
-  id                String        @id @default(uuid())
-  provider          OAuthProvider
-  providerAccountId String
-  userId            String
-  createdAt         DateTime      @default(now())
-  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@index([userId])
-  @@map("oauth_accounts")
-}
-
-model Session {
-  id            String         @id @default(uuid())
-  userId        String
-  ipAddress     String?
-  userAgent     String?
-  revokedAt     DateTime?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  refreshTokens RefreshToken[]
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("sessions")
-}
-
-model RefreshToken {
-  id                String    @id @default(uuid())
-  sessionId         String
-  jwtId             String    @unique
-  tokenHash         String
-  expiresAt         DateTime
-  revokedAt         DateTime?
-  replacedByTokenId String?   @unique
-  createdAt         DateTime  @default(now())
-  session           Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-
-  @@index([sessionId])
-  @@index([expiresAt])
-  @@map("refresh_tokens")
-}
-
-model PasswordResetToken {
-  id        String    @id @default(uuid())
-  userId    String
-  tokenHash String    @unique
-  expiresAt DateTime
-  usedAt    DateTime?
-  createdAt DateTime  @default(now())
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([expiresAt])
-  @@map("password_reset_tokens")
-}
+// ============================================================
+// ENUMS
+// ============================================================
 
 enum Role {
   USER
@@ -89,12 +16,533 @@ enum Role {
   ADMIN
 }
 
-enum AccountStatus {
+enum UserStatus {
   ACTIVE
   SUSPENDED
-  DISABLED
 }
 
-enum OAuthProvider {
+enum AuthProvider {
   GOOGLE
+}
+
+enum PreferredLanguage {
+  BN
+  EN
+}
+
+/// PRD onboarding step 4 uses a 3-point scale — deliberately NOT the same
+/// enum as DifficultyLevel (content uses a 4-point scale). Conflating the
+/// two would silently misrepresent a user's self-reported level.
+enum OnboardingLevel {
+  BEGINNER
+  BASIC
+  INTERMEDIATE
+}
+
+enum ContentStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  PUBLISHED
+  REJECTED
+  ARCHIVED
+}
+
+enum WordType {
+  NOUN
+  VERB
+  ADJECTIVE
+  OTHER
+}
+
+/// Content difficulty / course level — 4-point scale, distinct from
+/// OnboardingLevel above.
+enum DifficultyLevel {
+  BEGINNER
+  ELEMENTARY
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum CourseType {
+  FREE
+  PRO
+}
+
+enum LessonContentType {
+  WORD
+  SENTENCE
+  CONVERSATION
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PENDING
+}
+
+enum PaymentProvider {
+  SSLCOMMERZ
+  SHURJOPAY
+  AAMARPAY
+  APPLE_IAP
+  GOOGLE_PLAY
+}
+
+enum TransactionStatus {
+  SUCCESS
+  PENDING
+  FAILED
+  REFUNDED
+}
+
+// ============================================================
+// AUTH / USER CLUSTER
+// ============================================================
+
+model User {
+  id            String     @id @default(cuid())
+  email         String     @unique
+  passwordHash  String? // null for OAuth-only accounts
+  emailVerified Boolean    @default(false)
+  role          Role       @default(USER)
+  status        UserStatus @default(ACTIVE)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  authIdentities         AuthIdentity[]
+  sessions               Session[]
+  passwordResetTokens    PasswordResetToken[]
+  emailVerificationToken EmailVerificationToken[]
+  profile                UserProfile?
+  progress               UserProgress?
+  subscriptions          Subscription[]
+  transactions           Transaction[]
+  lessonProgress         LessonProgress[]
+  contentCompletions     ContentCompletion[]
+  migratedFromGuest      GuestUser?
+
+  // Content authorship — every content table's createdById points here.
+  createdWords          Word[]
+  createdSentences      Sentence[]
+  createdConversations  Conversation[]
+  createdCourses        Course[]
+  createdSections       Section[]
+  createdLessons        Lesson[]
+  createdEntities       ArabicEntity[]
+
+  @@index([role])
+}
+
+model AuthIdentity {
+  id                String       @id @default(cuid())
+  userId            String
+  provider          AuthProvider
+  providerAccountId String
+  createdAt         DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+/// Source of truth for sessions. Paired with a Redis fast-path pointer
+/// (`user:{id}:active_session`) for one-active-device enforcement — Redis
+/// answers "is this the active session" in O(1); this table is what
+/// survives a Redis flush and what admin tools query.
+model Session {
+  id         String    @id @default(cuid())
+  userId     String
+  deviceId   String
+  userAgent  String?
+  ipAddress  String?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  expiresAt  DateTime
+  revokedAt  DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/// Onboarding answers (PRD §3). One-to-one with User.
+model UserProfile {
+  id                String            @id @default(cuid())
+  userId            String            @unique
+  preferredLanguage PreferredLanguage
+  country           String
+  learningGoals     String[] // e.g. ["SHOPPING", "WORK"] — multi-select per PRD
+  arabicLevel       OnboardingLevel
+  dailyGoalMinutes  Int // 5 / 10 / 15 / 20
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// XP / Level / Streak / Hearts (PRD §21–29). `version` is an optimistic
+/// lock — concurrent completion requests (e.g. two tabs) must not silently
+/// clobber each other's XP delta.
+model UserProgress {
+  id                       String    @id @default(cuid())
+  userId                   String    @unique
+  xp                       Int       @default(0)
+  level                    Int       @default(1)
+  streakCount              Int       @default(0)
+  lastActivityDate         DateTime?
+  hearts                   Int       @default(5)
+  heartsLastBonusClaimedAt DateTime?
+  version                  Int       @default(0)
+  updatedAt                DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// Guest learners before signup (PRD §4). On account creation, migrate
+/// progress in a transaction and set `migratedToUserId` — never delete the
+/// row outright, so the conversion event stays auditable.
+model GuestUser {
+  id               String    @id @default(cuid())
+  deviceId         String    @unique
+  xp               Int       @default(0)
+  level            Int       @default(1)
+  streakCount      Int       @default(0)
+  hearts           Int       @default(5)
+  lastActivityDate DateTime?
+  createdAt        DateTime  @default(now())
+  migratedToUserId String?   @unique
+
+  migratedToUser User? @relation(fields: [migratedToUserId], references: [id])
+}
+
+/// PRD §31 — access is derived from `status` + `expiresAt`, never a bare
+/// boolean. Do not add an `isPro` field to User; compute it from here.
+model Subscription {
+  id            String             @id @default(cuid())
+  userId        String
+  plan          String // e.g. "PRO_YEARLY" — kept as String, not enum, since PRD only fixes "1 Year Access" for MVP but says plans will expand
+  status        SubscriptionStatus
+  startedAt     DateTime
+  expiresAt     DateTime
+  provider      PaymentProvider
+  transactionId String
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@unique([provider, transactionId])
+  @@index([userId, status])
+}
+
+model Transaction {
+  id                 String             @id @default(cuid())
+  userId             String
+  subscriptionId     String?
+  provider           PaymentProvider
+  amount             Decimal            @db.Decimal(10, 2)
+  currency           String             @default("BDT")
+  status             TransactionStatus
+  providerTransactionId String          @unique
+  rawPayload         Json?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id])
+
+  @@index([userId, status])
+}
+
+// ============================================================
+// CONTENT CLUSTER (Course → Section → Lesson → Content Items)
+// ============================================================
+
+/// The canonical, reusable Arabic text layer. `normalizedText` is unique —
+/// this IS the findOrCreate dedup mechanism, enforced at the DB level, not
+/// just in application code.
+model ArabicEntity {
+  id                   String        @id @default(cuid())
+  entityKey            String        @unique
+  arabicText           String
+  normalizedText       String        @unique
+  meaningBangla        String
+  meaningEnglish       String
+  pronunciationBangla  String
+  pronunciationEnglish String
+  audioUrl             String?
+  status               ContentStatus @default(DRAFT)
+  rejectionReason      String?
+  createdById          String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  createdBy User?      @relation(fields: [createdById], references: [id])
+  words     Word[]
+  sentences Sentence[]
+
+  @@index([status])
+}
+
+model Word {
+  id                   String        @id @default(cuid())
+  wordKey              String        @unique
+  entityId             String
+  meaningBangla        String
+  meaningEnglish       String
+  pronunciationBangla  String
+  pronunciationEnglish String
+  whenToUseBangla      String
+  whenToUseEnglish     String
+  wordType             WordType      @default(OTHER)
+  category             String
+  status               ContentStatus @default(DRAFT)
+  rejectionReason      String?
+  createdById          String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  entity            ArabicEntity        @relation(fields: [entityId], references: [id])
+  createdBy         User?               @relation(fields: [createdById], references: [id])
+  lessonItems       LessonContentItem[]
+  completions       ContentCompletion[]
+  relatedInSentences Sentence[]         @relation("SentenceRelatedWord")
+
+  @@index([entityId])
+  @@index([status])
+  @@index([category])
+}
+
+model Sentence {
+  id                   String        @id @default(cuid())
+  sentenceKey          String        @unique
+  entityId             String
+  meaningBangla        String
+  meaningEnglish       String
+  pronunciationBangla  String
+  pronunciationEnglish String
+  context              String
+  difficulty           DifficultyLevel @default(BEGINNER)
+  category             String
+  relatedWordId        String?
+  status               ContentStatus @default(DRAFT)
+  rejectionReason      String?
+  createdById          String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  entity            ArabicEntity        @relation(fields: [entityId], references: [id])
+  relatedWord        Word?               @relation("SentenceRelatedWord", fields: [relatedWordId], references: [id])
+  createdBy          User?               @relation(fields: [createdById], references: [id])
+  conversationTurns  ConversationTurn[]
+  lessonItems        LessonContentItem[]
+  completions        ContentCompletion[]
+
+  @@index([entityId])
+  @@index([relatedWordId])
+  @@index([status])
+  @@index([category])
+}
+
+/// A Conversation is built from Sentences — never directly from an
+/// ArabicEntity. This is structurally enforced: ConversationTurn only has
+/// a `sentenceId` foreign key, there is no `entityId` column anywhere on
+/// this model or ConversationTurn.
+model Conversation {
+  id               String        @id @default(cuid())
+  conversationKey  String        @unique
+  title            String
+  topic            String
+  category         String
+  status           ContentStatus @default(DRAFT)
+  rejectionReason  String?
+  createdById      String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  createdBy   User?               @relation(fields: [createdById], references: [id])
+  turns       ConversationTurn[]
+  lessonItems LessonContentItem[]
+  completions ContentCompletion[]
+
+  @@index([status])
+}
+
+model ConversationTurn {
+  id             String @id @default(cuid())
+  conversationId String
+  order          Int
+  speaker        String
+  sentenceId     String
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sentence     Sentence     @relation(fields: [sentenceId], references: [id])
+
+  @@unique([conversationId, order])
+  @@index([sentenceId])
+}
+
+model Course {
+  id              String        @id @default(cuid())
+  courseKey       String        @unique
+  title           String
+  description     String
+  level           DifficultyLevel @default(BEGINNER)
+  courseType      CourseType    @default(FREE)
+  status          ContentStatus @default(DRAFT)
+  rejectionReason String?
+  createdById     String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  createdBy User?     @relation(fields: [createdById], references: [id])
+  sections  Section[]
+
+  @@index([status])
+}
+
+model Section {
+  id              String        @id @default(cuid())
+  sectionKey      String        @unique
+  courseId        String
+  title           String
+  description     String
+  order           Int
+  status          ContentStatus @default(DRAFT)
+  rejectionReason String?
+  createdById     String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdBy User?    @relation(fields: [createdById], references: [id])
+  lessons   Lesson[]
+
+  @@unique([courseId, order])
+  @@index([courseId])
+  @@index([status])
+}
+
+model Lesson {
+  id                  String        @id @default(cuid())
+  lessonKey           String        @unique
+  sectionId           String
+  title               String
+  /// Configurable per PRD §16/§17 — a recommendation, not a hard cap.
+  /// Enforce the "soft warning, not a block" rule in the service layer.
+  maxItemsRecommended Int           @default(10)
+  status              ContentStatus @default(DRAFT)
+  rejectionReason     String?
+  createdById         String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  section        Section             @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  createdBy      User?               @relation(fields: [createdById], references: [id])
+  items          LessonContentItem[]
+  lessonProgress LessonProgress[]
+
+  @@index([sectionId])
+  @@index([status])
+}
+
+/// Polymorphic-by-convention: exactly one of wordId/sentenceId/
+/// conversationId must be set, matching `contentType`. Prisma has no
+/// native CHECK constraint syntax, so this invariant must additionally be
+/// enforced with a raw SQL constraint in a migration — see the
+/// accompanying markdown deliverable for the exact `ALTER TABLE` snippet.
+/// `order` is scoped within (lessonId, contentType) — Words are ordered
+/// independently from Sentences within the same lesson.
+model LessonContentItem {
+  id             String            @id @default(cuid())
+  lessonId       String
+  order          Int
+  contentType    LessonContentType
+  wordId         String?
+  sentenceId     String?
+  conversationId String?
+  createdAt      DateTime          @default(now())
+
+  lesson       Lesson        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  word         Word?         @relation(fields: [wordId], references: [id])
+  sentence     Sentence?     @relation(fields: [sentenceId], references: [id])
+  conversation Conversation? @relation(fields: [conversationId], references: [id])
+
+  @@unique([lessonId, contentType, order])
+  @@index([wordId])
+  @@index([sentenceId])
+  @@index([conversationId])
+}
+
+// ============================================================
+// PROGRESS ON CONTENT
+// ============================================================
+
+model LessonProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  lessonId    String
+  completedAt DateTime?
+  xpEarned    Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+}
+
+/// Tracks Word/Sentence/Conversation completions OUTSIDE a lesson context
+/// (PRD §32 "Quick Practice" — Words / Sentences / Conversation directly
+/// from Home). Same polymorphic-by-convention pattern as
+/// LessonContentItem, with the same raw-SQL CHECK constraint requirement.
+model ContentCompletion {
+  id             String            @id @default(cuid())
+  userId         String
+  contentType    LessonContentType
+  wordId         String?
+  sentenceId     String?
+  conversationId String?
+  completedAt    DateTime          @default(now())
+  xpEarned       Int               @default(0)
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word         Word?         @relation(fields: [wordId], references: [id])
+  sentence     Sentence?     @relation(fields: [sentenceId], references: [id])
+  conversation Conversation? @relation(fields: [conversationId], references: [id])
+
+  @@unique([userId, wordId])
+  @@unique([userId, sentenceId])
+  @@unique([userId, conversationId])
 }
