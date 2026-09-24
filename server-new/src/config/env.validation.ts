@@ -41,6 +41,12 @@ class EnvironmentVariables {
 
   @IsString()
   TOKEN_HASH_SECRET: string;
+
+  @IsString()
+  GOOGLE_API_KEY: string;
+
+  @IsString()
+  AI_MODEL_NAME: string;
 }
 
 export function validateEnv(config: Record<string, unknown>): EnvironmentVariables {

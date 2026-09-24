@@ -36,6 +36,10 @@ export interface RootConfig {
     auth: AuthConfig;
     database: { url: string };
     redis: { url: string };
+    ai: {
+        googleApiKey: string;
+        modelName: string;
+    };
 }
 
 export default (): RootConfig => ({
@@ -54,6 +58,10 @@ export default (): RootConfig => ({
             path: process.env.SWAGGER_PATH ?? 'docs',
         },
         logLevel: process.env.LOG_LEVEL ?? 'debug',
+    },
+    ai: {
+        googleApiKey: process.env.GOOGLE_API_KEY as string,
+        modelName: process.env.AI_MODEL_NAME as string,
     },
     auth: {
         jwt: {

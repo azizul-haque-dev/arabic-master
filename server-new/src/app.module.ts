@@ -16,6 +16,9 @@ import { HealthModule } from './health/health.module.js';
 
 import { UsersModule } from './modules/users/users.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
+import { AiModule } from './ai/ai.module.js';
+import { AiModule } from './modules/ai/ai.module.js';
+import { WordModule } from './modules/word/word.module.js';
 
 @Module({
   imports: [
@@ -95,7 +98,9 @@ import { AuthModule } from './modules/auth/auth.module.js';
     HealthModule,
     UsersModule,
     AuthModule,
-    PrismaModule
+    PrismaModule,
+    AiModule,
+    WordModule
   ],
   providers: [
     { provide: APP_FILTER, useClass: HttpExceptionFilter },

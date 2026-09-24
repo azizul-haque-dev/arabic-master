@@ -296,11 +296,9 @@ model ArabicEntity {
   entityKey            String        @unique
   arabicText           String
   normalizedText       String        @unique
-  meaningBangla        String
-  meaningEnglish       String
+  audioUrl             String?
   pronunciationBangla  String
   pronunciationEnglish String
-  audioUrl             String?
   status               ContentStatus @default(DRAFT)
   rejectionReason      String?
   createdById          String?
@@ -318,43 +316,69 @@ model Word {
   id                   String        @id @default(cuid())
   wordKey              String        @unique
   entityId             String
-  meaningBangla        String
-  meaningEnglish       String
-  pronunciationBangla  String
-  pronunciationEnglish String
-  whenToUseBangla      String
-  whenToUseEnglish     String
+  meaningBn        String
+  meaningEn       String
+  pronunciationBn  String
+  pronunciationEn String
+  whenToUseEn      String
+  whenToUseBn     String
+  feminineBn       String
+  feminineEn       String
   wordType             WordType      @default(OTHER)
   category             String
+  noteEn               String?
+  noteBn               String?
   status               ContentStatus @default(DRAFT)
   rejectionReason      String?
   createdById          String?
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
+  
 
   entity            ArabicEntity        @relation(fields: [entityId], references: [id])
   createdBy         User?               @relation(fields: [createdById], references: [id])
   lessonItems       LessonContentItem[]
   completions       ContentCompletion[]
-  relatedInSentences Sentence[]         @relation("SentenceRelatedWord")
+  sentences         SentenceWord[]
 
   @@index([entityId])
   @@index([status])
   @@index([category])
 }
 
+
+model SentenceWord {
+  id         String   @id @default(cuid())
+  sentenceId String
+  wordId     String
+  position   Int?     // word-এর order sentence এর মধ্যে, দরকার হলে
+  createdAt  DateTime @default(now())
+
+  sentence   Sentence @relation(fields: [sentenceId], references: [id], onDelete: Cascade)
+  word       Word     @relation(fields: [wordId], references: [id])
+
+  @@unique([sentenceId, wordId])
+  @@index([sentenceId])
+  @@index([wordId])
+}
+
 model Sentence {
   id                   String        @id @default(cuid())
   sentenceKey          String        @unique
   entityId             String
-  meaningBangla        String
-  meaningEnglish       String
-  pronunciationBangla  String
-  pronunciationEnglish String
-  context              String
+  meaningBn        String
+  meaningEn       String
+  pronunciationBn  String
+  pronunciationEn String
+  whenToUseEn      String
+  whenToUseBn     String
+  feminineBn       String
+  feminineEn       String
   difficulty           DifficultyLevel @default(BEGINNER)
   category             String
   relatedWordId        String?
+  noteEn               String?
+  noteBn               String?
   status               ContentStatus @default(DRAFT)
   rejectionReason      String?
   createdById          String?
@@ -362,7 +386,7 @@ model Sentence {
   updatedAt            DateTime      @updatedAt
 
   entity            ArabicEntity        @relation(fields: [entityId], references: [id])
-  relatedWord        Word?               @relation("SentenceRelatedWord", fields: [relatedWordId], references: [id])
+  words             SentenceWord[]
   createdBy          User?               @relation(fields: [createdById], references: [id])
   conversationTurns  ConversationTurn[]
   lessonItems        LessonContentItem[]

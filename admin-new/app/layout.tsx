@@ -8,6 +8,7 @@ import {
 import { RootShell } from "@/components/layout/root-shell";
 import { getAuthSession } from "@/lib/auth/session";
 import "./globals.css";
+import { removeHarakat } from "@/lib/utils";
 
 const jakarta = Plus_Jakarta_Sans({ variable: "--font-jakarta", subsets: ["latin"], weight: ["600", "700"] });
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"], weight: ["400", "500", "600"] });
@@ -25,7 +26,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const { user } = await getAuthSession();
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body
