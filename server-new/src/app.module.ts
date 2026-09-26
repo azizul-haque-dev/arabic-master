@@ -1,3 +1,4 @@
+import { BullModule } from '@nestjs/bullmq';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
@@ -10,14 +11,13 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor.
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware.js';
 import configuration from './config/configuration.js';
 import { validateEnv } from './config/env.validation.js';
+import redisConfig from './config/redis.config.js';
 import { PrismaModule } from './database/prisma.module.js';
 import { RedisModule } from './database/redis.module.js';
 import { HealthModule } from './health/health.module.js';
-
-import { UsersModule } from './modules/users/users.module.js';
-import { AuthModule } from './modules/auth/auth.module.js';
-import { AiModule } from './ai/ai.module.js';
 import { AiModule } from './modules/ai/ai.module.js';
+import { AuthModule } from './modules/auth/auth.module.js';
+import { UsersModule } from './modules/users/users.module.js';
 import { WordModule } from './modules/word/word.module.js';
 
 @Module({
@@ -27,6 +27,9 @@ import { WordModule } from './modules/word/word.module.js';
       load: [configuration],
       validate: validateEnv,
       envFilePath: ['.env'],
+    }),
+    BullModule.forRootAsync({
+      useFactory: () => ({ connection: redisConfig() }),
     }),
     LoggerModule.forRootAsync({
       inject: [ConfigService],
@@ -48,7 +51,11 @@ import { WordModule } from './modules/word/word.module.js';
         // Define human-readable console target
         const consolePrettyTarget = {
           target: 'pino-pretty',
-          options: { singleLine: true, colorize: true, translateTime: 'SYS:standard' },
+          options: {
+            singleLine: true,
+            colorize: true,
+            translateTime: 'SYS:standard',
+          },
           level: configService.get<string>('app.logLevel') ?? 'debug',
         };
 
@@ -58,7 +65,9 @@ import { WordModule } from './modules/word/word.module.js';
             genReqId: (req: Record<string, any>, res: Record<string, any>) => {
               const existing = req.headers['x-request-id'];
               const id =
-                typeof existing === 'string' && existing.length > 0 ? existing : randomUUID();
+                typeof existing === 'string' && existing.length > 0
+                  ? existing
+                  : randomUUID();
               res.setHeader('X-Request-Id', id);
               return id;
             },
@@ -74,21 +83,26 @@ import { WordModule } from './modules/word/word.module.js';
               ],
               censor: '**redacted**',
             },
-            // 👈 Custom transport configuration incorporating pino-roll
+            //  Custom transport configuration incorporating pino-roll
             transport: isProd
               ? {
-                targets: [
-                  fileTransportTarget,
-                  // If you also want standard JSON console streaming in production alongside files, add:
-                  { target: 'pino/file', options: { destination: 1 }, level: configService.get<string>('app.logLevel') ?? 'info' }
-                ]
-              }
+                  targets: [
+                    fileTransportTarget,
+                    // If you also want standard JSON console streaming in production alongside files, add:
+                    {
+                      target: 'pino/file',
+                      options: { destination: 1 },
+                      level:
+                        configService.get<string>('app.logLevel') ?? 'info',
+                    },
+                  ],
+                }
               : {
-                targets: [
-                  consolePrettyTarget,
-                  fileTransportTarget // Still saves log files locally while developing
-                ]
-              },
+                  targets: [
+                    consolePrettyTarget,
+                    fileTransportTarget, // Still saves log files locally while developing
+                  ],
+                },
           },
         };
       },
@@ -100,7 +114,7 @@ import { WordModule } from './modules/word/word.module.js';
     AuthModule,
     PrismaModule,
     AiModule,
-    WordModule
+    WordModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: HttpExceptionFilter },
@@ -110,6 +124,6 @@ import { WordModule } from './modules/word/word.module.js';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(RequestIdMiddleware).forRoutes('*');
+    consumer.apply(RequestIdMiddleware).forRoutes('*path');
   }
 }

@@ -1,15 +1,9 @@
-import { PartialType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
-
 import { ALLOWED_CATEGORIES } from '../../../common/constant/category.constant.js';
 import { PAGINATION } from '../../../config/constants.js';
 import { ContentStatus } from '../../../generated/prisma/enums.js';
-import { CreateWordDto } from './create-word.dto.js';
 
-// Same form as CreateWordDto, but every box becomes optional —
-// perfect for PATCH requests where you only send what changed.
-export class UpdateWordDto extends PartialType(CreateWordDto) {}
 export class ListWordQueryDto {
   @IsOptional()
   @Type(() => Number)
