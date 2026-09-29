@@ -1,26 +1,26 @@
-
-
+import { Role } from '../../../generated/prisma/enums.js';
 
 export interface AccessTokenPayload {
-    sub: string;
-    type: 'access';
-    sessionId: string;
-    jwtId: string;
+  sub: string;
+  type: 'access';
+  sessionId: string;
+  jwtId: string;
 }
 
 export interface RefreshTokenPayload {
-    sub: string;
-    type: 'refresh';
-    sessionId: string;
-    jwtId: string;
+  sub: string;
+  type: 'refresh';
+  sessionId: string;
+  jwtId: string;
 }
 
 export interface ValidatedRefreshToken extends RefreshTokenPayload {
-    rawToken: string;
+  rawToken: string;
 }
 
 export interface RequestUser {
-    userId: string;
-    sessionId: string;
-    jwtId: string;
+  userId: string;
+  sessionId: string;
+  jwtId: string;
+  role: Role;
 }

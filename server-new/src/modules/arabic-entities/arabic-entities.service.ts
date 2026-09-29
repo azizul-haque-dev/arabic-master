@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { PrismaService } from '../../database/prisma.service.js';
+import { PrismaService } from '../../database/prisma/prisma.service.js';
 
 // Strips Arabic diacritics (the little marks above/below letters) and
 // squashes extra spaces, so "كَتَبَ" and "كتب" count as the SAME word.

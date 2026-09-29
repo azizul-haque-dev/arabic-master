@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../database/prisma.service.js';
+import { PrismaService } from '../../database/prisma/prisma.service.js';
 import { Prisma, UserStatus } from '../../generated/prisma/client.js';
 import { UsersService } from '../users/users.service.js';
 import { LoginDto } from './dto/login.dto.js';

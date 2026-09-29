@@ -1,5 +1,14 @@
 import { plainToInstance } from 'class-transformer';
-import { IsEnum, IsNumber, IsString, Matches, Max, Min, validateSync } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Matches,
+  Max,
+  Min,
+  validateSync,
+} from 'class-validator';
 
 enum Environment {
   Development = 'development',
@@ -24,8 +33,23 @@ class EnvironmentVariables {
   @IsString()
   DATABASE_URL: string;
 
+  @IsOptional()
   @IsString()
-  REDIS_URL: string;
+  REDIS_URL?: string;
+
+  @IsOptional()
+  @IsString()
+  REDIS_HOST?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(65535)
+  REDIS_PORT?: number;
+
+  @IsOptional()
+  @IsString()
+  REDIS_PASSWORD?: string;
 
   @IsString()
   JWT_ACCESS_SECRET: string;
@@ -49,18 +73,34 @@ class EnvironmentVariables {
   AI_MODEL_NAME: string;
 }
 
-export function validateEnv(config: Record<string, unknown>): EnvironmentVariables {
-
+export function validateEnv(
+  config: Record<string, unknown>,
+): EnvironmentVariables {
   const validatedConfig = plainToInstance(EnvironmentVariables, config, {
-    enableImplicitConversion: true
-  })
-  const errors = validateSync(validatedConfig, { skipMissingProperties: false })
+    enableImplicitConversion: true,
+  });
+
+  const errors = validateSync(validatedConfig, {
+    skipMissingProperties: false,
+  });
 
   if (errors.length > 0) {
-    const messages = errors.map((error) => Object.values(error.constraints ?? {}).join(', ')).join('; ')
-    throw new Error(`Environment validation failed: ${messages}`)
+    const messages = errors
+      .map((error) => Object.values(error.constraints ?? {}).join(', '))
+      .join('; ');
+    throw new Error(`Environment validation failed: ${messages}`);
   }
 
-  return validatedConfig
+  const hasRedisUrl = Boolean(validatedConfig.REDIS_URL);
+  const hasRedisHostPort = Boolean(
+    validatedConfig.REDIS_HOST && validatedConfig.REDIS_PORT !== undefined,
+  );
 
+  if (!hasRedisUrl && !hasRedisHostPort) {
+    throw new Error(
+      'Environment validation failed: REDIS_URL or REDIS_HOST + REDIS_PORT must be configured.',
+    );
+  }
+
+  return validatedConfig;
 }

@@ -12,13 +12,14 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware.j
 import configuration from './config/configuration.js';
 import { validateEnv } from './config/env.validation.js';
 import redisConfig from './config/redis.config.js';
-import { PrismaModule } from './database/prisma.module.js';
-import { RedisModule } from './database/redis.module.js';
+import { PrismaModule } from './database/prisma/prisma.module.js';
+import { RedisModule } from './database/redis/redis.module.js';
 import { HealthModule } from './health/health.module.js';
 import { AiModule } from './modules/ai/ai.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { UsersModule } from './modules/users/users.module.js';
-import { WordModule } from './modules/word/word.module.js';
+import { WordModule } from './modules/words/words.module.js';
+import { SentenceModule } from './modules/sentence/sentence.module.js';
 
 @Module({
   imports: [
@@ -115,6 +116,7 @@ import { WordModule } from './modules/word/word.module.js';
     PrismaModule,
     AiModule,
     WordModule,
+    SentenceModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: HttpExceptionFilter },

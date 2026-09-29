@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ALLOWED_CATEGORIES } from '../../../common/constant/category.constant.js';
+import { ALLOWED_CATEGORIES } from '../../../common/constants/category.constant.js';
 
 export const AIResponseSchema = z.object({
   text: z.string().describe('The exact Arabic word or expression'),

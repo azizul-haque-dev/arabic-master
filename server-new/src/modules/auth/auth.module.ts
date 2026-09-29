@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
+import { PinoLogger } from 'nestjs-pino';
 import { UsersModule } from '../users/users.module.js';
 
 import { AccessTokenGuard } from './guards/access-token.guard.js';
@@ -36,8 +37,9 @@ import { AuthService } from './auth.service.js';
         CsrfGuard,
         {
             provide: EMAIL_SERVICE,
-            useFactory: (configService: ConfigService) => new ConsoleEmailService(configService),
-            inject: [ConfigService],
+            useFactory: (configService: ConfigService, logger: PinoLogger) =>
+                new ConsoleEmailService(configService, logger),
+            inject: [ConfigService, PinoLogger],
             // Swap the factory body for a real provider (Resend/SendGrid/SES/Postmark)
             // behind this same EMAIL_SERVICE token when going to production.
         },

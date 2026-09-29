@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ArabicEntityService } from './arabic-entity.service.js';
+import { ArabicEntityService } from './arabic-entities.service.js';
 
 @Module({
   providers: [ArabicEntityService],

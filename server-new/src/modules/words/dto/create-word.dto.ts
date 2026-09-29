@@ -6,7 +6,7 @@ import {
   IsUrl,
   MinLength,
 } from 'class-validator';
-import { ALLOWED_CATEGORIES } from '../../../common/constant/category.constant.js';
+import { ALLOWED_CATEGORIES } from '../../../common/constants/category.constant.js';
 import { WordType } from '../../../generated/prisma/enums.js';
 
 // This is a FORM with boxes. Any field not listed here gets silently

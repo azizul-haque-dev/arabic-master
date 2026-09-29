@@ -2,7 +2,7 @@ import { PartialType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
-import { ALLOWED_CATEGORIES } from '../../../common/constant/category.constant.js';
+import { ALLOWED_CATEGORIES } from '../../../common/constants/category.constant.js';
 import { PAGINATION } from '../../../config/constants.js';
 import { ContentStatus } from '../../../generated/prisma/enums.js';
 import { CreateWordDto } from './create-word.dto.js';

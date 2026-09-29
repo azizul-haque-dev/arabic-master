@@ -2,11 +2,11 @@ import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { AI_PROCESSING, WORD_QUEUE_NAME } from '../../config/constants.js';
 import { AiModule } from '../ai/ai.module.js';
-import { ArabicEntityModule } from '../arabic-entity/arabic-entity.module.js';
-import { WordController } from './word.controller.js';
-import { WordProcessor } from './word.processor.js';
-import { WordRepository } from './word.repository.js';
-import { WordService } from './word.service.js';
+import { ArabicEntityModule } from '../arabic-entities/arabic-entities.module.js';
+import { WordController } from './words.controller.js';
+import { WordProcessor } from './words.processor.js';
+import { WordRepository } from './words.repository.js';
+import { WordService } from './words.service.js';
 
 @Module({
   imports: [

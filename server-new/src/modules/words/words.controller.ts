@@ -18,7 +18,7 @@ import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { CreateWordDto } from './dto/create-word.dto.js';
 import { ListWordQueryDto } from './dto/list-word-query.dto.js';
 import { UpdateWordDto } from './dto/update-word.dto.js';
-import { WordService } from './word.service.js';
+import { WordService } from './words.service.js';
 
 @Controller('words')
 export class WordController {
@@ -45,9 +45,9 @@ export class WordController {
   @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
   async create(
     @Body() dto: CreateWordDto,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: { userId: string },
   ) {
-    const word = await this.wordService.create(dto, user.id);
+    const word = await this.wordService.create(dto, user.userId);
     return { message: 'Word created', data: word };
   }
 
@@ -56,9 +56,9 @@ export class WordController {
   @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
   async generate(
     @Body() dto: GenerateContentDto,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: { userId: string },
   ) {
-    const word = await this.wordService.generateWithAi(dto.query, user.id);
+    const word = await this.wordService.generateWithAi(dto.query, user.userId);
     return { message: 'Word generation started', data: word };
   }
 

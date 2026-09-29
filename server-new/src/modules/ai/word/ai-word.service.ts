@@ -1,22 +1,24 @@
-import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
+import { PinoLogger } from 'nestjs-pino';
 import { randomUUID } from 'node:crypto';
 
-import { isValidCategory } from '../../../common/constant/category.constant.js';
+import { isValidCategory } from '../../../common/constants/category.constant.js';
 import { normalizeArabicText } from '../../../common/utils/normalize-arabic.util.js';
-import { PrismaService } from '../../../database/prisma.service.js';
-import { WORD_INCLUDE } from '../../word/word.repository.js';
+import { PrismaService } from '../../../database/prisma/prisma.service.js';
+import { WORD_INCLUDE } from '../../words/words.repository.js';
 import { AiService } from '../ai.service.js';
 
 const ARABIC_REGEX = /^[\u0600-\u06FF\s]+$/;
 
 @Injectable()
 export class AiWordService {
-  private readonly logger = new Logger(AiWordService.name);
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly aiService: AiService,
-  ) {}
+    private readonly logger: PinoLogger,
+  ) {
+    this.logger.setContext(AiWordService.name);
+  }
 
   async createWordViaAi(input: string, createdById?: string) {
     const text = ARABIC_REGEX.test(input)

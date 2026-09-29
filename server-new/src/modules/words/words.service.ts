@@ -7,10 +7,10 @@ import {
 import { Queue } from 'bullmq';
 import { randomUUID } from 'node:crypto';
 import { AiService } from '../ai/ai.service.js';
-import { ArabicEntityService } from '../arabic-entity/arabic-entity.service.js';
+import { ArabicEntityService } from '../arabic-entities/arabic-entities.service.js';
 import { CreateWordDto } from './dto/create-word.dto.js';
 import { UpdateWordDto } from './dto/update-word.dto.js';
-import { WordRepository } from './word.repository.js';
+import { WordRepository } from './words.repository.js';
 
 import { WORD_QUEUE_NAME } from '../../config/constants.js';
 import { ContentStatus, WordType } from '../../generated/prisma/enums.js';

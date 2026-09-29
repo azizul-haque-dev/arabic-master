@@ -1,21 +1,26 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { PinoLogger } from 'nestjs-pino';
 import {
   createSaudiTeacherPrompt,
   textToTranslateSaudiNativeArabic,
-} from './prompt/prompt.factory.js';
+} from './prompts/prompt.factory.js';
 import { ModelProviderService } from './providers/providers.model.js';
 import {
   AiResponse,
   AIResponseSchema,
   SaudiArabicTranslationSchema,
-} from './schema/ai-response.schema.js';
+  TranslateTextType,
+} from './schemas/ai-response.schema.js';
 
 const ARABIC_REGEX = /^[\u0600-\u06FF\s]+$/;
 @Injectable()
 export class AiService {
-  private readonly logger = new Logger(AiService.name);
-
-  constructor(private readonly modelProvider: ModelProviderService) {}
+  constructor(
+    private readonly modelProvider: ModelProviderService,
+    private readonly logger: PinoLogger,
+  ) {
+    this.logger.setContext(AiService.name);
+  }
   // Same idea as your old regex check, just living in a real service now
   // so any module can reuse it.
   isArabic(text: string): boolean {
@@ -37,7 +42,7 @@ export class AiService {
     const prompt = textToTranslateSaudiNativeArabic(text);
 
     const structured = model.withStructuredOutput(SaudiArabicTranslationSchema);
-    const result = await structured.invoke(prompt);
+    const result = (await structured.invoke(prompt)) as TranslateTextType;
 
     return result.translatedText;
   }

@@ -3,7 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service.js';
+import { PrismaService } from '../../../database/prisma/prisma.service.js';
 import { AuthProvider, Prisma } from '../../../generated/prisma/client.js';
 import { UsersService } from '../../users/users.service.js';
 

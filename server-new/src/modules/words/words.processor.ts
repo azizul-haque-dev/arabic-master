@@ -1,22 +1,22 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
-import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
-import { isValidCategory } from '../../common/constant/category.constant.js';
+import { PinoLogger } from 'nestjs-pino';
+import { isValidCategory } from '../../common/constants/category.constant.js';
 import { WORD_QUEUE_NAME } from '../../config/constants.js';
 import { AiService } from '../ai/ai.service.js';
-import { ArabicEntityService } from '../arabic-entity/arabic-entity.service.js';
-import { WordRepository } from './word.repository.js';
+import { ArabicEntityService } from '../arabic-entities/arabic-entities.service.js';
+import { WordRepository } from './words.repository.js';
 
 @Processor(WORD_QUEUE_NAME)
 export class WordProcessor extends WorkerHost {
-  private readonly logger = new Logger(WordProcessor.name);
-
   constructor(
     private readonly wordRepository: WordRepository,
     private readonly arabicEntityService: ArabicEntityService,
     private readonly aiService: AiService,
+    private readonly logger: PinoLogger,
   ) {
     super();
+    this.logger.setContext(WordProcessor.name);
   }
 
   async process(job: Job<{ wordId: string; arabicText: string }>) {

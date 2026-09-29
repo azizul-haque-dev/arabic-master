@@ -10,3 +10,5 @@ export const AI_PROCESSING = {
 };
 
 export const WORD_QUEUE_NAME = 'word-ai-processing';
+
+export const SENTENCE_QUEUE_NAME = 'sentence-ai-processing';

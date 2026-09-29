@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { PrismaService } from '../../../database/prisma.service.js';
-import { RedisService } from '../../../database/redis.service.js';
+import { PrismaService } from '../../../database/prisma/prisma.service.js';
+import { RedisService } from '../../../database/redis/redis.service.js';
 import { SecurityLoggerService } from './security-logger.service.js';
 import { TokenService } from './token.service.js';
 

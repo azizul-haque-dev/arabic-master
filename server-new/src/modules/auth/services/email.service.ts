@@ -1,8 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { PinoLogger } from 'nestjs-pino';
 
 export interface EmailService {
-    sendPasswordResetEmail(to: string, resetUrl: string): Promise<void>;
+  sendPasswordResetEmail(to: string, resetUrl: string): Promise<void>;
 }
 
 export const EMAIL_SERVICE = Symbol('EMAIL_SERVICE');
@@ -15,14 +16,17 @@ export const EMAIL_SERVICE = Symbol('EMAIL_SERVICE');
  */
 @Injectable()
 export class ConsoleEmailService implements EmailService {
-    private readonly logger = new Logger('DevEmailService');
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly logger: PinoLogger,
+  ) {
+    this.logger.setContext('DevEmailService');
+  }
 
-    constructor(private readonly configService: ConfigService) { }
-
-    async sendPasswordResetEmail(to: string, resetUrl: string): Promise<void> {
-        if (this.configService.get<string>('app.env') === 'production') {
-            throw new Error('ConsoleEmailService must never be used in production');
-        }
-        this.logger.debug(`[DEV ONLY] Password reset link for ${to}: ${resetUrl}`);
+  async sendPasswordResetEmail(to: string, resetUrl: string): Promise<void> {
+    if (this.configService.get<string>('app.env') === 'production') {
+      throw new Error('ConsoleEmailService must never be used in production');
     }
+    this.logger.debug(`[DEV ONLY] Password reset link for ${to}: ${resetUrl}`);
+  }
 }
