@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
-import { Role } from '../../generated/prisma/enums.js';
+import { Role } from '../../database/drizzle/enums.js';
 import { GenerateContentDto } from '../ai/dto/generate-content.dto.js';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';

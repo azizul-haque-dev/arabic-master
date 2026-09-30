@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 
 import { isValidCategory } from '../../../common/constants/category.constant.js';
 import { normalizeArabicText } from '../../../common/utils/normalize-arabic.util.js';
-import { PrismaService } from '../../../database/prisma/prisma.service.js';
+import { DatabaseService } from '../../../database/drizzle/db.service.js';
 import { WORD_INCLUDE } from '../../words/words.repository.js';
 import { AiService } from '../ai.service.js';
 
@@ -13,7 +13,7 @@ const ARABIC_REGEX = /^[\u0600-\u06FF\s]+$/;
 @Injectable()
 export class AiWordService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly db: DatabaseService,
     private readonly aiService: AiService,
     private readonly logger: PinoLogger,
   ) {
@@ -26,12 +26,12 @@ export class AiWordService {
       : await this.aiService.translateToArabic(input);
     const normalizedText = normalizeArabicText(text);
 
-    let entity = await this.prisma.arabicEntity.findUnique({
+    let entity = await this.db.arabicEntity.findUnique({
       where: { normalizedText },
     });
 
     if (entity) {
-      const existingWord = await this.prisma.word.findFirst({
+      const existingWord = await this.db.word.findFirst({
         where: { entityId: entity.id },
         include: WORD_INCLUDE,
       });
@@ -52,7 +52,7 @@ export class AiWordService {
     // Entity na thakle age eta create koro — shudhu scalar fields, tai kono
     // checked/unchecked mixing issue nai.
     if (!entity) {
-      entity = await this.prisma.arabicEntity.create({
+      entity = await this.db.arabicEntity.create({
         data: {
           entityKey: `entity-${randomUUID()}`,
           arabicText: text,
@@ -65,7 +65,7 @@ export class AiWordService {
     }
 
     try {
-      return await this.prisma.word.create({
+      return await this.db.word.create({
         data: {
           wordKey: `word-${randomUUID()}`,
           entityId: entity.id, // <-- scalar FK, relational `entity: {...}` na

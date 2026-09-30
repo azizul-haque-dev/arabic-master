@@ -2,7 +2,7 @@ import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { ALLOWED_CATEGORIES } from '../../../common/constants/category.constant.js';
 import { PAGINATION } from '../../../config/constants.js';
-import { ContentStatus } from '../../../generated/prisma/enums.js';
+import { ContentStatus } from '../../../database/drizzle/enums.js';
 
 export class ListWordQueryDto {
   @IsOptional()

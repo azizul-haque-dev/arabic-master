@@ -1,32 +1,34 @@
 import { Injectable } from '@nestjs/common';
-
-import { PrismaService } from '../../database/prisma/prisma.service.js';
-import { Prisma, User } from '../../generated/prisma/client.js';
+import { DatabaseService } from '../../database/drizzle/db.service.js';
+import type { InferSelectModel } from 'drizzle-orm';
+import * as schema from '../../database/drizzle/schema.js';
 import { SafeUser } from './types/safe-user.type.js';
+
+export type User = InferSelectModel<typeof schema.user>;
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly db: DatabaseService) {}
 
   findByEmail(email: string): Promise<User | null> {
-    return this.prisma.user.findUnique({ where: { email } });
+    return this.db.user.findUnique({ where: { email } });
   }
 
   findById(id: string): Promise<User | null> {
-    return this.prisma.user.findUnique({ where: { id } });
+    return this.db.user.findUnique({ where: { id } });
   }
 
   createWithPassword(
     data: { email: string; passwordHash: string; fullName: string },
-    tx?: Prisma.TransactionClient,
+    tx?: DatabaseService,
   ): Promise<User> {
-    const client = tx ?? this.prisma;
+    const client = tx ?? this.db;
     return client.user.create({ data });
   }
 
   createFromOAuth(
     data: { email: string; fullName: string; emailVerifiedAt: Date | null },
-    tx: Prisma.TransactionClient,
+    tx: DatabaseService,
   ): Promise<User> {
     return tx.user.create({ data: { ...data, passwordHash: null } });
   }

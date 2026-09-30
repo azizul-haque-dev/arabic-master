@@ -1,4 +1,4 @@
-import { Role, UserStatus } from '../../../generated/prisma/enums.js';
+import { Role, UserStatus } from '../../../database/drizzle/enums.js';
 
 export interface SafeUser {
   id: string;

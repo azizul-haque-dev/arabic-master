@@ -12,7 +12,7 @@ import {
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
-import { Role } from '../../generated/prisma/enums.js';
+import { Role } from '../../database/drizzle/enums.js';
 import { GenerateContentDto } from '../ai/dto/generate-content.dto.js';
 import { CreateSentenceDto } from './dto/create-sentence.dto.js';
 import { ListSentenceQueryDto } from './dto/list-sentence-query.dto.js';

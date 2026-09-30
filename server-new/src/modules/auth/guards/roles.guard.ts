@@ -6,10 +6,8 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../../../common/decorators/roles.decorator.js';
-import { Role } from '../../../generated/prisma/enums.js';
+import { Role } from '../../../database/drizzle/enums.js';
 
-// This guard checks the sticky note left by @Roles(...).
-// It must run AFTER JwtAuthGuard, because it needs req.user to already exist.
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}

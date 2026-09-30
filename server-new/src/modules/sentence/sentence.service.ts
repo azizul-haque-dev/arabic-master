@@ -1,25 +1,17 @@
 import { InjectQueue } from '@nestjs/bullmq';
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { randomUUID } from 'node:crypto';
 import { SentenceRepository } from './sentence.repository.js';
-
 import { SENTENCE_QUEUE_NAME } from '../../config/constants.js';
-import {
-  ContentStatus,
-  DifficultyLevel,
-} from '../../generated/prisma/enums.js';
+import { ContentStatus, DifficultyLevel } from '../../database/drizzle/enums.js';
 import { AiService } from '../ai/ai.service.js';
 import { ArabicEntityService } from '../arabic-entities/arabic-entities.service.js';
 import { CreateSentenceDto } from './dto/create-sentence.dto.js';
 import { ListSentenceQueryDto } from './dto/list-sentence-query.dto.js';
 import { UpdateSentenceDto } from './dto/update-sentence.dto.js';
 
-const ARABIC_REGEX = /^[\u0600-\u06FF\s]+$/;
+const ARABIC_REGEX = /^[؀-ۿ\s]+$/;
 
 @Injectable()
 export class SentenceService {
@@ -35,22 +27,7 @@ export class SentenceService {
     const where = {
       ...(category ? { category } : {}),
       ...(status ? { status } : {}),
-      ...(search
-        ? {
-            OR: [
-              {
-                entity: {
-                  arabicText: {
-                    contains: search,
-                    mode: 'insensitive' as const,
-                  },
-                },
-              },
-              { meaningEn: { contains: search, mode: 'insensitive' as const } },
-              { meaningBn: { contains: search, mode: 'insensitive' as const } },
-            ],
-          }
-        : {}),
+      ...(search ? { OR: [{ entity: { arabicText: { contains: search, mode: 'insensitive' as const } } }, { meaningEn: { contains: search, mode: 'insensitive' as const } }, { meaningBn: { contains: search, mode: 'insensitive' as const } }] } : {}),
     };
 
     const [items, total] = await Promise.all([
@@ -60,12 +37,7 @@ export class SentenceService {
 
     return {
       items,
-      meta: {
-        page,
-        limit,
-        total,
-        totalPages: Math.max(1, Math.ceil(total / limit)),
-      },
+      meta: { page, limit, total, totalPages: Math.max(1, Math.ceil(total / limit)) },
     };
   }
 
@@ -79,18 +51,10 @@ export class SentenceService {
     let entity = await this.arabicEntityService.findByNormalizedText(dto.text);
 
     if (!entity) {
-      entity = await this.arabicEntityService.create({
-        arabicText: dto.text,
-        audioUrl: dto.audioUrl,
-        createdById,
-      });
+      entity = await this.arabicEntityService.create({ arabicText: dto.text, audioUrl: dto.audioUrl, createdById });
     } else {
-      const existingSentence =
-        await this.sentenceRepository.findFirstByEntityId(entity.id);
-      if (existingSentence)
-        throw new ConflictException(
-          'A sentence already exists for this Arabic text',
-        );
+      const existingSentence = await this.sentenceRepository.findFirstByEntityId(entity.id);
+      if (existingSentence) throw new ConflictException('A sentence already exists for this Arabic text');
     }
 
     const sentence = await this.sentenceRepository.create(entity.id, {
@@ -131,23 +95,16 @@ export class SentenceService {
     await this.sentenceRepository.delete(sentence.id);
   }
 
-  // AI create — async, queue-based, same pattern as Word.
   async generateWithAi(rawText: string, createdById: string) {
-    const text = ARABIC_REGEX.test(rawText)
-      ? rawText
-      : await this.aiService.translateToArabic(rawText);
+    const text = ARABIC_REGEX.test(rawText) ? rawText : await this.aiService.translateToArabic(rawText);
 
     let entity = await this.arabicEntityService.findByNormalizedText(text);
 
     if (entity) {
-      const existingSentence =
-        await this.sentenceRepository.findFirstByEntityId(entity.id);
+      const existingSentence = await this.sentenceRepository.findFirstByEntityId(entity.id);
       if (existingSentence) return existingSentence;
     } else {
-      entity = await this.arabicEntityService.create({
-        arabicText: text,
-        createdById,
-      });
+      entity = await this.arabicEntityService.create({ arabicText: text, createdById });
     }
 
     const placeholder = '';
@@ -175,8 +132,6 @@ export class SentenceService {
     return sentence;
   }
 
-  // Re-splits the sentence's text and relinks its words only — meaning/
-  // whenToUse/category untouched. Same as the old resync path.
   async resyncWords(id: string) {
     const sentence = await this.getById(id);
     await this.sentenceQueue.add('resync-sentence-words', {

@@ -1,5 +1,5 @@
 import { IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
-import { WordType } from '../../../generated/prisma/enums.js';
+import { WordType } from '../../../database/drizzle/enums.js';
 
 // The AI is an OUTSIDE source, exactly like a user submitting a form —
 // we never trust its answer blindly. This class describes exactly what

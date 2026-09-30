@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { PrismaService } from '../../../database/prisma/prisma.service.js';
+import { DatabaseService } from '../../../database/drizzle/db.service.js';
 import { RedisService } from '../../../database/redis/redis.service.js';
 import { SecurityLoggerService } from './security-logger.service.js';
 import { TokenService } from './token.service.js';
@@ -8,7 +8,7 @@ import { TokenService } from './token.service.js';
 @Injectable()
 export class SessionService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly db: DatabaseService,
     private readonly redis: RedisService,
     private readonly tokenService: TokenService,
     private readonly securityLogger: SecurityLoggerService,
@@ -25,7 +25,7 @@ export class SessionService {
     refreshTokenExpiresAt: Date;
   }> {
     const refreshTokenExpiresAt = this.tokenService.getRefreshTokenExpiryDate();
-    const session = await this.prisma.session.create({
+    const session = await this.db.session.create({
       data: {
         userId: params.userId,
         deviceId: randomUUID(),
@@ -41,7 +41,7 @@ export class SessionService {
     );
     const { token: refreshToken, jwtId } =
       this.tokenService.generateRefreshToken(params.userId, session.id);
-    await this.prisma.refreshToken.create({
+    await this.db.refreshToken.create({
       data: {
         sessionId: session.id,
         jwtId,
@@ -58,11 +58,6 @@ export class SessionService {
     };
   }
 
-  /**
-   * Verifies + rotates a refresh token. Race-condition safe: rotation only
-   * succeeds if this exact token row is still unrevoked at the moment of the
-   * DB update. Reuse of an already-rotated token revokes the whole session.
-   */
   async rotateRefreshToken(params: {
     rawToken: string;
     userId: string;
@@ -76,17 +71,9 @@ export class SessionService {
     refreshToken: string;
     refreshTokenExpiresAt: Date;
   }> {
-    const {
-      rawToken,
-      userId,
-      sessionId,
-      jwtId,
-      requestId,
-      ipAddress,
-      userAgent,
-    } = params;
+    const { rawToken, userId, sessionId, jwtId, requestId, ipAddress, userAgent } = params;
 
-    const existing = await this.prisma.refreshToken.findUnique({
+    const existing = await this.db.refreshToken.findUnique({
       where: { jwtId },
     });
 
@@ -94,7 +81,7 @@ export class SessionService {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    const session = await this.prisma.session.findUnique({
+    const session = await this.db.session.findUnique({
       where: { id: sessionId },
     });
 
@@ -103,8 +90,7 @@ export class SessionService {
     }
 
     const computedHash = this.tokenService.hashToken(rawToken);
-    const isReuse =
-      existing.revokedAt !== null || existing.tokenHash !== computedHash;
+    const isReuse = existing.revokedAt !== null || existing.tokenHash !== computedHash;
 
     if (isReuse) {
       await this.revokeSession(sessionId);
@@ -119,19 +105,14 @@ export class SessionService {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    const { token: newAccessToken } = this.tokenService.generateAccessToken(
-      userId,
-      sessionId,
-    );
+    const { token: newAccessToken } = this.tokenService.generateAccessToken(userId, sessionId);
     const { token: newRefreshToken, jwtId: newJwtId } =
       this.tokenService.generateRefreshToken(userId, sessionId);
     const newExpiresAt = this.tokenService.getRefreshTokenExpiryDate();
     const newTokenHash = this.tokenService.hashToken(newRefreshToken);
 
     try {
-      await this.prisma.$transaction(async (tx) => {
-        // Compare-and-swap: only the first request to reach this update wins.
-        // A concurrent duplicate request gets count === 0 and aborts.
+      await this.db.$transaction(async (tx: DatabaseService) => {
         const claim = await tx.refreshToken.updateMany({
           where: { id: existing.id, revokedAt: null },
           data: { revokedAt: new Date() },
@@ -156,8 +137,6 @@ export class SessionService {
         });
       });
     } catch (error) {
-      // Lost the compare-and-swap race: two requests tried to use the same
-      // refresh token at once. Only one should ever legitimately do that.
       await this.revokeSession(sessionId);
       this.securityLogger.log({
         event: 'CONCURRENT_REFRESH_RACE_DETECTED',
@@ -179,18 +158,16 @@ export class SessionService {
 
   async revokeSession(sessionId: string): Promise<void> {
     await Promise.all([
-      this.prisma.session.updateMany({
+      this.db.session.updateMany({
         where: { id: sessionId, revokedAt: null },
         data: { revokedAt: new Date(), isActive: false },
       }),
-      this.prisma.refreshToken.updateMany({
+      this.db.refreshToken.updateMany({
         where: { sessionId, revokedAt: null },
         data: { revokedAt: new Date() },
       }),
     ]);
 
-    // Access tokens are stateless JWTs — this is what actually blocks
-    // already-issued ones for the remainder of their (short) natural lifetime.
     await this.redis.revokeSession(
       sessionId,
       this.tokenService.getAccessTokenTtlSeconds(),
@@ -198,23 +175,27 @@ export class SessionService {
   }
 
   async revokeAllSessionsForUser(userId: string): Promise<void> {
-    const sessions = await this.prisma.session.findMany({
+    const sessions = (await this.db.session.findMany({
       where: { userId, revokedAt: null },
       select: { id: true },
-    });
+    })) as Array<{ id: string }>;
+
+    const sessionIds = sessions.map((s) => s.id);
 
     await Promise.all([
-      this.prisma.session.updateMany({
+      this.db.session.updateMany({
         where: { userId, revokedAt: null },
         data: { revokedAt: new Date(), isActive: false },
       }),
-      this.prisma.refreshToken.updateMany({
-        where: { session: { userId }, revokedAt: null },
+      this.db.refreshToken.updateMany({
+        where: { sessionId: { in: sessionIds }, revokedAt: null },
         data: { revokedAt: new Date() },
       }),
     ]);
 
     const ttl = this.tokenService.getAccessTokenTtlSeconds();
-    await Promise.all(sessions.map((s) => this.redis.revokeSession(s.id, ttl)));
+    await Promise.all(
+      sessions.map((s: { id: string }) => this.redis.revokeSession(s.id, ttl)),
+    );
   }
 }

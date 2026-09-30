@@ -12,7 +12,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware.j
 import configuration from './config/configuration.js';
 import { validateEnv } from './config/env.validation.js';
 import redisConfig from './config/redis.config.js';
-import { PrismaModule } from './database/prisma/prisma.module.js';
+import { DatabaseModule } from './database/drizzle/db.module.js';
 import { RedisModule } from './database/redis/redis.module.js';
 import { HealthModule } from './health/health.module.js';
 import { AiModule } from './modules/ai/ai.module.js';
@@ -37,11 +37,10 @@ import { SentenceModule } from './modules/sentence/sentence.module.js';
       useFactory: (configService: ConfigService) => {
         const isProd = configService.get<string>('app.env') === 'production';
 
-        // Define file rolling target
         const fileTransportTarget = {
           target: 'pino-roll',
           options: {
-            file: join(process.cwd(), 'logs', 'app'), // Saves to your root directory /logs/app.YYYYMMDD.log
+            file: join(process.cwd(), 'logs', 'app'),
             frequency: 'daily',
             size: '10m',
             mkdir: true,
@@ -49,7 +48,6 @@ import { SentenceModule } from './modules/sentence/sentence.module.js';
           level: configService.get<string>('app.logLevel') ?? 'debug',
         };
 
-        // Define human-readable console target
         const consolePrettyTarget = {
           target: 'pino-pretty',
           options: {
@@ -84,24 +82,21 @@ import { SentenceModule } from './modules/sentence/sentence.module.js';
               ],
               censor: '**redacted**',
             },
-            //  Custom transport configuration incorporating pino-roll
             transport: isProd
               ? {
                   targets: [
                     fileTransportTarget,
-                    // If you also want standard JSON console streaming in production alongside files, add:
                     {
                       target: 'pino/file',
                       options: { destination: 1 },
-                      level:
-                        configService.get<string>('app.logLevel') ?? 'info',
+                      level: configService.get<string>('app.logLevel') ?? 'info',
                     },
                   ],
                 }
               : {
                   targets: [
                     consolePrettyTarget,
-                    fileTransportTarget, // Still saves log files locally while developing
+                    fileTransportTarget,
                   ],
                 },
           },
@@ -113,7 +108,7 @@ import { SentenceModule } from './modules/sentence/sentence.module.js';
     HealthModule,
     UsersModule,
     AuthModule,
-    PrismaModule,
+    DatabaseModule,
     AiModule,
     WordModule,
     SentenceModule,

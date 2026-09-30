@@ -3,7 +3,7 @@ import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { PAGINATION } from '../../../config/constants.js';
 
 import { ALLOWED_CATEGORIES } from '../../../common/constants/category.constant.js';
-import { ContentStatus } from '../../../generated/prisma/enums.js';
+import { ContentStatus } from '../../../database/drizzle/enums.js';
 
 export class ListSentenceQueryDto {
   @IsOptional()

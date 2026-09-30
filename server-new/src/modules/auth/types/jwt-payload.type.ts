@@ -1,4 +1,4 @@
-import { Role } from '../../../generated/prisma/enums.js';
+import { Role } from '../../../database/drizzle/enums.js';
 
 export interface AccessTokenPayload {
   sub: string;

@@ -12,7 +12,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { ALLOWED_CATEGORIES } from '../../../common/constants/category.constant.js';
-import { DifficultyLevel } from '../../../generated/prisma/enums.js';
+import { DifficultyLevel } from '../../../database/drizzle/enums.js';
 
 class SentenceWordLinkDto {
   @IsString() @MinLength(1) wordId!: string;

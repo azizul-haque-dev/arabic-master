@@ -1,22 +1,17 @@
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { randomUUID } from 'node:crypto';
 import { AiService } from '../ai/ai.service.js';
 import { ArabicEntityService } from '../arabic-entities/arabic-entities.service.js';
+import { WORD_QUEUE_NAME } from '../../config/constants.js';
+import { ContentStatus, WordType } from '../../database/drizzle/enums.js';
 import { CreateWordDto } from './dto/create-word.dto.js';
+import { ListWordQueryDto } from './dto/list-word-query.dto.js';
 import { UpdateWordDto } from './dto/update-word.dto.js';
 import { WordRepository } from './words.repository.js';
 
-import { WORD_QUEUE_NAME } from '../../config/constants.js';
-import { ContentStatus, WordType } from '../../generated/prisma/enums.js';
-import { ListWordQueryDto } from './dto/list-word-query.dto.js';
-
-const ARABIC_REGEX = /^[\u0600-\u06FF\s]+$/;
+const ARABIC_REGEX = /^[؀-ۿ\s]+$/;
 
 @Injectable()
 export class WordService {
@@ -32,22 +27,7 @@ export class WordService {
     const where = {
       ...(category ? { category } : {}),
       ...(status ? { status } : {}),
-      ...(search
-        ? {
-            OR: [
-              {
-                entity: {
-                  arabicText: {
-                    contains: search,
-                    mode: 'insensitive' as const,
-                  },
-                },
-              },
-              { meaningEn: { contains: search, mode: 'insensitive' as const } },
-              { meaningBn: { contains: search, mode: 'insensitive' as const } },
-            ],
-          }
-        : {}),
+      ...(search ? { OR: [{ entity: { arabicText: { contains: search, mode: 'insensitive' as const } } }, { meaningEn: { contains: search, mode: 'insensitive' as const } }, { meaningBn: { contains: search, mode: 'insensitive' as const } }] } : {}),
     };
 
     const [items, total] = await Promise.all([
@@ -55,15 +35,7 @@ export class WordService {
       this.wordRepository.count(where),
     ]);
 
-    return {
-      items,
-      meta: {
-        page,
-        limit,
-        total,
-        totalPages: Math.max(1, Math.ceil(total / limit)),
-      },
-    };
+    return { items, meta: { page, limit, total, totalPages: Math.max(1, Math.ceil(total / limit)) } };
   }
 
   async getById(id: string) {
@@ -76,19 +48,10 @@ export class WordService {
     let entity = await this.arabicEntityService.findByNormalizedText(dto.text);
 
     if (!entity) {
-      entity = await this.arabicEntityService.create({
-        arabicText: dto.text,
-        audioUrl: dto.audioUrl,
-        createdById,
-      });
+      entity = await this.arabicEntityService.create({ arabicText: dto.text, audioUrl: dto.audioUrl, createdById });
     } else {
-      const existingWord = await this.wordRepository.findFirstByEntityId(
-        entity.id,
-      );
-      if (existingWord)
-        throw new ConflictException(
-          'A word already exists for this Arabic text',
-        );
+      const existingWord = await this.wordRepository.findFirstByEntityId(entity.id);
+      if (existingWord) throw new ConflictException('A word already exists for this Arabic text');
     }
 
     return this.wordRepository.create(entity.id, {
@@ -120,37 +83,21 @@ export class WordService {
     await this.wordRepository.delete(id);
   }
 
-  // AI create — async, queue-based path.
-  // 1. Arabic na hole translate koro
-  // 2. Entity find-or-create (dedup)
-  // 3. Placeholder Word immediately create koro, API instant response dey
-  // 4. Queue-e job push koro — WordProcessor ta pore fill korbe
   async generateWithAi(rawText: string, createdById: string) {
-    const text = ARABIC_REGEX.test(rawText)
-      ? rawText
-      : await this.aiService.translateToArabic(rawText);
-
+    const text = ARABIC_REGEX.test(rawText) ? rawText : await this.aiService.translateToArabic(rawText);
     let entity = await this.arabicEntityService.findByNormalizedText(text);
 
     if (entity) {
-      const existingWord = await this.wordRepository.findFirstByEntityId(
-        entity.id,
-      );
-      if (existingWord) return existingWord; // already generated — abar kaj koro na
+      const existingWord = await this.wordRepository.findFirstByEntityId(entity.id);
+      if (existingWord) return existingWord;
     } else {
       try {
-        entity = await this.arabicEntityService.create({
-          arabicText: text,
-          createdById,
-        });
+        entity = await this.arabicEntityService.create({ arabicText: text, createdById });
       } catch (error: any) {
-        // Race condition: eki shomoy e du'ta request eki word-er jonno entity create korte gele
         if (error?.code === 'P2002') {
           entity = await this.arabicEntityService.findByNormalizedText(text);
           if (!entity) throw error;
-          const existingWord = await this.wordRepository.findFirstByEntityId(
-            entity.id,
-          );
+          const existingWord = await this.wordRepository.findFirstByEntityId(entity.id);
           if (existingWord) return existingWord;
         } else {
           throw error;
@@ -174,10 +121,7 @@ export class WordService {
       createdById,
     });
 
-    await this.wordQueue.add('process-word', {
-      wordId: word.id,
-      arabicText: text,
-    });
+    await this.wordQueue.add('process-word', { wordId: word.id, arabicText: text });
     return word;
   }
 }

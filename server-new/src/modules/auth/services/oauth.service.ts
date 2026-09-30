@@ -3,8 +3,8 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma/prisma.service.js';
-import { AuthProvider, Prisma } from '../../../generated/prisma/client.js';
+import { DatabaseService } from '../../../database/drizzle/db.service.js';
+import { AuthProvider } from '../../../database/drizzle/enums.js';
 import { UsersService } from '../../users/users.service.js';
 
 export interface GoogleProfilePayload {
@@ -17,7 +17,7 @@ export interface GoogleProfilePayload {
 @Injectable()
 export class OAuthService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly db: DatabaseService,
     private readonly usersService: UsersService,
   ) {}
 
@@ -26,31 +26,26 @@ export class OAuthService {
       throw new UnauthorizedException('Google account email is not verified');
     }
 
-    const existingAccount = await this.prisma.authIdentity.findUnique({
+    const existingAccount = await this.db.authIdentity.findUnique({
       where: {
-        provider_providerAccountId: {
-          provider: AuthProvider.GOOGLE,
-          providerAccountId: profile.providerAccountId,
-        },
+        provider: AuthProvider.GOOGLE,
+        providerAccountId: profile.providerAccountId,
       },
-      include: { user: true },
     });
 
     if (existingAccount) {
-      return existingAccount.user;
+      return this.db.user.findUnique({ where: { id: existingAccount.userId } });
     }
 
     const existingUser = await this.usersService.findByEmail(profile.email);
 
     if (existingUser) {
-      // Deliberately NOT auto-linked — see the architecture notes at the top
-      // of this document for why that would be an account-takeover vector.
       throw new ConflictException(
         'An account with this email already exists. Log in with your password and link Google from account settings.',
       );
     }
 
-    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    return this.db.$transaction(async (tx: DatabaseService) => {
       const user = await this.usersService.createFromOAuth(
         {
           email: profile.email,

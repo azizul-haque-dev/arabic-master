@@ -7,7 +7,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { ALLOWED_CATEGORIES } from '../../../common/constants/category.constant.js';
-import { WordType } from '../../../generated/prisma/enums.js';
+import { WordType } from '../../../database/drizzle/enums.js';
 
 // This is a FORM with boxes. Any field not listed here gets silently
 // stripped out by the global ValidationPipe (see main.ts) — this is what

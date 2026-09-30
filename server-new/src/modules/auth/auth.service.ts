@@ -5,8 +5,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../database/prisma/prisma.service.js';
-import { Prisma, UserStatus } from '../../generated/prisma/client.js';
+import { DatabaseService } from '../../database/drizzle/db.service.js';
+import { UserStatus } from '../../database/drizzle/enums.js';
 import { UsersService } from '../users/users.service.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RegisterDto } from './dto/register.dto.js';
@@ -32,7 +32,7 @@ interface RequestMeta {
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly db: DatabaseService,
     private readonly usersService: UsersService,
     private readonly passwordService: PasswordService,
     private readonly tokenService: TokenService,
@@ -46,21 +46,16 @@ export class AuthService {
   async register(dto: RegisterDto, meta: RequestMeta): Promise<AuthResult> {
     const existing = await this.usersService.findByEmail(dto.email);
     if (existing) {
-      // Register is a self-initiated action against the person's own inbox —
-      // the enumeration risk here is much lower than at login, and a vague
-      // "something went wrong" for a real signup attempt is worse UX than
-      // just saying the email is taken.
       throw new ConflictException('An account with this email already exists');
     }
 
     const passwordHash = await this.passwordService.hash(dto.password);
 
-    const user = await this.prisma.$transaction(
-      (tx: Prisma.TransactionClient) =>
-        this.usersService.createWithPassword(
-          { email: dto.email, passwordHash, fullName: dto.fullName },
-          tx,
-        ),
+    const user = await this.db.$transaction((tx: DatabaseService) =>
+      this.usersService.createWithPassword(
+        { email: dto.email, passwordHash, fullName: dto.fullName },
+        tx,
+      ),
     );
 
     const session = await this.sessionService.createSession({
@@ -176,10 +171,8 @@ export class AuthService {
   async forgotPassword(email: string, meta: RequestMeta): Promise<void> {
     const user = await this.usersService.findByEmail(email);
 
-    // Behave identically whether or not the account exists — the controller
-    // always returns the same generic message regardless of what happens here.
     if (user && user.passwordHash) {
-      await this.prisma.passwordResetToken.updateMany({
+      await this.db.passwordResetToken.updateMany({
         where: { userId: user.id, usedAt: null },
         data: { usedAt: new Date() },
       });
@@ -188,20 +181,16 @@ export class AuthService {
       const expiresAt = new Date(
         Date.now() +
           this.parseDurationMs(
-            this.configService.get<string>(
-              'auth.passwordResetExpiresIn',
-            ) as string,
+            this.configService.get<string>('auth.passwordResetExpiresIn') as string,
           ),
       );
 
-      await this.prisma.passwordResetToken.create({
+      await this.db.passwordResetToken.create({
         data: { userId: user.id, tokenHash: hash, expiresAt },
       });
 
-      const frontendUrl =
-        this.configService.get<string>('auth.frontendUrl') ?? '';
+      const frontendUrl = this.configService.get<string>('auth.frontendUrl') ?? '';
       const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
-
       await this.emailService.sendPasswordResetEmail(user.email, resetUrl);
 
       this.securityLogger.log({
@@ -220,7 +209,7 @@ export class AuthService {
     meta: RequestMeta,
   ): Promise<void> {
     const tokenHash = this.tokenService.hashToken(rawToken);
-    const resetToken = await this.prisma.passwordResetToken.findUnique({
+    const resetToken = await this.db.passwordResetToken.findUnique({
       where: { tokenHash },
     });
 
@@ -230,18 +219,17 @@ export class AuthService {
 
     const newPasswordHash = await this.passwordService.hash(newPassword);
 
-    await this.prisma.$transaction([
-      this.prisma.user.update({
+    await this.db.$transaction([
+      this.db.user.update({
         where: { id: resetToken.userId },
         data: { passwordHash: newPasswordHash },
       }),
-      this.prisma.passwordResetToken.update({
+      this.db.passwordResetToken.update({
         where: { id: resetToken.id },
         data: { usedAt: new Date() },
       }),
     ]);
 
-    // Force re-authentication everywhere after a password reset.
     await this.sessionService.revokeAllSessionsForUser(resetToken.userId);
 
     this.securityLogger.log({

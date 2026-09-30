@@ -1,22 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../database/prisma/prisma.service.js';
-import { Prisma } from '../../generated/prisma/client.js';
+import { DatabaseService } from '../../database/drizzle/db.service.js';
 
-export const WORD_INCLUDE = { entity: true } satisfies Prisma.WordInclude;
-export type WordWithEntity = Prisma.WordGetPayload<{
-  include: typeof WORD_INCLUDE;
-}>;
+export const WORD_INCLUDE = { entity: true };
 
-// This is the ONLY file allowed to write raw Prisma queries for Word.
-// Every other file (service, controller, worker) talks to the database
-// through these methods — that keeps Prisma details in one place, so if
-// the schema changes again later, you fix it in one file, not ten.
 @Injectable()
 export class WordRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly db: DatabaseService) {}
 
-  findMany(where: Prisma.WordWhereInput, skip: number, take: number) {
-    return this.prisma.word.findMany({
+  findMany(where: Record<string, any>, skip: number, take: number) {
+    return this.db.word.findMany({
       where,
       include: WORD_INCLUDE,
       orderBy: { createdAt: 'desc' },
@@ -25,40 +17,33 @@ export class WordRepository {
     });
   }
 
-  count(where: Prisma.WordWhereInput) {
-    return this.prisma.word.count({ where });
+  count(where: Record<string, any>) {
+    return this.db.word.count({ where });
   }
 
   findById(id: string) {
-    return this.prisma.word.findUnique({
+    return this.db.word.findUnique({
       where: { id },
       include: WORD_INCLUDE,
     });
   }
 
-  // Your schema does NOT put @unique on Word.entityId, so nothing stops
-  // two Words pointing at the same Entity at the database level. We
-  // enforce the "one Word per Entity" rule ourselves here — same job your
-  // old findByArabicId() did.
   findFirstByEntityId(entityId: string) {
-    return this.prisma.word.findFirst({
+    return this.db.word.findFirst({
       where: { entityId },
       include: WORD_INCLUDE,
     });
   }
 
-  create(
-    entityId: string,
-    data: Omit<Prisma.WordUncheckedCreateInput, 'entityId'>,
-  ) {
-    return this.prisma.word.create({
+  create(entityId: string, data: Record<string, any>) {
+    return this.db.word.create({
       data: { ...data, entityId },
       include: WORD_INCLUDE,
     });
   }
 
-  update(id: string, data: Prisma.WordUpdateInput) {
-    return this.prisma.word.update({
+  update(id: string, data: Record<string, any>) {
+    return this.db.word.update({
       where: { id },
       data,
       include: WORD_INCLUDE,
@@ -66,6 +51,6 @@ export class WordRepository {
   }
 
   delete(id: string) {
-    return this.prisma.word.delete({ where: { id } });
+    return this.db.word.delete({ where: { id } });
   }
 }
