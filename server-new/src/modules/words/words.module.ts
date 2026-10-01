@@ -1,6 +1,8 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
+import { PassportModule } from '@nestjs/passport';
 import { AI_PROCESSING, WORD_QUEUE_NAME } from '../../config/constants.js';
+import { AuthModule } from '../auth/auth.module.js';
 import { AiModule } from '../ai/ai.module.js';
 import { ArabicEntityModule } from '../arabic-entities/arabic-entities.module.js';
 import { WordController } from './words.controller.js';
@@ -20,6 +22,8 @@ import { WordService } from './words.service.js';
         },
       },
     }),
+    PassportModule.register({ session: false }),
+    AuthModule,
     ArabicEntityModule,
     AiModule, // AiModule-e AiService export kora ache — ager fix mone koro
   ],

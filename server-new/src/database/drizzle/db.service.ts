@@ -72,6 +72,17 @@ export class DatabaseService {
   }
 
   async $transaction<T>(callback: (tx: DatabaseService) => Promise<T>): Promise<T> {
-    return callback(this);
+    return this.db.transaction(async (tx: any) => {
+      const tableApis = Object.fromEntries(
+        Object.entries(tableMap).map(([name, table]) => [name, getTableApi(table, tx)]),
+      );
+      const transactionContext = Object.assign(
+        Object.create(this),
+        { db: tx },
+        tableApis,
+      ) as DatabaseService;
+
+      return callback(transactionContext);
+    });
   }
 }

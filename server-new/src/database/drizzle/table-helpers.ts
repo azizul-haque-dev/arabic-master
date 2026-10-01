@@ -83,6 +83,11 @@ export function getTableApi(table: Record<string, any>, db: any) {
       const rows = await db.insert(table).values(args.data).returning();
       return rows[0] ?? null;
     },
+    async createMany(args: { data: Record<string, any>[] }): Promise<{ count: number }> {
+      if (args.data.length === 0) return { count: 0 };
+      const rows = await db.insert(table).values(args.data).returning();
+      return { count: rows.length };
+    },
     async update(args: { where: Record<string, any>; data: Record<string, any>; include?: Record<string, any> } = { where: {}, data: {} }): Promise<any> {
       const condition = normalizeWhere(table, args.where);
       const rows = condition

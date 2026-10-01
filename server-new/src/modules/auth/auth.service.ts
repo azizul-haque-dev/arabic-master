@@ -219,16 +219,16 @@ export class AuthService {
 
     const newPasswordHash = await this.passwordService.hash(newPassword);
 
-    await this.db.$transaction([
-      this.db.user.update({
+    await this.db.$transaction(async (tx: DatabaseService) => {
+      await tx.user.update({
         where: { id: resetToken.userId },
         data: { passwordHash: newPasswordHash },
-      }),
-      this.db.passwordResetToken.update({
+      });
+      await tx.passwordResetToken.update({
         where: { id: resetToken.id },
         data: { usedAt: new Date() },
-      }),
-    ]);
+      });
+    });
 
     await this.sessionService.revokeAllSessionsForUser(resetToken.userId);
 

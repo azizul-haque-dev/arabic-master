@@ -7,6 +7,7 @@ import { UsersModule } from '../users/users.module.js';
 import { AccessTokenGuard } from './guards/access-token.guard.js';
 import { CsrfGuard } from './guards/csrf.guard.js';
 import { RefreshTokenGuard } from './guards/refresh-token.guard.js';
+import { RolesGuard } from './guards/roles.guard.js';
 import { ConsoleEmailService, EMAIL_SERVICE } from './services/email.service.js';
 import { OAuthService } from './services/oauth.service.js';
 import { PasswordService } from './services/password.service.js';
@@ -35,6 +36,7 @@ import { AuthService } from './auth.service.js';
         AccessTokenGuard,
         RefreshTokenGuard,
         CsrfGuard,
+        RolesGuard,
         {
             provide: EMAIL_SERVICE,
             useFactory: (configService: ConfigService, logger: PinoLogger) =>
@@ -44,5 +46,6 @@ import { AuthService } from './auth.service.js';
             // behind this same EMAIL_SERVICE token when going to production.
         },
     ],
+    exports: [AccessTokenGuard, RolesGuard],
 })
 export class AuthModule { }
