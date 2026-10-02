@@ -19,11 +19,13 @@ export class DatabaseService {
   public readonly emailVerificationToken = getTableApi(tableMap.emailVerificationToken, null as any);
   public readonly userProfile = getTableApi(tableMap.userProfile, null as any);
   public readonly userProgress = getTableApi(tableMap.userProgress, null as any);
+  public readonly learningActivity = getTableApi(tableMap.learningActivity, null as any);
   public readonly guestUser = getTableApi(tableMap.guestUser, null as any);
   public readonly subscription = getTableApi(tableMap.subscription, null as any);
   public readonly transaction = getTableApi(tableMap.transaction, null as any);
   public readonly arabicEntity = getTableApi(tableMap.arabicEntity, null as any);
   public readonly word = getTableApi(tableMap.word, null as any);
+  public readonly grammaticalVariant = getTableApi(tableMap.grammaticalVariant, null as any);
   public readonly sentenceWord = getTableApi(tableMap.sentenceWord, null as any);
   public readonly sentence = getTableApi(tableMap.sentence, null as any);
   public readonly conversation = getTableApi(tableMap.conversation, null as any);
@@ -33,6 +35,7 @@ export class DatabaseService {
   public readonly lesson = getTableApi(tableMap.lesson, null as any);
   public readonly lessonContentItem = getTableApi(tableMap.lessonContentItem, null as any);
   public readonly contentCompletion = getTableApi(tableMap.contentCompletion, null as any);
+  public readonly lessonProgress = getTableApi(tableMap.lessonProgress, null as any);
 
   constructor(configService: ConfigService) {
     const connectionString = configService.get<string>('DATABASE_URL');
@@ -47,11 +50,13 @@ export class DatabaseService {
     this.emailVerificationToken = getTableApi(tableMap.emailVerificationToken, this.db);
     this.userProfile = getTableApi(tableMap.userProfile, this.db);
     this.userProgress = getTableApi(tableMap.userProgress, this.db);
+    this.learningActivity = getTableApi(tableMap.learningActivity, this.db);
     this.guestUser = getTableApi(tableMap.guestUser, this.db);
     this.subscription = getTableApi(tableMap.subscription, this.db);
     this.transaction = getTableApi(tableMap.transaction, this.db);
     this.arabicEntity = getTableApi(tableMap.arabicEntity, this.db);
     this.word = getTableApi(tableMap.word, this.db);
+    this.grammaticalVariant = getTableApi(tableMap.grammaticalVariant, this.db);
     this.sentenceWord = getTableApi(tableMap.sentenceWord, this.db);
     this.sentence = getTableApi(tableMap.sentence, this.db);
     this.conversation = getTableApi(tableMap.conversation, this.db);
@@ -61,6 +66,7 @@ export class DatabaseService {
     this.lesson = getTableApi(tableMap.lesson, this.db);
     this.lessonContentItem = getTableApi(tableMap.lessonContentItem, this.db);
     this.contentCompletion = getTableApi(tableMap.contentCompletion, this.db);
+    this.lessonProgress = getTableApi(tableMap.lessonProgress, this.db);
   }
 
   async onModuleInit(): Promise<void> {

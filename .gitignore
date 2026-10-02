@@ -58,8 +58,8 @@ server/tmp/
 server/temp/
 server-new/uploads/
 server-new/tmp/
-server-new/temp/
 
+server-new/dist/
 # ==========================
 # Cache
 # ==========================
