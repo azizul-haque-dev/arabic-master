@@ -5,8 +5,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { and, eq, isNull } from 'drizzle-orm';
+import { randomUUID } from 'node:crypto';
 import { DatabaseService } from '../../database/drizzle/db.service.js';
 import { UserStatus } from '../../database/drizzle/enums.js';
+import * as schema from '../../database/drizzle/schema.js';
 import { UsersService } from '../users/users.service.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RegisterDto } from './dto/register.dto.js';
@@ -51,7 +54,7 @@ export class AuthService {
 
     const passwordHash = await this.passwordService.hash(dto.password);
 
-    const user = await this.db.$transaction((tx: DatabaseService) =>
+    const user = await this.db.$transaction((tx) =>
       this.usersService.createWithPassword(
         { email: dto.email, passwordHash, fullName: dto.fullName },
         tx,
@@ -172,10 +175,10 @@ export class AuthService {
     const user = await this.usersService.findByEmail(email);
 
     if (user && user.passwordHash) {
-      await this.db.passwordResetToken.updateMany({
-        where: { userId: user.id, usedAt: null },
-        data: { usedAt: new Date() },
-      });
+      await this.db.db
+        .update(schema.passwordResetToken)
+        .set({ usedAt: new Date() })
+        .where(and(eq(schema.passwordResetToken.userId, user.id), isNull(schema.passwordResetToken.usedAt)));
 
       const { rawToken, hash } = this.tokenService.generateResetToken();
       const expiresAt = new Date(
@@ -185,8 +188,11 @@ export class AuthService {
           ),
       );
 
-      await this.db.passwordResetToken.create({
-        data: { userId: user.id, tokenHash: hash, expiresAt },
+      await this.db.db.insert(schema.passwordResetToken).values({
+        id: randomUUID(),
+        userId: user.id,
+        tokenHash: hash,
+        expiresAt,
       });
 
       const frontendUrl = this.configService.get<string>('auth.frontendUrl') ?? '';
@@ -209,9 +215,12 @@ export class AuthService {
     meta: RequestMeta,
   ): Promise<void> {
     const tokenHash = this.tokenService.hashToken(rawToken);
-    const resetToken = await this.db.passwordResetToken.findUnique({
-      where: { tokenHash },
-    });
+    const resetTokenRows = await this.db.db
+      .select()
+      .from(schema.passwordResetToken)
+      .where(eq(schema.passwordResetToken.tokenHash, tokenHash))
+      .limit(1);
+    const resetToken = resetTokenRows[0] ?? null;
 
     if (!resetToken || resetToken.usedAt || resetToken.expiresAt < new Date()) {
       throw new UnauthorizedException('Invalid or expired reset token');
@@ -219,15 +228,9 @@ export class AuthService {
 
     const newPasswordHash = await this.passwordService.hash(newPassword);
 
-    await this.db.$transaction(async (tx: DatabaseService) => {
-      await tx.user.update({
-        where: { id: resetToken.userId },
-        data: { passwordHash: newPasswordHash },
-      });
-      await tx.passwordResetToken.update({
-        where: { id: resetToken.id },
-        data: { usedAt: new Date() },
-      });
+    await this.db.$transaction(async (tx) => {
+      await tx.update(schema.user).set({ passwordHash: newPasswordHash }).where(eq(schema.user.id, resetToken.userId));
+      await tx.update(schema.passwordResetToken).set({ usedAt: new Date() }).where(eq(schema.passwordResetToken.id, resetToken.id));
     });
 
     await this.sessionService.revokeAllSessionsForUser(resetToken.userId);

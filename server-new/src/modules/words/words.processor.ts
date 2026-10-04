@@ -1,16 +1,18 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
+import { eq } from 'drizzle-orm';
 import { PinoLogger } from 'nestjs-pino';
 import { isValidCategory } from '../../common/constants/category.constant.js';
 import { WORD_QUEUE_NAME } from '../../config/constants.js';
+import { DatabaseService } from '../../database/drizzle/db.service.js';
+import * as schema from '../../database/drizzle/schema.js';
 import { AiService } from '../ai/ai.service.js';
 import { ArabicEntityService } from '../arabic-entities/arabic-entities.service.js';
-import { WordRepository } from './words.repository.js';
 
 @Processor(WORD_QUEUE_NAME)
 export class WordProcessor extends WorkerHost {
   constructor(
-    private readonly wordRepository: WordRepository,
+    private readonly db: DatabaseService,
     private readonly arabicEntityService: ArabicEntityService,
     private readonly aiService: AiService,
     private readonly logger: PinoLogger,
@@ -22,7 +24,12 @@ export class WordProcessor extends WorkerHost {
   async process(job: Job<{ wordId: string; arabicText: string }>) {
     const { wordId, arabicText } = job.data;
 
-    const word = await this.wordRepository.findById(wordId);
+    const rows = await this.db.db
+      .select()
+      .from(schema.word)
+      .where(eq(schema.word.id, wordId))
+      .limit(1);
+    const word = rows[0] ?? null;
     if (!word) {
       // Word delete hoye geche AI-r response asar age — kaj korar dorkar nai
       this.logger.warn(
@@ -49,19 +56,22 @@ export class WordProcessor extends WorkerHost {
       pronunciationEnglish: result.pronunciationEn,
     });
 
-    await this.wordRepository.update(wordId, {
-      meaningEn: result.meaningEn,
-      meaningBn: result.meaningBn,
-      whenToUseEn: result.whenToUseEn,
-      whenToUseBn: result.whenToUseBn,
-      pronunciationEn: result.pronunciationEn,
-      pronunciationBn: result.pronunciationBn,
-      feminineEn: result.feminineEn,
-      feminineBn: result.feminineBn,
-      noteEn: result.noteEn ?? null,
-      noteBn: result.noteBn ?? null,
-      category,
-    });
+    await this.db.db
+      .update(schema.word)
+      .set({
+        meaningEn: result.meaningEn,
+        meaningBn: result.meaningBn,
+        whenToUseEn: result.whenToUseEn,
+        whenToUseBn: result.whenToUseBn,
+        pronunciationEn: result.pronunciationEn,
+        pronunciationBn: result.pronunciationBn,
+        feminineEn: result.feminineEn,
+        feminineBn: result.feminineBn,
+        noteEn: result.noteEn ?? null,
+        noteBn: result.noteBn ?? null,
+        category,
+      })
+      .where(eq(schema.word.id, wordId));
   }
 
   // Job fail hole (retry-r pore o) log rakhbe — production e debug korar jonno jaruri

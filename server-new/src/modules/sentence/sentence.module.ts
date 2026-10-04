@@ -3,7 +3,6 @@ import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { SentenceController } from './sentence.controller.js';
 import { SentenceProcessor } from './sentence.processor.js';
-import { SentenceRepository } from './sentence.repository.js';
 import { SentenceService } from './sentence.service.js';
 
 import { AI_PROCESSING, SENTENCE_QUEUE_NAME } from '../../config/constants.js';
@@ -31,6 +30,6 @@ import { ArabicEntityModule } from '../arabic-entities/arabic-entities.module.js
     AiWordModule,
   ],
   controllers: [SentenceController],
-  providers: [SentenceService, SentenceRepository, SentenceProcessor],
+  providers: [SentenceService, SentenceProcessor],
 })
 export class SentenceModule {}

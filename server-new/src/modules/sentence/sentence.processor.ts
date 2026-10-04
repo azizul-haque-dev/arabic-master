@@ -1,11 +1,14 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
+import { eq } from 'drizzle-orm';
 import { Job } from 'bullmq';
-import { SentenceRepository } from './sentence.repository.js';
+import { randomUUID } from 'node:crypto';
 
 import { isValidCategory } from '../../common/constants/category.constant.js';
 import { cleanTextAndSpaces } from '../../common/utils/normalize-arabic.util.js';
 import { SENTENCE_QUEUE_NAME } from '../../config/constants.js';
+import { DatabaseService } from '../../database/drizzle/db.service.js';
+import * as schema from '../../database/drizzle/schema.js';
 import { AiService } from '../ai/ai.service.js';
 import { AiWordService } from '../ai/word/ai-word.service.js';
 import { ArabicEntityService } from '../arabic-entities/arabic-entities.service.js';
@@ -25,7 +28,7 @@ export class SentenceProcessor extends WorkerHost {
   private readonly logger = new Logger(SentenceProcessor.name);
 
   constructor(
-    private readonly sentenceRepository: SentenceRepository,
+    private readonly db: DatabaseService,
     private readonly arabicEntityService: ArabicEntityService,
     private readonly aiService: AiService,
     private readonly aiWordService: AiWordService,
@@ -45,7 +48,12 @@ export class SentenceProcessor extends WorkerHost {
   private async processSentence(job: Job<ProcessSentenceData>) {
     const { sentenceId, arabicText, createdById } = job.data;
 
-    const sentence = await this.sentenceRepository.findById(sentenceId);
+    const rows = await this.db.db
+      .select()
+      .from(schema.sentence)
+      .where(eq(schema.sentence.id, sentenceId))
+      .limit(1);
+    const sentence = rows[0] ?? null;
     if (!sentence) {
       this.logger.warn(
         `Sentence ${sentenceId} was deleted before the AI job ran — skipping.`,
@@ -69,30 +77,38 @@ export class SentenceProcessor extends WorkerHost {
       pronunciationEnglish: result.pronunciationEn,
     });
 
-    await this.sentenceRepository.update(sentenceId, {
-      meaningEn: result.meaningEn,
-      meaningBn: result.meaningBn,
-      whenToUseEn: result.whenToUseEn,
-      whenToUseBn: result.whenToUseBn,
-      pronunciationEn: result.pronunciationEn,
-      pronunciationBn: result.pronunciationBn,
-      feminineEn: result.feminineEn,
-      feminineBn: result.feminineBn,
-      noteEn: result.noteEn ?? null,
-      noteBn: result.noteBn ?? null,
-      category,
-    });
+    await this.db.db
+      .update(schema.sentence)
+      .set({
+        meaningEn: result.meaningEn,
+        meaningBn: result.meaningBn,
+        whenToUseEn: result.whenToUseEn,
+        whenToUseBn: result.whenToUseBn,
+        pronunciationEn: result.pronunciationEn,
+        pronunciationBn: result.pronunciationBn,
+        feminineEn: result.feminineEn,
+        feminineBn: result.feminineBn,
+        noteEn: result.noteEn ?? null,
+        noteBn: result.noteBn ?? null,
+        category,
+      })
+      .where(eq(schema.sentence.id, sentenceId));
 
     const words = await this.getOrCreateWordsForSentence(
       arabicText,
       createdById,
     );
-    await this.sentenceRepository.replaceWords(sentenceId, words);
+    await this.replaceWords(sentenceId, words);
   }
 
   private async resyncWords(job: Job<ResyncWordsData>) {
     const { sentenceId, arabicText } = job.data;
-    const sentence = await this.sentenceRepository.findById(sentenceId);
+    const rows = await this.db.db
+      .select()
+      .from(schema.sentence)
+      .where(eq(schema.sentence.id, sentenceId))
+      .limit(1);
+    const sentence = rows[0] ?? null;
     if (!sentence) {
       this.logger.warn(
         `Sentence ${sentenceId} was deleted before resync ran — skipping.`,
@@ -100,7 +116,28 @@ export class SentenceProcessor extends WorkerHost {
       return;
     }
     const words = await this.getOrCreateWordsForSentence(arabicText);
-    await this.sentenceRepository.replaceWords(sentenceId, words);
+    await this.replaceWords(sentenceId, words);
+  }
+
+  private async replaceWords(
+    sentenceId: string,
+    words: { wordId: string; position: number }[],
+  ) {
+    await this.db.$transaction(async (tx) => {
+      await tx
+        .delete(schema.sentenceWord)
+        .where(eq(schema.sentenceWord.sentenceId, sentenceId));
+
+      if (words.length) {
+        await tx.insert(schema.sentenceWord).values(
+          words.map((word) => ({
+            id: randomUUID(),
+            sentenceId,
+            ...word,
+          })),
+        );
+      }
+    });
   }
 
   // Splits into tokens, get-or-creates a Word for each (AiWordService

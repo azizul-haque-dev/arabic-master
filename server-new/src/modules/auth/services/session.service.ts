@@ -1,6 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { and, eq, inArray, isNull } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { DatabaseService } from '../../../database/drizzle/db.service.js';
+import * as schema from '../../../database/drizzle/schema.js';
 import { RedisService } from '../../../database/redis/redis.service.js';
 import { SecurityLoggerService } from './security-logger.service.js';
 import { TokenService } from './token.service.js';
@@ -25,15 +27,18 @@ export class SessionService {
     refreshTokenExpiresAt: Date;
   }> {
     const refreshTokenExpiresAt = this.tokenService.getRefreshTokenExpiryDate();
-    const session = await this.db.session.create({
-      data: {
+    const sessionRows = await this.db.db
+      .insert(schema.session)
+      .values({
+        id: randomUUID(),
         userId: params.userId,
         deviceId: randomUUID(),
         ipAddress: params.ipAddress,
         userAgent: params.userAgent,
         expiresAt: refreshTokenExpiresAt,
-      },
-    });
+      })
+      .returning();
+    const session = sessionRows[0];
 
     const { token: accessToken } = this.tokenService.generateAccessToken(
       params.userId,
@@ -41,13 +46,13 @@ export class SessionService {
     );
     const { token: refreshToken, jwtId } =
       this.tokenService.generateRefreshToken(params.userId, session.id);
-    await this.db.refreshToken.create({
-      data: {
-        sessionId: session.id,
-        jwtId,
-        tokenHash: this.tokenService.hashToken(refreshToken),
-        expiresAt: refreshTokenExpiresAt,
-      },
+
+    await this.db.db.insert(schema.refreshToken).values({
+      id: randomUUID(),
+      sessionId: session.id,
+      jwtId,
+      tokenHash: this.tokenService.hashToken(refreshToken),
+      expiresAt: refreshTokenExpiresAt,
     });
 
     return {
@@ -73,17 +78,23 @@ export class SessionService {
   }> {
     const { rawToken, userId, sessionId, jwtId, requestId, ipAddress, userAgent } = params;
 
-    const existing = await this.db.refreshToken.findUnique({
-      where: { jwtId },
-    });
+    const existingRows = await this.db.db
+      .select()
+      .from(schema.refreshToken)
+      .where(eq(schema.refreshToken.jwtId, jwtId))
+      .limit(1);
+    const existing = existingRows[0];
 
     if (!existing || existing.sessionId !== sessionId) {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    const session = await this.db.session.findUnique({
-      where: { id: sessionId },
-    });
+    const sessionRows = await this.db.db
+      .select()
+      .from(schema.session)
+      .where(eq(schema.session.id, sessionId))
+      .limit(1);
+    const session = sessionRows[0];
 
     if (!session || session.revokedAt || existing.expiresAt < new Date()) {
       throw new UnauthorizedException('Invalid or expired refresh token');
@@ -112,29 +123,32 @@ export class SessionService {
     const newTokenHash = this.tokenService.hashToken(newRefreshToken);
 
     try {
-      await this.db.$transaction(async (tx: DatabaseService) => {
-        const claim = await tx.refreshToken.updateMany({
-          where: { id: existing.id, revokedAt: null },
-          data: { revokedAt: new Date() },
-        });
+      await this.db.$transaction(async (tx) => {
+        const claim = await tx
+          .update(schema.refreshToken)
+          .set({ revokedAt: new Date() })
+          .where(and(eq(schema.refreshToken.id, existing.id), isNull(schema.refreshToken.revokedAt)))
+          .returning();
 
-        if (claim.count === 0) {
+        if (claim.length === 0) {
           throw new UnauthorizedException('Invalid or expired refresh token');
         }
 
-        const created = await tx.refreshToken.create({
-          data: {
+        const created = await tx
+          .insert(schema.refreshToken)
+          .values({
+            id: randomUUID(),
             sessionId,
             jwtId: newJwtId,
             tokenHash: newTokenHash,
             expiresAt: newExpiresAt,
-          },
-        });
+          })
+          .returning();
 
-        await tx.refreshToken.update({
-          where: { id: existing.id },
-          data: { replacedByTokenId: created.id },
-        });
+        await tx
+          .update(schema.refreshToken)
+          .set({ replacedByTokenId: created[0].id })
+          .where(eq(schema.refreshToken.id, existing.id));
       });
     } catch (error) {
       await this.revokeSession(sessionId);
@@ -158,14 +172,16 @@ export class SessionService {
 
   async revokeSession(sessionId: string): Promise<void> {
     await Promise.all([
-      this.db.session.updateMany({
-        where: { id: sessionId, revokedAt: null },
-        data: { revokedAt: new Date(), isActive: false },
-      }),
-      this.db.refreshToken.updateMany({
-        where: { sessionId, revokedAt: null },
-        data: { revokedAt: new Date() },
-      }),
+      this.db.db
+        .update(schema.session)
+        .set({ revokedAt: new Date(), isActive: false })
+        .where(and(eq(schema.session.id, sessionId), isNull(schema.session.revokedAt)))
+        .returning(),
+      this.db.db
+        .update(schema.refreshToken)
+        .set({ revokedAt: new Date() })
+        .where(and(eq(schema.refreshToken.sessionId, sessionId), isNull(schema.refreshToken.revokedAt)))
+        .returning(),
     ]);
 
     await this.redis.revokeSession(
@@ -175,27 +191,29 @@ export class SessionService {
   }
 
   async revokeAllSessionsForUser(userId: string): Promise<void> {
-    const sessions = (await this.db.session.findMany({
-      where: { userId, revokedAt: null },
-      select: { id: true },
-    })) as Array<{ id: string }>;
+    const sessions = await this.db.db
+      .select({ id: schema.session.id })
+      .from(schema.session)
+      .where(and(eq(schema.session.userId, userId), isNull(schema.session.revokedAt)));
 
     const sessionIds = sessions.map((s) => s.id);
 
     await Promise.all([
-      this.db.session.updateMany({
-        where: { userId, revokedAt: null },
-        data: { revokedAt: new Date(), isActive: false },
-      }),
-      this.db.refreshToken.updateMany({
-        where: { sessionId: { in: sessionIds }, revokedAt: null },
-        data: { revokedAt: new Date() },
-      }),
+      this.db.db
+        .update(schema.session)
+        .set({ revokedAt: new Date(), isActive: false })
+        .where(and(eq(schema.session.userId, userId), isNull(schema.session.revokedAt)))
+        .returning(),
+      this.db.db
+        .update(schema.refreshToken)
+        .set({ revokedAt: new Date() })
+        .where(and(inArray(schema.refreshToken.sessionId, sessionIds), isNull(schema.refreshToken.revokedAt)))
+        .returning(),
     ]);
 
     const ttl = this.tokenService.getAccessTokenTtlSeconds();
     await Promise.all(
-      sessions.map((s: { id: string }) => this.redis.revokeSession(s.id, ttl)),
+      sessions.map((s) => this.redis.revokeSession(s.id, ttl)),
     );
   }
 }

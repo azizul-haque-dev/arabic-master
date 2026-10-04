@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { DatabaseService } from '../../database/drizzle/db.service.js';
+import * as schema from '../../database/drizzle/schema.js';
 
 export function normalizeArabicText(text: string): string {
   return text
@@ -13,27 +15,48 @@ export function normalizeArabicText(text: string): string {
 export class ArabicEntityService {
   constructor(private readonly db: DatabaseService) {}
 
-  findByNormalizedText(text: string) {
-    return this.db.arabicEntity.findUnique({
-      where: { normalizedText: normalizeArabicText(text) },
-    });
+  async findByNormalizedText(text: string) {
+    const rows = await this.db.db
+      .select()
+      .from(schema.arabicEntity)
+      .where(eq(schema.arabicEntity.normalizedText, normalizeArabicText(text)))
+      .limit(1);
+
+    return rows[0] ?? null;
   }
 
-  create(data: { arabicText: string; audioUrl?: string; createdById?: string; }) {
-    return this.db.arabicEntity.create({
-      data: {
-        entityKey: `entity_${randomUUID()}`,
-        arabicText: data.arabicText,
-        normalizedText: normalizeArabicText(data.arabicText),
-        audioUrl: data.audioUrl,
-        pronunciationBangla: '',
-        pronunciationEnglish: '',
-        createdById: data.createdById,
-      },
-    });
+  async findById(id: string) {
+    const rows = await this.db.db
+      .select()
+      .from(schema.arabicEntity)
+      .where(eq(schema.arabicEntity.id, id))
+      .limit(1);
+
+    return rows[0] ?? null;
   }
 
-  updateAiPronunciation(id: string, data: { pronunciationBangla: string; pronunciationEnglish: string }) {
-    return this.db.arabicEntity.update({ where: { id }, data });
+  async create(data: { arabicText: string; audioUrl?: string; createdById?: string; }) {
+    const rows = await this.db.db.insert(schema.arabicEntity).values({
+      id: randomUUID(),
+      entityKey: `entity_${randomUUID()}`,
+      arabicText: data.arabicText,
+      normalizedText: normalizeArabicText(data.arabicText),
+      audioUrl: data.audioUrl,
+      pronunciationBangla: '',
+      pronunciationEnglish: '',
+      createdById: data.createdById,
+    }).returning();
+
+    return rows[0] ?? null;
+  }
+
+  async updateAiPronunciation(id: string, data: { pronunciationBangla: string; pronunciationEnglish: string }) {
+    const rows = await this.db.db
+      .update(schema.arabicEntity)
+      .set(data)
+      .where(eq(schema.arabicEntity.id, id))
+      .returning();
+
+    return rows[0] ?? null;
   }
 }

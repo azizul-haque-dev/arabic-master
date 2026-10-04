@@ -7,7 +7,6 @@ import { AiModule } from '../ai/ai.module.js';
 import { ArabicEntityModule } from '../arabic-entities/arabic-entities.module.js';
 import { WordController } from './words.controller.js';
 import { WordProcessor } from './words.processor.js';
-import { WordRepository } from './words.repository.js';
 import { WordService } from './words.service.js';
 
 @Module({
@@ -28,6 +27,6 @@ import { WordService } from './words.service.js';
     AiModule, // AiModule-e AiService export kora ache — ager fix mone koro
   ],
   controllers: [WordController],
-  providers: [WordService, WordRepository, WordProcessor],
+  providers: [WordService, WordProcessor],
 })
 export class WordModule {}

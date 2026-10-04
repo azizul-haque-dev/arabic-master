@@ -1,10 +1,13 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { count, desc, eq } from 'drizzle-orm';
 import { Queue } from 'bullmq';
 import { randomUUID } from 'node:crypto';
-import { SentenceRepository } from './sentence.repository.js';
 import { SENTENCE_QUEUE_NAME } from '../../config/constants.js';
+import { DatabaseService } from '../../database/drizzle/db.service.js';
 import { ContentStatus, DifficultyLevel } from '../../database/drizzle/enums.js';
+import * as schema from '../../database/drizzle/schema.js';
+import { normalizeWhere } from '../../database/drizzle/query.utils.js';
 import { AiService } from '../ai/ai.service.js';
 import { ArabicEntityService } from '../arabic-entities/arabic-entities.service.js';
 import { CreateSentenceDto } from './dto/create-sentence.dto.js';
@@ -16,7 +19,7 @@ const ARABIC_REGEX = /^[؀-ۿ\s]+$/;
 @Injectable()
 export class SentenceService {
   constructor(
-    private readonly sentenceRepository: SentenceRepository,
+    private readonly db: DatabaseService,
     private readonly arabicEntityService: ArabicEntityService,
     private readonly aiService: AiService,
     @InjectQueue(SENTENCE_QUEUE_NAME) private readonly sentenceQueue: Queue,
@@ -29,11 +32,21 @@ export class SentenceService {
       ...(status ? { status } : {}),
       ...(search ? { OR: [{ entity: { arabicText: { contains: search, mode: 'insensitive' as const } } }, { meaningEn: { contains: search, mode: 'insensitive' as const } }, { meaningBn: { contains: search, mode: 'insensitive' as const } }] } : {}),
     };
-
-    const [items, total] = await Promise.all([
-      this.sentenceRepository.findMany(where, (page - 1) * limit, limit),
-      this.sentenceRepository.count(where),
+    const condition = normalizeWhere(schema.sentence, where);
+    const [countRows, items] = await Promise.all([
+      this.db.db
+        .select({ count: count() })
+        .from(schema.sentence)
+        .where(condition ?? undefined),
+      this.db.db
+        .select()
+        .from(schema.sentence)
+        .where(condition ?? undefined)
+        .orderBy(desc(schema.sentence.createdAt))
+        .offset((page - 1) * limit)
+        .limit(limit),
     ]);
+    const total = Number(countRows[0]?.count ?? 0);
 
     return {
       items,
@@ -42,7 +55,12 @@ export class SentenceService {
   }
 
   async getById(id: string) {
-    const sentence = await this.sentenceRepository.findById(id);
+    const rows = await this.db.db
+      .select()
+      .from(schema.sentence)
+      .where(eq(schema.sentence.id, id))
+      .limit(1);
+    const sentence = rows[0] ?? null;
     if (!sentence) throw new NotFoundException('Sentence not found');
     return sentence;
   }
@@ -53,12 +71,19 @@ export class SentenceService {
     if (!entity) {
       entity = await this.arabicEntityService.create({ arabicText: dto.text, audioUrl: dto.audioUrl, createdById });
     } else {
-      const existingSentence = await this.sentenceRepository.findFirstByEntityId(entity.id);
+      const rows = await this.db.db
+        .select()
+        .from(schema.sentence)
+        .where(eq(schema.sentence.entityId, entity.id))
+        .limit(1);
+      const existingSentence = rows[0] ?? null;
       if (existingSentence) throw new ConflictException('A sentence already exists for this Arabic text');
     }
 
-    const sentence = await this.sentenceRepository.create(entity.id, {
+    const insertData: typeof schema.sentence.$inferInsert = {
+      id: randomUUID(),
       sentenceKey: `sentence_${randomUUID()}`,
+      entityId: entity.id,
       meaningEn: dto.meaningEn,
       meaningBn: dto.meaningBn,
       whenToUseEn: dto.whenToUseEn,
@@ -74,10 +99,16 @@ export class SentenceService {
       noteBn: dto.noteBn,
       status: ContentStatus.DRAFT,
       createdById,
-    });
+    };
+    const rows = await this.db.db
+      .insert(schema.sentence)
+      .values(insertData)
+      .returning();
+    const sentence = rows[0] ?? null;
+    if (!sentence) throw new Error('Failed to create sentence');
 
     if (dto.words?.length) {
-      return this.sentenceRepository.replaceWords(sentence.id, dto.words);
+      return this.replaceWords(sentence.id, dto.words);
     }
     return sentence;
   }
@@ -85,14 +116,21 @@ export class SentenceService {
   async update(id: string, dto: UpdateSentenceDto) {
     await this.getById(id);
     const { words, ...rest } = dto;
-    const sentence = await this.sentenceRepository.update(id, rest);
-    if (words) return this.sentenceRepository.replaceWords(id, words);
+    const rows = await this.db.db
+      .update(schema.sentence)
+      .set(rest)
+      .where(eq(schema.sentence.id, id))
+      .returning();
+    const sentence = rows[0] ?? null;
+    if (words) return this.replaceWords(id, words);
     return sentence;
   }
 
   async remove(id: string) {
     const sentence = await this.getById(id);
-    await this.sentenceRepository.delete(sentence.id);
+    await this.db.db
+      .delete(schema.sentence)
+      .where(eq(schema.sentence.id, sentence.id));
   }
 
   async generateWithAi(rawText: string, createdById: string) {
@@ -101,14 +139,23 @@ export class SentenceService {
     let entity = await this.arabicEntityService.findByNormalizedText(text);
 
     if (entity) {
-      const existingSentence = await this.sentenceRepository.findFirstByEntityId(entity.id);
+      const rows = await this.db.db
+      .select()
+      .from(schema.sentence)
+      .where(eq(schema.sentence.entityId, entity.id))
+      .limit(1);
+      const existingSentence = rows[0] ?? null;
       if (existingSentence) return existingSentence;
     } else {
       entity = await this.arabicEntityService.create({ arabicText: text, createdById });
     }
 
     const placeholder = '';
-    const sentence = await this.sentenceRepository.create(entity.id, {
+    const rows = await this.db.db
+      .insert(schema.sentence)
+      .values({
+      id: randomUUID(),
+      entityId: entity.id,
       sentenceKey: `sentence_${randomUUID()}`,
       meaningEn: placeholder,
       meaningBn: placeholder,
@@ -122,7 +169,10 @@ export class SentenceService {
       difficulty: DifficultyLevel.BEGINNER,
       status: ContentStatus.DRAFT,
       createdById,
-    });
+      })
+      .returning();
+    const sentence = rows[0] ?? null;
+    if (!sentence) throw new Error('Failed to create sentence');
 
     await this.sentenceQueue.add('process-sentence', {
       sentenceId: sentence.id,
@@ -134,10 +184,42 @@ export class SentenceService {
 
   async resyncWords(id: string) {
     const sentence = await this.getById(id);
+    const entity = await this.arabicEntityService.findById(sentence.entityId);
+    if (!entity) throw new NotFoundException('Sentence entity not found');
+
     await this.sentenceQueue.add('resync-sentence-words', {
       sentenceId: sentence.id,
-      arabicText: sentence.entity.arabicText,
+      arabicText: entity.arabicText,
     });
     return { sentenceId: sentence.id };
+  }
+
+  private async replaceWords(
+    sentenceId: string,
+    words: { wordId: string; position: number }[],
+  ) {
+    return this.db.$transaction(async (tx) => {
+      await tx
+        .delete(schema.sentenceWord)
+        .where(eq(schema.sentenceWord.sentenceId, sentenceId));
+
+      if (words.length) {
+        await tx.insert(schema.sentenceWord).values(
+          words.map((word) => ({
+            id: randomUUID(),
+            sentenceId,
+            ...word,
+          })),
+        );
+      }
+
+      const rows = await tx
+        .select()
+        .from(schema.sentence)
+        .where(eq(schema.sentence.id, sentenceId))
+        .limit(1);
+
+      return rows[0] ?? null;
+    });
   }
 }

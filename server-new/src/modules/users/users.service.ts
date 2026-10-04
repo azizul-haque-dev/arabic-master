@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from '../../database/drizzle/db.service.js';
+import { eq } from 'drizzle-orm';
 import type { InferSelectModel } from 'drizzle-orm';
+import { randomUUID } from 'node:crypto';
+import { DatabaseService } from '../../database/drizzle/db.service.js';
+import type { DatabaseTransaction } from '../../database/drizzle/db.service.js';
 import * as schema from '../../database/drizzle/schema.js';
 import { SafeUser } from './types/safe-user.type.js';
 
@@ -10,27 +13,48 @@ export type User = InferSelectModel<typeof schema.user>;
 export class UsersService {
   constructor(private readonly db: DatabaseService) {}
 
-  findByEmail(email: string): Promise<User | null> {
-    return this.db.user.findUnique({ where: { email } });
+  async findByEmail(email: string): Promise<User | null> {
+    const rows = await this.db.db
+      .select()
+      .from(schema.user)
+      .where(eq(schema.user.email, email))
+      .limit(1);
+
+    return rows[0] ?? null;
   }
 
-  findById(id: string): Promise<User | null> {
-    return this.db.user.findUnique({ where: { id } });
+  async findById(id: string): Promise<User | null> {
+    const rows = await this.db.db
+      .select()
+      .from(schema.user)
+      .where(eq(schema.user.id, id))
+      .limit(1);
+
+    return rows[0] ?? null;
   }
 
-  createWithPassword(
+  async createWithPassword(
     data: { email: string; passwordHash: string; fullName: string },
-    tx?: DatabaseService,
+    tx?: DatabaseTransaction,
   ): Promise<User> {
-    const client = tx ?? this.db;
-    return client.user.create({ data });
+    const client = tx ?? this.db.db;
+    const rows = await client
+      .insert(schema.user)
+      .values({ id: randomUUID(), ...data })
+      .returning();
+    return rows[0] as User;
   }
 
-  createFromOAuth(
+  async createFromOAuth(
     data: { email: string; fullName: string; emailVerifiedAt: Date | null },
-    tx: DatabaseService,
+    tx: DatabaseTransaction,
   ): Promise<User> {
-    return tx.user.create({ data: { ...data, passwordHash: null } });
+    const rows = await tx
+      .insert(schema.user)
+      .values({ id: randomUUID(), ...data, passwordHash: null })
+      .returning();
+
+    return rows[0] as User;
   }
 
   toSafeUser(user: User): SafeUser {
