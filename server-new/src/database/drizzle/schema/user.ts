@@ -29,7 +29,7 @@ export const user = pgTable(
     createdAt: timestamp('createdAt').defaultNow().notNull(),
     updatedAt: timestamp('updatedAt').defaultNow().notNull(),
   },
-  (table) => [{ name: 'User_role_idx', columns: [table.role] }],
+  (table) => [index('User_role_idx').on(table.role)],
 );
 export const authIdentity = pgTable(
   'AuthIdentity',

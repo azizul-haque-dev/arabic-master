@@ -39,6 +39,9 @@ export const ALLOWED_CATEGORIES = [
 
 export type WordCategory = (typeof ALLOWED_CATEGORIES)[number];
 
+export const DEFAULT_CATEGORY: WordCategory =
+  'High-Frequency Mixed Vocabulary & Sentences';
+
 export function isValidCategory(value: string): value is WordCategory {
   return (ALLOWED_CATEGORIES as readonly string[]).includes(value);
 }

@@ -2,7 +2,10 @@ import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { eq } from 'drizzle-orm';
 import { PinoLogger } from 'nestjs-pino';
-import { isValidCategory } from '../../common/constants/category.constant.js';
+import {
+  DEFAULT_CATEGORY,
+  isValidCategory,
+} from '../../common/constants/category.constant.js';
 import { WORD_QUEUE_NAME } from '../../config/constants.js';
 import { DatabaseService } from '../../database/drizzle/db.service.js';
 import * as schema from '../../database/drizzle/schema.js';
@@ -43,10 +46,10 @@ export class WordProcessor extends WorkerHost {
     // AI-r category-o defensive check — zod enum thakleo double-check
     const category = isValidCategory(result.category)
       ? result.category
-      : 'GENERAL';
+      : DEFAULT_CATEGORY;
     if (category !== result.category) {
       this.logger.warn(
-        `AI returned unknown category "${result.category}" for word ${wordId} — defaulted to GENERAL.`,
+        `AI returned unknown category "${result.category}" for word ${wordId} — defaulted to ${DEFAULT_CATEGORY}.`,
       );
     }
 

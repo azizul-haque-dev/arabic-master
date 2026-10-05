@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { and, eq, inArray, isNull } from 'drizzle-orm';
+import { PinoLogger } from 'nestjs-pino';
 import { randomUUID } from 'node:crypto';
 import { DatabaseService } from '../../../database/drizzle/db.service.js';
 import * as schema from '../../../database/drizzle/schema.js';
@@ -14,7 +15,10 @@ export class SessionService {
     private readonly redis: RedisService,
     private readonly tokenService: TokenService,
     private readonly securityLogger: SecurityLoggerService,
-  ) {}
+    private readonly logger: PinoLogger,
+  ) {
+    this.logger.setContext(SessionService.name);
+  }
 
   async createSession(params: {
     userId: string;
@@ -26,6 +30,7 @@ export class SessionService {
     refreshToken: string;
     refreshTokenExpiresAt: Date;
   }> {
+    await this.revokeAllSessionsForUser(params.userId);
     const refreshTokenExpiresAt = this.tokenService.getRefreshTokenExpiryDate();
     const sessionRows = await this.db.db
       .insert(schema.session)
@@ -54,6 +59,18 @@ export class SessionService {
       tokenHash: this.tokenService.hashToken(refreshToken),
       expiresAt: refreshTokenExpiresAt,
     });
+
+    const ttlSeconds = Math.ceil(
+      (refreshTokenExpiresAt.getTime() - Date.now()) / 1000,
+    );
+    try {
+      await this.redis.setActiveSession(params.userId, session.id, ttlSeconds);
+    } catch (error) {
+      this.logger.error(
+        { err: error, userId: params.userId, sessionId: session.id },
+        'Failed to cache active session in Redis',
+      );
+    }
 
     return {
       sessionId: session.id,
@@ -184,10 +201,7 @@ export class SessionService {
         .returning(),
     ]);
 
-    await this.redis.revokeSession(
-      sessionId,
-      this.tokenService.getAccessTokenTtlSeconds(),
-    );
+    await this.cacheRevokedSession(sessionId);
   }
 
   async revokeAllSessionsForUser(userId: string): Promise<void> {
@@ -197,6 +211,7 @@ export class SessionService {
       .where(and(eq(schema.session.userId, userId), isNull(schema.session.revokedAt)));
 
     const sessionIds = sessions.map((s) => s.id);
+    if (sessionIds.length === 0) return;
 
     await Promise.all([
       this.db.db
@@ -213,7 +228,30 @@ export class SessionService {
 
     const ttl = this.tokenService.getAccessTokenTtlSeconds();
     await Promise.all(
-      sessions.map((s) => this.redis.revokeSession(s.id, ttl)),
+      sessions.map(async (session) => {
+        try {
+          await this.redis.revokeSession(session.id, ttl);
+        } catch (error) {
+          this.logger.error(
+            { err: error, sessionId: session.id },
+            'Failed to cache revoked session in Redis',
+          );
+        }
+      }),
     );
+  }
+
+  private async cacheRevokedSession(sessionId: string): Promise<void> {
+    try {
+      await this.redis.revokeSession(
+        sessionId,
+        this.tokenService.getAccessTokenTtlSeconds(),
+      );
+    } catch (error) {
+      this.logger.error(
+        { err: error, sessionId },
+        'Failed to cache revoked session in Redis',
+      );
+    }
   }
 }

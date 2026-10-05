@@ -42,4 +42,22 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     const exists = await this.client.exists(`revoked-session:${sessionId}`);
     return exists === 1;
   }
+
+  async setActiveSession(
+    userId: string,
+    sessionId: string,
+    ttlSeconds: number,
+  ): Promise<void> {
+    if (ttlSeconds <= 0) return;
+    await this.client.set(
+      `user:${userId}:activesession`,
+      sessionId,
+      'EX',
+      ttlSeconds,
+    );
+  }
+
+  async getActiveSession(userId: string): Promise<string | null> {
+    return this.client.get(`user:${userId}:activesession`);
+  }
 }

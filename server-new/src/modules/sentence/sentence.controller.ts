@@ -43,9 +43,9 @@ export class SentenceController {
   @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
   async create(
     @Body() dto: CreateSentenceDto,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: { userId: string },
   ) {
-    const sentence = await this.sentenceService.create(dto, user.id);
+    const sentence = await this.sentenceService.create(dto, user.userId);
     return { message: 'Sentence created', data: sentence };
   }
 
@@ -54,11 +54,11 @@ export class SentenceController {
   @Roles(Role.CONTENT_MANAGER, Role.ADMIN)
   async generate(
     @Body() dto: GenerateContentDto,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: { userId: string },
   ) {
     const sentence = await this.sentenceService.generateWithAi(
       dto.query,
-      user.id,
+      user.userId,
     );
     return { message: 'Sentence queued for AI processing', data: sentence };
   }

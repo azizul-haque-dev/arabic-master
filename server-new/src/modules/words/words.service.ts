@@ -1,15 +1,25 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
-import { count, eq } from 'drizzle-orm';
+import {
+  and,
+  count,
+  desc,
+  eq,
+  getTableColumns,
+  ilike,
+  or,
+} from 'drizzle-orm';
 import { Queue } from 'bullmq';
 import { randomUUID } from 'node:crypto';
+import { DEFAULT_CATEGORY } from '../../common/constants/category.constant.js';
+import { isUniqueViolation } from '../../common/utils/db-error.util.js';
 import { AiService } from '../ai/ai.service.js';
 import { ArabicEntityService } from '../arabic-entities/arabic-entities.service.js';
 import { WORD_QUEUE_NAME } from '../../config/constants.js';
 import { DatabaseService } from '../../database/drizzle/db.service.js';
 import { ContentStatus, WordType } from '../../database/drizzle/enums.js';
 import * as schema from '../../database/drizzle/schema.js';
-import { normalizeWhere } from '../../database/drizzle/query.utils.js';
+import { normalizeArabicText } from '../../common/utils/normalize-arabic.util.js';
 import { CreateWordDto } from './dto/create-word.dto.js';
 import { ListWordQueryDto } from './dto/list-word-query.dto.js';
 import { UpdateWordDto } from './dto/update-word.dto.js';
@@ -27,23 +37,49 @@ export class WordService {
 
   async list(query: ListWordQueryDto) {
     const { page, limit, category, status, search } = query;
-    const where = {
-      ...(category ? { category } : {}),
-      ...(status ? { status } : {}),
-      ...(search ? { OR: [{ entity: { arabicText: { contains: search, mode: 'insensitive' as const } } }, { meaningEn: { contains: search, mode: 'insensitive' as const } }, { meaningBn: { contains: search, mode: 'insensitive' as const } }] } : {}),
-    };
-    const condition = normalizeWhere(schema.word, where);
-    const queryBuilder = this.db.db
-      .select()
-      .from(schema.word)
-      .offset((page - 1) * limit)
-      .limit(limit);
+    const conditions = [];
+    if (category) conditions.push(eq(schema.word.category, category));
+    if (status) conditions.push(eq(schema.word.status, status));
+    if (search) {
+      const escaped = search.replace(/[\\%_]/g, '\\$&');
+      const pattern = `%${escaped}%`;
+      const normalizedPattern = `%${normalizeArabicText(search).replace(/[\\%_]/g, '\\$&')}%`;
+      const searchCondition = or(
+        ilike(schema.arabicEntity.arabicText, pattern),
+        ilike(schema.arabicEntity.normalizedText, normalizedPattern),
+        ilike(schema.word.meaningEn, pattern),
+        ilike(schema.word.meaningBn, pattern),
+      );
+      if (searchCondition) conditions.push(searchCondition);
+    }
+    const condition = and(...conditions);
     const [countRows, items] = await Promise.all([
       this.db.db
         .select({ count: count() })
         .from(schema.word)
-        .where(condition ?? undefined),
-      condition ? queryBuilder.where(condition) : queryBuilder,
+        .innerJoin(
+          schema.arabicEntity,
+          eq(schema.word.entityId, schema.arabicEntity.id),
+        )
+        .where(condition),
+      this.db.db
+        .select({
+          ...getTableColumns(schema.word),
+          entity: {
+            arabicText: schema.arabicEntity.arabicText,
+            audioUrl: schema.arabicEntity.audioUrl,
+            normalizedText: schema.arabicEntity.normalizedText,
+          },
+        })
+        .from(schema.word)
+        .innerJoin(
+          schema.arabicEntity,
+          eq(schema.word.entityId, schema.arabicEntity.id),
+        )
+        .where(condition)
+        .orderBy(desc(schema.word.createdAt), desc(schema.word.id))
+        .offset((page - 1) * limit)
+        .limit(limit),
     ]);
     const total = Number(countRows[0]?.count ?? 0);
 
@@ -132,8 +168,8 @@ export class WordService {
     } else {
       try {
         entity = await this.arabicEntityService.create({ arabicText: text, createdById });
-      } catch (error: any) {
-        if (error?.code === 'P2002') {
+      } catch (error) {
+        if (isUniqueViolation(error)) {
           entity = await this.arabicEntityService.findByNormalizedText(text);
           if (!entity) throw error;
           const existingRows = await this.db.db
@@ -164,7 +200,7 @@ export class WordService {
         pronunciationBn: placeholder,
         feminineEn: placeholder,
         feminineBn: placeholder,
-        category: 'GENERAL',
+        category: DEFAULT_CATEGORY,
         status: ContentStatus.DRAFT,
         createdById,
       })

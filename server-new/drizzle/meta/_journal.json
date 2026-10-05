@@ -8,6 +8,13 @@
       "when": 1790940183875,
       "tag": "0000_chief_viper",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791237321155,
+      "tag": "0001_wide_spiral",
+      "breakpoints": true
     }
   ]
 }

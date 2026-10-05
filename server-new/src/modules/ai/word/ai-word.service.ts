@@ -3,7 +3,11 @@ import { eq } from 'drizzle-orm';
 import { PinoLogger } from 'nestjs-pino';
 import { randomUUID } from 'node:crypto';
 
-import { isValidCategory } from '../../../common/constants/category.constant.js';
+import {
+  DEFAULT_CATEGORY,
+  isValidCategory,
+} from '../../../common/constants/category.constant.js';
+import { isUniqueViolation } from '../../../common/utils/db-error.util.js';
 import { normalizeArabicText } from '../../../common/utils/normalize-arabic.util.js';
 import { DatabaseService } from '../../../database/drizzle/db.service.js';
 import * as schema from '../../../database/drizzle/schema.js';
@@ -49,28 +53,49 @@ export class AiWordService {
 
     const category = isValidCategory(result.category)
       ? result.category
-      : 'GENERAL';
+      : DEFAULT_CATEGORY;
     if (category !== result.category) {
       this.logger.warn(
-        `AI returned unknown category "${result.category}" — defaulted to GENERAL.`,
+        `AI returned unknown category "${result.category}" — defaulted to ${DEFAULT_CATEGORY}.`,
       );
     }
 
     if (!entity) {
-      const createdEntity = await this.db.db
-        .insert(schema.arabicEntity)
-        .values({
-          id: randomUUID(),
-          entityKey: `entity-${randomUUID()}`,
-          arabicText: text,
-          normalizedText,
-          pronunciationBangla: result.pronunciationBn,
-          pronunciationEnglish: result.pronunciationEn,
-          ...(createdById ? { createdById } : {}),
-        })
-        .returning();
+      try {
+        const createdEntity = await this.db.db
+          .insert(schema.arabicEntity)
+          .values({
+            id: randomUUID(),
+            entityKey: `entity-${randomUUID()}`,
+            arabicText: text,
+            normalizedText,
+            pronunciationBangla: result.pronunciationBn,
+            pronunciationEnglish: result.pronunciationEn,
+            ...(createdById ? { createdById } : {}),
+          })
+          .returning();
 
-      entity = createdEntity[0] ?? null;
+        entity = createdEntity[0] ?? null;
+      } catch (error) {
+        if (!isUniqueViolation(error)) throw error;
+        entityRows = await this.db.db
+          .select()
+          .from(schema.arabicEntity)
+          .where(eq(schema.arabicEntity.normalizedText, normalizedText))
+          .limit(1);
+        entity = entityRows[0] ?? null;
+        if (entity) {
+          const existingWordRows = await this.db.db
+            .select()
+            .from(schema.word)
+            .where(eq(schema.word.entityId, entity.id))
+            .limit(1);
+          if (existingWordRows[0]) return existingWordRows[0];
+        }
+        throw new ConflictException(
+          'This word was just created by another request. Please retry.',
+        );
+      }
     }
 
     try {
@@ -96,8 +121,22 @@ export class AiWordService {
         .returning();
 
       return rows[0];
-    } catch (error: any) {
-      if (error?.code === 'P2002') {
+    } catch (error) {
+      if (isUniqueViolation(error)) {
+        const currentEntityRows = await this.db.db
+          .select()
+          .from(schema.arabicEntity)
+          .where(eq(schema.arabicEntity.normalizedText, normalizedText))
+          .limit(1);
+        const currentEntity = currentEntityRows[0] ?? null;
+        if (currentEntity) {
+          const existingWordRows = await this.db.db
+            .select()
+            .from(schema.word)
+            .where(eq(schema.word.entityId, currentEntity.id))
+            .limit(1);
+          if (existingWordRows[0]) return existingWordRows[0];
+        }
         throw new ConflictException(
           'This word was just created by another request. Please retry.',
         );

@@ -4,7 +4,10 @@ import { eq } from 'drizzle-orm';
 import { Job } from 'bullmq';
 import { randomUUID } from 'node:crypto';
 
-import { isValidCategory } from '../../common/constants/category.constant.js';
+import {
+  DEFAULT_CATEGORY,
+  isValidCategory,
+} from '../../common/constants/category.constant.js';
 import { cleanTextAndSpaces } from '../../common/utils/normalize-arabic.util.js';
 import { SENTENCE_QUEUE_NAME } from '../../config/constants.js';
 import { DatabaseService } from '../../database/drizzle/db.service.js';
@@ -65,10 +68,10 @@ export class SentenceProcessor extends WorkerHost {
 
     const category = isValidCategory(result.category)
       ? result.category
-      : 'GENERAL';
+      : DEFAULT_CATEGORY;
     if (category !== result.category) {
       this.logger.warn(
-        `AI returned unknown category "${result.category}" for sentence ${sentenceId} — defaulted to GENERAL.`,
+        `AI returned unknown category "${result.category}" for sentence ${sentenceId} — defaulted to ${DEFAULT_CATEGORY}.`,
       );
     }
 
