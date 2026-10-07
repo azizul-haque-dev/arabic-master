@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, BookX, Trash2 } from "lucide-react";
 import { ContentPageHeader } from "@/components/shared/content-page-header";
@@ -13,20 +13,52 @@ import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmatio
 import { WordFormDialog } from "@/components/features/words/word-form-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { mockWords } from "@/lib/mock-data/words";
 import type { ArabicEntity, ContentStatus, Word, WordFormValues } from "@/lib/types/content";
 import { WORD_TYPE_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
+import { buildWordPayload, createWord, deleteWord, fetchWords } from "@/lib/words/api";
 
-export function WordListView() {
+export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
   const router = useRouter();
   const { role } = useRole();
 
-  const [words, setWords] = useState<Word[]>(mockWords);
+  const [words, setWords] = useState<Word[]>(initialWords);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<Set<ContentStatus>>(new Set());
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Word | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setWords(initialWords);
+  }, [initialWords]);
+
+  useEffect(() => {
+    let active = true;
+    setIsLoading(true);
+
+    fetchWords({
+      page: 1,
+      limit: 20,
+      search: search.trim() || undefined,
+      status: statusFilter.size === 1 ? Array.from(statusFilter)[0] : undefined,
+    })
+      .then((result) => {
+        if (!active) return;
+        setWords(result.items);
+      })
+      .catch(() => {
+        if (!active) return;
+        setWords([]);
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [search, statusFilter]);
 
   const filtered = useMemo(() => {
     return words.filter((word) => {
@@ -43,23 +75,23 @@ export function WordListView() {
     });
   }, [words, search, statusFilter]);
 
-  function handleCreate(entity: ArabicEntity, values: WordFormValues) {
-    const newWord: Word = {
-      id: crypto.randomUUID(),
-      wordKey: `W-${2000 + words.length + 1}`,
-      entityId: entity.id,
-      arabicText: entity.arabicText,
-      ...values,
-      status: "DRAFT",
-      createdBy: role === "ADMIN" ? "You (Admin)" : "You (Content Manager)",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    setWords((prev) => [newWord, ...prev]);
+  async function handleCreate(entity: ArabicEntity, values: WordFormValues) {
+    try {
+      const savedWord = await createWord(buildWordPayload(values, entity));
+      setWords((prev) => [savedWord, ...prev]);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
-  function handleDelete(word: Word) {
-    setWords((prev) => prev.filter((w) => w.id !== word.id));
+  async function handleDelete(word: Word) {
+    try {
+      await deleteWord(word.id);
+      setWords((prev) => prev.filter((w) => w.id !== word.id));
+      setDeleteTarget(null);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   const columns: DataTableColumn<Word>[] = [
@@ -131,6 +163,8 @@ export function WordListView() {
         }
       />
 
+      {isLoading ? <div className="text-sm text-text-muted">Loading words…</div> : null}
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
           <ContentSearch value={search} onChange={setSearch} placeholder="Search Arabic, English, Bangla, category..." />
@@ -162,7 +196,7 @@ export function WordListView() {
           columns={columns}
           rows={filtered}
           rowKey={(w) => w.id}
-          onRowClick={(w) => router.push(`/words/${w.id}`)}
+          onRowClick={(w) => router.push(`/admin/words/${w.id}`)}
           renderMobileCard={(w) => (
             <div className="flex flex-col gap-2">
               <div className="flex items-start justify-between">
@@ -191,7 +225,7 @@ export function WordListView() {
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title="Delete this word?"
         description="This action cannot be undone. The underlying Arabic Entity is not affected."
-        onConfirm={() => deleteTarget && handleDelete(deleteTarget)}
+        onConfirm={() => deleteTarget && void handleDelete(deleteTarget)}
       />
     </div>
   );

@@ -88,8 +88,20 @@ export class WordService {
 
   async getById(id: string) {
     const rows = await this.db.db
-      .select()
+      .select({
+        ...getTableColumns(schema.word),
+        arabicText: schema.arabicEntity.arabicText,
+        entity: {
+          arabicText: schema.arabicEntity.arabicText,
+          audioUrl: schema.arabicEntity.audioUrl,
+          normalizedText: schema.arabicEntity.normalizedText,
+        },
+      })
       .from(schema.word)
+      .innerJoin(
+        schema.arabicEntity,
+        eq(schema.word.entityId, schema.arabicEntity.id),
+      )
       .where(eq(schema.word.id, id))
       .limit(1);
     const word = rows[0] ?? null;

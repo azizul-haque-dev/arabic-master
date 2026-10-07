@@ -13,6 +13,7 @@ import { mockArabicEntities } from "@/lib/mock-data/arabic-entities";
 import type { ArabicEntity, ContentStatus, Word, WordFormValues } from "@/lib/types/content";
 import { WORD_TYPE_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
+import { buildWordUpdatePayload, updateWord } from "@/lib/words/api";
 
 export function WordDetailView({ initialWord }: { initialWord: Word }) {
   const { role } = useRole();
@@ -26,20 +27,27 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
     setWord((prev) => ({ ...prev, status, rejectionReason, updatedAt: new Date().toISOString() }));
   }
 
-  function handleSave(entity: ArabicEntity, values: WordFormValues) {
-    setWord((prev) => ({
-      ...prev,
-      entityId: entity.id,
-      arabicText: entity.arabicText,
-      ...values,
-      updatedAt: new Date().toISOString(),
-    }));
+  async function handleSave(entity: ArabicEntity, values: WordFormValues) {
+    try {
+      const savedWord = await updateWord(word.id, buildWordUpdatePayload(values));
+      const { entityId: _entityId, arabicText: _arabicText, ...restSavedWord } = savedWord;
+
+      setWord((prev) => ({
+        ...prev,
+        ...restSavedWord,
+        entityId: entity.id,
+        arabicText: entity.arabicText,
+        updatedAt: new Date().toISOString(),
+      }));
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
     <div className="flex flex-col gap-6">
       <nav className="flex items-center gap-1.5 text-xs text-text-muted" aria-label="Breadcrumb">
-        <Link href="/words" className="hover:text-text">
+        <Link href="/admin/words" className="hover:text-text">
           Words
         </Link>
         <ChevronRight className="h-3 w-3" aria-hidden="true" />
