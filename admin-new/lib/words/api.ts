@@ -10,6 +10,38 @@ export interface WordListResponse {
   };
 }
 
+interface WordApiEntity {
+  arabicText?: string | null;
+}
+
+interface WordApiRecord {
+  id?: string | null;
+  wordKey?: string | null;
+  entityId?: string | null;
+  arabicText?: string | null;
+  entity?: WordApiEntity | null;
+  meaningBn?: string | null;
+  meaningBangla?: string | null;
+  meaningEn?: string | null;
+  meaningEnglish?: string | null;
+  pronunciationBn?: string | null;
+  pronunciationBangla?: string | null;
+  pronunciationEn?: string | null;
+  pronunciationEnglish?: string | null;
+  whenToUseBn?: string | null;
+  whenToUseBangla?: string | null;
+  whenToUseEn?: string | null;
+  whenToUseEnglish?: string | null;
+  wordType?: string | null;
+  category?: string | null;
+  status?: string | null;
+  rejectionReason?: string | null;
+  createdBy?: string | null;
+  createdById?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
 const DEFAULT_META = {
   page: 1,
   limit: 20,
@@ -17,14 +49,14 @@ const DEFAULT_META = {
   totalPages: 1,
 };
 
-function normalizeWordType(value?: string): WordType {
+function normalizeWordType(value?: string | null): WordType {
   if (value === "NOUN" || value === "VERB" || value === "ADJECTIVE" || value === "OTHER") {
     return value;
   }
   return "OTHER";
 }
 
-function normalizeStatus(value?: string): ContentStatus {
+function normalizeStatus(value?: string | null): ContentStatus {
   if (
     value === "DRAFT" ||
     value === "IN_REVIEW" ||
@@ -38,7 +70,7 @@ function normalizeStatus(value?: string): ContentStatus {
   return "DRAFT";
 }
 
-export function normalizeWord(raw: any): Word {
+export function normalizeWord(raw: WordApiRecord | null | undefined): Word {
   const entity = raw?.entity ?? {};
 
   return {
