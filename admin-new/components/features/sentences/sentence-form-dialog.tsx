@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ContentSearch } from "@/components/shared/content-search";
-import { fetchRelatedWords } from "@/lib/sentences/api";
+import { listWordsAction } from "@/actions/content/word-actions";
 import { SENTENCE_CATEGORIES } from "@/lib/sentences/categories";
 import type { Sentence, SentenceFormValues, Word } from "@/lib/types/content";
 import { DIFFICULTY_LABEL } from "@/lib/types/content";
@@ -58,10 +58,16 @@ export function SentenceFormDialog({
         if (!open) return;
         let active = true;
         const query = wordSearch.trim();
-        fetchRelatedWords(query)
+        listWordsAction({ page: 1, limit: 100, search: query || undefined })
             .then((result) => {
                 if (!active) return;
-                setWords(result);
+                if (!result.success) {
+                    setWords([]);
+                    setLoadedWordQuery(query);
+                    setWordsError(result.error);
+                    return;
+                }
+                setWords(result.data.items);
                 setLoadedWordQuery(query);
                 setWordsError(null);
             })

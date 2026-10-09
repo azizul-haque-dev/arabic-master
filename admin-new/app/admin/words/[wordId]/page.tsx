@@ -1,29 +1,32 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { WordDetailView } from "@/components/features/words/word-detail-view";
-import { serverApiFetch } from "@/lib/auth/server-api";
-import { normalizeWord } from "@/lib/words/api";
+import { contentIdSchema } from "@/lib/content/validation";
+import { getWordForAdmin } from "@/lib/words/data";
+import Loading from "./loading";
 
-export default async function WordDetailPage({
+export default function WordDetailPage({
+  params,
+}: {
+  params: Promise<{ wordId: string }>;
+}) {
+  return (
+    <Suspense fallback={<Loading />}>
+      <WordDetailData params={params} />
+    </Suspense>
+  );
+}
+
+async function WordDetailData({
   params,
 }: {
   params: Promise<{ wordId: string }>;
 }) {
   const { wordId } = await params;
-  const response = await serverApiFetch(`/words/${wordId}`, {
-    cache: "no-store",
-  });
+  const parsedId = contentIdSchema.safeParse(wordId);
+  if (!parsedId.success) notFound();
+  const word = await getWordForAdmin(parsedId.data);
 
-  if (!response.ok) {
-    notFound();
-  }
-
-  const payload = await response.json().catch(() => null);
-  const body = payload?.data?.data ?? payload?.data ?? payload;
-  const word = normalizeWord(body);
-
-  if (!word?.id) {
-    notFound();
-  }
-
+  if (!word) notFound();
   return <WordDetailView initialWord={word} />;
 }

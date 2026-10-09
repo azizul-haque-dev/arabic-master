@@ -39,17 +39,36 @@ export function WordFormDialog({
   onOpenChange: (open: boolean) => void;
   /** Pass an existing word to edit it (entity becomes fixed); omit to create a new one. */
   initialWord?: Word;
-  onSave: (entity: ArabicEntity, values: WordFormValues) => void;
+  onSave: (entity: ArabicEntity, values: WordFormValues) => Promise<void>;
 }) {
   const isEditing = Boolean(initialWord);
   const initialEntity = initialWord
-    ? mockArabicEntities.find((e) => e.id === initialWord.entityId) ?? null
+    ? {
+        id: initialWord.entityId,
+        entityKey: initialWord.entityId,
+        arabicText: initialWord.arabicText,
+        normalizedText: initialWord.arabicText.trim(),
+        meaningBangla: initialWord.meaningBangla,
+        meaningEnglish: initialWord.meaningEnglish,
+        pronunciationBangla: initialWord.pronunciationBangla,
+        pronunciationEnglish: initialWord.pronunciationEnglish,
+        hasAudio: false,
+        status: initialWord.status,
+        wordUsageCount: 1,
+        sentenceUsageCount: 0,
+        conversationUsageCount: 0,
+        createdBy: initialWord.createdBy,
+        createdAt: initialWord.createdAt,
+        updatedAt: initialWord.updatedAt,
+      }
     : null;
 
   const [step, setStep] = useState<"entity" | "details">(isEditing ? "details" : "entity");
   const [selectedEntity, setSelectedEntity] = useState<ArabicEntity | null>(initialEntity);
   const [entityCreateOpen, setEntityCreateOpen] = useState(false);
   const [entityCreatePrefill, setEntityCreatePrefill] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [values, setValues] = useState<WordFormValues>(
     initialWord
       ? {
@@ -89,8 +108,28 @@ export function WordFormDialog({
   }
 
   function handleClose(nextOpen: boolean) {
-    if (!nextOpen) reset();
+    if (isSaving) return;
+    if (!nextOpen) {
+      reset();
+      setSaveError(null);
+    }
     onOpenChange(nextOpen);
+  }
+
+  async function handleSave() {
+    if (!selectedEntity || isSaving) return;
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      await onSave(selectedEntity, values);
+      reset();
+      setSaveError(null);
+      onOpenChange(false);
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Unable to save word.");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   function handleEntitySelected(entity: ArabicEntity) {
@@ -260,22 +299,28 @@ export function WordFormDialog({
                 </div>
               </div>
 
+              {saveError ? <p role="alert" className="text-sm text-error-text">{saveError}</p> : null}
+
               <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-                <Button variant="ghost" onClick={() => handleClose(false)}>
+                <Button variant="ghost" disabled={isSaving} onClick={() => handleClose(false)}>
                   Cancel
                 </Button>
                 <Button
                   variant="primary"
                   disabled={
-                    !selectedEntity || !values.meaningEnglish.trim() || !values.category.trim()
+                    !selectedEntity ||
+                    isSaving ||
+                    !values.meaningEnglish.trim() ||
+                    !values.meaningBangla.trim() ||
+                    !values.pronunciationEnglish.trim() ||
+                    !values.pronunciationBangla.trim() ||
+                    !values.whenToUseEnglish.trim() ||
+                    !values.whenToUseBangla.trim() ||
+                    !values.category.trim()
                   }
-                  onClick={() => {
-                    if (!selectedEntity) return;
-                    onSave(selectedEntity, values);
-                    handleClose(false);
-                  }}
+                  onClick={() => void handleSave()}
                 >
-                  Save draft
+                  {isSaving ? "Saving…" : "Save draft"}
                 </Button>
               </div>
             </div>

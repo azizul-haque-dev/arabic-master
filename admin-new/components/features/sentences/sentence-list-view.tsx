@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, MessageSquareOff, Trash2, Sparkles } from "lucide-react";
 import { ContentPageHeader } from "@/components/shared/content-page-header";
@@ -15,24 +15,31 @@ import { SentenceFormDialog } from "@/components/features/sentences/sentence-for
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SENTENCE_CATEGORIES } from "@/lib/sentences/categories";
-import { buildSentenceCreatePayload, createSentence, deleteSentence, fetchSentenceById, fetchSentences, generateSentence } from "@/lib/sentences/api";
+import { createSentenceAction, deleteSentenceAction, generateSentenceAction, getSentenceAction, listSentencesAction } from "@/actions/content/sentence-actions";
+import { buildSentenceCreatePayload } from "@/lib/sentences/api";
 import type { ContentStatus, Sentence, SentenceFormValues } from "@/lib/types/content";
 import { DIFFICULTY_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
 
 const PAGE_LIMIT = 20;
 
-export function SentenceListView() {
+export function SentenceListView({
+    initialSentences,
+    initialMeta,
+}: {
+    initialSentences: Sentence[];
+    initialMeta: { page: number; limit: number; total: number; totalPages: number };
+}) {
     const router = useRouter();
     const { role } = useRole();
-    const [sentences, setSentences] = useState<Sentence[]>([]);
+    const [sentences, setSentences] = useState<Sentence[]>(initialSentences);
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState<Set<ContentStatus>>(new Set());
     const [category, setCategory] = useState("");
-    const [page, setPage] = useState(1);
-    const [total, setTotal] = useState(0);
-    const [totalPages, setTotalPages] = useState(1);
-    const [isLoading, setIsLoading] = useState(true);
+    const [page, setPage] = useState(initialMeta.page);
+    const [total, setTotal] = useState(initialMeta.total);
+    const [totalPages, setTotalPages] = useState(initialMeta.totalPages);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [refreshToken, setRefreshToken] = useState(0);
     const [createOpen, setCreateOpen] = useState(false);
@@ -44,11 +51,16 @@ export function SentenceListView() {
     const [generationCheck, setGenerationCheck] = useState(0);
     const [isGenerating, setIsGenerating] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<Sentence | null>(null);
+    const firstListEffect = useRef(true);
 
     useEffect(() => {
+        if (firstListEffect.current) {
+            firstListEffect.current = false;
+            return;
+        }
         let active = true;
 
-        fetchSentences({
+        listSentencesAction({
             page,
             limit: PAGE_LIMIT,
             search: search.trim() || undefined,
@@ -57,14 +69,21 @@ export function SentenceListView() {
         })
             .then((result) => {
                 if (!active) return;
-                setSentences(result.items);
-                setTotal(result.meta.total);
-                setTotalPages(result.meta.totalPages);
-                if (page > result.meta.totalPages) setPage(result.meta.totalPages);
+                if (result.success) {
+                    setSentences(result.data.items);
+                    setTotal(result.data.meta.total);
+                    setTotalPages(result.data.meta.totalPages);
+                    if (page > result.data.meta.totalPages) setPage(result.data.meta.totalPages);
+                } else {
+                    setError(result.error);
+                    setSentences([]);
+                    setTotal(0);
+                    setTotalPages(1);
+                }
             })
-            .catch((cause: unknown) => {
+            .catch(() => {
                 if (!active) return;
-                setError(cause instanceof Error ? cause.message : "Unable to load sentences.");
+                setError("Unable to load sentences. Please try again.");
                 setSentences([]);
                 setTotal(0);
                 setTotalPages(1);
@@ -87,8 +106,13 @@ export function SentenceListView() {
 
         async function checkGeneration(id: string) {
             try {
-                const sentence = await fetchSentenceById(id);
+                const result = await getSentenceAction(id);
                 if (!active) return;
+                if (!result.success) {
+                    setGenerationMessage(result.error);
+                    return;
+                }
+                const sentence = result.data;
                 if (sentence.meaningEnglish.trim() && sentence.meaningBangla.trim()) {
                     setGenerationMessage(`AI generation completed for ${sentence.sentenceKey}.`);
                     setGenerationPendingId(null);
@@ -117,7 +141,8 @@ export function SentenceListView() {
     }, [generationPendingId, generationCheck]);
 
     async function handleCreate(values: SentenceFormValues) {
-        await createSentence(buildSentenceCreatePayload(values));
+        const result = await createSentenceAction(buildSentenceCreatePayload(values));
+        if (!result.success) throw new Error(result.error);
         setIsLoading(true);
         setError(null);
         setPage(1);
@@ -129,9 +154,19 @@ export function SentenceListView() {
         setIsGenerating(true);
         setGenerationError(null);
         try {
-            const queued = await generateSentence(generationQuery.trim());
-            setGenerationPendingId(queued.id);
-            setGenerationMessage(`AI generation queued for ${queued.sentenceKey}.`);
+            const result = await generateSentenceAction(generationQuery.trim());
+            if (!result.success) {
+                setGenerationError(result.error);
+                return;
+            }
+            const queued = result.data;
+            if (queued.meaningEnglish.trim() && queued.meaningBangla.trim()) {
+                setGenerationMessage(`Sentence ${queued.sentenceKey} is ready.`);
+                setGenerationPendingId(null);
+            } else {
+                setGenerationPendingId(queued.id);
+                setGenerationMessage(`AI generation queued for ${queued.sentenceKey}.`);
+            }
             setGenerationQuery("");
             setGenerateOpen(false);
             setIsLoading(true);
@@ -147,7 +182,11 @@ export function SentenceListView() {
 
     async function handleDelete(sentence: Sentence) {
         try {
-            await deleteSentence(sentence.id);
+            const result = await deleteSentenceAction(sentence.id);
+            if (!result.success) {
+                setError(result.error);
+                return;
+            }
             setDeleteTarget(null);
             setIsLoading(true);
             setError(null);
@@ -276,6 +315,7 @@ export function SentenceListView() {
                             setIsLoading(true);
                             setError(null);
                             setPage(1);
+                            setRefreshToken((value) => value + 1);
                         }}
                         placeholder="Search Arabic, English, Bangla..."
                     />

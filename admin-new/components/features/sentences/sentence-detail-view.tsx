@@ -8,7 +8,8 @@ import { ContentStatusBadge } from "@/components/shared/content-status-badge";
 import { SentenceFormDialog } from "@/components/features/sentences/sentence-form-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { buildSentenceUpdatePayload, resyncSentenceWords, updateSentence } from "@/lib/sentences/api";
+import { resyncSentenceWordsAction, updateSentenceAction } from "@/actions/content/sentence-actions";
+import { buildSentenceUpdatePayload } from "@/lib/sentences/api";
 import type { Sentence, SentenceFormValues, Word } from "@/lib/types/content";
 import { DIFFICULTY_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
@@ -29,8 +30,9 @@ export function SentenceDetailView({
     const [resyncError, setResyncError] = useState<string | null>(null);
 
     async function handleSave(values: SentenceFormValues): Promise<Sentence> {
-        const updated = await updateSentence(sentence.id, buildSentenceUpdatePayload(values));
-        const sentenceWithArabicText = { ...updated, arabicText: sentence.arabicText };
+        const result = await updateSentenceAction(sentence.id, buildSentenceUpdatePayload(values));
+        if (!result.success) throw new Error(result.error);
+        const sentenceWithArabicText = { ...result.data, arabicText: sentence.arabicText };
         setSentence(sentenceWithArabicText);
         router.refresh();
         return sentenceWithArabicText;
@@ -42,7 +44,11 @@ export function SentenceDetailView({
         setResyncError(null);
         setResyncMessage(null);
         try {
-            await resyncSentenceWords(sentence.id);
+            const result = await resyncSentenceWordsAction(sentence.id);
+            if (!result.success) {
+                setResyncError(result.error);
+                return;
+            }
             setResyncMessage("Word-link resync was queued.");
         } catch (cause) {
             setResyncError(cause instanceof Error ? cause.message : "Unable to queue word-link resync.");

@@ -4,44 +4,32 @@ import { useState } from "react";
 import Link from "next/link";
 import { ChevronRight, Pencil, XCircle, Sparkles } from "lucide-react";
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
-import { ContentActionBar } from "@/components/shared/content-action-bar";
-import { RejectionDialog } from "@/components/shared/rejection-dialog";
 import { WordFormDialog } from "@/components/features/words/word-form-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { mockArabicEntities } from "@/lib/mock-data/arabic-entities";
-import type { ArabicEntity, ContentStatus, Word, WordFormValues } from "@/lib/types/content";
+import { updateWordAction } from "@/actions/content/word-actions";
+import type { ArabicEntity, Word, WordFormValues } from "@/lib/types/content";
 import { WORD_TYPE_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
-import { buildWordUpdatePayload, updateWord } from "@/lib/words/api";
+import { buildWordUpdatePayload } from "@/lib/words/api";
+import { useRouter } from "next/navigation";
 
 export function WordDetailView({ initialWord }: { initialWord: Word }) {
+  const router = useRouter();
   const { role } = useRole();
   const [word, setWord] = useState(initialWord);
   const [editOpen, setEditOpen] = useState(false);
-  const [rejectOpen, setRejectOpen] = useState(false);
-
-  const sourceEntity = mockArabicEntities.find((e) => e.id === word.entityId);
-
-  function setStatus(status: ContentStatus, rejectionReason?: string) {
-    setWord((prev) => ({ ...prev, status, rejectionReason, updatedAt: new Date().toISOString() }));
-  }
 
   async function handleSave(entity: ArabicEntity, values: WordFormValues) {
-    try {
-      const savedWord = await updateWord(word.id, buildWordUpdatePayload(values));
-      const { entityId: _entityId, arabicText: _arabicText, ...restSavedWord } = savedWord;
-
-      setWord((prev) => ({
-        ...prev,
-        ...restSavedWord,
-        entityId: entity.id,
-        arabicText: entity.arabicText,
-        updatedAt: new Date().toISOString(),
-      }));
-    } catch (error) {
-      console.error(error);
-    }
+    const result = await updateWordAction(word.id, buildWordUpdatePayload(values));
+    if (!result.success) throw new Error(result.error);
+    setWord((prev) => ({
+      ...prev,
+      ...result.data,
+      entityId: entity.id,
+      arabicText: entity.arabicText,
+    }));
+    router.refresh();
   }
 
   return (
@@ -126,17 +114,9 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
             <p className="mt-1 text-xs text-text-muted">
               Signed in as {role === "ADMIN" ? "Admin" : "Content Manager"} — actions below reflect your role.
             </p>
-            <div className="mt-4">
-              <ContentActionBar
-                role={role}
-                status={word.status}
-                onSaveDraft={word.status === "DRAFT" ? () => setStatus("DRAFT") : undefined}
-                onSubmitForReview={() => setStatus("IN_REVIEW")}
-                onApprove={() => setStatus("APPROVED")}
-                onReject={() => setRejectOpen(true)}
-                onPublish={() => setStatus("PUBLISHED")}
-              />
-            </div>
+            <p className="mt-4 text-sm text-text-secondary">
+              This API does not currently support changing word review or publishing status.
+            </p>
           </section>
         </div>
 
@@ -146,22 +126,12 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
               <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
               Source Arabic Entity
             </h2>
-            {sourceEntity ? (
-              <Link
-                href={`/admin/arabic-entities/${sourceEntity.id}`}
-                className="mt-3 flex items-center justify-between rounded-default border border-border px-3.5 py-2.5 transition-colors hover:border-primary/40 hover:bg-primary-light/10"
-              >
-                <div>
-                  <p dir="rtl" lang="ar" className="font-arabic text-lg text-text">
-                    {sourceEntity.arabicText}
-                  </p>
-                  <p className="text-xs text-text-muted">{sourceEntity.entityKey}</p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-text-muted" aria-hidden="true" />
-              </Link>
-            ) : (
-              <p className="mt-2 text-xs text-text-muted">Source entity not found.</p>
-            )}
+            <div className="mt-3 rounded-default border border-border px-3.5 py-2.5">
+              <p dir="rtl" lang="ar" className="font-arabic text-lg text-text">
+                {word.arabicText || "Arabic text is unavailable."}
+              </p>
+              <p className="text-xs text-text-muted">Entity ID: {word.entityId}</p>
+            </div>
           </section>
 
           <section className="rounded-lg border border-border bg-white p-5 text-xs text-text-muted">
@@ -193,12 +163,6 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
       </div>
 
       <WordFormDialog open={editOpen} onOpenChange={setEditOpen} initialWord={word} onSave={handleSave} />
-
-      <RejectionDialog
-        open={rejectOpen}
-        onOpenChange={setRejectOpen}
-        onSubmit={(reason) => setStatus("REJECTED", reason)}
-      />
     </div>
   );
 }

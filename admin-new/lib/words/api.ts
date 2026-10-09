@@ -10,53 +10,47 @@ export interface WordListResponse {
   };
 }
 
-interface WordApiEntity {
-  arabicText?: string | null;
+export interface WordCreatePayload {
+  text: string;
+  meaningEn: string;
+  meaningBn: string;
+  pronunciationEn: string;
+  pronunciationBn: string;
+  whenToUseEn: string;
+  whenToUseBn: string;
+  wordType: WordType;
+  category: string;
+  feminineEn: string;
+  feminineBn: string;
 }
 
-interface WordApiRecord {
-  id?: string | null;
-  wordKey?: string | null;
-  entityId?: string | null;
-  arabicText?: string | null;
-  entity?: WordApiEntity | null;
-  meaningBn?: string | null;
-  meaningBangla?: string | null;
-  meaningEn?: string | null;
-  meaningEnglish?: string | null;
-  pronunciationBn?: string | null;
-  pronunciationBangla?: string | null;
-  pronunciationEn?: string | null;
-  pronunciationEnglish?: string | null;
-  whenToUseBn?: string | null;
-  whenToUseBangla?: string | null;
-  whenToUseEn?: string | null;
-  whenToUseEnglish?: string | null;
-  wordType?: string | null;
-  category?: string | null;
-  status?: string | null;
-  rejectionReason?: string | null;
-  createdBy?: string | null;
-  createdById?: string | null;
-  createdAt?: string | null;
-  updatedAt?: string | null;
+export type WordUpdatePayload = Omit<WordCreatePayload, "text">;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-const DEFAULT_META = {
-  page: 1,
-  limit: 20,
-  total: 0,
-  totalPages: 1,
-};
+function requiredString(record: Record<string, unknown>, key: string): string {
+  const value = record[key];
+  if (typeof value !== "string") {
+    throw new Error("The service returned an invalid word record.");
+  }
+  return value;
+}
 
-function normalizeWordType(value?: string | null): WordType {
+function optionalString(...values: unknown[]): string | undefined {
+  return values.find((value): value is string => typeof value === "string");
+}
+
+function normalizeWordType(value: unknown): WordType {
   if (value === "NOUN" || value === "VERB" || value === "ADJECTIVE" || value === "OTHER") {
     return value;
   }
-  return "OTHER";
+  if (value === "UNKNOWN") return "OTHER";
+  throw new Error("The service returned an invalid word type.");
 }
 
-function normalizeStatus(value?: string | null): ContentStatus {
+function normalizeStatus(value: unknown): ContentStatus {
   if (
     value === "DRAFT" ||
     value === "IN_REVIEW" ||
@@ -67,98 +61,65 @@ function normalizeStatus(value?: string | null): ContentStatus {
   ) {
     return value;
   }
-  return "DRAFT";
+  throw new Error("The service returned an invalid word status.");
 }
 
-export function normalizeWord(raw: WordApiRecord | null | undefined): Word {
-  const entity = raw?.entity ?? {};
+export function normalizeWord(raw: unknown, arabicTextOverride?: string): Word {
+  if (!isRecord(raw)) throw new Error("The service returned an invalid word record.");
+  const entity = isRecord(raw.entity) ? raw.entity : {};
+  const createdById = raw.createdById;
+  const rejectionReason = raw.rejectionReason;
+  if (createdById !== undefined && createdById !== null && typeof createdById !== "string") {
+    throw new Error("The service returned an invalid word creator.");
+  }
+  if (rejectionReason !== undefined && rejectionReason !== null && typeof rejectionReason !== "string") {
+    throw new Error("The service returned an invalid word rejection reason.");
+  }
 
   return {
-    id: raw?.id ?? "",
-    wordKey: raw?.wordKey ?? "",
-    entityId: raw?.entityId ?? "",
-    arabicText: raw?.arabicText ?? entity.arabicText ?? "",
-    meaningBangla: raw?.meaningBn ?? raw?.meaningBangla ?? "",
-    meaningEnglish: raw?.meaningEn ?? raw?.meaningEnglish ?? "",
-    pronunciationBangla: raw?.pronunciationBn ?? raw?.pronunciationBangla ?? "",
-    pronunciationEnglish: raw?.pronunciationEn ?? raw?.pronunciationEnglish ?? "",
-    whenToUseBangla: raw?.whenToUseBn ?? raw?.whenToUseBangla ?? "",
-    whenToUseEnglish: raw?.whenToUseEn ?? raw?.whenToUseEnglish ?? "",
-    wordType: normalizeWordType(raw?.wordType),
-    category: raw?.category ?? "",
-    status: normalizeStatus(raw?.status),
-    rejectionReason: raw?.rejectionReason ?? undefined,
-    createdBy: raw?.createdBy ?? raw?.createdById ?? "System",
-    createdAt: raw?.createdAt ?? new Date().toISOString(),
-    updatedAt: raw?.updatedAt ?? raw?.createdAt ?? new Date().toISOString(),
+    id: requiredString(raw, "id"),
+    wordKey: requiredString(raw, "wordKey"),
+    entityId: requiredString(raw, "entityId"),
+    arabicText: arabicTextOverride ?? optionalString(raw.arabicText, entity.arabicText) ?? "",
+    meaningBangla: optionalString(raw.meaningBn, raw.meaningBangla) ?? requiredString(raw, "meaningBn"),
+    meaningEnglish: optionalString(raw.meaningEn, raw.meaningEnglish) ?? requiredString(raw, "meaningEn"),
+    pronunciationBangla: optionalString(raw.pronunciationBn, raw.pronunciationBangla) ?? requiredString(raw, "pronunciationBn"),
+    pronunciationEnglish: optionalString(raw.pronunciationEn, raw.pronunciationEnglish) ?? requiredString(raw, "pronunciationEn"),
+    whenToUseBangla: optionalString(raw.whenToUseBn, raw.whenToUseBangla) ?? requiredString(raw, "whenToUseBn"),
+    whenToUseEnglish: optionalString(raw.whenToUseEn, raw.whenToUseEnglish) ?? requiredString(raw, "whenToUseEn"),
+    wordType: normalizeWordType(raw.wordType),
+    category: requiredString(raw, "category"),
+    status: normalizeStatus(raw.status),
+    rejectionReason: typeof rejectionReason === "string" ? rejectionReason : undefined,
+    createdBy: optionalString(raw.createdBy, createdById) ?? "Unknown",
+    createdAt: requiredString(raw, "createdAt"),
+    updatedAt: requiredString(raw, "updatedAt"),
   };
 }
 
-function getQueryString(params: Record<string, string | number | undefined>) {
-  const searchParams = new URLSearchParams();
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (typeof value === "number" && Number.isFinite(value)) {
-      searchParams.set(key, String(value));
-      return;
-    }
-
-    if (typeof value === "string" && value.trim()) {
-      searchParams.set(key, value);
-    }
-  });
-
-  const queryString = searchParams.toString();
-  return queryString ? `?${queryString}` : "";
-}
-
-export async function fetchWords(params: {
-  page?: number;
-  limit?: number;
-  search?: string;
-  status?: string;
-  category?: string;
-} = {}): Promise<WordListResponse> {
-  const response = await fetch(`/api/words${getQueryString(params)}`, {
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    return {
-      items: [],
-      meta: { ...DEFAULT_META, page: params.page ?? 1, limit: params.limit ?? DEFAULT_META.limit },
-    };
+export function normalizeWordList(raw: unknown): WordListResponse {
+  if (!isRecord(raw) || !Array.isArray(raw.items) || !isRecord(raw.meta)) {
+    throw new Error("The service returned an invalid word list.");
   }
-
-  const payload = await response.json();
-  const body = payload?.data?.data ?? payload?.data ?? payload;
-  const items = Array.isArray(body?.items) ? body.items.map(normalizeWord) : [];
-  const meta = body?.meta ?? { ...DEFAULT_META, page: params.page ?? 1, limit: params.limit ?? DEFAULT_META.limit };
-
+  const { page, limit, total, totalPages } = raw.meta;
+  if (
+    typeof page !== "number" ||
+    typeof limit !== "number" ||
+    typeof total !== "number" ||
+    typeof totalPages !== "number"
+  ) {
+    throw new Error("The service returned invalid word pagination data.");
+  }
   return {
-    items,
-    meta: {
-      page: Number(meta.page ?? params.page ?? 1),
-      limit: Number(meta.limit ?? params.limit ?? DEFAULT_META.limit),
-      total: Number(meta.total ?? 0),
-      totalPages: Number(meta.totalPages ?? 1),
-    },
+    items: raw.items.map((item) => normalizeWord(item)),
+    meta: { page, limit, total, totalPages },
   };
 }
 
-export async function fetchWordById(id: string): Promise<Word | null> {
-  const response = await fetch(`/api/words/${id}`, { cache: "no-store" });
-
-  if (!response.ok) {
-    return null;
-  }
-
-  const payload = await response.json();
-  const body = payload?.data?.data ?? payload?.data ?? payload ?? null;
-  return normalizeWord(body);
-}
-
-export function buildWordPayload(values: WordFormValues, entity: { arabicText: string }) {
+export function buildWordPayload(
+  values: WordFormValues,
+  entity: { arabicText: string },
+): WordCreatePayload {
   return {
     text: entity.arabicText,
     meaningEn: values.meaningEnglish,
@@ -174,7 +135,7 @@ export function buildWordPayload(values: WordFormValues, entity: { arabicText: s
   };
 }
 
-export function buildWordUpdatePayload(values: WordFormValues) {
+export function buildWordUpdatePayload(values: WordFormValues): WordUpdatePayload {
   return {
     meaningEn: values.meaningEnglish,
     meaningBn: values.meaningBangla,
@@ -187,49 +148,4 @@ export function buildWordUpdatePayload(values: WordFormValues) {
     feminineEn: values.meaningEnglish,
     feminineBn: values.meaningBangla,
   };
-}
-
-export async function createWord(payload: Record<string, unknown>) {
-  const response = await fetch("/api/words", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.json().catch(() => null);
-    throw new Error(errorBody?.message ?? "Unable to create word");
-  }
-
-  const body = await response.json();
-  const data = body?.data?.data ?? body?.data ?? body;
-  return normalizeWord(data);
-}
-
-export async function updateWord(id: string, payload: Record<string, unknown>) {
-  const response = await fetch(`/api/words/${id}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.json().catch(() => null);
-    throw new Error(errorBody?.message ?? "Unable to update word");
-  }
-
-  const body = await response.json();
-  const data = body?.data?.data ?? body?.data ?? body;
-  return normalizeWord(data);
-}
-
-export async function deleteWord(id: string) {
-  const response = await fetch(`/api/words/${id}`, {
-    method: "DELETE",
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.json().catch(() => null);
-    throw new Error(errorBody?.message ?? "Unable to delete word");
-  }
 }

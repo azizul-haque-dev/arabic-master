@@ -1,15 +1,21 @@
+import { Suspense } from "react";
 import { WordListView } from "@/components/features/words/word-list-view";
-import { serverApiFetch } from "@/lib/auth/server-api";
-import { normalizeWord } from "@/lib/words/api";
+import { getWordsForAdmin } from "@/lib/words/data";
+import Loading from "./loading";
 
-export default async function WordsPage() {
-  const response = await serverApiFetch("/words", {
-    cache: "no-store",
+export default function WordsPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <WordListData />
+    </Suspense>
+  );
+}
+
+async function WordListData() {
+  const result = await getWordsForAdmin({
+    page: 1,
+    limit: 20,
   });
 
-  const payload = await response.json().catch(() => null);
-  const body = payload?.data?.data ?? payload?.data ?? payload;
-  const initialWords = Array.isArray(body?.items) ? body.items.map(normalizeWord) : [];
-
-  return <WordListView initialWords={initialWords} />;
+  return <WordListView initialWords={result.items} />;
 }

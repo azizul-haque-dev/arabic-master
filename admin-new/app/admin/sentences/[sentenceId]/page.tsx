@@ -1,73 +1,38 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { SentenceDetailView } from "@/components/features/sentences/sentence-detail-view";
-import { serverApiFetch } from "@/lib/auth/server-api";
-import { normalizeSentence } from "@/lib/sentences/api";
-import { normalizeWord } from "@/lib/words/api";
+import { contentIdSchema } from "@/lib/content/validation";
+import { getSentenceForAdmin } from "@/lib/sentences/data";
+import Loading from "./loading";
 
-function getData(payload: unknown): unknown {
-    if (typeof payload !== "object" || payload === null || !("data" in payload)) return payload;
-    const outer = payload.data;
-    if (typeof outer === "object" && outer !== null && "data" in outer) return outer.data;
-    return outer;
+export default function SentenceDetailPage({
+  params,
+}: {
+  params: Promise<{ sentenceId: string }>;
+}) {
+  return (
+    <Suspense fallback={<Loading />}>
+      <SentenceDetailData params={params} />
+    </Suspense>
+  );
 }
 
-export default async function SentenceDetailPage({
-    params,
+async function SentenceDetailData({
+  params,
 }: {
-    params: Promise<{ sentenceId: string }>;
+  params: Promise<{ sentenceId: string }>;
 }) {
-    const { sentenceId } = await params;
-    const response = await serverApiFetch(`/sentences/${encodeURIComponent(sentenceId)}`, {
-        cache: "no-store",
-    });
+  const { sentenceId } = await params;
+  const parsedId = contentIdSchema.safeParse(sentenceId);
+  if (!parsedId.success) notFound();
 
-    if (response.status === 404) notFound();
-    if (!response.ok) {
-        throw new Error(`Unable to load sentence (${response.status}).`);
-    }
+  const detail = await getSentenceForAdmin(parsedId.data);
+  if (!detail) notFound();
 
-    const payload: unknown = await response.json();
-    const sentence = normalizeSentence(getData(payload));
-    let arabicText = sentence.arabicText;
-
-    if (!arabicText && sentence.meaningEnglish) {
-        const listResponse = await serverApiFetch(
-            `/sentences?search=${encodeURIComponent(sentence.meaningEnglish)}&limit=100`,
-            { cache: "no-store" },
-        );
-        if (listResponse.ok) {
-            const listPayload: unknown = await listResponse.json();
-            const listData = getData(listPayload);
-            if (
-                typeof listData === "object" &&
-                listData !== null &&
-                "items" in listData &&
-                Array.isArray(listData.items)
-            ) {
-                const matching = listData.items.map(normalizeSentence).find((item) => item.id === sentence.id);
-                arabicText = matching?.arabicText ?? "";
-            }
-        }
-    }
-
-    let relatedWord = undefined;
-    if (sentence.relatedWordId) {
-        const wordResponse = await serverApiFetch(`/words/${encodeURIComponent(sentence.relatedWordId)}`, {
-            cache: "no-store",
-        });
-        if (wordResponse.ok) {
-            const wordPayload: unknown = await wordResponse.json();
-            const wordData = getData(wordPayload);
-            if (typeof wordData === "object" && wordData !== null) {
-                relatedWord = normalizeWord(wordData as Parameters<typeof normalizeWord>[0]);
-            }
-        }
-    }
-
-    return (
-        <SentenceDetailView
-            initialSentence={{ ...sentence, arabicText }}
-            initialRelatedWord={relatedWord}
-        />
-    );
+  return (
+    <SentenceDetailView
+      initialSentence={detail.sentence}
+      initialRelatedWord={detail.relatedWord}
+    />
+  );
 }

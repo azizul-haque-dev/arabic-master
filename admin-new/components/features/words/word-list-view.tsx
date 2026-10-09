@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, BookX, Trash2 } from "lucide-react";
 import { ContentPageHeader } from "@/components/shared/content-page-header";
@@ -16,7 +16,8 @@ import { Button } from "@/components/ui/button";
 import type { ArabicEntity, ContentStatus, Word, WordFormValues } from "@/lib/types/content";
 import { WORD_TYPE_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
-import { buildWordPayload, createWord, deleteWord, fetchWords } from "@/lib/words/api";
+import { createWordAction, deleteWordAction, listWordsAction } from "@/actions/content/word-actions";
+import { buildWordPayload } from "@/lib/words/api";
 
 export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
   const router = useRouter();
@@ -28,69 +29,50 @@ export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Word | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const requestSequence = useRef(0);
 
-  useEffect(() => {
-    setWords(initialWords);
-  }, [initialWords]);
-
-  useEffect(() => {
-    let active = true;
+  async function loadWords(nextSearch: string, nextStatus: ContentStatus | undefined) {
+    const sequence = ++requestSequence.current;
     setIsLoading(true);
-
-    fetchWords({
-      page: 1,
-      limit: 20,
-      search: search.trim() || undefined,
-      status: statusFilter.size === 1 ? Array.from(statusFilter)[0] : undefined,
-    })
-      .then((result) => {
-        if (!active) return;
-        setWords(result.items);
-      })
-      .catch(() => {
-        if (!active) return;
-        setWords([]);
-      })
-      .finally(() => {
-        if (active) setIsLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [search, statusFilter]);
-
-  const filtered = useMemo(() => {
-    return words.filter((word) => {
-      const matchesStatus = statusFilter.size === 0 || statusFilter.has(word.status);
-      const needle = search.trim().toLowerCase();
-      const matchesSearch =
-        !needle ||
-        word.arabicText.includes(search.trim()) ||
-        word.meaningEnglish.toLowerCase().includes(needle) ||
-        word.meaningBangla.includes(search.trim()) ||
-        word.wordKey.toLowerCase().includes(needle) ||
-        word.category.toLowerCase().includes(needle);
-      return matchesStatus && matchesSearch;
-    });
-  }, [words, search, statusFilter]);
-
-  async function handleCreate(entity: ArabicEntity, values: WordFormValues) {
+    setError(null);
     try {
-      const savedWord = await createWord(buildWordPayload(values, entity));
-      setWords((prev) => [savedWord, ...prev]);
-    } catch (error) {
-      console.error(error);
+      const result = await listWordsAction({
+        page: 1,
+        limit: 20,
+        search: nextSearch.trim() || undefined,
+        status: nextStatus,
+      });
+      if (sequence !== requestSequence.current) return;
+      if (result.success) {
+        setWords(result.data.items);
+      } else {
+        setWords([]);
+        setError(result.error);
+      }
+    } catch {
+      if (sequence === requestSequence.current) {
+        setWords([]);
+        setError("Unable to load words. Please try again.");
+      }
+    } finally {
+      if (sequence === requestSequence.current) setIsLoading(false);
     }
   }
 
+  async function handleCreate(entity: ArabicEntity, values: WordFormValues) {
+    const result = await createWordAction(buildWordPayload(values, entity));
+    if (!result.success) throw new Error(result.error);
+    await loadWords(search, statusFilter.values().next().value);
+  }
+
   async function handleDelete(word: Word) {
-    try {
-      await deleteWord(word.id);
-      setWords((prev) => prev.filter((w) => w.id !== word.id));
+    const result = await deleteWordAction(word.id);
+    if (result.success) {
       setDeleteTarget(null);
-    } catch (error) {
-      console.error(error);
+      await loadWords(search, statusFilter.values().next().value);
+    } else {
+      setError(result.error);
     }
   }
 
@@ -163,23 +145,47 @@ export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
         }
       />
 
+      {error ? (
+        <div role="alert" className="flex items-center justify-between gap-3 rounded-default border border-error/20 bg-error-bg p-3 text-sm text-error-text">
+          <span>{error}</span>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => void loadWords(search, statusFilter.values().next().value)}
+          >
+            Retry
+          </Button>
+        </div>
+      ) : null}
+
       {isLoading ? <div className="text-sm text-text-muted">Loading words…</div> : null}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
-          <ContentSearch value={search} onChange={setSearch} placeholder="Search Arabic, English, Bangla, category..." />
+          <ContentSearch
+            value={search}
+            onChange={(value) => {
+              setSearch(value);
+              void loadWords(value, statusFilter.values().next().value);
+            }}
+            placeholder="Search Arabic, English, Bangla, category..."
+          />
           <ContentStatusFilter
             selected={statusFilter}
-            onChange={setStatusFilter}
+            onChange={(value) => {
+              setStatusFilter(value);
+              void loadWords(search, value.values().next().value);
+            }}
             options={["DRAFT", "IN_REVIEW", "APPROVED", "PUBLISHED", "REJECTED", "ARCHIVED"]}
+            singleSelection
           />
         </div>
         <p className="text-xs text-text-muted">
-          {filtered.length} {filtered.length === 1 ? "word" : "words"}
+          {words.length} {words.length === 1 ? "word" : "words"}
         </p>
       </div>
 
-      {filtered.length === 0 ? (
+      {!error && words.length === 0 ? (
         <EmptyState
           icon={BookX}
           title="No matching words found"
@@ -191,10 +197,10 @@ export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
             </Button>
           }
         />
-      ) : (
+      ) : words.length > 0 ? (
         <ContentDataTable
           columns={columns}
-          rows={filtered}
+          rows={words}
           rowKey={(w) => w.id}
           onRowClick={(w) => router.push(`/admin/words/${w.id}`)}
           renderMobileCard={(w) => (
@@ -216,7 +222,7 @@ export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
             </div>
           )}
         />
-      )}
+      ) : null}
 
       <WordFormDialog open={createOpen} onOpenChange={setCreateOpen} onSave={handleCreate} />
 
