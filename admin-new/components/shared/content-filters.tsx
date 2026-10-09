@@ -9,12 +9,18 @@ export function ContentStatusFilter({
   selected,
   onChange,
   options,
+  singleSelection = false,
 }: {
   selected: Set<ContentStatus>;
   onChange: (next: Set<ContentStatus>) => void;
   options: ContentStatus[];
+  singleSelection?: boolean;
 }) {
   function toggle(status: ContentStatus) {
+    if (singleSelection) {
+      onChange(selected.has(status) ? new Set() : new Set([status]));
+      return;
+    }
     const next = new Set(selected);
     if (next.has(status)) next.delete(status);
     else next.add(status);

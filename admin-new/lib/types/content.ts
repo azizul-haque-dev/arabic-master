@@ -122,11 +122,14 @@ export interface Sentence {
   pronunciationBangla: string;
   pronunciationEnglish: string;
   context: string; // when/how this sentence is typically used
+  contextBangla?: string;
+  feminineEnglish?: string;
+  feminineBangla?: string;
   difficulty: DifficultyLevel;
   category: string;
   relatedWordId?: string; // optional link to a Word that uses the same entity
-  usedInLessons: number;
-  usedInConversations: number;
+  usedInLessons?: number;
+  usedInConversations?: number;
   status: ContentStatus;
   rejectionReason?: string;
   createdBy: string;
@@ -140,8 +143,12 @@ export interface SentenceFormValues {
   pronunciationBangla: string;
   pronunciationEnglish: string;
   context: string;
+  contextBangla: string;
+  feminineEnglish: string;
+  feminineBangla: string;
   difficulty: DifficultyLevel;
   category: string;
+  arabicText: string;
   relatedWordId?: string;
 }
 
