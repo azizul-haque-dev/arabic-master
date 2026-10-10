@@ -6,6 +6,7 @@ import { PinoLogger } from 'nestjs-pino';
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
   public readonly client: Redis;
+  private isShuttingDown = false;
 
   constructor(
     private readonly config: ConfigService,
@@ -16,6 +17,23 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       lazyConnect: true,
       maxRetriesPerRequest: 3,
     });
+
+    this.client.on('error', (error: Error) => {
+      this.logger.error({ err: error }, 'Redis connection error');
+    });
+    this.client.on('close', () => {
+      if (!this.isShuttingDown) {
+        this.logger.warn('Redis connection closed');
+      }
+    });
+    this.client.on('reconnecting', (delay: number) => {
+      this.logger.warn({ delayMs: delay }, 'Redis reconnecting');
+    });
+    this.client.on('end', () => {
+      if (!this.isShuttingDown) {
+        this.logger.error('Redis connection ended; reconnect attempts exhausted');
+      }
+    });
   }
 
   async onModuleInit(): Promise<void> {
@@ -24,6 +42,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleDestroy(): Promise<void> {
+    this.isShuttingDown = true;
     await this.client.disconnect();
     this.logger.info('Redis disconnected');
   }
