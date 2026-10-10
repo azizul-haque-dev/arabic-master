@@ -20,6 +20,8 @@ import { AuthModule } from './modules/auth/auth.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 import { WordModule } from './modules/words/words.module.js';
 import { SentenceModule } from './modules/sentence/sentence.module.js';
+import { ConversationsModule } from './modules/conversations/conversations.module.js';
+import { CurriculumModule } from './modules/curriculum/curriculum.module.js';
 
 @Module({
   imports: [
@@ -112,6 +114,8 @@ import { SentenceModule } from './modules/sentence/sentence.module.js';
     AiModule,
     WordModule,
     SentenceModule,
+    ConversationsModule,
+    CurriculumModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: HttpExceptionFilter },
