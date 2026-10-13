@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { randomUUIDv7 } from 'node:crypto';
 import { DEFAULT_CATEGORY, isValidCategory } from '../../common/constants/category.constant.js';
 import { ConflictError } from '../../common/errors/app-error.js';
 import type { Logger } from '../../common/http/logger.js';
@@ -49,7 +49,7 @@ export function createAiWordService(d: {
 
     try {
       return await words.insert({
-        id: randomUUID(), wordKey: `word-${randomUUID()}`, entityId: entity.id, category,
+        id: randomUUIDv7(), wordKey: `word-${randomUUIDv7()}`, entityId: entity.id, category,
         meaningEn: result.meaningEn, meaningBn: result.meaningBn,
         whenToUseEn: result.whenToUseEn, whenToUseBn: result.whenToUseBn,
         pronunciationEn: result.pronunciationEn, pronunciationBn: result.pronunciationBn,

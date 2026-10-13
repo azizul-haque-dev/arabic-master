@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { randomUUIDv7 } from 'node:crypto';
 import { ConflictError, NotFoundError } from '../../../common/errors/app-error.js';
 import { paginated } from '../../../common/http/response.js';
 import type { UpdateStatusInput } from '../../../common/schemas.js';
@@ -37,7 +37,7 @@ export function createCourseService(repo: CourseRepository) {
     },
 
     create: (dto: CreateCourseInput, actor: RequestUser) =>
-      repo.insert({ id: randomUUID(), courseKey: `course_${randomUUID()}`, ...dto, status: ContentStatus.DRAFT, createdById: actor.userId }),
+      repo.insert({ id: randomUUIDv7(), courseKey: `course_${randomUUIDv7()}`, ...dto, status: ContentStatus.DRAFT, createdById: actor.userId }),
 
     async update(id: string, dto: UpdateCourseInput, actor: RequestUser) {
       const course = await findOrThrow(id);

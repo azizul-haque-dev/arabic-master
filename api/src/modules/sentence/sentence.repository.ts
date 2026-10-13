@@ -1,5 +1,5 @@
 import { and, count, desc, eq, getTableColumns, ilike, or, type SQL } from 'drizzle-orm';
-import { randomUUID } from 'node:crypto';
+import { randomUUIDv7 } from 'node:crypto';
 import { escapeLike } from '../../common/utils/escape-like.util.js';
 import { normalizeArabicText } from '../../common/utils/normalize-arabic.util.js';
 import type { Db, Executor } from '../../database/db.js';
@@ -64,7 +64,7 @@ export function createSentenceRepository(db: Db) {
     async replaceWords(sentenceId: string, words: { wordId: string; position: number }[], ex: Executor) {
       await ex.delete(schema.sentenceWord).where(eq(schema.sentenceWord.sentenceId, sentenceId));
       if (words.length) {
-        await ex.insert(schema.sentenceWord).values(words.map((w) => ({ id: randomUUID(), sentenceId, ...w })));
+        await ex.insert(schema.sentenceWord).values(words.map((w) => ({ id: randomUUIDv7(), sentenceId, ...w })));
       }
     },
   };

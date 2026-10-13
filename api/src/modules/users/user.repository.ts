@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { randomUUID } from 'node:crypto';
+import { randomUUIDv7 } from 'node:crypto';
 import type { Db, Executor } from '../../database/db.js';
 import * as schema from '../../database/drizzle/schema.js';
 
@@ -16,11 +16,11 @@ export function createUserRepository(db: Db) {
       return row ?? null;
     },
     async createWithPassword(data: { email: string; passwordHash: string; fullName: string }, ex: Executor = db): Promise<User> {
-      const [row] = await ex.insert(schema.user).values({ id: randomUUID(), ...data }).returning();
+      const [row] = await ex.insert(schema.user).values({ id: randomUUIDv7(), ...data }).returning();
       return row;
     },
     async createFromOAuth(data: { email: string; fullName: string; emailVerifiedAt: Date | null }, ex: Executor = db): Promise<User> {
-      const [row] = await ex.insert(schema.user).values({ id: randomUUID(), ...data, passwordHash: null }).returning();
+      const [row] = await ex.insert(schema.user).values({ id: randomUUIDv7(), ...data, passwordHash: null }).returning();
       return row;
     },
     async updatePassword(id: string, passwordHash: string, ex: Executor = db): Promise<void> {

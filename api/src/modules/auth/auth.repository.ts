@@ -1,5 +1,5 @@
 import { and, eq, isNull } from 'drizzle-orm';
-import { randomUUID } from 'node:crypto';
+import { randomUUIDv7 } from 'node:crypto';
 import type { Db, Executor } from '../../database/db.js';
 import * as schema from '../../database/drizzle/schema.js';
 import type { AuthProvider } from '../../database/drizzle/enums.js';
@@ -11,7 +11,7 @@ export function createAuthRepository(db: Db) {
         .where(and(eq(schema.passwordResetToken.userId, userId), isNull(schema.passwordResetToken.usedAt)));
     },
     async insertResetToken(v: { userId: string; tokenHash: string; expiresAt: Date }) {
-      await db.insert(schema.passwordResetToken).values({ id: randomUUID(), ...v });
+      await db.insert(schema.passwordResetToken).values({ id: randomUUIDv7(), ...v });
     },
     async findResetTokenByHash(tokenHash: string) {
       const [row] = await db.select().from(schema.passwordResetToken)
@@ -28,7 +28,7 @@ export function createAuthRepository(db: Db) {
       return row ?? null;
     },
     async insertIdentity(v: { provider: AuthProvider; providerAccountId: string; userId: string }, ex: Executor = db) {
-      await ex.insert(schema.authIdentity).values({ id: randomUUID(), ...v });
+      await ex.insert(schema.authIdentity).values({ id: randomUUIDv7(), ...v });
     },
   };
 }

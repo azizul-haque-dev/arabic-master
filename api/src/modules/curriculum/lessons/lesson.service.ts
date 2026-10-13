@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { randomUUIDv7 } from 'node:crypto';
 import { CONTENT_MANAGER_EDITABLE_STATUSES } from '../../../common/constants/content-workflow.constant.js';
 import { BadRequestError, ConflictError, NotFoundError } from '../../../common/errors/app-error.js';
 import { paginated } from '../../../common/http/response.js';
@@ -76,7 +76,7 @@ export function createLessonService(repo: LessonRepository) {
         if (!(await repo.lockSection(dto.sectionId, tx))) throw new NotFoundError('Section not found');
         const maxOrder = await repo.maxOrder(dto.sectionId, tx);
         const created = await repo.insert({
-          id: randomUUID(), lessonKey: `lesson_${randomUUID()}`, sectionId: dto.sectionId,
+          id: randomUUIDv7(), lessonKey: `lesson_${randomUUIDv7()}`, sectionId: dto.sectionId,
           title: dto.title, description: dto.description ?? '', order: maxOrder + 1,
           status: ContentStatus.DRAFT, createdById: actor.userId,
         }, tx);
@@ -148,7 +148,7 @@ export function createLessonService(repo: LessonRepository) {
         }
         const maxOrder = await repo.maxItemOrder(lessonId, tx);
         await repo.insertItem({
-          id: randomUUID(), lessonId, contentType: dto.contentType,
+          id: randomUUIDv7(), lessonId, contentType: dto.contentType,
           wordId: dto.contentType === LessonContentType.WORD ? dto.contentId : null,
           sentenceId: dto.contentType === LessonContentType.SENTENCE ? dto.contentId : null,
           conversationId: dto.contentType === LessonContentType.CONVERSATION ? dto.contentId : null,

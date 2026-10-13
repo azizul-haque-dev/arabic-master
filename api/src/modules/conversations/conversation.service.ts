@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { randomUUIDv7 } from 'node:crypto';
 import { BadRequestError, ConflictError, NotFoundError } from '../../common/errors/app-error.js';
 import { paginated } from '../../common/http/response.js';
 import type { UpdateStatusInput } from '../../common/schemas.js';
@@ -14,7 +14,7 @@ import type {
 export function createConversationService(repo: ConversationRepository) {
   // order আসে array index থেকে (১-ভিত্তিক), client-এর পাঠানো মান থেকে নয়
   const toTurnRows = (conversationId: string, turns: TurnInput[]) =>
-    turns.map((t, i) => ({ id: randomUUID(), conversationId, order: i + 1, speaker: t.speaker, sentenceId: t.sentenceId }));
+    turns.map((t, i) => ({ id: randomUUIDv7(), conversationId, order: i + 1, speaker: t.speaker, sentenceId: t.sentenceId }));
 
   async function assertSentencesExist(tx: Tx, turns: TurnInput[]) {
     const ids = [...new Set(turns.map((t) => t.sentenceId))];
@@ -44,7 +44,7 @@ export function createConversationService(repo: ConversationRepository) {
       const id = await withTransaction(async (tx) => {
         await assertSentencesExist(tx, turns);
         const created = await repo.insert(
-          { id: randomUUID(), conversationKey: `conversation_${randomUUID()}`, ...meta, status: ContentStatus.DRAFT, createdById: actor.userId },
+          { id: randomUUIDv7(), conversationKey: `conversation_${randomUUIDv7()}`, ...meta, status: ContentStatus.DRAFT, createdById: actor.userId },
           tx,
         );
         if (turns.length) await repo.insertTurns(toTurnRows(created.id, turns), tx);

@@ -4,7 +4,7 @@ import express from 'express';
 import helmet from 'helmet';
 import passport from 'passport';
 import { pinoHttp } from 'pino-http';
-import { randomUUID } from 'node:crypto';
+import { randomUUIDv7 } from 'node:crypto';
 import { createErrorHandler, notFound } from './common/middleware/error-handler.js';
 import { globalLimiter } from './common/middleware/rate-limit.js';
 import { corsOrigins, env, isProd } from './config/env.js';
@@ -29,7 +29,7 @@ export function createApp(c: Container) {
       logger: c.logger,
       genReqId: (req, res) => {
         const existing = req.headers['x-request-id'];
-        const id = typeof existing === 'string' && existing.length > 0 ? existing : randomUUID();
+        const id = typeof existing === 'string' && existing.length > 0 ? existing : randomUUIDv7();
         res.setHeader('X-Request-Id', id);
         return id;
       },

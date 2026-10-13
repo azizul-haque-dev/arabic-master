@@ -1,5 +1,5 @@
 import jwt, { type SignOptions } from 'jsonwebtoken';
-import { createHmac, randomUUID } from 'node:crypto';
+import { createHmac, randomUUIDv7 } from 'node:crypto';
 import { env } from '../../config/env.js';
 import { parseDurationSeconds } from '../../common/utils/duration.js';
 import type { AccessTokenPayload, RefreshTokenPayload } from './auth.types.js';
@@ -12,13 +12,13 @@ export function createTokenService() {
 
   return {
     generateAccessToken(userId: string, sessionId: string) {
-      const jwtId = randomUUID();
+      const jwtId = randomUUIDv7();
       const payload: AccessTokenPayload = { sub: userId, type: 'access', sessionId, jwtId };
       const token = jwt.sign(payload, env.JWT_ACCESS_SECRET, { algorithm: ALG, expiresIn: exp(env.JWT_ACCESS_EXPIRES_IN) });
       return { token, jwtId };
     },
     generateRefreshToken(userId: string, sessionId: string) {
-      const jwtId = randomUUID();
+      const jwtId = randomUUIDv7();
       const payload: RefreshTokenPayload = { sub: userId, type: 'refresh', sessionId, jwtId };
       const token = jwt.sign(payload, env.JWT_REFRESH_SECRET, { algorithm: ALG, expiresIn: exp(env.JWT_REFRESH_EXPIRES_IN) });
       return { token, jwtId };
@@ -31,7 +31,7 @@ export function createTokenService() {
     getRefreshTokenExpiryDate: () => new Date(Date.now() + parseDurationSeconds(env.JWT_REFRESH_EXPIRES_IN) * 1000),
     hashToken,
     generateResetToken() {
-      const rawToken = randomUUID() + randomUUID();
+      const rawToken = randomUUIDv7() + randomUUIDv7();
       return { rawToken, hash: hashToken(rawToken) };
     },
   };

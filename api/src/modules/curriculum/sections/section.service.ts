@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { randomUUIDv7 } from 'node:crypto';
 import { CONTENT_MANAGER_EDITABLE_STATUSES } from '../../../common/constants/content-workflow.constant.js';
 import { ConflictError, ForbiddenError, NotFoundError } from '../../../common/errors/app-error.js';
 import { paginated } from '../../../common/http/response.js';
@@ -41,7 +41,7 @@ export function createSectionService(repo: SectionRepository) {
         if (!(await repo.lockCourse(dto.courseId, tx))) throw new NotFoundError('Course not found');
         const maxOrder = await repo.maxOrder(dto.courseId, tx);
         const created = await repo.insert({
-          id: randomUUID(), sectionKey: `section_${randomUUID()}`, courseId: dto.courseId,
+          id: randomUUIDv7(), sectionKey: `section_${randomUUIDv7()}`, courseId: dto.courseId,
           title: dto.title, description: dto.description ?? '', order: maxOrder + 1,
           status: ContentStatus.DRAFT, createdById: actor.userId,
         }, tx);

@@ -1,5 +1,5 @@
 import type { Queue } from 'bullmq';
-import { randomUUID } from 'node:crypto';
+import { randomUUIDv7 } from 'node:crypto';
 import { DEFAULT_CATEGORY } from '../../common/constants/category.constant.js';
 import { ConflictError, NotFoundError } from '../../common/errors/app-error.js';
 import { paginated } from '../../common/http/response.js';
@@ -39,7 +39,7 @@ export function createWordService(d: {
         entity = await entities.create({ arabicText: text, audioUrl, createdById });
       }
       return repo.insert({
-        id: randomUUID(), wordKey: `word_${randomUUID()}`, entityId: entity.id,
+        id: randomUUIDv7(), wordKey: `word_${randomUUIDv7()}`, entityId: entity.id,
         ...fields, wordType: fields.wordType ?? WordType.OTHER,
         status: ContentStatus.DRAFT, createdById,
       });
@@ -79,7 +79,7 @@ export function createWordService(d: {
 
       const blank = '';
       const word = await repo.insert({
-        id: randomUUID(), wordKey: `word_${randomUUID()}`, entityId: entity.id,
+        id: randomUUIDv7(), wordKey: `word_${randomUUIDv7()}`, entityId: entity.id,
         meaningEn: blank, meaningBn: blank, whenToUseEn: blank, whenToUseBn: blank,
         pronunciationEn: blank, pronunciationBn: blank, feminineEn: blank, feminineBn: blank,
         category: DEFAULT_CATEGORY, status: ContentStatus.DRAFT, createdById,

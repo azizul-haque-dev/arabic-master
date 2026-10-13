@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { randomUUIDv7 } from 'node:crypto';
 import { UnauthorizedError } from '../../common/errors/app-error.js';
 import type { Logger } from '../../common/http/logger.js';
 import { withTransaction } from '../../database/db.js';
@@ -38,7 +38,7 @@ export function createSessionService(d: {
 
     const refreshTokenExpiresAt = tokens.getRefreshTokenExpiryDate();
     const session = await repo.insert({
-      id: randomUUID(), userId: p.userId, deviceId: randomUUID(),
+      id: randomUUIDv7(), userId: p.userId, deviceId: randomUUIDv7(),
       ipAddress: p.ipAddress, userAgent: p.userAgent, expiresAt: refreshTokenExpiresAt,
     });
 
@@ -46,7 +46,7 @@ export function createSessionService(d: {
     const { token: refreshToken, jwtId } = tokens.generateRefreshToken(p.userId, session.id);
 
     await repo.insertRefresh({
-      id: randomUUID(), sessionId: session.id, jwtId,
+      id: randomUUIDv7(), sessionId: session.id, jwtId,
       tokenHash: tokens.hashToken(refreshToken), expiresAt: refreshTokenExpiresAt,
     });
 
@@ -90,7 +90,7 @@ export function createSessionService(d: {
         if (claim.length === 0) throw invalid(); // অন্য concurrent request আগে claim করেছে
 
         const created = await repo.insertRefresh(
-          { id: randomUUID(), sessionId, jwtId: newJwtId, tokenHash: tokens.hashToken(refreshToken), expiresAt: refreshTokenExpiresAt },
+          { id: randomUUIDv7(), sessionId, jwtId: newJwtId, tokenHash: tokens.hashToken(refreshToken), expiresAt: refreshTokenExpiresAt },
           tx,
         );
         await repo.linkReplacement(existing.id, created.id, tx);

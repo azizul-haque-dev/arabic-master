@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { randomUUID } from 'node:crypto';
+import { randomUUIDv7 } from 'node:crypto';
 import { normalizeArabicText } from '../../common/utils/normalize-arabic.util.js';
 import type { Db } from '../../database/db.js';
 import * as schema from '../../database/drizzle/schema.js';
@@ -21,8 +21,8 @@ export function createArabicEntityRepository(db: Db) {
       pronunciationBangla?: string; pronunciationEnglish?: string;
     }) {
       const [row] = await db.insert(schema.arabicEntity).values({
-        id: randomUUID(),
-        entityKey: `entity_${randomUUID()}`,
+        id: randomUUIDv7(),
+        entityKey: `entity_${randomUUIDv7()}`,
         arabicText: d.arabicText,
         normalizedText: normalizeArabicText(d.arabicText),
         audioUrl: d.audioUrl,

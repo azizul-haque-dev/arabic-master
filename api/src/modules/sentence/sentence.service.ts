@@ -1,5 +1,5 @@
 import type { Queue } from 'bullmq';
-import { randomUUID } from 'node:crypto';
+import { randomUUIDv7 } from 'node:crypto';
 import { DEFAULT_CATEGORY } from '../../common/constants/category.constant.js';
 import { ConflictError, NotFoundError } from '../../common/errors/app-error.js';
 import { paginated } from '../../common/http/response.js';
@@ -50,7 +50,7 @@ export function createSentenceService(d: {
       }
 
       const sentence = await repo.insert({
-        id: randomUUID(), sentenceKey: `sentence_${randomUUID()}`, entityId: entity.id,
+        id: randomUUIDv7(), sentenceKey: `sentence_${randomUUIDv7()}`, entityId: entity.id,
         ...fields, difficulty: fields.difficulty ?? DifficultyLevel.BEGINNER,
         status: ContentStatus.DRAFT, createdById,
       });
@@ -83,7 +83,7 @@ export function createSentenceService(d: {
 
       const blank = '';
       const sentence = await repo.insert({
-        id: randomUUID(), sentenceKey: `sentence_${randomUUID()}`, entityId: entity.id,
+        id: randomUUIDv7(), sentenceKey: `sentence_${randomUUIDv7()}`, entityId: entity.id,
         meaningEn: blank, meaningBn: blank, whenToUseEn: blank, whenToUseBn: blank,
         pronunciationEn: blank, pronunciationBn: blank, feminineEn: blank, feminineBn: blank,
         category: DEFAULT_CATEGORY, difficulty: DifficultyLevel.BEGINNER,
