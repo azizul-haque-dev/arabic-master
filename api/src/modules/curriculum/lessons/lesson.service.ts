@@ -1,4 +1,4 @@
-import { randomUUIDv7 } from 'node:crypto';
+import { v7 as randomUUIDv7 } from 'uuid';
 import { CONTENT_MANAGER_EDITABLE_STATUSES } from '../../../common/constants/content-workflow.constant.js';
 import { BadRequestError, ConflictError, NotFoundError } from '../../../common/errors/app-error.js';
 import { paginated } from '../../../common/http/response.js';

@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { randomUUIDv7 } from 'node:crypto';
+import { v7 as randomUUIDv7 } from 'uuid';
 import type { Db, Executor } from '../../database/db.js';
 import * as schema from '../../database/drizzle/schema.js';
 

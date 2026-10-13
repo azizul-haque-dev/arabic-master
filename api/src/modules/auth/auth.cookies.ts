@@ -1,5 +1,5 @@
 import type { Response } from 'express';
-import { randomUUIDv7 } from 'node:crypto';
+import { v7 as randomUUIDv7 } from 'uuid';
 import { env } from '../../config/env.js';
 
 const cookiePath = () => `/${env.API_PREFIX}/v1/auth`;

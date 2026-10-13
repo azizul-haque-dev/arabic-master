@@ -4,7 +4,7 @@ import express from 'express';
 import helmet from 'helmet';
 import passport from 'passport';
 import { pinoHttp } from 'pino-http';
-import { randomUUIDv7 } from 'node:crypto';
+import { v7 as randomUUIDv7 } from 'uuid';
 import { createErrorHandler, notFound } from './common/middleware/error-handler.js';
 import { globalLimiter } from './common/middleware/rate-limit.js';
 import { corsOrigins, env, isProd } from './config/env.js';

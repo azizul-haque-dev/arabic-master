@@ -1,4 +1,4 @@
-import { randomUUIDv7 } from 'node:crypto';
+import { v7 as randomUUIDv7 } from 'uuid';
 import { DEFAULT_CATEGORY, isValidCategory } from '../../common/constants/category.constant.js';
 import { ConflictError } from '../../common/errors/app-error.js';
 import type { Logger } from '../../common/http/logger.js';

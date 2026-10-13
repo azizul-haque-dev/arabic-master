@@ -1,4 +1,4 @@
-import { randomUUIDv7 } from 'node:crypto';
+import { v7 as randomUUIDv7 } from 'uuid';
 import { ConflictError, NotFoundError } from '../../../common/errors/app-error.js';
 import { paginated } from '../../../common/http/response.js';
 import type { UpdateStatusInput } from '../../../common/schemas.js';

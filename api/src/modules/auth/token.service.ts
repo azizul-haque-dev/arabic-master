@@ -1,5 +1,6 @@
 import jwt, { type SignOptions } from 'jsonwebtoken';
-import { createHmac, randomUUIDv7 } from 'node:crypto';
+import { createHmac } from 'node:crypto';
+import { v7 as randomUUIDv7 } from 'uuid';
 import { env } from '../../config/env.js';
 import { parseDurationSeconds } from '../../common/utils/duration.js';
 import type { AccessTokenPayload, RefreshTokenPayload } from './auth.types.js';

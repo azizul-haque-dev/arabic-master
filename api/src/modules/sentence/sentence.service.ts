@@ -1,5 +1,5 @@
 import type { Queue } from 'bullmq';
-import { randomUUIDv7 } from 'node:crypto';
+import { v7 as randomUUIDv7 } from 'uuid';
 import { DEFAULT_CATEGORY } from '../../common/constants/category.constant.js';
 import { ConflictError, NotFoundError } from '../../common/errors/app-error.js';
 import { paginated } from '../../common/http/response.js';

@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { randomUUIDv7 } from 'node:crypto';
+import { v7 as randomUUIDv7 } from 'uuid';
 import { normalizeArabicText } from '../../common/utils/normalize-arabic.util.js';
 import type { Db } from '../../database/db.js';
 import * as schema from '../../database/drizzle/schema.js';

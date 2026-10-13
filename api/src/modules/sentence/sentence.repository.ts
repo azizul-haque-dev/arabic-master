@@ -1,5 +1,5 @@
 import { and, count, desc, eq, getTableColumns, ilike, or, type SQL } from 'drizzle-orm';
-import { randomUUIDv7 } from 'node:crypto';
+import { v7 as randomUUIDv7 } from 'uuid';
 import { escapeLike } from '../../common/utils/escape-like.util.js';
 import { normalizeArabicText } from '../../common/utils/normalize-arabic.util.js';
 import type { Db, Executor } from '../../database/db.js';
