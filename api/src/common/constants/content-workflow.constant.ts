@@ -11,7 +11,13 @@ export const STATUS_TRANSITIONS: Record<ContentStatus, ContentStatus[]> = {
 };
 
 // Content Manager যে target status-এ নিতে পারে
-export const CONTENT_MANAGER_ALLOWED_TARGETS: ContentStatus[] = ['DRAFT', 'IN_REVIEW'];
+export const CONTENT_MANAGER_ALLOWED_TARGETS: ContentStatus[] = [
+  'DRAFT',
+  'IN_REVIEW',
+];
 
 // Content Manager যে status-এর content edit করতে পারে
-export const CONTENT_MANAGER_EDITABLE_STATUSES: ContentStatus[] = ['DRAFT', 'REJECTED'];
+export const CONTENT_MANAGER_EDITABLE_STATUSES: ContentStatus[] = [
+  'DRAFT',
+  'REJECTED',
+];

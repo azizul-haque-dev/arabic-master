@@ -1,35 +1,57 @@
-import type { RequestHandler } from 'express';
-import { UnauthorizedError } from '../errors/app-error.js';
-import type { Logger } from '../http/logger.js';
-import type { RedisService } from '../../database/redis.service.js';
-import type { SessionRepository } from '../../modules/auth/session.repository.js';
-import type { TokenService } from '../../modules/auth/token.service.js';
-import type { UserService } from '../../modules/users/user.service.js';
+// Protects routes by requiring a valid access token in the
+// Authorization header ("Bearer <token>").
+import { NextFunction, Request, Response } from "express";
+import { ApiError } from "@/lib/api-error.js";
 
-export function createAuthenticate(d: {
-  tokens: TokenService; sessions: SessionRepository; users: UserService; redis: RedisService; logger: Logger;
-}): RequestHandler {
-  return async (req, _res, next) => {
-    const header = req.headers.authorization;
-    if (!header?.startsWith('Bearer ')) throw new UnauthorizedError('Unauthorized');
+import { asyncHandler } from "../http/async-handler.js";
 
-    let payload;
-    try { payload = d.tokens.verifyAccessToken(header.slice(7)); }
-    catch { throw new UnauthorizedError('Unauthorized'); }
-    if (payload.type !== 'access') throw new UnauthorizedError('Invalid token type');
-
-    let revoked = false;
-    try { revoked = await d.redis.isSessionRevoked(payload.sessionId); }
-    catch (err) { d.logger.warn({ err, sessionId: payload.sessionId }, 'Redis revocation check failed; checking DB'); }
-    if (revoked) throw new UnauthorizedError('Session has been revoked');
-
-    const session = await d.sessions.findById(payload.sessionId);
-    if (!session || !session.isActive || session.revokedAt) throw new UnauthorizedError('Session has been revoked');
-
-    const user = await d.users.findById(payload.sub);
-    if (!user) throw new UnauthorizedError('User no longer exists');
-
-    req.auth = { userId: payload.sub, sessionId: payload.sessionId, jwtId: payload.jwtId, role: user.role };
-    next();
-  };
+// Declared on Express.User (not Request directly) so this merges cleanly
+// with passport's own type augmentation instead of conflicting with it.
+declare global {
+  namespace Express {
+    interface User {
+      id: string;
+      email: string;
+    }
+  }
 }
+
+export const requireAuth = asyncHandler(
+  async (req: Request, _res: Response, next: NextFunction) => {
+    let token: string | undefined;
+
+    // 1. Primary Check: Look for the token in browser-based cookies (Web Frontend)
+    if (req.cookies?.accessToken) {
+      token = req.cookies.accessToken;
+    }
+    // 2. Secondary Check: Fall back to parsing the authorization header (Mobile App / Postman)
+    else {
+      const authHeader = req.headers.authorization;
+      if (authHeader?.startsWith("Bearer ")) {
+        token = authHeader.slice("Bearer ".length);
+      }
+    }
+
+    // If neither source provides an access token, stop execution and throw a 401 response status
+    if (!token) {
+      throw ApiError.unauthorized("Authentication credentials missing");
+    }
+
+    try {
+      // Decode and validate the cryptographic token payload signature
+      const payload = verifyAccessToken(token);
+
+      // Mutate the request interface context with the validated user parameters
+      req.user = {
+        id: payload.sub,
+        email: payload.email,
+      };
+
+      // Successfully authenticated. Pass execution to the next controller layer.
+      next();
+    } catch (error) {
+      // An invalid or expired token must throw a 401 error so both web and mobile can catch it and refresh
+      throw ApiError.unauthorized("Access token is invalid or expired");
+    }
+  },
+);

@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import { paginationShape } from '../../../common/schemas.js';
-import { contentStatusEnum, courseTypeEnum, difficultyLevelEnum } from '../../../database/drizzle/enums.js';
+import {
+  contentStatusEnum,
+  courseTypeEnum,
+  difficultyLevelEnum,
+} from '../../../database/drizzle/enums.js';
 
 export const createCourseSchema = z.strictObject({
   title: z.string().trim().min(1).max(200),

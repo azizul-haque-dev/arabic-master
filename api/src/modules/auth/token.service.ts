@@ -7,34 +7,59 @@ import type { AccessTokenPayload, RefreshTokenPayload } from './auth.types.js';
 
 const ALG = 'HS256' as const;
 const exp = (v: string) => v as SignOptions['expiresIn'];
+const hashToken = (raw: string) =>
+    createHmac('sha256', env.TOKEN_HASH_SECRET).update(raw).digest('hex');
 
-export function createTokenService() {
-  const hashToken = (raw: string) => createHmac('sha256', env.TOKEN_HASH_SECRET).update(raw).digest('hex');
+export const TokenService= {
+  
 
-  return {
+ 
     generateAccessToken(userId: string, sessionId: string) {
       const jwtId = randomUUIDv7();
-      const payload: AccessTokenPayload = { sub: userId, type: 'access', sessionId, jwtId };
-      const token = jwt.sign(payload, env.JWT_ACCESS_SECRET, { algorithm: ALG, expiresIn: exp(env.JWT_ACCESS_EXPIRES_IN) });
+      const payload: AccessTokenPayload = {
+        sub: userId,
+        type: 'access',
+        sessionId,
+        jwtId,
+      };
+      const token = jwt.sign(payload, env.JWT_ACCESS_SECRET, {
+        algorithm: ALG,
+        expiresIn: exp(env.JWT_ACCESS_EXPIRES_IN),
+      });
       return { token, jwtId };
     },
     generateRefreshToken(userId: string, sessionId: string) {
       const jwtId = randomUUIDv7();
-      const payload: RefreshTokenPayload = { sub: userId, type: 'refresh', sessionId, jwtId };
-      const token = jwt.sign(payload, env.JWT_REFRESH_SECRET, { algorithm: ALG, expiresIn: exp(env.JWT_REFRESH_EXPIRES_IN) });
+      const payload: RefreshTokenPayload = {
+        sub: userId,
+        type: 'refresh',
+        sessionId,
+        jwtId,
+      };
+      const token = jwt.sign(payload, env.JWT_REFRESH_SECRET, {
+        algorithm: ALG,
+        expiresIn: exp(env.JWT_REFRESH_EXPIRES_IN),
+      });
       return { token, jwtId };
     },
     verifyAccessToken: (token: string) =>
-      jwt.verify(token, env.JWT_ACCESS_SECRET, { algorithms: [ALG] }) as unknown as AccessTokenPayload,
+      jwt.verify(token, env.JWT_ACCESS_SECRET, {
+        algorithms: [ALG],
+      }) as unknown as AccessTokenPayload,
     verifyRefreshToken: (token: string) =>
-      jwt.verify(token, env.JWT_REFRESH_SECRET, { algorithms: [ALG] }) as unknown as RefreshTokenPayload,
-    getAccessTokenTtlSeconds: () => parseDurationSeconds(env.JWT_ACCESS_EXPIRES_IN),
-    getRefreshTokenExpiryDate: () => new Date(Date.now() + parseDurationSeconds(env.JWT_REFRESH_EXPIRES_IN) * 1000),
+      jwt.verify(token, env.JWT_REFRESH_SECRET, {
+        algorithms: [ALG],
+      }) as unknown as RefreshTokenPayload,
+    getAccessTokenTtlSeconds: () =>
+      parseDurationSeconds(env.JWT_ACCESS_EXPIRES_IN),
+    getRefreshTokenExpiryDate: () =>
+      new Date(
+        Date.now() + parseDurationSeconds(env.JWT_REFRESH_EXPIRES_IN) * 1000,
+      ),
     hashToken,
     generateResetToken() {
       const rawToken = randomUUIDv7() + randomUUIDv7();
       return { rawToken, hash: hashToken(rawToken) };
     },
   };
-}
-export type TokenService = ReturnType<typeof createTokenService>;
+

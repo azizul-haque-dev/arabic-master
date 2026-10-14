@@ -1,5 +1,19 @@
-import { index, integer, pgTable, primaryKey, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
-import { contentStatusEnum, difficultyLevelEnum, grammaticalFormEnum, tenseEnum, wordTypeEnum } from '../enums.js';
+import {
+  index,
+  integer,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
+import {
+  contentStatusEnum,
+  difficultyLevelEnum,
+  grammaticalFormEnum,
+  tenseEnum,
+  wordTypeEnum,
+} from '../enums.js';
 
 export const arabicEntity = pgTable(
   'ArabicEntity',
@@ -63,7 +77,10 @@ export const grammaticalVariant = pgTable(
     createdAt: timestamp('createdAt').defaultNow().notNull(),
   },
   (table) => [
-    uniqueIndex('GrammaticalVariant_wordId_form_key').on(table.wordId, table.form),
+    uniqueIndex('GrammaticalVariant_wordId_form_key').on(
+      table.wordId,
+      table.form,
+    ),
     index('GrammaticalVariant_entityId_idx').on(table.entityId),
   ],
 );
@@ -77,7 +94,10 @@ export const sentenceWord = pgTable(
     createdAt: timestamp('createdAt').defaultNow().notNull(),
   },
   (table) => [
-    uniqueIndex('SentenceWord_sentenceId_wordId_key').on(table.sentenceId, table.wordId),
+    uniqueIndex('SentenceWord_sentenceId_wordId_key').on(
+      table.sentenceId,
+      table.wordId,
+    ),
     index('SentenceWord_sentenceId_idx').on(table.sentenceId),
     index('SentenceWord_wordId_idx').on(table.wordId),
   ],
@@ -140,7 +160,10 @@ export const conversationTurn = pgTable(
     sentenceId: text('sentenceId').notNull(),
   },
   (table) => [
-    uniqueIndex('ConversationTurn_conversationId_order_key').on(table.conversationId, table.order),
+    uniqueIndex('ConversationTurn_conversationId_order_key').on(
+      table.conversationId,
+      table.order,
+    ),
     index('ConversationTurn_sentenceId_idx').on(table.sentenceId),
   ],
 );
@@ -151,5 +174,7 @@ export const arabicEntityRelationTable = pgTable(
     relatedEntityId: text('relatedEntityId').notNull(),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
   },
-  (table) => [primaryKey({ columns: [table.conceptId, table.relatedEntityId] })],
+  (table) => [
+    primaryKey({ columns: [table.conceptId, table.relatedEntityId] }),
+  ],
 );

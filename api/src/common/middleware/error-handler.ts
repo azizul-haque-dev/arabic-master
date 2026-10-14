@@ -14,7 +14,8 @@ export const notFound: RequestHandler = (req, res) => {
   });
 };
 
-export const createErrorHandler = (logger: Logger): ErrorRequestHandler =>
+export const createErrorHandler =
+  (logger: Logger): ErrorRequestHandler =>
   (err, req, res, _next) => {
     let statusCode = 500;
     let message: string | string[] = 'Internal server error';

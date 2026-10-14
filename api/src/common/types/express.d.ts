@@ -1,4 +1,7 @@
-import type { RequestUser, ValidatedRefreshToken } from '../../modules/auth/auth.types.js';
+import type {
+  RequestUser,
+  ValidatedRefreshToken,
+} from '../../modules/auth/auth.types.js';
 
 declare global {
   namespace Express {

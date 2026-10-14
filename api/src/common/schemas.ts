@@ -7,7 +7,12 @@ export type IdParam = z.infer<typeof idParamSchema>;
 
 export const paginationShape = {
   page: z.coerce.number().int().min(1).default(PAGINATION.DEFAULT_PAGE),
-  limit: z.coerce.number().int().min(1).max(PAGINATION.MAX_LIMIT).default(PAGINATION.DEFAULT_LIMIT),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(PAGINATION.MAX_LIMIT)
+    .default(PAGINATION.DEFAULT_LIMIT),
 };
 
 export const updateStatusSchema = z.strictObject({

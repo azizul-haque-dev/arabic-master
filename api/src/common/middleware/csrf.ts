@@ -8,6 +8,7 @@ export const csrfGuard: RequestHandler = (req, _res, next) => {
 
   const cookie = req.cookies?.['csrf_token'];
   const header = req.headers['x-csrf-token'];
-  if (!cookie || !header || cookie !== header) throw new UnauthorizedError('Invalid or missing CSRF token');
+  if (!cookie || !header || cookie !== header)
+    throw new UnauthorizedError('Invalid or missing CSRF token');
   next();
 };

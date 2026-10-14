@@ -1,5 +1,19 @@
-import { boolean, index, integer, pgTable, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
-import { authProviderEnum, onboardingLevelEnum, preferredLanguageEnum, roleEnum, userStatusEnum } from '../enums.js';
+import {
+  boolean,
+  index,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
+import {
+  authProviderEnum,
+  onboardingLevelEnum,
+  preferredLanguageEnum,
+  roleEnum,
+  userStatusEnum,
+} from '../enums.js';
 
 export const user = pgTable(
   'User',
@@ -27,7 +41,10 @@ export const authIdentity = pgTable(
     createdAt: timestamp('createdAt').defaultNow().notNull(),
   },
   (table) => [
-    uniqueIndex('AuthIdentity_provider_providerAccountId_key').on(table.provider, table.providerAccountId),
+    uniqueIndex('AuthIdentity_provider_providerAccountId_key').on(
+      table.provider,
+      table.providerAccountId,
+    ),
     index('AuthIdentity_userId_idx').on(table.userId),
   ],
 );
@@ -44,7 +61,9 @@ export const session = pgTable(
     expiresAt: timestamp('expiresAt').notNull(),
     revokedAt: timestamp('revokedAt'),
   },
-  (table) => [index('Session_userId_isActive_idx').on(table.userId, table.isActive)],
+  (table) => [
+    index('Session_userId_isActive_idx').on(table.userId, table.isActive),
+  ],
 );
 export const refreshToken = pgTable(
   'RefreshToken',
@@ -58,7 +77,12 @@ export const refreshToken = pgTable(
     replacedByTokenId: text('replacedByTokenId'),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
   },
-  (table) => [index('RefreshToken_sessionId_revokedAt_idx').on(table.sessionId, table.revokedAt)],
+  (table) => [
+    index('RefreshToken_sessionId_revokedAt_idx').on(
+      table.sessionId,
+      table.revokedAt,
+    ),
+  ],
 );
 export const passwordResetToken = pgTable(
   'PasswordResetToken',
@@ -118,7 +142,12 @@ export const learningActivity = pgTable(
     qualifying: boolean('qualifying').default(true).notNull(),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
   },
-  (table) => [index('LearningActivity_userId_activityDate_idx').on(table.userId, table.activityDate)],
+  (table) => [
+    index('LearningActivity_userId_activityDate_idx').on(
+      table.userId,
+      table.activityDate,
+    ),
+  ],
 );
 export const guestUser = pgTable('GuestUser', {
   id: text('id').primaryKey(),

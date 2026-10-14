@@ -4,7 +4,9 @@ import { z } from 'zod';
 const duration = z.string().regex(/^\d+(s|m|h|d)$/);
 
 const EnvSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
   PORT: z.coerce.number().int().min(0).max(65535).default(5000),
   API_PREFIX: z.string().default('api'),
   LOG_LEVEL: z.string().default('debug'),
@@ -35,7 +37,9 @@ const EnvSchema = z.object({
 
 const parsed = EnvSchema.safeParse(process.env);
 if (!parsed.success) {
-  console.error(`Environment validation failed:\n${z.prettifyError(parsed.error)}`);
+  console.error(
+    `Environment validation failed:\n${z.prettifyError(parsed.error)}`,
+  );
   process.exit(1);
 }
 

@@ -1,5 +1,17 @@
-import { index, jsonb, numeric, pgTable, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
-import { paymentProviderEnum, subscriptionStatusEnum, transactionStatusEnum } from '../enums.js';
+import {
+  index,
+  jsonb,
+  numeric,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
+import {
+  paymentProviderEnum,
+  subscriptionStatusEnum,
+  transactionStatusEnum,
+} from '../enums.js';
 
 export const subscription = pgTable(
   'Subscription',
@@ -16,7 +28,10 @@ export const subscription = pgTable(
     updatedAt: timestamp('updatedAt').defaultNow().notNull(),
   },
   (table) => [
-    uniqueIndex('Subscription_provider_transactionId_key').on(table.provider, table.transactionId),
+    uniqueIndex('Subscription_provider_transactionId_key').on(
+      table.provider,
+      table.transactionId,
+    ),
     index('Subscription_userId_status_idx').on(table.userId, table.status),
   ],
 );
@@ -35,5 +50,7 @@ export const transaction = pgTable(
     createdAt: timestamp('createdAt').defaultNow().notNull(),
     updatedAt: timestamp('updatedAt').defaultNow().notNull(),
   },
-  (table) => [index('Transaction_userId_status_idx').on(table.userId, table.status)],
+  (table) => [
+    index('Transaction_userId_status_idx').on(table.userId, table.status),
+  ],
 );

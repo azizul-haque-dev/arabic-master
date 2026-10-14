@@ -8,7 +8,9 @@ export const createSectionSchema = z.strictObject({
   description: z.string().trim().max(1000).optional(), // DB-তে NOT NULL, service '' দেয়
 });
 // section এক course থেকে অন্য course-এ যায় না, তাই courseId বাদ
-export const updateSectionSchema = createSectionSchema.omit({ courseId: true }).partial();
+export const updateSectionSchema = createSectionSchema
+  .omit({ courseId: true })
+  .partial();
 export const listSectionQuerySchema = z.strictObject({
   ...paginationShape,
   courseId: z.string().optional(),

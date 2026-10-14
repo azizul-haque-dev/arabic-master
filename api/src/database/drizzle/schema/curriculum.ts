@@ -1,5 +1,17 @@
-import { index, integer, pgTable, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
-import { contentStatusEnum, courseTypeEnum, difficultyLevelEnum, lessonContentTypeEnum } from '../enums.js';
+import {
+  index,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
+import {
+  contentStatusEnum,
+  courseTypeEnum,
+  difficultyLevelEnum,
+  lessonContentTypeEnum,
+} from '../enums.js';
 
 export const course = pgTable(
   'Course',
@@ -72,8 +84,15 @@ export const lessonContentItem = pgTable(
   },
   (table) => [
     index('LessonContentItem_lessonId_idx').on(table.lessonId),
-    uniqueIndex('LessonContentItem_lessonId_order_key').on(table.lessonId, table.order),
-    uniqueIndex('LessonContentItem_id_lessonId_type_key').on(table.id, table.lessonId, table.contentType),
+    uniqueIndex('LessonContentItem_lessonId_order_key').on(
+      table.lessonId,
+      table.order,
+    ),
+    uniqueIndex('LessonContentItem_id_lessonId_type_key').on(
+      table.id,
+      table.lessonId,
+      table.contentType,
+    ),
   ],
 );
 export const contentCompletion = pgTable(
@@ -87,7 +106,11 @@ export const contentCompletion = pgTable(
   },
   (table) => [
     index('ContentCompletion_userId_idx').on(table.userId),
-    uniqueIndex('ContentCompletion_user_item_key').on(table.userId, table.completedItemType, table.completedItemId),
+    uniqueIndex('ContentCompletion_user_item_key').on(
+      table.userId,
+      table.completedItemType,
+      table.completedItemId,
+    ),
   ],
 );
 /** learner ও lesson প্রতি একটা row; resume/continue-learning UX-এর জন্য timestamp। */
@@ -104,7 +127,13 @@ export const lessonProgress = pgTable(
     updatedAt: timestamp('updatedAt').defaultNow().notNull(),
   },
   (table) => [
-    uniqueIndex('LessonProgress_userId_lessonId_key').on(table.userId, table.lessonId),
-    index('LessonProgress_userId_updatedAt_idx').on(table.userId, table.updatedAt),
+    uniqueIndex('LessonProgress_userId_lessonId_key').on(
+      table.userId,
+      table.lessonId,
+    ),
+    index('LessonProgress_userId_updatedAt_idx').on(
+      table.userId,
+      table.updatedAt,
+    ),
   ],
 );

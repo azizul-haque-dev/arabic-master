@@ -1,4 +1,15 @@
-import { and, asc, count, desc, eq, ilike, inArray, ne, or, type SQL } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  ne,
+  or,
+  type SQL,
+} from 'drizzle-orm';
 import { escapeLike } from '../../common/utils/escape-like.util.js';
 import type { Db, Executor, Tx } from '../../database/db.js';
 import { ContentStatus } from '../../database/drizzle/enums.js';
@@ -13,15 +24,28 @@ export function createConversationRepository(db: Db) {
       if (q.category) c.push(eq(schema.conversation.category, q.category));
       if (q.search?.trim()) {
         const p = `%${escapeLike(q.search.trim())}%`;
-        c.push(or(ilike(schema.conversation.title, p), ilike(schema.conversation.topic, p), ilike(schema.conversation.conversationKey, p))!);
+        c.push(
+          or(
+            ilike(schema.conversation.title, p),
+            ilike(schema.conversation.topic, p),
+            ilike(schema.conversation.conversationKey, p),
+          )!,
+        );
       }
       const where = c.length ? and(...c) : undefined;
 
       const [totalRows, items] = await Promise.all([
         db.select({ total: count() }).from(schema.conversation).where(where),
-        db.select().from(schema.conversation).where(where)
-          .orderBy(desc(schema.conversation.createdAt), desc(schema.conversation.id)) // id: deterministic pagination
-          .limit(q.limit).offset((q.page - 1) * q.limit),
+        db
+          .select()
+          .from(schema.conversation)
+          .where(where)
+          .orderBy(
+            desc(schema.conversation.createdAt),
+            desc(schema.conversation.id),
+          ) // id: deterministic pagination
+          .limit(q.limit)
+          .offset((q.page - 1) * q.limit),
       ]);
       return { items, total: Number(totalRows[0]?.total ?? 0) };
     },
@@ -30,20 +54,33 @@ export function createConversationRepository(db: Db) {
     async turnCounts(ids: string[]) {
       if (!ids.length) return new Map<string, number>();
       const rows = await db
-        .select({ conversationId: schema.conversationTurn.conversationId, turnCount: count() })
-        .from(schema.conversationTurn).where(inArray(schema.conversationTurn.conversationId, ids))
+        .select({
+          conversationId: schema.conversationTurn.conversationId,
+          turnCount: count(),
+        })
+        .from(schema.conversationTurn)
+        .where(inArray(schema.conversationTurn.conversationId, ids))
         .groupBy(schema.conversationTurn.conversationId);
       return new Map(rows.map((r) => [r.conversationId, Number(r.turnCount)]));
     },
 
     async findById(id: string, ex: Executor = db) {
-      const [row] = await ex.select().from(schema.conversation).where(eq(schema.conversation.id, id)).limit(1);
+      const [row] = await ex
+        .select()
+        .from(schema.conversation)
+        .where(eq(schema.conversation.id, id))
+        .limit(1);
       return row ?? null;
     },
 
     /** row lock: concurrent edit serialize করে */
     async lockById(id: string, tx: Tx) {
-      const [row] = await tx.select().from(schema.conversation).where(eq(schema.conversation.id, id)).limit(1).for('update');
+      const [row] = await tx
+        .select()
+        .from(schema.conversation)
+        .where(eq(schema.conversation.id, id))
+        .limit(1)
+        .for('update');
       return row ?? null;
     },
 
@@ -56,15 +93,24 @@ export function createConversationRepository(db: Db) {
           speaker: schema.conversationTurn.speaker,
           sentenceId: schema.conversationTurn.sentenceId,
           sentence: {
-            id: schema.sentence.id, sentenceKey: schema.sentence.sentenceKey,
-            meaningEn: schema.sentence.meaningEn, meaningBn: schema.sentence.meaningBn, status: schema.sentence.status,
+            id: schema.sentence.id,
+            sentenceKey: schema.sentence.sentenceKey,
+            meaningEn: schema.sentence.meaningEn,
+            meaningBn: schema.sentence.meaningBn,
+            status: schema.sentence.status,
           },
           arabicText: schema.arabicEntity.arabicText,
           audioUrl: schema.arabicEntity.audioUrl,
         })
         .from(schema.conversationTurn)
-        .leftJoin(schema.sentence, eq(schema.sentence.id, schema.conversationTurn.sentenceId))
-        .leftJoin(schema.arabicEntity, eq(schema.arabicEntity.id, schema.sentence.entityId))
+        .leftJoin(
+          schema.sentence,
+          eq(schema.sentence.id, schema.conversationTurn.sentenceId),
+        )
+        .leftJoin(
+          schema.arabicEntity,
+          eq(schema.arabicEntity.id, schema.sentence.entityId),
+        )
         .where(eq(schema.conversationTurn.conversationId, conversationId))
         .orderBy(asc(schema.conversationTurn.order));
     },
@@ -73,39 +119,75 @@ export function createConversationRepository(db: Db) {
       const [row] = await tx.insert(schema.conversation).values(v).returning();
       return row;
     },
-    async update(id: string, v: Partial<typeof schema.conversation.$inferInsert>, ex: Executor = db) {
-      const [row] = await ex.update(schema.conversation).set({ ...v, updatedAt: new Date() }).where(eq(schema.conversation.id, id)).returning();
+    async update(
+      id: string,
+      v: Partial<typeof schema.conversation.$inferInsert>,
+      ex: Executor = db,
+    ) {
+      const [row] = await ex
+        .update(schema.conversation)
+        .set({ ...v, updatedAt: new Date() })
+        .where(eq(schema.conversation.id, id))
+        .returning();
       return row;
     },
     async delete(id: string, tx: Tx) {
-      await tx.delete(schema.conversation).where(eq(schema.conversation.id, id));
+      await tx
+        .delete(schema.conversation)
+        .where(eq(schema.conversation.id, id));
     },
-    async insertTurns(rows: (typeof schema.conversationTurn.$inferInsert)[], tx: Tx) {
+    async insertTurns(
+      rows: (typeof schema.conversationTurn.$inferInsert)[],
+      tx: Tx,
+    ) {
       await tx.insert(schema.conversationTurn).values(rows);
     },
     async deleteTurns(conversationId: string, tx: Tx) {
-      await tx.delete(schema.conversationTurn).where(eq(schema.conversationTurn.conversationId, conversationId));
+      await tx
+        .delete(schema.conversationTurn)
+        .where(eq(schema.conversationTurn.conversationId, conversationId));
     },
     async existingSentenceIds(ids: string[], tx: Tx) {
-      const rows = await tx.select({ id: schema.sentence.id }).from(schema.sentence).where(inArray(schema.sentence.id, ids));
+      const rows = await tx
+        .select({ id: schema.sentence.id })
+        .from(schema.sentence)
+        .where(inArray(schema.sentence.id, ids));
       return new Set(rows.map((r) => r.id));
     },
     async hasTurns(id: string, tx: Tx) {
-      const rows = await tx.select({ id: schema.conversationTurn.id }).from(schema.conversationTurn)
-        .where(eq(schema.conversationTurn.conversationId, id)).limit(1);
+      const rows = await tx
+        .select({ id: schema.conversationTurn.id })
+        .from(schema.conversationTurn)
+        .where(eq(schema.conversationTurn.conversationId, id))
+        .limit(1);
       return rows.length > 0;
     },
     async unpublishedSentenceKeys(id: string, tx: Tx) {
-      const rows = await tx.select({ key: schema.sentence.sentenceKey }).from(schema.conversationTurn)
-        .innerJoin(schema.sentence, eq(schema.sentence.id, schema.conversationTurn.sentenceId))
-        .where(and(eq(schema.conversationTurn.conversationId, id), ne(schema.sentence.status, ContentStatus.PUBLISHED)));
+      const rows = await tx
+        .select({ key: schema.sentence.sentenceKey })
+        .from(schema.conversationTurn)
+        .innerJoin(
+          schema.sentence,
+          eq(schema.sentence.id, schema.conversationTurn.sentenceId),
+        )
+        .where(
+          and(
+            eq(schema.conversationTurn.conversationId, id),
+            ne(schema.sentence.status, ContentStatus.PUBLISHED),
+          ),
+        );
       return [...new Set(rows.map((r) => r.key))];
     },
     async usedByLesson(id: string, tx: Tx) {
-      const rows = await tx.select({ lessonId: schema.lessonContentItem.lessonId }).from(schema.lessonContentItem)
-        .where(eq(schema.lessonContentItem.conversationId, id)).limit(1);
+      const rows = await tx
+        .select({ lessonId: schema.lessonContentItem.lessonId })
+        .from(schema.lessonContentItem)
+        .where(eq(schema.lessonContentItem.conversationId, id))
+        .limit(1);
       return rows.length > 0;
     },
   };
 }
-export type ConversationRepository = ReturnType<typeof createConversationRepository>;
+export type ConversationRepository = ReturnType<
+  typeof createConversationRepository
+>;

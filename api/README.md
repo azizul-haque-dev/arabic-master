@@ -1,7 +1,7 @@
 # server-express
 
 NestJS (`server-new`) থেকে রূপান্তরিত Express 5 + TypeScript (ESM) ব্যাকএন্ড।
-**Function-based**: কোনো service/repository/controller class নেই। প্রতিটি `createXxx(deps)` factory function, dependency জোড়া লাগে `src/container.ts`-এ।
+**Function-based**: service, repository, ও controller regular factory function। App startup-এর wiring `src/app.setup.ts`-এ থাকে; NestJS বা DI container dependency নেই।
 
 ## চালানোর আগে
 
@@ -18,7 +18,7 @@ NestJS (`server-new`) থেকে রূপান্তরিত Express 5 + Ty
 src/
   server.ts       bootstrap, worker চালু, graceful shutdown
   app.ts          middleware-এর ক্রম + route mount (/api/v1/...)
-  container.ts    সব factory এখানে জোড়া লাগে (DI-র বদলি)
+  app.setup.ts    service, repository, ও controller factory-গুলো জোড়া লাগায়
   config/         env.ts (zod), constants.ts, redis.ts
   common/         errors, http (logger, response), middleware, schemas, utils, constants
   database/       db.ts (pg + drizzle + withTransaction), redis.service.ts, drizzle/ (schema, enums)
@@ -29,21 +29,22 @@ src/
 Layer-এর নিয়ম: **route → controller → service → repository**। Controller-এ business logic নয়, repository-তে rule নয়। Repository-র প্রতিটি method শেষে ঐচ্ছিক `Executor` (db বা tx) নেয়, তাই service transaction খুলে ভেতরে পাঠায়।
 
 ## Endpoint
+
 `/api/v1` এর অধীনে: `auth`, `words`, `sentences`, `conversations`, `courses`, `sections`, `lessons`, `health`।
 অতিরিক্ত nested route: `PATCH /courses/:id/sections/reorder`, `PATCH /sections/:id/lessons/reorder`, `POST|PATCH|DELETE /lessons/:id/items...`।
 
 ## পুরনো কোড থেকে আচরণের পার্থক্য (জেনে রাখুন)
 
-| বিষয় | আগে | এখন |
-|---|---|---|
-| Response | sentence/word-এ `data.data` দুইবার wrap | একবারই: `{ success, data, message }` → **frontend যাচাই করুন** |
-| `verifyDummy` | hardcoded (সম্ভবত invalid) hash | startup-এ real hash |
-| JWT | algorithm pin ছিল না | `HS256` pin |
-| `register` race | 500 | 409 |
-| `sentence/word update` | `updatedAt` set হত না; `text/audioUrl` চুপচাপ ignore | `updatedAt` set; `text/audioUrl` এখনও ignore (TODO) |
-| env | `REDIS_HOST/PORT` বৈধ কিন্তু crash | `REDIS_URL` আবশ্যক |
-| `/health` | শুধু memory | DB + Redis ping + memory |
-| async job status | 201 | 202 (`/ai`, `/resync-words`) |
+| বিষয়                  | আগে                                                  | এখন                                                            |
+| ---------------------- | ---------------------------------------------------- | -------------------------------------------------------------- |
+| Response               | sentence/word-এ `data.data` দুইবার wrap              | একবারই: `{ success, data, message }` → **frontend যাচাই করুন** |
+| `verifyDummy`          | hardcoded (সম্ভবত invalid) hash                      | startup-এ real hash                                            |
+| JWT                    | algorithm pin ছিল না                                 | `HS256` pin                                                    |
+| `register` race        | 500                                                  | 409                                                            |
+| `sentence/word update` | `updatedAt` set হত না; `text/audioUrl` চুপচাপ ignore | `updatedAt` set; `text/audioUrl` এখনও ignore (TODO)            |
+| env                    | `REDIS_HOST/PORT` বৈধ কিন্তু crash                   | `REDIS_URL` আবশ্যক                                             |
+| `/health`              | শুধু memory                                          | DB + Redis ping + memory                                       |
+| async job status       | 201                                                  | 202 (`/ai`, `/resync-words`)                                   |
 
 ## আগের মতোই রাখা ঝুঁকি (সিদ্ধান্ত আপনার)
 
@@ -55,6 +56,7 @@ Layer-এর নিয়ম: **route → controller → service → repository*
 - `ConsoleEmailService` শুধু dev-এর জন্য; prod-এ `EmailService` interface-এ আসল provider দিন।
 
 ## বাকি
+
 - Swagger/OpenAPI বাদ (পরে `@asteasolutions/zod-to-openapi`)।
 - Test: শুধু `content-workflow` util-এর ছোট spec আছে। auth/session-এর test নতুন করে লিখতে হবে (function-based হওয়ায় mock করা সহজ: factory-তে সাধারণ object পাস করলেই হয়)।
 - Error class (`AppError` ও সন্তান) `class` রাখা হয়েছে, কারণ `Error` extend করে `instanceof` কাজ করানোর এটাই প্রচলিত উপায়।

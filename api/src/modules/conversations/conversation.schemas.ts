@@ -16,8 +16,12 @@ export const createConversationSchema = z.strictObject({
   category: z.enum(ALLOWED_CATEGORIES),
   turns: z.array(turnSchema).max(MAX_TURNS_PER_CONVERSATION).optional(),
 });
-export const updateConversationSchema = createConversationSchema.omit({ turns: true }).partial();
-export const replaceTurnsSchema = z.strictObject({ turns: z.array(turnSchema).max(MAX_TURNS_PER_CONVERSATION) });
+export const updateConversationSchema = createConversationSchema
+  .omit({ turns: true })
+  .partial();
+export const replaceTurnsSchema = z.strictObject({
+  turns: z.array(turnSchema).max(MAX_TURNS_PER_CONVERSATION),
+});
 
 export const listConversationQuerySchema = z.strictObject({
   ...paginationShape,

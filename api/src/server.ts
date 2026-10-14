@@ -1,53 +1,54 @@
-import { createApp } from './app.js';
-import { buildContainer } from './container.js';
-import { env } from './config/env.js';
-import { pool } from './database/db.js';
-import { registerGoogleStrategy } from './modules/auth/google.strategy.js';
-import { createSentenceWorker } from './modules/sentence/sentence.worker.js';
-import { createWordWorker } from './modules/words/word.worker.js';
+// Entry point: boots the HTTP server and wires up graceful shutdown so
+// in-flight requests finish and DB connections close cleanly on deploy/restart.
+import { createApp } from "./app.js";
+import { connectDatabase, disconnectDatabase } from "./database/db.js";
+import { env } from "./config/env.js";
+import { logger } from "./common/http/logger.js";
 
-const container = buildContainer();
-const { logger } = container;
+async function bootstrap() {
+  await connectDatabase();
 
-await pool.query('SELECT 1'); // DB না থাকলে boot-ই হবে না
-await container.redis.connect();
-registerGoogleStrategy();
+  // Local development is more convenient with the HTTP API and BullMQ
+  // consumers in one process. Production keeps workers in a separate Render
+  // Background Worker service, so API replicas never consume jobs.
 
-const app = createApp(container);
-const server = app.listen(env.PORT, () => logger.info(`Listening on :${env.PORT} (${env.NODE_ENV})`));
+  await import("./worker.js");
+  logger.info("Background workers started in development mode");
 
-// prod-এ worker আলাদা process-এ নেওয়াই ভালো; এখন একই process-এ
-const workers = [
-  createSentenceWorker(container.processors.sentence, logger),
-  createWordWorker(container.processors.word, logger),
-];
+  const app = createApp();
+  const server = app.listen(env.PORT, async () => {
+    logger.info(`Server listening on port ${env.PORT} [${env.NODE_ENV}]`);
+  });
 
-let closing = false;
-async function shutdown(signal: string) {
-  if (closing) return;
-  closing = true;
-  logger.info(`${signal} received, shutting down`);
-  const force = setTimeout(() => process.exit(1), 15_000);
-  force.unref();
+  const shutdown = async (signal: string) => {
+    logger.info(`${signal} received, shutting down gracefully`);
 
-  try {
-    await new Promise<void>((resolve) => server.close(() => resolve())); // নতুন connection বন্ধ
-    await Promise.all(workers.map((w) => w.close()));                    // চলমান job শেষ
-    await Promise.all(Object.values(container.queues).map((q) => q.close()));
-    await container.redis.disconnect();
-    await pool.end();
-  } catch (err) {
-    logger.error({ err }, 'Error during shutdown');
-  } finally {
-    clearTimeout(force);
-    process.exit(0);
-  }
+    server.close(async () => {
+      await disconnectDatabase();
+      logger.info("Shutdown complete");
+      process.exit(0);
+    });
+
+    // Force-exit if shutdown hangs (e.g. a stuck connection).
+    setTimeout(() => {
+      logger.error("Forced shutdown after timeout");
+      process.exit(1);
+    }, 10_000).unref();
+  };
+
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
+  process.on("SIGINT", () => shutdown("SIGINT"));
+
+  process.on("unhandledRejection", (reason) => {
+    logger.error({ reason }, "Unhandled promise rejection");
+  });
+  process.on("uncaughtException", (err) => {
+    logger.fatal({ err }, "Uncaught exception - exiting");
+    process.exit(1);
+  });
 }
 
-process.on('SIGTERM', () => void shutdown('SIGTERM'));
-process.on('SIGINT', () => void shutdown('SIGINT'));
-process.on('unhandledRejection', (err) => logger.error({ err }, 'unhandledRejection'));
-process.on('uncaughtException', (err) => {
-  logger.fatal({ err }, 'uncaughtException');
-  void shutdown('uncaughtException');
+bootstrap().catch((err) => {
+  logger.fatal({ err }, "Failed to start server");
+  process.exit(1);
 });
