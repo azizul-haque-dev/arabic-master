@@ -1,4 +1,5 @@
-import { Router, type RequestHandler } from 'express';
+import { Router } from 'express';
+import { authenticate } from '../../../common/middleware/authenticate.js';
 import { authorize } from '../../../common/middleware/authorize.js';
 import { validate } from '../../../common/middleware/validate.js';
 import {
@@ -7,7 +8,7 @@ import {
   updateStatusSchema,
 } from '../../../common/schemas.js';
 import { Role } from '../../../database/drizzle/enums.js';
-import type { LessonController } from './lesson.controller.js';
+import { LessonController } from './lesson.controller.js';
 import {
   addLessonItemSchema,
   createLessonSchema,
@@ -16,41 +17,53 @@ import {
   updateLessonSchema,
 } from './lesson.schemas.js';
 
-export function createLessonRouter(d: {
-  controller: LessonController;
-  authenticate: RequestHandler;
-}) {
-  const r = Router();
-  const c = d.controller;
-  const params = { params: idParamSchema };
+const lessonRoutes = Router();
+const params = { params: idParamSchema };
 
-  r.use(d.authenticate, authorize(Role.CONTENT_MANAGER, Role.ADMIN));
-  r.get('/', validate({ query: listLessonQuerySchema }), c.list);
-  r.get('/:id', validate(params), c.getOne);
-  r.post('/', validate({ body: createLessonSchema }), c.create);
-  r.patch('/:id', validate({ ...params, body: updateLessonSchema }), c.update);
-  r.patch(
-    '/:id/status',
-    validate({ ...params, body: updateStatusSchema }),
-    c.changeStatus,
-  );
+lessonRoutes.use(authenticate, authorize(Role.CONTENT_MANAGER, Role.ADMIN));
+lessonRoutes.get(
+  '/',
+  validate({ query: listLessonQuerySchema }),
+  LessonController.list,
+);
+lessonRoutes.get('/:id', validate(params), LessonController.getOne);
+lessonRoutes.post(
+  '/',
+  validate({ body: createLessonSchema }),
+  LessonController.create,
+);
+lessonRoutes.patch(
+  '/:id',
+  validate({ ...params, body: updateLessonSchema }),
+  LessonController.update,
+);
+lessonRoutes.patch(
+  '/:id/status',
+  validate({ ...params, body: updateStatusSchema }),
+  LessonController.changeStatus,
+);
 
-  r.post(
-    '/:id/items',
-    validate({ ...params, body: addLessonItemSchema }),
-    c.addItem,
-  );
-  r.patch(
-    '/:id/items/reorder',
-    validate({ ...params, body: reorderSchema }),
-    c.reorderItems,
-  );
-  r.delete(
-    '/:id/items/:itemId',
-    validate({ params: itemParamSchema }),
-    c.removeItem,
-  );
+lessonRoutes.post(
+  '/:id/items',
+  validate({ ...params, body: addLessonItemSchema }),
+  LessonController.addItem,
+);
+lessonRoutes.patch(
+  '/:id/items/reorder',
+  validate({ ...params, body: reorderSchema }),
+  LessonController.reorderItems,
+);
+lessonRoutes.delete(
+  '/:id/items/:itemId',
+  validate({ params: itemParamSchema }),
+  LessonController.removeItem,
+);
 
-  r.delete('/:id', authorize(Role.ADMIN), validate(params), c.remove);
-  return r;
-}
+lessonRoutes.delete(
+  '/:id',
+  authorize(Role.ADMIN),
+  validate(params),
+  LessonController.remove,
+);
+
+export { lessonRoutes };

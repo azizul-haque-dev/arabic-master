@@ -17,74 +17,74 @@ import type {
   ListLessonQuery,
   UpdateLessonInput,
 } from './lesson.schemas.js';
-import type { LessonService } from './lesson.service.js';
+import { LessonService } from './lesson.service.js';
 
-export function createLessonController(service: LessonService) {
-  const id = (req: Request) => paramsOf<IdParam>(req).id;
-  return {
-    list: async (req: Request, res: Response) =>
-      ok(res, await service.list(queryOf<ListLessonQuery>(req))),
-    getOne: async (req: Request, res: Response) =>
-      ok(res, await service.getById(id(req))),
-    create: async (req: Request, res: Response) =>
-      ok(
-        res,
-        await service.create(bodyOf<CreateLessonInput>(req), req.auth!),
-        201,
+const id = (req: Request) => paramsOf<IdParam>(req).id;
+
+export const LessonController = {
+  list: async (req: Request, res: Response) =>
+    ok(res, await LessonService.list(queryOf<ListLessonQuery>(req))),
+  getOne: async (req: Request, res: Response) =>
+    ok(res, await LessonService.getById(id(req))),
+  create: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await LessonService.create(bodyOf<CreateLessonInput>(req), req.auth!),
+      201,
+    ),
+  update: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await LessonService.update(
+        id(req),
+        bodyOf<UpdateLessonInput>(req),
+        req.auth!,
       ),
-    update: async (req: Request, res: Response) =>
-      ok(
-        res,
-        await service.update(
-          id(req),
-          bodyOf<UpdateLessonInput>(req),
-          req.auth!,
-        ),
+    ),
+  changeStatus: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await LessonService.changeStatus(
+        id(req),
+        bodyOf<UpdateStatusInput>(req),
+        req.auth!,
       ),
-    changeStatus: async (req: Request, res: Response) =>
-      ok(
-        res,
-        await service.changeStatus(
-          id(req),
-          bodyOf<UpdateStatusInput>(req),
-          req.auth!,
-        ),
+    ),
+  /** route param `id` = sectionId (PATCH /sections/:id/lessons/reorder) */
+  reorderInSection: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await LessonService.reorderInSection(
+        id(req),
+        bodyOf<ReorderInput>(req).ids,
+        req.auth!,
       ),
-    /** route param `id` = sectionId (PATCH /sections/:id/lessons/reorder) */
-    reorderInSection: async (req: Request, res: Response) =>
-      ok(
-        res,
-        await service.reorderInSection(
-          id(req),
-          bodyOf<ReorderInput>(req).ids,
-          req.auth!,
-        ),
+    ),
+  addItem: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await LessonService.addItem(
+        id(req),
+        bodyOf<AddLessonItemInput>(req),
+        req.auth!,
       ),
-    addItem: async (req: Request, res: Response) =>
-      ok(
-        res,
-        await service.addItem(
-          id(req),
-          bodyOf<AddLessonItemInput>(req),
-          req.auth!,
-        ),
-        201,
+      201,
+    ),
+  reorderItems: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await LessonService.reorderItems(
+        id(req),
+        bodyOf<ReorderInput>(req).ids,
+        req.auth!,
       ),
-    reorderItems: async (req: Request, res: Response) =>
-      ok(
-        res,
-        await service.reorderItems(
-          id(req),
-          bodyOf<ReorderInput>(req).ids,
-          req.auth!,
-        ),
-      ),
-    removeItem: async (req: Request, res: Response) => {
-      const p = paramsOf<ItemParam>(req);
-      ok(res, await service.removeItem(p.id, p.itemId, req.auth!));
-    },
-    remove: async (req: Request, res: Response) =>
-      ok(res, await service.remove(id(req))),
-  };
-}
-export type LessonController = ReturnType<typeof createLessonController>;
+    ),
+  removeItem: async (req: Request, res: Response) => {
+    const p = paramsOf<ItemParam>(req);
+    ok(res, await LessonService.removeItem(p.id, p.itemId, req.auth!));
+  },
+  remove: async (req: Request, res: Response) =>
+    ok(res, await LessonService.remove(id(req))),
+};
+
+export type LessonController = typeof LessonController;
