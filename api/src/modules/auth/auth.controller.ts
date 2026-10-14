@@ -4,6 +4,7 @@ import { bodyOf } from '../../common/middleware/validate.js';
 import { clearAuthCookies, setAuthCookies } from './auth.cookies.js';
 import type {
   ForgotPasswordInput,
+  GoogleAuthInput,
   LoginInput,
   RegisterInput,
   ResetPasswordInput,
@@ -82,8 +83,16 @@ export const AuthController = {
     const user = await UserService.findById(req.auth!.userId);
     ok(res, user ? UserService.toSafeUser(user) : null);
   },
-
+  google: async (req: Request, res: Response) => {
+    const result = await AuthService.loginWithGoogle(
+      bodyOf<GoogleAuthInput>(req),
+      meta(req),
+    );
+    ok(res, result);
+  },
 };
+
+export type AuthController = typeof AuthController;
 
 
 
