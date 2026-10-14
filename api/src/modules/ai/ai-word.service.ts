@@ -10,9 +10,10 @@ import {
   isArabicText,
   normalizeArabicText,
 } from '../../common/utils/normalize-arabic.util.js';
-import type { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
-import type { WordRepository } from '../words/word.repository.js';
-import type { AiService } from './ai.service.js';
+import { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
+import { WordRepository } from '../words/word.repository.js';
+import { AiService } from './ai.service.js';
+import { logger as defaultLogger } from '../../common/http/logger.js';
 
 export function createAiWordService(dependencies: {
   ai: AiService;
@@ -21,7 +22,7 @@ export function createAiWordService(dependencies: {
   logger: Logger;
 }) {
   const { ai, entities, words } = dependencies;
-  const logger = d.logger.child({ context: 'AiWordService' });
+  const logger = dependencies.logger.child({ context: 'AiWordService' });
 
   async function lookup(normalized: string) {
     const entity = await entities.findByNormalizedText(normalized);
@@ -97,4 +98,22 @@ export function createAiWordService(dependencies: {
 
   return { createWordViaAi };
 }
-export type AiWordService = ReturnType<typeof createAiWordService>;
+
+let defaultAiWordService: ReturnType<typeof createAiWordService> | undefined;
+
+function getAiWordService() {
+  defaultAiWordService ??= createAiWordService({
+    ai: AiService,
+    entities: ArabicEntityRepository,
+    words: WordRepository,
+    logger: defaultLogger,
+  });
+  return defaultAiWordService;
+}
+
+export const AiWordService = {
+  createWordViaAi: (input: string, createdById?: string) =>
+    getAiWordService().createWordViaAi(input, createdById),
+};
+
+export type AiWordService = typeof AiWordService;

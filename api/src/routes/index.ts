@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { pool } from '../database/db.js';
 import { authRoutes } from '../modules/auth/auth.routes.js';
 import { wordRoutes } from '../modules/words/word.routes.js';
+import { sentenceRoutes } from '../modules/sentence/sentence.routes.js';
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.get('/health', async (_req, res) => {
 
 router.use('/auth', authRoutes);
 router.use('/words', wordRoutes);
+router.use('/sentences', sentenceRoutes);
 
 export default router;

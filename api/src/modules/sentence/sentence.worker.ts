@@ -3,76 +3,102 @@ import {
   DEFAULT_CATEGORY,
   isValidCategory,
 } from '../../common/constants/category.constant.js';
-import type { Logger } from '../../common/http/logger.js';
+import {
+  logger as defaultLogger,
+  type Logger,
+} from '../../common/http/logger.js';
 import { cleanTextAndSpaces } from '../../common/utils/normalize-arabic.util.js';
 import { SENTENCE_QUEUE_NAME } from '../../config/constants.js';
 import { bullConnection } from '../../config/redis.js';
 import { withTransaction } from '../../database/db.js';
-import type { AiService } from '../ai/ai.service.js';
-import type { AiWordService } from '../ai/ai-word.service.js';
-import type { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
-import type { SentenceRepository } from './sentence.repository.js';
+import { AiService } from '../ai/ai.service.js';
+import { AiWordService } from '../ai/ai-word.service.js';
+import { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
+import { SentenceRepository } from './sentence.repository.js';
 
-interface ProcessData {
+export interface SentenceProcessData {
   sentenceId: string;
   arabicText: string;
   createdById?: string;
 }
-interface ResyncData {
+
+export interface SentenceResyncData {
   sentenceId: string;
   arabicText: string;
 }
-type WordLink = { wordId: string; position: number };
 
-export function createSentenceProcessor(dependencies: {
-  sentences: SentenceRepository;
-  entities: ArabicEntityRepository;
-  ai: AiService;
-  aiWords: AiWordService;
-  logger: Logger;
-}) {
-  const { sentences, entities, ai, aiWords } = dependencies;
-  const logger = dependencies.logger.child({ context: 'SentenceProcessor' });
+export type SentenceJobData = SentenceProcessData | SentenceResyncData;
+export type WordLink = { wordId: string; position: number };
 
-  const replaceWords = (sentenceId: string, words: WordLink[]) =>
-    withTransaction((tx) => sentences.replaceWords(sentenceId, words, tx));
+export interface SentenceProcessorDependencies {
+  sentences?: SentenceRepository;
+  entities?: ArabicEntityRepository;
+  ai?: AiService;
+  aiWords?: AiWordService;
+  logger?: Logger;
+}
 
-  /** SentenceWord-এ (sentenceId, wordId) unique, তাই repeat হলে শুধু প্রথম position থাকে */
-  async function resolveWords(
-    arabicText: string,
-    createdById?: string,
-  ): Promise<WordLink[]> {
-    const tokens = cleanTextAndSpaces(arabicText).split(' ').filter(Boolean);
-    const seen = new Set<string>();
-    const out: WordLink[] = [];
+export const SentenceProcessor = {
+  async process(
+    job: Job<SentenceJobData>,
+    dependencies: SentenceProcessorDependencies = {},
+  ) {
+    const sentences = dependencies.sentences ?? SentenceRepository;
+    const entities = dependencies.entities ?? ArabicEntityRepository;
+    const ai = dependencies.ai ?? AiService;
+    const aiWords = dependencies.aiWords ?? AiWordService;
+    const log = (dependencies.logger ?? defaultLogger).child({
+      context: 'SentenceProcessor',
+    });
 
-    for (let i = 0; i < tokens.length; i++) {
-      try {
-        const word = await aiWords.createWordViaAi(tokens[i], createdById);
-        if (seen.has(word.id)) {
-          logger.warn(
-            `Word "${tokens[i]}" repeats in this sentence — keeping only its first position.`,
-          );
-          continue;
+    const replaceWords = (sentenceId: string, words: WordLink[]) =>
+      withTransaction((tx) => sentences.replaceWords(sentenceId, words, tx));
+
+    /** SentenceWord-এ (sentenceId, wordId) unique, তাই repeat হলে শুধু প্রথম position থাকে */
+    async function resolveWords(
+      arabicText: string,
+      createdById?: string,
+    ): Promise<WordLink[]> {
+      const tokens = cleanTextAndSpaces(arabicText).split(' ').filter(Boolean);
+      const seen = new Set<string>();
+      const out: WordLink[] = [];
+
+      for (let i = 0; i < tokens.length; i++) {
+        try {
+          const word = await aiWords.createWordViaAi(tokens[i], createdById);
+          if (seen.has(word.id)) {
+            log.warn(
+              `Word "${tokens[i]}" repeats in this sentence — keeping only its first position.`,
+            );
+            continue;
+          }
+          seen.add(word.id);
+          out.push({ wordId: word.id, position: i + 1 });
+        } catch (err) {
+          // একটা খারাপ word পুরো sentence-এর linking থামাবে না
+          log.error({ err }, `Failed to resolve word "${tokens[i]}"`);
         }
-        seen.add(word.id);
-        out.push({ wordId: word.id, position: i + 1 });
-      } catch (err) {
-        // একটা খারাপ word পুরো sentence-এর linking থামাবে না
-        logger.error({ err }, `Failed to resolve word "${tokens[i]}"`);
       }
+      return out;
     }
-    return out;
-  }
 
-  async function processSentence({
-    sentenceId,
-    arabicText,
-    createdById,
-  }: ProcessData) {
+    if (job.name === 'resync-sentence-words') {
+      const { sentenceId, arabicText } = job.data as SentenceResyncData;
+      if (!(await sentences.findById(sentenceId))) {
+        log.warn(
+          `Sentence ${sentenceId} was deleted before resync ran — skipping.`,
+        );
+        return;
+      }
+      await replaceWords(sentenceId, await resolveWords(arabicText));
+      return;
+    }
+
+    const { sentenceId, arabicText, createdById } =
+      job.data as SentenceProcessData;
     const sentence = await sentences.findById(sentenceId);
     if (!sentence) {
-      logger.warn(
+      log.warn(
         `Sentence ${sentenceId} was deleted before the AI job ran — skipping.`,
       );
       return;
@@ -83,7 +109,7 @@ export function createSentenceProcessor(dependencies: {
       ? result.category
       : DEFAULT_CATEGORY;
     if (category !== result.category) {
-      logger.warn(
+      log.warn(
         `AI returned unknown category "${result.category}" for sentence ${sentenceId}`,
       );
     }
@@ -109,38 +135,36 @@ export function createSentenceProcessor(dependencies: {
     });
 
     await replaceWords(sentenceId, await resolveWords(arabicText, createdById));
-  }
+  },
+};
 
-  async function resync({ sentenceId, arabicText }: ResyncData) {
-    if (!(await sentences.findById(sentenceId))) {
-      logger.warn(
-        `Sentence ${sentenceId} was deleted before resync ran — skipping.`,
-      );
-      return;
-    }
-    await replaceWords(sentenceId, await resolveWords(arabicText));
-  }
+export type SentenceProcessor = typeof SentenceProcessor;
 
-  return async (job: Job<ProcessData | ResyncData>) => {
-    if (job.name === 'resync-sentence-words')
-      return resync(job.data as ResyncData);
-    return processSentence(job.data as ProcessData);
-  };
+export function createSentenceProcessor(
+  dependencies?: SentenceProcessorDependencies,
+) {
+  return (job: Job<SentenceJobData>) =>
+    SentenceProcessor.process(job, dependencies);
 }
 
 export function createSentenceWorker(
-  handler: ReturnType<typeof createSentenceProcessor>,
-  logger: Logger,
+  handler?: (job: Job<SentenceJobData>) => Promise<void>,
+  logger?: Logger,
 ) {
+  const log = logger ?? defaultLogger;
+  const jobHandler = handler ?? createSentenceProcessor({ logger: log });
+
   // ⚠️ প্রথমে concurrency 1 রাখুন; প্রতি sentence-এ অনেক LLM call হয় (Gemini rate-limit)
-  const worker = new Worker(SENTENCE_QUEUE_NAME, handler, {
+  const worker = new Worker(SENTENCE_QUEUE_NAME, jobHandler, {
     connection: bullConnection(),
     concurrency: 1,
   });
+
   worker.on('failed', (job, err) =>
-    logger.error(
+    log.error(
       `Job ${job?.id} (${job?.name}) failed (attempt ${job?.attemptsMade}): ${err.message}`,
     ),
   );
+
   return worker;
 }

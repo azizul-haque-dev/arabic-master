@@ -8,41 +8,44 @@ import type {
   ListSentenceQuery,
   UpdateSentenceInput,
 } from './sentence.schemas.js';
-import type { SentenceService } from './sentence.service.js';
+import { SentenceService } from './sentence.service.js';
 
-export function createSentenceController(service: SentenceService) {
-  const id = (req: Request) => paramsOf<IdParam>(req).id;
-  return {
-    list: async (req: Request, res: Response) =>
-      ok(res, await service.list(queryOf<ListSentenceQuery>(req))),
-    getOne: async (req: Request, res: Response) =>
-      ok(res, await service.getById(id(req))),
-    create: async (req: Request, res: Response) =>
-      ok(
-        res,
-        await service.create(
-          bodyOf<CreateSentenceInput>(req),
-          req.auth!.userId,
-        ),
-        201,
+const id = (req: Request) => paramsOf<IdParam>(req).id;
+
+export const SentenceController = {
+  list: async (req: Request, res: Response) =>
+    ok(res, await SentenceService.list(queryOf<ListSentenceQuery>(req))),
+  getOne: async (req: Request, res: Response) =>
+    ok(res, await SentenceService.getById(id(req))),
+  create: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await SentenceService.create(
+        bodyOf<CreateSentenceInput>(req),
+        req.auth!.userId,
       ),
-    generate: async (req: Request, res: Response) =>
-      ok(
-        res,
-        await service.generateWithAi(
-          bodyOf<GenerateContentInput>(req).query,
-          req.auth!.userId,
-        ),
-        202,
+      201,
+    ),
+  generate: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await SentenceService.generateWithAi(
+        bodyOf<GenerateContentInput>(req).query,
+        req.auth!.userId,
       ),
-    resyncWords: async (req: Request, res: Response) =>
-      ok(res, await service.resyncWords(id(req)), 202),
-    update: async (req: Request, res: Response) =>
-      ok(res, await service.update(id(req), bodyOf<UpdateSentenceInput>(req))),
-    remove: async (req: Request, res: Response) => {
-      await service.remove(id(req));
-      ok(res, null);
-    },
-  };
-}
-export type SentenceController = ReturnType<typeof createSentenceController>;
+      202,
+    ),
+  resyncWords: async (req: Request, res: Response) =>
+    ok(res, await SentenceService.resyncWords(id(req)), 202),
+  update: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await SentenceService.update(id(req), bodyOf<UpdateSentenceInput>(req)),
+    ),
+  remove: async (req: Request, res: Response) => {
+    await SentenceService.remove(id(req));
+    ok(res, null);
+  },
+};
+
+export type SentenceController = typeof SentenceController;
