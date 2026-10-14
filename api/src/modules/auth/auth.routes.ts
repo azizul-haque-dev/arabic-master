@@ -13,39 +13,39 @@ import {
 import { authenticate } from '../../common/middleware/authenticate.js';
 import { refreshGuard } from '../../common/middleware/refresh-guard.js';
 
-const r = Router();
+const authRoutes = Router();
 
-r.post('/register', limit(5), validate({ body: registerSchema }), AuthController.register);
-r.post('/login', limit(5), validate({ body: loginSchema }), AuthController.login);
-r.post('/refresh', limit(20), csrfGuard, refreshGuard, AuthController.refresh);
-r.post('/logout', authenticate, AuthController.logout);
-r.post('/logout-all', authenticate, AuthController.logoutAll);
-r.post(
+authRoutes.post('/register', limit(5), validate({ body: registerSchema }), AuthController.register);
+authRoutes.post('/login', limit(5), validate({ body: loginSchema }), AuthController.login);
+authRoutes.post('/refresh', limit(20), csrfGuard, refreshGuard, AuthController.refresh);
+authRoutes.post('/logout', authenticate, AuthController.logout);
+authRoutes.post('/logout-all', authenticate, AuthController.logoutAll);
+authRoutes.post(
   '/forgot-password',
   limit(3),
   validate({ body: forgotPasswordSchema }),
   AuthController.forgotPassword,
 );
-r.post(
+authRoutes.post(
   '/reset-password',
   limit(5),
   validate({ body: resetPasswordSchema }),
   AuthController.resetPassword,
 );
-r.get('/me', authenticate, AuthController.me);
+authRoutes.get('/me', authenticate, AuthController.me);
 
-// r.get(
+// authRoutes.get(
 //   '/google',
 //   passport.authenticate('google', {
 //     scope: ['email', 'profile'],
 //     session: false,
 //   }),
 // );
-// r.get(
+// authRoutes.get(
 //   '/google/callback',
 //   passport.authenticate('google', { session: false }),
 //   AuthController.googleCallback,
 // );
 
-export const authRoutes = r;
-export default r;
+
+export { authRoutes };
