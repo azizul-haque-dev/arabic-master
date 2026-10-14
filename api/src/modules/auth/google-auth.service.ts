@@ -45,7 +45,7 @@ export const GoogleAuthService = {
       access_type: 'offline',
       scope: ['openid', 'email', 'profile'],
       redirect_uri: redirectUri ?? env.GOOGLE_CALLBACK_URL,
-      state,
+      ...(state ? { state } : {}),
       prompt: 'consent',
     });
   },

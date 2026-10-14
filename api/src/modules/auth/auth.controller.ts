@@ -12,6 +12,8 @@ import type {
 import { AuthService } from './auth.service.js';
 import type { RequestMeta } from './auth.types.js';
 import { UserService } from '../users/user.service.js';
+import { env } from '../../config/env.js';
+import { GoogleAuthService } from './google-auth.service.js';
 
 const meta = (req: Request): RequestMeta => ({
   requestId: String(req.id),
@@ -89,6 +91,78 @@ export const AuthController = {
       meta(req),
     );
     ok(res, result);
+  },
+  googleRedirect: async (req: Request, res: Response) => {
+    const returnTo =
+      typeof req.query.returnTo === 'string' ? req.query.returnTo : undefined;
+    const state = returnTo
+      ? Buffer.from(JSON.stringify({ returnTo })).toString('base64url')
+      : undefined;
+
+    const authUrl = GoogleAuthService.getAuthorizationUrl(
+      env.GOOGLE_CALLBACK_URL,
+      state,
+    );
+    res.redirect(authUrl);
+  },
+  googleCallback: async (req: Request, res: Response) => {
+    const frontendBase = (env.FRONTEND_URL ?? 'http://localhost:3000').replace(
+      /\/$/,
+      '',
+    );
+    const { code, error, state } = req.query;
+
+    let targetPath = '/oauth/callback';
+    if (typeof state === 'string') {
+      try {
+        const decoded = JSON.parse(
+          Buffer.from(state, 'base64url').toString('utf8'),
+        );
+        if (
+          decoded.returnTo &&
+          typeof decoded.returnTo === 'string' &&
+          decoded.returnTo.startsWith('/') &&
+          !decoded.returnTo.startsWith('//')
+        ) {
+          targetPath = decoded.returnTo;
+        }
+      } catch {
+        // ignore malformed state
+      }
+    }
+
+    if (error || !code || typeof code !== 'string') {
+      const errorMsg =
+        typeof error === 'string' ? error : 'google_authentication_failed';
+      return res.redirect(
+        `${frontendBase}/login?error=${encodeURIComponent(errorMsg)}`,
+      );
+    }
+
+    try {
+      const result = await AuthService.loginWithGoogle(
+        {
+          code,
+          redirectUri: env.GOOGLE_CALLBACK_URL,
+        },
+        meta(req),
+      );
+
+      const targetUrl = new URL('/oauth/callback', frontendBase);
+      targetUrl.searchParams.set('accessToken', result.accessToken);
+      targetUrl.searchParams.set('refreshToken', result.refreshToken);
+      if (targetPath !== '/oauth/callback') {
+        targetUrl.searchParams.set('returnTo', targetPath);
+      }
+
+      return res.redirect(targetUrl.toString());
+    } catch (err: unknown) {
+      const errorMsg =
+        err instanceof Error ? err.message : 'google_authentication_failed';
+      return res.redirect(
+        `${frontendBase}/login?error=${encodeURIComponent(errorMsg)}`,
+      );
+    }
   },
 };
 

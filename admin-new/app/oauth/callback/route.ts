@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverApiFetch } from "@/lib/auth/server-api";
-import { setAuthSession } from "@/lib/auth/session";
+import {
+  setAuthSession,
+  SESSION_COOKIE_NAME,
+  REFRESH_COOKIE_NAME,
+  USER_COOKIE_NAME,
+} from "@/lib/auth/session";
 import { SafeUser } from "@/lib/types/auth";
 import { getPostLoginRedirect } from "@/lib/auth/redirect";
 
@@ -38,9 +43,47 @@ export async function GET(request: NextRequest) {
 
     await setAuthSession({ accessToken, refreshToken: refreshToken ?? undefined, user });
 
-    return NextResponse.redirect(
-      new URL(getPostLoginRedirect(user.role), request.url),
+    const returnTo = request.nextUrl.searchParams.get("returnTo");
+    const redirectPath =
+      returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//")
+        ? returnTo
+        : getPostLoginRedirect(user.role);
+
+    const redirectResponse = NextResponse.redirect(
+      new URL(redirectPath, request.url),
     );
+
+    const isProd = process.env.NODE_ENV === "production";
+    redirectResponse.cookies.set({
+      name: SESSION_COOKIE_NAME,
+      value: accessToken,
+      httpOnly: true,
+      secure: isProd,
+      sameSite: "lax",
+      path: "/",
+    });
+
+    if (refreshToken) {
+      redirectResponse.cookies.set({
+        name: REFRESH_COOKIE_NAME,
+        value: refreshToken,
+        httpOnly: true,
+        secure: isProd,
+        sameSite: "lax",
+        path: "/",
+      });
+    }
+
+    redirectResponse.cookies.set({
+      name: USER_COOKIE_NAME,
+      value: JSON.stringify(user),
+      httpOnly: true,
+      secure: isProd,
+      sameSite: "lax",
+      path: "/",
+    });
+
+    return redirectResponse;
   } catch (error) {
     console.error("Google OAuth callback failed:", error);
     return getLoginRedirect(request, "google_authentication_failed");

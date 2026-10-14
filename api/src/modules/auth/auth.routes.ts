@@ -18,6 +18,8 @@ const authRoutes = Router();
 
 authRoutes.post('/register', limit(5), validate({ body: registerSchema }), AuthController.register);
 authRoutes.post('/login', limit(5), validate({ body: loginSchema }), AuthController.login);
+authRoutes.get('/google', limit(10), AuthController.googleRedirect);
+authRoutes.get('/google/callback', limit(10), AuthController.googleCallback);
 authRoutes.post(
   '/google',
   limit(10),
