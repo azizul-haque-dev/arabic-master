@@ -17,7 +17,19 @@ export const resetPasswordSchema = z.strictObject({
   newPassword: z.string().min(8).max(128), // max limit: prevents DoS via overly long input to argon2
 });
 
+export const googleAuthSchema = z
+  .strictObject({
+    idToken: z.string().min(1).optional(),
+    code: z.string().min(1).optional(),
+    codeVerifier: z.string().min(1).optional(),
+    redirectUri: z.string().min(1).optional(),
+  })
+  .refine((data) => data.idToken || data.code, {
+    message: 'Either idToken or code must be provided',
+  });
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export type GoogleAuthInput = z.infer<typeof googleAuthSchema>;

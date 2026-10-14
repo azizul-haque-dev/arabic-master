@@ -27,6 +27,7 @@ const EnvSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
   GOOGLE_CALLBACK_URL: z.string().min(1),
+  GOOGLE_ANDROID_CLIENT_ID: z.string().optional(),
 
   AUTH_COOKIE_NAME: z.string().default('refresh_token'),
   AUTH_COOKIE_SECURE: z.stringbool().default(true),

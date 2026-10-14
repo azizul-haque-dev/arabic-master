@@ -39,7 +39,10 @@ export const AuthRepository = {
         .set({ usedAt: new Date() })
         .where(eq(schema.passwordResetToken.id, id));
     },
-    async findIdentity(provider: AuthProvider, providerAccountId: string) {
+    async findIdentity(
+      provider: AuthProvider,
+      providerAccountId: string,
+    ): Promise<typeof schema.authIdentity.$inferSelect | null> {
       const [row] = await db
         .select()
         .from(schema.authIdentity)

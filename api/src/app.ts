@@ -2,7 +2,6 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { type Express } from 'express';
 import helmet from 'helmet';
-import passport from 'passport';
 import { pinoHttp } from 'pino-http';
 import { v7 as randomUUIDv7 } from 'uuid';
 import {
@@ -12,7 +11,6 @@ import {
 import { logger } from './common/http/logger.js';
 import { globalLimiter } from './common/middleware/rate-limit.js';
 import { corsOrigins, env, isProd } from './config/env.js';
-import { registerGoogleStrategy } from './modules/auth/google.strategy.js';
 import apiRoutes from './routes/index.js';
 
 export function createApp(): Express {
@@ -44,8 +42,6 @@ export function createApp(): Express {
   app.use(cookieParser());
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
-  app.use(passport.initialize());
-  registerGoogleStrategy();
 
   app.use(`/${env.API_PREFIX}/v1`, globalLimiter, apiRoutes);
 

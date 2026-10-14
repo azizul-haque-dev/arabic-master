@@ -6,6 +6,7 @@ import { csrfGuard } from '../../common/middleware/csrf.js';
 import { AuthController } from './auth.controller.js';
 import {
   forgotPasswordSchema,
+  googleAuthSchema,
   loginSchema,
   registerSchema,
   resetPasswordSchema,
@@ -17,6 +18,12 @@ const authRoutes = Router();
 
 authRoutes.post('/register', limit(5), validate({ body: registerSchema }), AuthController.register);
 authRoutes.post('/login', limit(5), validate({ body: loginSchema }), AuthController.login);
+authRoutes.post(
+  '/google',
+  limit(10),
+  validate({ body: googleAuthSchema }),
+  AuthController.google,
+);
 authRoutes.post('/refresh', limit(20), csrfGuard, refreshGuard, AuthController.refresh);
 authRoutes.post('/logout', authenticate, AuthController.logout);
 authRoutes.post('/logout-all', authenticate, AuthController.logoutAll);
@@ -34,18 +41,4 @@ authRoutes.post(
 );
 authRoutes.get('/me', authenticate, AuthController.me);
 
-// authRoutes.get(
-//   '/google',
-//   passport.authenticate('google', {
-//     scope: ['email', 'profile'],
-//     session: false,
-//   }),
-// );
-// authRoutes.get(
-//   '/google/callback',
-//   passport.authenticate('google', { session: false }),
-//   AuthController.googleCallback,
-// );
-
-
-export { authRoutes };
+export { authRoutes };

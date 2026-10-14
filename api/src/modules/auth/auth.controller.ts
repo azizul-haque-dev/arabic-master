@@ -1,10 +1,10 @@
 import type { Request, Response } from 'express';
 import { ok } from '../../common/http/response.js';
 import { bodyOf } from '../../common/middleware/validate.js';
-import { env } from '../../config/env.js';
 import { clearAuthCookies, setAuthCookies } from './auth.cookies.js';
 import type {
   ForgotPasswordInput,
+  GoogleAuthInput,
   LoginInput,
   RegisterInput,
   ResetPasswordInput,
@@ -12,7 +12,6 @@ import type {
 import { AuthService } from './auth.service.js';
 import type { RequestMeta } from './auth.types.js';
 import { UserService } from '../users/user.service.js';
-// import
 
 const meta = (req: Request): RequestMeta => ({
   requestId: String(req.id),
@@ -84,30 +83,16 @@ export const AuthController = {
     const user = await UserService.findById(req.auth!.userId);
     ok(res, user ? UserService.toSafeUser(user) : null);
   },
-  // googleCallback: async (req: Request, res: Response) => {
-  //   const result = await AuthService.loginWithGoogle(
-  //     req.user as unknown as GoogleProfilePayload,
-  //     meta(req),
-  //   );
-  //   setAuthCookies(
-  //     res,
-  //     result.tokens.refreshToken,
-  //     result.tokens.refreshTokenExpiresAt,
-  //   );
+  google: async (req: Request, res: Response) => {
+    const result = await AuthService.loginWithGoogle(
+      bodyOf<GoogleAuthInput>(req),
+      meta(req),
+    );
+    ok(res, result);
+  },
 
-  //   if (env.FRONTEND_URL) {
-  //     // ⚠️ token URL query-তে। আগের আচরণ রাখা হয়েছে (leak ঝুঁকি, README দেখুন)
-  //     const url = new URL('/oauth/callback', env.FRONTEND_URL);
-  //     url.searchParams.set('accessToken', result.tokens.accessToken);
-  //     url.searchParams.set('refreshToken', result.tokens.refreshToken);
-  //     return res.redirect(url.toString());
-  //   }
-  //   res.json({
-  //     user: result.user,
-  //     accessToken: result.tokens.accessToken,
-  //     refreshToken: result.tokens.refreshToken,
-  //   });
-  // },
+
+
 };
 
 export type AuthController = typeof AuthController;

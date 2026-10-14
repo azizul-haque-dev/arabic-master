@@ -10,7 +10,8 @@ import { UserStatus } from '../../database/drizzle/enums.js';
 
 import { UserService } from '../users/user.service.js';
 
-import type { LoginInput, RegisterInput } from './auth.schemas.js';
+import { GoogleAuthService } from './google-auth.service.js';
+import type { GoogleAuthInput, LoginInput, RegisterInput } from './auth.schemas.js';
 import type {
   AuthResult,
   RequestMeta,
@@ -178,33 +179,16 @@ export const AuthService = {
     });
   },
 
-  // async loginWithGoogle(
-  //   profile: GoogleProfilePayload,
-  //   meta: RequestMeta,
-  // ): Promise<AuthResult> {
-  //   const user = await OAuthService.findOrCreateGoogleUser(profile);
-  //   if (user.status !== UserStatus.ACTIVE)
-  //     throw new UnauthorizedError('Account unavailable');
+  loginWithGoogle(input: GoogleAuthInput, meta: RequestMeta) {
+    return GoogleAuthService.login(input, meta);
+  },
 
-  //   const session = await SessionService.createSession({
-  //     userId: user.id,
-  //     ipAddress: meta.ipAddress,
-  //     userAgent: meta.userAgent,
-  //   });
-  //   security.log({
-  //     event: 'OAUTH_LOGIN',
-  //     ...meta,
-  //     userId: user.id,
-  //     sessionId: session.sessionId,
-  //   });
-  //   return { user: UserService.toSafeUser(user), tokens: session };
-  // },
+
+
 };
 
 export type AuthService = typeof AuthService;
 
-export function createAuthService() {
-  return AuthService;
-}
+
 
 
