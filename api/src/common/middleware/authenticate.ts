@@ -1,22 +1,13 @@
 // Protects routes by requiring a valid access token in the
 // Authorization header ("Bearer <token>").
 import { NextFunction, Request, Response } from "express";
-import { ApiError } from "@/lib/api-error.js";
+import { UnauthorizedError } from "../errors/app-error.js";
 
 import { asyncHandler } from "../http/async-handler.js";
+import { TokenService } from "../../modules/auth/token.service.js";
+import { UserService } from "../../modules/users/user.service.js";
 
-// Declared on Express.User (not Request directly) so this merges cleanly
-// with passport's own type augmentation instead of conflicting with it.
-declare global {
-  namespace Express {
-    interface User {
-      id: string;
-      email: string;
-    }
-  }
-}
-
-export const requireAuth = asyncHandler(
+export const authenticate = asyncHandler(
   async (req: Request, _res: Response, next: NextFunction) => {
     let token: string | undefined;
 
@@ -34,24 +25,38 @@ export const requireAuth = asyncHandler(
 
     // If neither source provides an access token, stop execution and throw a 401 response status
     if (!token) {
-      throw ApiError.unauthorized("Authentication credentials missing");
+      throw new UnauthorizedError("Authentication credentials missing");
     }
 
     try {
       // Decode and validate the cryptographic token payload signature
-      const payload = verifyAccessToken(token);
+      const payload = TokenService.verifyAccessToken(token);
+      if (payload.type !== "access") {
+        throw new UnauthorizedError("Invalid token type");
+      }
 
-      // Mutate the request interface context with the validated user parameters
-      req.user = {
-        id: payload.sub,
-        email: payload.email,
+      const user = await UserService.findById(payload.sub);
+      if (!user) {
+        throw new UnauthorizedError("User no longer exists");
+      }
+
+      // Mutate the request interface context for downstream controllers and middleware
+      req.auth = {
+        userId: user.id,
+        sessionId: payload.sessionId,
+        jwtId: payload.jwtId,
+        role: user.role,
       };
+
 
       // Successfully authenticated. Pass execution to the next controller layer.
       next();
     } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        throw error;
+      }
       // An invalid or expired token must throw a 401 error so both web and mobile can catch it and refresh
-      throw ApiError.unauthorized("Access token is invalid or expired");
+      throw new UnauthorizedError("Access token is invalid or expired");
     }
   },
 );

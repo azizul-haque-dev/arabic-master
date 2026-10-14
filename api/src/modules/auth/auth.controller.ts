@@ -11,7 +11,6 @@ import type {
 } from './auth.schemas.js';
 import { AuthService } from './auth.service.js';
 import type { RequestMeta } from './auth.types.js';
-
 import { UserService } from '../users/user.service.js';
 // import
 
@@ -29,7 +28,7 @@ type Tokens = {
   refreshTokenExpiresAt: Date;
 };
 
-/** web → refresh token in cookie, mobile → in response body */
+/** web → refresh token cookie-তে, mobile → body-তে */
 function sessionBody(req: Request, res: Response, user: unknown, t: Tokens) {
   if (isNonCookieClient(req))
     return { user, accessToken: t.accessToken, refreshToken: t.refreshToken };
@@ -37,7 +36,7 @@ function sessionBody(req: Request, res: Response, user: unknown, t: Tokens) {
   return { user, accessToken: t.accessToken };
 }
 
-export const createAuthController = {
+export const AuthController = {
   register: async (req: Request, res: Response) => {
     const r = await AuthService.register(bodyOf<RegisterInput>(req), meta(req));
     ok(res, sessionBody(req, res, r.user, r.tokens), 201);
@@ -97,7 +96,7 @@ export const createAuthController = {
   //   );
 
   //   if (env.FRONTEND_URL) {
-  //     // ⚠️ Tokens passed via URL query parameters. Preserved legacy behavior (leak risk, see README)
+  //     // ⚠️ token URL query-তে। আগের আচরণ রাখা হয়েছে (leak ঝুঁকি, README দেখুন)
   //     const url = new URL('/oauth/callback', env.FRONTEND_URL);
   //     url.searchParams.set('accessToken', result.tokens.accessToken);
   //     url.searchParams.set('refreshToken', result.tokens.refreshToken);
@@ -110,6 +109,8 @@ export const createAuthController = {
   //   });
   // },
 };
+
+export type AuthController = typeof AuthController;
 
 
 
