@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { v7 as randomUUIDv7 } from 'uuid';
 import { normalizeArabicText } from '../../common/utils/normalize-arabic.util.js';
-import { db, type Db, type Executor } from '../../database/db.js';
+import { db, type Executor } from '../../database/db.js';
 import * as schema from '../../database/drizzle/schema.js';
 
 export const ArabicEntityRepository = {
@@ -60,7 +60,3 @@ export const ArabicEntityRepository = {
 };
 
 export type ArabicEntityRepository = typeof ArabicEntityRepository;
-
-export function createArabicEntityRepository(_db: Db = db) {
-  return ArabicEntityRepository;
-}
