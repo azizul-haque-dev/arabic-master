@@ -3,30 +3,43 @@ import {
   DEFAULT_CATEGORY,
   isValidCategory,
 } from '../../common/constants/category.constant.js';
-import type { Logger } from '../../common/http/logger.js';
+import {
+  logger as defaultLogger,
+  type Logger,
+} from '../../common/http/logger.js';
 import { WORD_QUEUE_NAME } from '../../config/constants.js';
 import { bullConnection } from '../../config/redis.js';
-import type { AiService } from '../ai/ai.service.js';
-import type { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
-import type { WordRepository } from './word.repository.js';
+import { AiService } from '../ai/ai.service.js';
+import { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
+import { WordRepository } from './word.repository.js';
 
-export function createWordProcessor(dependencies: {
-  words: WordRepository;
-  entities: ArabicEntityRepository;
-  ai: AiService;
-  logger: Logger;
-}) {
-  const { words, entities, ai } = dependencies;
-  const logger = dependencies.logger.child({ context: 'WordProcessor' });
+export interface WordJobData {
+  wordId: string;
+  arabicText: string;
+}
 
-  return async (job: Job<{ wordId: string; arabicText: string }>) => {
+export const WordProcessor = {
+  async process(
+    job: Job<WordJobData>,
+    dependencies: {
+      words?: WordRepository;
+      entities?: ArabicEntityRepository;
+      ai?: AiService;
+      logger?: Logger;
+    } = {},
+  ) {
+    const words = dependencies.words ?? WordRepository;
+    const entities = dependencies.entities ?? ArabicEntityRepository;
+    const ai = dependencies.ai ?? AiService;
+    const log = (dependencies.logger ?? defaultLogger).child({
+      context: 'WordProcessor',
+    });
+
     const { wordId, arabicText } = job.data;
 
     const word = await words.findById(wordId);
     if (!word) {
-      logger.warn(
-        `Word ${wordId} was deleted before the AI job ran — skipping.`,
-      );
+      log.warn(`Word ${wordId} was deleted before the AI job ran — skipping.`);
       return;
     }
 
@@ -35,7 +48,7 @@ export function createWordProcessor(dependencies: {
       ? result.category
       : DEFAULT_CATEGORY;
     if (category !== result.category) {
-      logger.warn(
+      log.warn(
         `AI returned unknown category "${result.category}" for word ${wordId}`,
       );
     }
@@ -60,21 +73,37 @@ export function createWordProcessor(dependencies: {
       category,
       updatedAt: new Date(),
     });
-  };
+  },
+};
+
+export type WordProcessor = typeof WordProcessor;
+
+export function createWordProcessor(dependencies?: {
+  words?: WordRepository;
+  entities?: ArabicEntityRepository;
+  ai?: AiService;
+  logger?: Logger;
+}) {
+  return (job: Job<WordJobData>) => WordProcessor.process(job, dependencies);
 }
 
 export function createWordWorker(
-  handler: ReturnType<typeof createWordProcessor>,
-  logger: Logger,
+  handler?: (job: Job<WordJobData>) => Promise<void>,
+  logger?: Logger,
 ) {
-  const worker = new Worker(WORD_QUEUE_NAME, handler, {
+  const log = logger ?? defaultLogger;
+  const jobHandler = handler ?? createWordProcessor({ logger: log });
+
+  const worker = new Worker(WORD_QUEUE_NAME, jobHandler, {
     connection: bullConnection(),
     concurrency: 1,
   });
+
   worker.on('failed', (job, err) =>
-    logger.error(
+    log.error(
       `Word job ${job?.id} failed (attempt ${job?.attemptsMade}): ${err.message}`,
     ),
   );
+
   return worker;
 }

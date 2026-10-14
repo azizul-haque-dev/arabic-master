@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { pool } from '../database/db.js';
 import { authRoutes } from '../modules/auth/auth.routes.js';
+import { wordRoutes } from '../modules/words/word.routes.js';
 
 const router = Router();
 
@@ -19,8 +20,7 @@ router.get('/health', async (_req, res) => {
     .json({ status: healthy ? 'ok' : 'error', heapMb: Math.round(heapMb) });
 });
 
-router.use("/auth", authRoutes);
-
-
+router.use('/auth', authRoutes);
+router.use('/words', wordRoutes);
 
 export default router;

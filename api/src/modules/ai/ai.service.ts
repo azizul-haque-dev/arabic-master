@@ -32,4 +32,19 @@ export function createAiService() {
     },
   };
 }
-export type AiService = ReturnType<typeof createAiService>;
+
+let defaultAiService: ReturnType<typeof createAiService> | undefined;
+
+function getAiService() {
+  defaultAiService ??= createAiService();
+  return defaultAiService;
+}
+
+export const AiService = {
+  generateContent: (query: string): Promise<AiResponse> =>
+    getAiService().generateContent(query),
+  translateToArabic: (text: string): Promise<string> =>
+    getAiService().translateToArabic(text),
+};
+
+export type AiService = typeof AiService;

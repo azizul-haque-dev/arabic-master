@@ -8,38 +8,37 @@ import type {
   ListWordQuery,
   UpdateWordInput,
 } from './word.schemas.js';
-import type { WordService } from './word.service.js';
+import { WordService } from './word.service.js';
 
-export function createWordController(service: WordService) {
-  const id = (req: Request) => paramsOf<IdParam>(req).id;
+const id = (req: Request) => paramsOf<IdParam>(req).id;
 
-  return {
-    list: async (req: Request, res: Response) =>
-      ok(res, await service.list(queryOf<ListWordQuery>(req))),
-    getOne: async (req: Request, res: Response) =>
-      ok(res, await service.getById(id(req))),
-    create: async (req: Request, res: Response) =>
-      ok(
-        res,
-        await service.create(bodyOf<CreateWordInput>(req), req.auth!.userId),
-        201,
+export const WordController = {
+  list: async (req: Request, res: Response) =>
+    ok(res, await WordService.list(queryOf<ListWordQuery>(req))),
+  getOne: async (req: Request, res: Response) =>
+    ok(res, await WordService.getById(id(req))),
+  create: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await WordService.create(bodyOf<CreateWordInput>(req), req.auth!.userId),
+      201,
+    ),
+  generate: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await WordService.generateWithAi(
+        bodyOf<GenerateContentInput>(req).query,
+        req.auth!.userId,
       ),
-    generate: async (req: Request, res: Response) =>
-      ok(
-        res,
-        await service.generateWithAi(
-          bodyOf<GenerateContentInput>(req).query,
-          req.auth!.userId,
-        ),
-        202,
-      ),
-    update: async (req: Request, res: Response) =>
-      ok(res, await service.update(id(req), bodyOf<UpdateWordInput>(req))),
-    remove: async (req: Request, res: Response) => {
-      await service.remove(id(req));
-      ok(res, null);
-    },
-  };
-}
+      202,
+    ),
+  update: async (req: Request, res: Response) =>
+    ok(res, await WordService.update(id(req), bodyOf<UpdateWordInput>(req))),
+  remove: async (req: Request, res: Response) => {
+    await WordService.remove(id(req));
+    ok(res, null);
+  },
+};
 
-export type WordController = ReturnType<typeof createWordController>;
+export type WordController = typeof WordController;
+
