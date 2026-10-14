@@ -8,52 +8,53 @@ import type {
   ReplaceTurnsInput,
   UpdateConversationInput,
 } from './conversation.schemas.js';
-import type { ConversationService } from './conversation.service.js';
+import { ConversationService } from './conversation.service.js';
 
-export function createConversationController(service: ConversationService) {
-  const id = (req: Request) => paramsOf<IdParam>(req).id;
-  return {
-    list: async (req: Request, res: Response) =>
-      ok(res, await service.list(queryOf<ListConversationQuery>(req))),
-    getOne: async (req: Request, res: Response) =>
-      ok(res, await service.getById(id(req))),
-    create: async (req: Request, res: Response) =>
-      ok(
-        res,
-        await service.create(bodyOf<CreateConversationInput>(req), req.auth!),
-        201,
+const id = (req: Request) => paramsOf<IdParam>(req).id;
+
+export const ConversationController = {
+  list: async (req: Request, res: Response) =>
+    ok(res, await ConversationService.list(queryOf<ListConversationQuery>(req))),
+  getOne: async (req: Request, res: Response) =>
+    ok(res, await ConversationService.getById(id(req))),
+  create: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await ConversationService.create(
+        bodyOf<CreateConversationInput>(req),
+        req.auth!,
       ),
-    update: async (req: Request, res: Response) =>
-      ok(
-        res,
-        await service.update(
-          id(req),
-          bodyOf<UpdateConversationInput>(req),
-          req.auth!,
-        ),
+      201,
+    ),
+  update: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await ConversationService.update(
+        id(req),
+        bodyOf<UpdateConversationInput>(req),
+        req.auth!,
       ),
-    replaceTurns: async (req: Request, res: Response) =>
-      ok(
-        res,
-        await service.replaceTurns(
-          id(req),
-          bodyOf<ReplaceTurnsInput>(req),
-          req.auth!,
-        ),
+    ),
+  replaceTurns: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await ConversationService.replaceTurns(
+        id(req),
+        bodyOf<ReplaceTurnsInput>(req),
+        req.auth!,
       ),
-    changeStatus: async (req: Request, res: Response) =>
-      ok(
-        res,
-        await service.changeStatus(
-          id(req),
-          bodyOf<UpdateStatusInput>(req),
-          req.auth!,
-        ),
+    ),
+  changeStatus: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await ConversationService.changeStatus(
+        id(req),
+        bodyOf<UpdateStatusInput>(req),
+        req.auth!,
       ),
-    remove: async (req: Request, res: Response) =>
-      ok(res, await service.remove(id(req))),
-  };
-}
-export type ConversationController = ReturnType<
-  typeof createConversationController
->;
+    ),
+  remove: async (req: Request, res: Response) =>
+    ok(res, await ConversationService.remove(id(req))),
+};
+
+export type ConversationController = typeof ConversationController;

@@ -1,9 +1,10 @@
-import { Router, type RequestHandler } from 'express';
+import { Router } from 'express';
+import { authenticate } from '../../common/middleware/authenticate.js';
 import { authorize } from '../../common/middleware/authorize.js';
 import { validate } from '../../common/middleware/validate.js';
 import { idParamSchema, updateStatusSchema } from '../../common/schemas.js';
 import { Role } from '../../database/drizzle/enums.js';
-import type { ConversationController } from './conversation.controller.js';
+import { ConversationController } from './conversation.controller.js';
 import {
   createConversationSchema,
   listConversationQuerySchema,
@@ -11,35 +12,42 @@ import {
   updateConversationSchema,
 } from './conversation.schemas.js';
 
-export function createConversationRouter(d: {
-  controller: ConversationController;
-  authenticate: RequestHandler;
-}) {
-  const r = Router();
-  const c = d.controller;
-  const params = { params: idParamSchema };
+const conversationRoutes = Router();
+const params = { params: idParamSchema };
 
-  r.use(d.authenticate, authorize(Role.CONTENT_MANAGER, Role.ADMIN)); // পুরো router-এর জন্য
+conversationRoutes.use(authenticate, authorize(Role.CONTENT_MANAGER, Role.ADMIN)); // পুরো router-এর জন্য
 
-  r.get('/', validate({ query: listConversationQuerySchema }), c.list);
-  r.get('/:id', validate(params), c.getOne);
-  r.post('/', validate({ body: createConversationSchema }), c.create);
-  r.patch(
-    '/:id',
-    validate({ ...params, body: updateConversationSchema }),
-    c.update,
-  );
-  r.put(
-    '/:id/turns',
-    validate({ ...params, body: replaceTurnsSchema }),
-    c.replaceTurns,
-  );
-  r.patch(
-    '/:id/status',
-    validate({ ...params, body: updateStatusSchema }),
-    c.changeStatus,
-  );
-  r.delete('/:id', authorize(Role.ADMIN), validate(params), c.remove); // শুধু ADMIN
+conversationRoutes.get(
+  '/',
+  validate({ query: listConversationQuerySchema }),
+  ConversationController.list,
+);
+conversationRoutes.get('/:id', validate(params), ConversationController.getOne);
+conversationRoutes.post(
+  '/',
+  validate({ body: createConversationSchema }),
+  ConversationController.create,
+);
+conversationRoutes.patch(
+  '/:id',
+  validate({ ...params, body: updateConversationSchema }),
+  ConversationController.update,
+);
+conversationRoutes.put(
+  '/:id/turns',
+  validate({ ...params, body: replaceTurnsSchema }),
+  ConversationController.replaceTurns,
+);
+conversationRoutes.patch(
+  '/:id/status',
+  validate({ ...params, body: updateStatusSchema }),
+  ConversationController.changeStatus,
+);
+conversationRoutes.delete(
+  '/:id',
+  authorize(Role.ADMIN),
+  validate(params),
+  ConversationController.remove,
+); // শুধু ADMIN
 
-  return r;
-}
+export { conversationRoutes };
