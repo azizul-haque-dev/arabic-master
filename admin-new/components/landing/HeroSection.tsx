@@ -12,7 +12,9 @@ export function HeroSection() {
           <div className="mx-auto inline-flex max-w-full items-center justify-center gap-2 rounded-full bg-surface-container-high px-4 py-2 text-center font-label-md text-xs min-[390px]:text-sm leading-5 text-primary shadow-sm mb-3 sm:mb-space-lg sm:min-h-0 sm:gap-space-xs sm:px-space-md sm:py-1.5 sm:text-label-md">
             <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 shrink-0 rounded-full bg-primary-container animate-pulse" />
             <span>
-              Practical Arabic • Real Conversations • Learn at Your Pace
+              Practical Arabic • Real Conversations <span className="hidden sm:flex">
+
+                • Learn at Your Pace</span>
             </span>
           </div>
 
