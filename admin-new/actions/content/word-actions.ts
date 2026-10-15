@@ -6,11 +6,12 @@ import { callBackend, requireContentAdmin, validationFailure } from "@/lib/conte
 import {
   contentIdSchema,
   contentListQuerySchema,
+  generateQuerySchema,
   queryFromUnknown,
   wordCreateSchema,
   wordUpdateSchema,
 } from "@/lib/content/validation";
-import { requestWordList } from "@/lib/words/data";
+import { requestWordById, requestWordList } from "@/lib/words/data";
 import { normalizeWord, type WordListResponse } from "@/lib/words/api";
 import type { Word } from "@/lib/types/content";
 
@@ -46,6 +47,27 @@ export async function listWordsAction(input: unknown): Promise<ContentActionResu
   }
 }
 
+export async function getWordAction(idInput: unknown): Promise<ContentActionResult<Word>> {
+  const authorization = await requireContentAdmin();
+  if (!authorization.success) return toFailure(authorization);
+
+  const id = contentIdSchema.safeParse(idInput);
+  if (!id.success) return validationFailure(id.error.issues);
+
+  try {
+    const word = await requestWordById(id.data);
+    return word
+      ? { success: true, data: word }
+      : { success: false, code: "NOT_FOUND", error: "This word no longer exists." };
+  } catch {
+    return {
+      success: false,
+      code: "SERVER_ERROR",
+      error: "Unable to load word. Please try again.",
+    };
+  }
+}
+
 export async function createWordAction(input: unknown): Promise<ContentActionResult<Word>> {
   const authorization = await requireContentAdmin();
   if (!authorization.success) return toFailure(authorization);
@@ -63,6 +85,28 @@ export async function createWordAction(input: unknown): Promise<ContentActionRes
     const word = normalizeWord(response.data, parsed.data.text);
     revalidatePath("/admin/words");
     revalidatePath("/admin/arabic-entities");
+    return { success: true, data: word };
+  } catch {
+    return safeFailure();
+  }
+}
+
+export async function generateWordAction(input: unknown): Promise<ContentActionResult<Word>> {
+  const authorization = await requireContentAdmin();
+  if (!authorization.success) return toFailure(authorization);
+
+  const parsed = generateQuerySchema.safeParse(input);
+  if (!parsed.success) return validationFailure(parsed.error.issues);
+
+  try {
+    const response = await callBackend("/words/ai", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: parsed.data }),
+    });
+    if (!response.success) return toFailure(response);
+    const word = normalizeWord(response.data);
+    revalidatePath("/admin/words");
     return { success: true, data: word };
   } catch {
     return safeFailure();

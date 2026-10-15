@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RelationshipSummary } from "@/components/features/arabic-entities/relationship-summary";
-import { findSimilarEntities } from "@/lib/mock-data/arabic-entities";
+import { findSimilarEntities, mockArabicEntities } from "@/lib/mock-data/arabic-entities";
 import { normalizeArabic } from "@/lib/normalize-arabic";
 import type { ArabicEntity, EntityFormValues } from "@/lib/types/content";
 import { AlertCircle } from "lucide-react";

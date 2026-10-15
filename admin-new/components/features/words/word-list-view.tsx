@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, BookX, Trash2 } from "lucide-react";
+import { Plus, BookX, Trash2, Sparkles } from "lucide-react";
 import { ContentPageHeader } from "@/components/shared/content-page-header";
 import { ContentSearch } from "@/components/shared/content-search";
 import { ContentStatusFilter } from "@/components/shared/content-filters";
@@ -13,10 +13,23 @@ import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmatio
 import { WordFormDialog } from "@/components/features/words/word-form-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import type { ArabicEntity, ContentStatus, Word, WordFormValues } from "@/lib/types/content";
 import { WORD_TYPE_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
-import { createWordAction, deleteWordAction, listWordsAction } from "@/actions/content/word-actions";
+import {
+  createWordAction,
+  deleteWordAction,
+  generateWordAction,
+  getWordAction,
+  listWordsAction,
+} from "@/actions/content/word-actions";
 import { buildWordPayload } from "@/lib/words/api";
 
 export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
@@ -27,6 +40,13 @@ export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<Set<ContentStatus>>(new Set());
   const [createOpen, setCreateOpen] = useState(false);
+  const [generateOpen, setGenerateOpen] = useState(false);
+  const [generationQuery, setGenerationQuery] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState<string | null>(null);
+  const [generationMessage, setGenerationMessage] = useState<string | null>(null);
+  const [generationPendingId, setGenerationPendingId] = useState<string | null>(null);
+  const [generationCheck, setGenerationCheck] = useState(0);
   const [deleteTarget, setDeleteTarget] = useState<Word | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,10 +80,84 @@ export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
     }
   }
 
+  useEffect(() => {
+    if (!generationPendingId) return;
+    let active = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let attempts = 0;
+
+    async function checkGeneration(id: string) {
+      try {
+        const result = await getWordAction(id);
+        if (!active) return;
+        if (!result.success) {
+          setGenerationMessage(result.error);
+          return;
+        }
+        const word = result.data;
+        if (word.meaningEnglish.trim() && word.meaningBangla.trim()) {
+          setGenerationMessage(`AI generation completed for ${word.wordKey}.`);
+          setGenerationPendingId(null);
+          void loadWords(search, statusFilter.values().next().value);
+          return;
+        }
+        attempts += 1;
+        if (attempts >= 20) {
+          setGenerationMessage(
+            `Generation is still processing for ${word.wordKey}. Check again shortly.`,
+          );
+          return;
+        }
+        timer = setTimeout(() => void checkGeneration(id), 3000);
+      } catch (cause) {
+        if (!active) return;
+        setGenerationMessage(
+          `Could not confirm the generation status${cause instanceof Error ? `: ${cause.message}` : "."} The job may still be processing.`,
+        );
+      }
+    }
+
+    timer = setTimeout(() => void checkGeneration(generationPendingId), 1500);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [generationPendingId, generationCheck]);
+
   async function handleCreate(entity: ArabicEntity, values: WordFormValues) {
     const result = await createWordAction(buildWordPayload(values, entity));
     if (!result.success) throw new Error(result.error);
     await loadWords(search, statusFilter.values().next().value);
+  }
+
+  async function handleGenerate() {
+    if (isGenerating || !generationQuery.trim()) return;
+    setIsGenerating(true);
+    setGenerationError(null);
+    try {
+      const result = await generateWordAction(generationQuery.trim());
+      if (!result.success) {
+        setGenerationError(result.error);
+        return;
+      }
+      const queued = result.data;
+      if (queued.meaningEnglish.trim() && queued.meaningBangla.trim()) {
+        setGenerationMessage(`Word ${queued.wordKey} is ready.`);
+        setGenerationPendingId(null);
+      } else {
+        setGenerationPendingId(queued.id);
+        setGenerationMessage(`AI generation queued for ${queued.wordKey}.`);
+      }
+      setGenerationQuery("");
+      setGenerateOpen(false);
+      void loadWords(search, statusFilter.values().next().value);
+    } catch (cause) {
+      setGenerationError(
+        cause instanceof Error ? cause.message : "Unable to queue word generation.",
+      );
+    } finally {
+      setIsGenerating(false);
+    }
   }
 
   async function handleDelete(word: Word) {
@@ -138,12 +232,30 @@ export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
         title="Words"
         description="Learner-facing vocabulary. Every word reuses a canonical Arabic Entity instead of storing its own Arabic text."
         primaryAction={
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            Create word
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setGenerateOpen(true)}>
+              <Sparkles className="h-4 w-4" aria-hidden="true" />
+              Generate with AI
+            </Button>
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              Create word
+            </Button>
+          </div>
         }
       />
+
+      {generationMessage ? (
+        <div role="status" className="flex items-center justify-between gap-3 rounded-default border border-border bg-white p-3 text-sm text-text-secondary">
+          <span>{generationMessage}</span>
+          {generationPendingId ? (
+            <Button variant="secondary" size="sm" onClick={() => setGenerationCheck((value) => value + 1)}>
+              Check status
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
+      {generationError ? <p role="alert" className="text-sm text-error-text">{generationError}</p> : null}
 
       {error ? (
         <div role="alert" className="flex items-center justify-between gap-3 rounded-default border border-error/20 bg-error-bg p-3 text-sm text-error-text">
@@ -225,6 +337,36 @@ export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
       ) : null}
 
       <WordFormDialog open={createOpen} onOpenChange={setCreateOpen} onSave={handleCreate} />
+
+      <Dialog open={generateOpen} onOpenChange={(open) => !isGenerating && setGenerateOpen(open)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Generate word with AI</DialogTitle>
+            <DialogDescription>
+              Enter an Arabic word or a phrase to translate into Arabic. The word is created as a draft while the backend job runs.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3">
+            <label htmlFor="word-ai-query" className="text-sm font-medium text-text">Prompt</label>
+            <textarea
+              id="word-ai-query"
+              value={generationQuery}
+              onChange={(event) => setGenerationQuery(event.target.value)}
+              maxLength={500}
+              rows={4}
+              className="w-full rounded-default border border-border-strong bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10"
+              placeholder="Enter Arabic text or describe the word"
+            />
+            {generationError ? <p role="alert" className="text-sm text-error-text">{generationError}</p> : null}
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" disabled={isGenerating} onClick={() => setGenerateOpen(false)}>Cancel</Button>
+              <Button disabled={!generationQuery.trim() || isGenerating} onClick={() => void handleGenerate()}>
+                {isGenerating ? "Queueing…" : "Generate"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <DeleteConfirmationDialog
         open={Boolean(deleteTarget)}
