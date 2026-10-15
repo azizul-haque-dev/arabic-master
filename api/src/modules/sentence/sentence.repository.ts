@@ -26,6 +26,7 @@ export interface SentenceFilters {
 export type SentenceInsert = typeof schema.sentence.$inferInsert;
 
 const entityColumns = {
+  entityKey: schema.arabicEntity.entityKey,
   arabicText: schema.arabicEntity.arabicText,
   audioUrl: schema.arabicEntity.audioUrl,
   normalizedText: schema.arabicEntity.normalizedText,

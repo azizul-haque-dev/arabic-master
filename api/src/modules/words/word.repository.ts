@@ -25,6 +25,7 @@ export interface WordFilters {
 export type WordInsert = typeof schema.word.$inferInsert;
 
 const entityColumns = {
+  entityKey: schema.arabicEntity.entityKey,
   arabicText: schema.arabicEntity.arabicText,
   audioUrl: schema.arabicEntity.audioUrl,
   normalizedText: schema.arabicEntity.normalizedText,
