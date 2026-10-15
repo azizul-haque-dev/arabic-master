@@ -66,7 +66,7 @@ export const CourseService = {
     let attempts = 0;
     while (attempts < 5) {
       try {
-        const courseKey = await CourseRepository.generateNextCourseKey();
+        const courseKey = await CourseRepository.generateNextCourseKey(attempts);
         return await CourseRepository.insert({
           id: randomUUIDv7(),
           courseKey,

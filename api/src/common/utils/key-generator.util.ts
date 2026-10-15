@@ -17,6 +17,7 @@ export async function generateNextSequentialKey(
   prefix: string,
   baseNumber: number,
   ex: Executor,
+  attemptOffset = 0,
 ): Promise<string> {
   const fromIndex = prefix.length + 1;
   const regexPattern = `^${prefix}[0-9]+$`;
@@ -29,6 +30,21 @@ export async function generateNextSequentialKey(
 
   const res = await ex.execute(query);
   const maxNum = (res.rows[0] as { max_num: number | null })?.max_num;
-  const nextNum = maxNum && maxNum >= baseNumber ? maxNum + 1 : baseNumber + 1;
-  return `${prefix}${nextNum}`;
+  const highest = maxNum && Number(maxNum) >= baseNumber ? Number(maxNum) : baseNumber;
+  let candidateNum = highest + 1 + attemptOffset;
+
+  // Verify that candidate key does not already exist in table (skips sequence gaps, manual seeds, or race conditions)
+  let safety = 0;
+  while (safety++ < 1000) {
+    const candidateKey = `${prefix}${candidateNum}`;
+    const checkQuery = sql`
+      SELECT 1 FROM "${sql.raw(tableName)}" WHERE "${sql.raw(columnName)}" = ${candidateKey} LIMIT 1
+    `;
+    const checkRes = await ex.execute(checkQuery);
+    if (!checkRes.rows || checkRes.rows.length === 0) {
+      return candidateKey;
+    }
+    candidateNum++;
+  }
+  return `${prefix}${candidateNum}`;
 }

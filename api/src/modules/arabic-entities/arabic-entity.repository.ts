@@ -32,8 +32,13 @@ export const ArabicEntityRepository = {
       .limit(1);
     return row ?? null;
   },
-  async generateNextEntityKey(ex: Executor = db): Promise<string> {
-    return generateNextSequentialKey('ArabicEntity', 'entityKey', 'AE-', 1000, ex);
+  async generateNextEntityKey(
+    exOrOffset: Executor | number = db,
+    maybeOffset = 0,
+  ): Promise<string> {
+    const ex = typeof exOrOffset === 'number' ? db : exOrOffset;
+    const offset = typeof exOrOffset === 'number' ? exOrOffset : maybeOffset;
+    return generateNextSequentialKey('ArabicEntity', 'entityKey', 'AE-', 1000, ex, offset);
   },
   async create(
     d: {
@@ -59,7 +64,7 @@ export const ArabicEntityRepository = {
     let attempts = 0;
     while (attempts < 5) {
       try {
-        const entityKey = d.entityKey ?? (await this.generateNextEntityKey(ex));
+        const entityKey = d.entityKey ?? (await this.generateNextEntityKey(ex, attempts));
         const [row] = await ex
           .insert(schema.arabicEntity)
           .values({

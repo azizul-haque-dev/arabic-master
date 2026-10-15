@@ -106,8 +106,13 @@ export const WordRepository = {
     return word ?? null;
   },
 
-  async generateNextWordKey(ex: Executor = db): Promise<string> {
-    return generateNextSequentialKey('Word', 'wordKey', 'W-', 2000, ex);
+  async generateNextWordKey(
+    exOrOffset: Executor | number = db,
+    maybeOffset = 0,
+  ): Promise<string> {
+    const ex = typeof exOrOffset === 'number' ? db : exOrOffset;
+    const offset = typeof exOrOffset === 'number' ? exOrOffset : maybeOffset;
+    return generateNextSequentialKey('Word', 'wordKey', 'W-', 2000, ex, offset);
   },
 
   async insert(values: WordInsert, ex: Executor = db) {

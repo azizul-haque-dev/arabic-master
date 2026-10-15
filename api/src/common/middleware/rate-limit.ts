@@ -4,6 +4,10 @@ const base = {
   windowMs: 60_000,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: {
+    xForwardedForHeader: false,
+    trustProxy: false,
+  },
 } as const;
 
 export const globalLimiter = rateLimit({ ...base, limit: 100 });

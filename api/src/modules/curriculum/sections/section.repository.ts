@@ -131,8 +131,13 @@ export const SectionRepository = {
     return agg?.maxOrder ?? 0;
   },
 
-  async generateNextSectionKey(ex: Executor = db): Promise<string> {
-    return generateNextSequentialKey('Section', 'sectionKey', 'SEC-', 2000, ex);
+  async generateNextSectionKey(
+    exOrOffset: Executor | number = db,
+    maybeOffset = 0,
+  ): Promise<string> {
+    const ex = typeof exOrOffset === 'number' ? db : exOrOffset;
+    const offset = typeof exOrOffset === 'number' ? exOrOffset : maybeOffset;
+    return generateNextSequentialKey('Section', 'sectionKey', 'SEC-', 2000, ex, offset);
   },
 
   async insert(v: typeof schema.section.$inferInsert, tx: Tx) {

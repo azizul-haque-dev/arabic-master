@@ -170,8 +170,13 @@ export const LessonRepository = {
     return agg?.maxOrder ?? 0;
   },
 
-  async generateNextLessonKey(ex: Executor = db): Promise<string> {
-    return generateNextSequentialKey('Lesson', 'lessonKey', 'LSN-', 4000, ex);
+  async generateNextLessonKey(
+    exOrOffset: Executor | number = db,
+    maybeOffset = 0,
+  ): Promise<string> {
+    const ex = typeof exOrOffset === 'number' ? db : exOrOffset;
+    const offset = typeof exOrOffset === 'number' ? exOrOffset : maybeOffset;
+    return generateNextSequentialKey('Lesson', 'lessonKey', 'LSN-', 4000, ex, offset);
   },
 
   async insert(v: typeof schema.lesson.$inferInsert, tx: Tx) {

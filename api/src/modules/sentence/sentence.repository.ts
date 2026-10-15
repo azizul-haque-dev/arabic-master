@@ -92,8 +92,13 @@ export const SentenceRepository = {
     return row ?? null;
   },
 
-  async generateNextSentenceKey(ex: Executor = db): Promise<string> {
-    return generateNextSequentialKey('Sentence', 'sentenceKey', 'SNT-', 1000, ex);
+  async generateNextSentenceKey(
+    exOrOffset: Executor | number = db,
+    maybeOffset = 0,
+  ): Promise<string> {
+    const ex = typeof exOrOffset === 'number' ? db : exOrOffset;
+    const offset = typeof exOrOffset === 'number' ? exOrOffset : maybeOffset;
+    return generateNextSequentialKey('Sentence', 'sentenceKey', 'SNT-', 1000, ex, offset);
   },
 
   async insert(v: SentenceInsert, ex: Executor = db) {

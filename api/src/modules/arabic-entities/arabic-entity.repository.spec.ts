@@ -41,8 +41,12 @@ describe('ArabicEntityRepository.create', () => {
           }),
         }),
       }),
-      execute: vi.fn().mockResolvedValue({
-        rows: [{ max_num: 1024 }],
+      execute: vi.fn().mockImplementation(async (q) => {
+        const text = q?.queryChunks ? q.queryChunks.join('') : '';
+        if (text.includes('MAX(')) {
+          return { rows: [{ max_num: 1024 }] };
+        }
+        return { rows: [] };
       }),
       insert: vi.fn().mockReturnValue({
         values: vi.fn().mockReturnValue({

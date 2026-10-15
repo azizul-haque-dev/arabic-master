@@ -51,7 +51,7 @@ export const WordService = {
     let attempts = 0;
     while (attempts < 5) {
       try {
-        const wordKey = await WordRepository.generateNextWordKey();
+        const wordKey = await WordRepository.generateNextWordKey(attempts);
         return await WordRepository.insert({
           id: randomUUIDv7(),
           wordKey,
@@ -117,7 +117,7 @@ export const WordService = {
     let word = null;
     while (attempts < 5) {
       try {
-        const wordKey = await WordRepository.generateNextWordKey();
+        const wordKey = await WordRepository.generateNextWordKey(attempts);
         word = await WordRepository.insert({
           id: randomUUIDv7(),
           wordKey,

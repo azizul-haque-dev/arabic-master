@@ -66,7 +66,7 @@ export const SentenceService = {
     let sentence = null;
     while (attempts < 5) {
       try {
-        const sentenceKey = await SentenceRepository.generateNextSentenceKey();
+        const sentenceKey = await SentenceRepository.generateNextSentenceKey(attempts);
         sentence = await SentenceRepository.insert({
           id: randomUUIDv7(),
           sentenceKey,
@@ -139,7 +139,7 @@ export const SentenceService = {
     let sentence = null;
     while (attempts < 5) {
       try {
-        const sentenceKey = await SentenceRepository.generateNextSentenceKey();
+        const sentenceKey = await SentenceRepository.generateNextSentenceKey(attempts);
         sentence = await SentenceRepository.insert({
           id: randomUUIDv7(),
           sentenceKey,
