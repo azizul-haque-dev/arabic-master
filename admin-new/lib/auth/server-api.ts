@@ -2,7 +2,7 @@ import { getAuthSession, setAuthSession, clearAuthSession } from "./session";
 import { ActionFailure, AuthActionErrorCode } from "@/lib/types/auth";
 
 function getBackendApiUrl(): string {
-  const url = process.env.BACKEND_API_URL || process.env.API_URL || "http://localhost:5000/api/v1";
+  const url = process.env.BACKEND_API_URL || "http://localhost:5000/api/v1";
   return url.replace(/\/$/, "");
 }
 

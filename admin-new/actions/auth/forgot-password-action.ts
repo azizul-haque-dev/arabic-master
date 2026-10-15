@@ -23,7 +23,7 @@ const apiResponseSchema = z.object({
 });
 
 function getApiUrl(): string | null {
-  const apiUrl = process.env.API_URL?.trim();
+  const apiUrl = process.env.BACKEND_API_URL?.trim();
   return apiUrl ? apiUrl.replace(/\/$/, "") : null;
 }
 
