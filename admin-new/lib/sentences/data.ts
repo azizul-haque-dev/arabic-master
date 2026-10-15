@@ -41,7 +41,7 @@ export async function requestSentenceById(id: string): Promise<Sentence | null> 
 }
 
 export async function getSentencesForAdmin(query: ContentListQuery): Promise<SentenceListResponse> {
-  const authorization = await requireContentAdmin(false);
+  const authorization = await requireContentAdmin();
   if (!authorization.success) {
     if (authorization.code === "UNAUTHORIZED") redirect("/login");
     if (authorization.code === "FORBIDDEN") redirect("/403");
@@ -53,7 +53,7 @@ export async function getSentencesForAdmin(query: ContentListQuery): Promise<Sen
 export async function getSentenceForAdmin(
   id: string,
 ): Promise<{ sentence: Sentence; relatedWord?: Word } | null> {
-  const authorization = await requireContentAdmin(false);
+  const authorization = await requireContentAdmin();
   if (!authorization.success) {
     if (authorization.code === "UNAUTHORIZED") redirect("/login");
     if (authorization.code === "FORBIDDEN") redirect("/403");

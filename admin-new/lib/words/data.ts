@@ -40,7 +40,7 @@ export async function requestWordById(id: string): Promise<Word | null> {
 }
 
 export async function getWordsForAdmin(query: ContentListQuery): Promise<WordListResponse> {
-  const authorization = await requireContentAdmin(false);
+  const authorization = await requireContentAdmin();
   if (!authorization.success) {
     if (authorization.code === "UNAUTHORIZED") redirect("/login");
     if (authorization.code === "FORBIDDEN") redirect("/403");
@@ -50,7 +50,7 @@ export async function getWordsForAdmin(query: ContentListQuery): Promise<WordLis
 }
 
 export async function getWordForAdmin(id: string): Promise<Word | null> {
-  const authorization = await requireContentAdmin(false);
+  const authorization = await requireContentAdmin();
   if (!authorization.success) {
     if (authorization.code === "UNAUTHORIZED") redirect("/login");
     if (authorization.code === "FORBIDDEN") redirect("/403");

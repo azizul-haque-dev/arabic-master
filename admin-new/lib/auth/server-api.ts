@@ -79,19 +79,27 @@ async function refreshAccessToken(): Promise<string | null> {
       const newRefreshToken = data?.refreshToken || refreshToken;
 
       if (!newAccessToken) {
-        await clearAuthSession();
+        try {
+          await clearAuthSession();
+        } catch {
+          // ignore cookie deletion failure in read-only contexts
+        }
         return null;
       }
 
-      await setAuthSession({
-        accessToken: newAccessToken,
-        refreshToken: newRefreshToken,
-        user,
-      });
+      try {
+        await setAuthSession({
+          accessToken: newAccessToken,
+          refreshToken: newRefreshToken,
+          user,
+        });
+      } catch {
+        // In Next.js Server Components, cookies cannot be modified during rendering.
+        // We still return newAccessToken so the current in-flight request succeeds.
+      }
 
       return newAccessToken;
     } catch {
-      await clearAuthSession();
       return null;
     } finally {
       refreshPromise = null;
