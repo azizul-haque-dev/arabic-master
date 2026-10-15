@@ -54,6 +54,7 @@ export async function GET(request: NextRequest) {
     );
 
     const isProd = process.env.NODE_ENV === "production";
+    const THIRTY_DAYS = 30 * 24 * 60 * 60;
     redirectResponse.cookies.set({
       name: SESSION_COOKIE_NAME,
       value: accessToken,
@@ -61,6 +62,7 @@ export async function GET(request: NextRequest) {
       secure: isProd,
       sameSite: "lax",
       path: "/",
+      maxAge: THIRTY_DAYS,
     });
 
     if (refreshToken) {
@@ -71,6 +73,7 @@ export async function GET(request: NextRequest) {
         secure: isProd,
         sameSite: "lax",
         path: "/",
+        maxAge: THIRTY_DAYS,
       });
     }
 
@@ -81,6 +84,7 @@ export async function GET(request: NextRequest) {
       secure: isProd,
       sameSite: "lax",
       path: "/",
+      maxAge: THIRTY_DAYS,
     });
 
     return redirectResponse;

@@ -35,6 +35,7 @@ function applySessionCookies(
   refreshToken?: string | null
 ) {
   const isProd = process.env.NODE_ENV === "production";
+  const THIRTY_DAYS = 30 * 24 * 60 * 60;
   response.cookies.set({
     name: SESSION_COOKIE_NAME,
     value: accessToken,
@@ -42,6 +43,7 @@ function applySessionCookies(
     secure: isProd,
     sameSite: "lax",
     path: "/",
+    maxAge: THIRTY_DAYS,
   });
   if (refreshToken) {
     response.cookies.set({
@@ -51,6 +53,7 @@ function applySessionCookies(
       secure: isProd,
       sameSite: "lax",
       path: "/",
+      maxAge: THIRTY_DAYS,
     });
   }
 }

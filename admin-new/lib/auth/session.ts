@@ -16,6 +16,7 @@ export async function setAuthSession({
 }): Promise<void> {
   const cookieStore = await cookies();
   const isProd = process.env.NODE_ENV === "production";
+  const THIRTY_DAYS = 30 * 24 * 60 * 60;
 
   cookieStore.set({
     name: SESSION_COOKIE_NAME,
@@ -24,6 +25,7 @@ export async function setAuthSession({
     secure: isProd,
     sameSite: "lax",
     path: "/",
+    maxAge: THIRTY_DAYS,
   });
 
   if (refreshToken) {
@@ -34,6 +36,7 @@ export async function setAuthSession({
       secure: isProd,
       sameSite: "lax",
       path: "/",
+      maxAge: THIRTY_DAYS,
     });
   }
 
@@ -45,6 +48,7 @@ export async function setAuthSession({
       secure: isProd,
       sameSite: "lax",
       path: "/",
+      maxAge: THIRTY_DAYS,
     });
   }
 }
