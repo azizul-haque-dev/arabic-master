@@ -1,8 +1,5 @@
 import { OAuth2Client } from 'google-auth-library';
-import {
-  ConflictError,
-  UnauthorizedError,
-} from '../../common/errors/app-error.js';
+import { UnauthorizedError } from '../../common/errors/app-error.js';
 import { env } from '../../config/env.js';
 import { withTransaction } from '../../database/db.js';
 import { AuthProvider, UserStatus } from '../../database/drizzle/enums.js';
@@ -129,36 +126,49 @@ export const GoogleAuthService = {
         throw new UnauthorizedError('Account unavailable');
       }
     } else {
-      // 2. Prevent account takeover: never silently link to an existing email/password account
       const existingUser = await UserService.findByEmail(profile.email);
       if (existingUser) {
-        throw new ConflictError(
-          'An account with this email already exists. Log in with your password to link your Google account.',
-        );
+        // Link Google identity to existing user
+        await withTransaction(async (tx) => {
+          await AuthRepository.insertIdentity(
+            {
+              provider: AuthProvider.GOOGLE,
+              providerAccountId: profile.sub,
+              userId: existingUser.id,
+            },
+            tx,
+          );
+
+          if (!existingUser.emailVerified) {
+            await UserService.markEmailVerified(existingUser.id, tx);
+          }
+        });
+
+        user = existingUser;
+      } else {
+        // Atomically create user and AuthIdentity in a single transaction
+        user = await withTransaction(async (tx) => {
+          const newUser = await UserService.createFromOAuth(
+            {
+              email: profile.email,
+              fullName: profile.fullName,
+              emailVerifiedAt: new Date(),
+            },
+            tx,
+          );
+
+          await AuthRepository.insertIdentity(
+            {
+              provider: AuthProvider.GOOGLE,
+              providerAccountId: profile.sub,
+              userId: newUser.id,
+            },
+            tx,
+          );
+
+          return newUser;
+        });
       }
-
-      // 3. Atomically create user and AuthIdentity in a single transaction
-      user = await withTransaction(async (tx) => {
-        const newUser = await UserService.createFromOAuth(
-          {
-            email: profile.email,
-            fullName: profile.fullName,
-            emailVerifiedAt: new Date(),
-          },
-          tx,
-        );
-
-        await AuthRepository.insertIdentity(
-          {
-            provider: AuthProvider.GOOGLE,
-            providerAccountId: profile.sub,
-            userId: newUser.id,
-          },
-          tx,
-        );
-
-        return newUser;
-      });
     }
 
     // 4. Validate user status

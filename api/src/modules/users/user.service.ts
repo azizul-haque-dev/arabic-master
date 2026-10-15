@@ -18,6 +18,7 @@ export const UserService= {
     createWithPassword: UserRepository.createWithPassword,
     createFromOAuth: UserRepository.createFromOAuth,
     updatePassword: UserRepository.updatePassword,
+    markEmailVerified: UserRepository.markEmailVerified,
     toSafeUser: (u: User): SafeUser => ({
       id: u.id,
       email: u.email,

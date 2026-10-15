@@ -52,4 +52,14 @@ export const UserRepository= {
         .set({ passwordHash, updatedAt: new Date() })
         .where(eq(schema.user.id, id));
     },
+    async markEmailVerified(id: string, ex: Executor = db): Promise<void> {
+      await ex
+        .update(schema.user)
+        .set({
+          emailVerified: true,
+          emailVerifiedAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(schema.user.id, id));
+    },
   };

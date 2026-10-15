@@ -181,7 +181,7 @@ describe('GoogleAuthService', () => {
       });
     });
 
-    it('prevents account takeover: throws ConflictError if email exists without Google link', async () => {
+    it('links Google identity if user already exists with same email', async () => {
       vi.spyOn(AuthRepository, 'findIdentity').mockResolvedValueOnce(null);
       vi.spyOn(UserService, 'findByEmail').mockResolvedValueOnce({
         id: 'user-2',
@@ -195,18 +195,27 @@ describe('GoogleAuthService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       });
+      vi.spyOn(AuthRepository, 'insertIdentity').mockResolvedValueOnce(undefined);
 
-      await expect(
-        GoogleAuthService.authenticateUser(
-          {
-            sub: 'sub-new',
-            email: 'password-user@example.com',
-            emailVerified: true,
-            fullName: 'Password User',
-          },
-          meta,
-        ),
-      ).rejects.toThrow(ConflictError);
+      const result = await GoogleAuthService.authenticateUser(
+        {
+          sub: 'sub-new',
+          email: 'password-user@example.com',
+          emailVerified: true,
+          fullName: 'Password User',
+        },
+        meta,
+      );
+
+      expect(AuthRepository.insertIdentity).toHaveBeenCalledWith(
+        expect.objectContaining({
+          provider: AuthProvider.GOOGLE,
+          providerAccountId: 'sub-new',
+          userId: 'user-2',
+        }),
+        expect.anything(),
+      );
+      expect(result.user.id).toBe('user-2');
     });
 
     it('registers a brand new Google user atomically with AuthIdentity', async () => {
