@@ -65,7 +65,7 @@ export function RoleProvider({
   useEffect(() => {
     void Promise.resolve().then(getUser);
   }, []);
-  console.log(userSession, "session");
+
   return (
     <RoleContext.Provider
       value={{

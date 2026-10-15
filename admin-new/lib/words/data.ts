@@ -1,5 +1,6 @@
 import "server-only";
 
+import { redirect } from "next/navigation";
 import type { ContentListQuery } from "@/lib/content/validation";
 import { readBackend, requireContentAdmin } from "@/lib/content/server";
 import { normalizeWord, normalizeWordList, type WordListResponse } from "./api";
@@ -40,12 +41,20 @@ export async function requestWordById(id: string): Promise<Word | null> {
 
 export async function getWordsForAdmin(query: ContentListQuery): Promise<WordListResponse> {
   const authorization = await requireContentAdmin(false);
-  if (!authorization.success) throw new Error(authorization.error);
+  if (!authorization.success) {
+    if (authorization.code === "UNAUTHORIZED") redirect("/login");
+    if (authorization.code === "FORBIDDEN") redirect("/403");
+    throw new Error(authorization.error);
+  }
   return requestWordList(query);
 }
 
 export async function getWordForAdmin(id: string): Promise<Word | null> {
   const authorization = await requireContentAdmin(false);
-  if (!authorization.success) throw new Error(authorization.error);
+  if (!authorization.success) {
+    if (authorization.code === "UNAUTHORIZED") redirect("/login");
+    if (authorization.code === "FORBIDDEN") redirect("/403");
+    throw new Error(authorization.error);
+  }
   return requestWordById(id);
 }
