@@ -62,15 +62,31 @@ export const SentenceService = {
       });
     }
 
-    const sentence = await SentenceRepository.insert({
-      id: randomUUIDv7(),
-      sentenceKey: `sentence_${randomUUIDv7()}`,
-      entityId: entity.id,
-      ...fields,
-      difficulty: fields.difficulty ?? DifficultyLevel.BEGINNER,
-      status: ContentStatus.DRAFT,
-      createdById,
-    });
+    let attempts = 0;
+    let sentence = null;
+    while (attempts < 5) {
+      try {
+        const sentenceKey = await SentenceRepository.generateNextSentenceKey();
+        sentence = await SentenceRepository.insert({
+          id: randomUUIDv7(),
+          sentenceKey,
+          entityId: entity.id,
+          ...fields,
+          difficulty: fields.difficulty ?? DifficultyLevel.BEGINNER,
+          status: ContentStatus.DRAFT,
+          createdById,
+        });
+        break;
+      } catch (err: unknown) {
+        const pgErr = err as { code?: string; constraint?: string };
+        if (pgErr?.code === '23505' && pgErr?.constraint?.includes('sentenceKey')) {
+          attempts++;
+          continue;
+        }
+        throw err;
+      }
+    }
+    if (!sentence) throw new Error('Failed to generate unique sentenceKey after 5 attempts');
     return words?.length ? replaceWords(sentence.id, words) : sentence;
   },
 
@@ -119,23 +135,39 @@ export const SentenceService = {
     }
 
     const blank = '';
-    const sentence = await SentenceRepository.insert({
-      id: randomUUIDv7(),
-      sentenceKey: `sentence_${randomUUIDv7()}`,
-      entityId: entity.id,
-      meaningEn: blank,
-      meaningBn: blank,
-      whenToUseEn: blank,
-      whenToUseBn: blank,
-      pronunciationEn: blank,
-      pronunciationBn: blank,
-      feminineEn: blank,
-      feminineBn: blank,
-      category: DEFAULT_CATEGORY,
-      difficulty: DifficultyLevel.BEGINNER,
-      status: ContentStatus.DRAFT,
-      createdById,
-    });
+    let attempts = 0;
+    let sentence = null;
+    while (attempts < 5) {
+      try {
+        const sentenceKey = await SentenceRepository.generateNextSentenceKey();
+        sentence = await SentenceRepository.insert({
+          id: randomUUIDv7(),
+          sentenceKey,
+          entityId: entity.id,
+          meaningEn: blank,
+          meaningBn: blank,
+          whenToUseEn: blank,
+          whenToUseBn: blank,
+          pronunciationEn: blank,
+          pronunciationBn: blank,
+          feminineEn: blank,
+          feminineBn: blank,
+          category: DEFAULT_CATEGORY,
+          difficulty: DifficultyLevel.BEGINNER,
+          status: ContentStatus.DRAFT,
+          createdById,
+        });
+        break;
+      } catch (err: unknown) {
+        const pgErr = err as { code?: string; constraint?: string };
+        if (pgErr?.code === '23505' && pgErr?.constraint?.includes('sentenceKey')) {
+          attempts++;
+          continue;
+        }
+        throw err;
+      }
+    }
+    if (!sentence) throw new Error('Failed to generate unique sentenceKey after 5 attempts');
     await sentenceQueue.add('process-sentence', {
       sentenceId: sentence.id,
       arabicText: text,

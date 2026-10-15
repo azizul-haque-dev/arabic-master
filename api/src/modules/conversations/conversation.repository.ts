@@ -11,6 +11,7 @@ import {
   type SQL,
 } from 'drizzle-orm';
 import { escapeLike } from '../../common/utils/escape-like.util.js';
+import { generateNextSequentialKey } from '../../common/utils/key-generator.util.js';
 import { db, type Executor, type Tx } from '../../database/db.js';
 import { ContentStatus } from '../../database/drizzle/enums.js';
 import * as schema from '../../database/drizzle/schema.js';
@@ -112,6 +113,10 @@ export const ConversationRepository = {
       )
       .where(eq(schema.conversationTurn.conversationId, conversationId))
       .orderBy(asc(schema.conversationTurn.order));
+  },
+
+  async generateNextConversationKey(ex: Executor = db): Promise<string> {
+    return generateNextSequentialKey('Conversation', 'conversationKey', 'CNV-', 3000, ex);
   },
 
   async insert(v: typeof schema.conversation.$inferInsert, tx: Tx) {

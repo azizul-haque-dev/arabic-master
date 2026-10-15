@@ -48,15 +48,29 @@ export const WordService = {
       });
     }
 
-    return WordRepository.insert({
-      id: randomUUIDv7(),
-      wordKey: `word_${randomUUIDv7()}`,
-      entityId: entity.id,
-      ...fields,
-      wordType: fields.wordType ?? WordType.OTHER,
-      status: ContentStatus.DRAFT,
-      createdById,
-    });
+    let attempts = 0;
+    while (attempts < 5) {
+      try {
+        const wordKey = await WordRepository.generateNextWordKey();
+        return await WordRepository.insert({
+          id: randomUUIDv7(),
+          wordKey,
+          entityId: entity.id,
+          ...fields,
+          wordType: fields.wordType ?? WordType.OTHER,
+          status: ContentStatus.DRAFT,
+          createdById,
+        });
+      } catch (err: unknown) {
+        const pgErr = err as { code?: string; constraint?: string };
+        if (pgErr?.code === '23505' && pgErr?.constraint?.includes('wordKey')) {
+          attempts++;
+          continue;
+        }
+        throw err;
+      }
+    }
+    throw new Error('Failed to generate unique wordKey after 5 attempts');
   },
 
   async update(id: string, input: UpdateWordInput) {
@@ -99,22 +113,38 @@ export const WordService = {
     }
 
     const empty = '';
-    const word = await WordRepository.insert({
-      id: randomUUIDv7(),
-      wordKey: `word_${randomUUIDv7()}`,
-      entityId: entity.id,
-      meaningEn: empty,
-      meaningBn: empty,
-      whenToUseEn: empty,
-      whenToUseBn: empty,
-      pronunciationEn: empty,
-      pronunciationBn: empty,
-      feminineEn: empty,
-      feminineBn: empty,
-      category: DEFAULT_CATEGORY,
-      status: ContentStatus.DRAFT,
-      createdById,
-    });
+    let attempts = 0;
+    let word = null;
+    while (attempts < 5) {
+      try {
+        const wordKey = await WordRepository.generateNextWordKey();
+        word = await WordRepository.insert({
+          id: randomUUIDv7(),
+          wordKey,
+          entityId: entity.id,
+          meaningEn: empty,
+          meaningBn: empty,
+          whenToUseEn: empty,
+          whenToUseBn: empty,
+          pronunciationEn: empty,
+          pronunciationBn: empty,
+          feminineEn: empty,
+          feminineBn: empty,
+          category: DEFAULT_CATEGORY,
+          status: ContentStatus.DRAFT,
+          createdById,
+        });
+        break;
+      } catch (err: unknown) {
+        const pgErr = err as { code?: string; constraint?: string };
+        if (pgErr?.code === '23505' && pgErr?.constraint?.includes('wordKey')) {
+          attempts++;
+          continue;
+        }
+        throw err;
+      }
+    }
+    if (!word) throw new Error('Failed to generate unique wordKey after 5 attempts');
 
     await wordQueue.add('process-word', { wordId: word.id, arabicText: text });
     return word;

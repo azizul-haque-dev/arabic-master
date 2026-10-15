@@ -69,9 +69,10 @@ export function createAiWordService(dependencies: {
     }
 
     try {
+      const wordKey = await words.generateNextWordKey();
       return await words.insert({
         id: randomUUIDv7(),
-        wordKey: `word-${randomUUIDv7()}`,
+        wordKey,
         entityId: entity.id,
         category,
         meaningEn: result.meaningEn,

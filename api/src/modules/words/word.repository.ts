@@ -10,6 +10,7 @@ import {
 } from 'drizzle-orm';
 import { escapeLike } from '../../common/utils/escape-like.util.js';
 import { normalizeArabicText } from '../../common/utils/normalize-arabic.util.js';
+import { generateNextSequentialKey } from '../../common/utils/key-generator.util.js';
 import { db, type Db, type Executor } from '../../database/db.js';
 import type { ContentStatus } from '../../database/drizzle/enums.js';
 import * as schema from '../../database/drizzle/schema.js';
@@ -103,6 +104,10 @@ export const WordRepository = {
       .where(eq(schema.word.entityId, entityId))
       .limit(1);
     return word ?? null;
+  },
+
+  async generateNextWordKey(ex: Executor = db): Promise<string> {
+    return generateNextSequentialKey('Word', 'wordKey', 'W-', 2000, ex);
   },
 
   async insert(values: WordInsert, ex: Executor = db) {

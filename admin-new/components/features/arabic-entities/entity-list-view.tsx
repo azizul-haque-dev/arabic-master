@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/button";
 import { mockArabicEntities } from "@/lib/mock-data/arabic-entities";
 import type { ArabicEntity, ContentStatus, EntityFormValues } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
+import { generateNextEntityKey } from "@/lib/key-generators";
+import { normalizeArabic } from "@/lib/normalize-arabic";
 
 export function EntityListView() {
   const router = useRouter();
@@ -58,11 +60,17 @@ export function EntityListView() {
   }
 
   function handleSaveDraft(values: EntityFormValues) {
+    const normalized = normalizeArabic(values.arabicText);
+    const existing = entities.find((e) => e.normalizedText === normalized);
+    if (existing) {
+      alert(`An Arabic entity with this normalized text already exists (${existing.entityKey}: ${existing.arabicText})`);
+      return;
+    }
     const newEntity: ArabicEntity = {
       id: crypto.randomUUID(),
-      entityKey: `AE-${1000 + entities.length + 1}`,
+      entityKey: generateNextEntityKey(entities),
       arabicText: values.arabicText,
-      normalizedText: values.arabicText.trim(),
+      normalizedText: normalized,
       meaningBangla: values.meaningBangla,
       meaningEnglish: values.meaningEnglish,
       pronunciationBangla: values.pronunciationBangla,

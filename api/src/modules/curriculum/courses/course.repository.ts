@@ -10,6 +10,7 @@ import {
   type SQL,
 } from 'drizzle-orm';
 import { escapeLike } from '../../../common/utils/escape-like.util.js';
+import { generateNextSequentialKey } from '../../../common/utils/key-generator.util.js';
 import { db, type Executor, type Tx } from '../../../database/db.js';
 import * as schema from '../../../database/drizzle/schema.js';
 import type { ListCourseQuery } from './course.schemas.js';
@@ -107,6 +108,10 @@ export const CourseRepository = {
       .where(eq(schema.section.courseId, courseId))
       .limit(1);
     return rows.length > 0;
+  },
+
+  async generateNextCourseKey(ex: Executor = db): Promise<string> {
+    return generateNextSequentialKey('Course', 'courseKey', 'CRS-', 1000, ex);
   },
 
   async insert(v: typeof schema.course.$inferInsert, ex: Executor = db) {

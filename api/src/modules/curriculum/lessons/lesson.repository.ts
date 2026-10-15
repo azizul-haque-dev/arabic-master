@@ -13,6 +13,7 @@ import {
   type SQL,
 } from 'drizzle-orm';
 import { escapeLike } from '../../../common/utils/escape-like.util.js';
+import { generateNextSequentialKey } from '../../../common/utils/key-generator.util.js';
 import { db, type Executor, type Tx } from '../../../database/db.js';
 import {
   ContentStatus,
@@ -167,6 +168,10 @@ export const LessonRepository = {
       .from(schema.lesson)
       .where(eq(schema.lesson.sectionId, sectionId));
     return agg?.maxOrder ?? 0;
+  },
+
+  async generateNextLessonKey(ex: Executor = db): Promise<string> {
+    return generateNextSequentialKey('Lesson', 'lessonKey', 'LSN-', 4000, ex);
   },
 
   async insert(v: typeof schema.lesson.$inferInsert, tx: Tx) {

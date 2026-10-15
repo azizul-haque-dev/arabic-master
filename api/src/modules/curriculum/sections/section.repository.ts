@@ -12,6 +12,7 @@ import {
   type SQL,
 } from 'drizzle-orm';
 import { escapeLike } from '../../../common/utils/escape-like.util.js';
+import { generateNextSequentialKey } from '../../../common/utils/key-generator.util.js';
 import { db, type Executor, type Tx } from '../../../database/db.js';
 import * as schema from '../../../database/drizzle/schema.js';
 import type { ListSectionQuery } from './section.schemas.js';
@@ -128,6 +129,10 @@ export const SectionRepository = {
       .from(schema.section)
       .where(eq(schema.section.courseId, courseId));
     return agg?.maxOrder ?? 0;
+  },
+
+  async generateNextSectionKey(ex: Executor = db): Promise<string> {
+    return generateNextSequentialKey('Section', 'sectionKey', 'SEC-', 2000, ex);
   },
 
   async insert(v: typeof schema.section.$inferInsert, tx: Tx) {

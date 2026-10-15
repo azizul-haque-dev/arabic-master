@@ -50,13 +50,24 @@ export function EntityFormDialog({
   const [values, setValues] = useState<EntityFormValues>(startingValues);
   const [acknowledgedDuplicate, setAcknowledgedDuplicate] = useState(false);
 
+  const normalized = useMemo(() => normalizeArabic(values.arabicText), [values.arabicText]);
+
+  const exactDuplicate = useMemo(() => {
+    if (isEditing || !values.arabicText.trim()) return null;
+    return mockArabicEntities.find(
+      (e) => e.normalizedText === normalized && e.id !== initialValues?.id,
+    );
+  }, [values.arabicText, isEditing, initialValues, normalized]);
+
   const similar = useMemo(() => {
     if (isEditing || !values.arabicText.trim()) return [];
-    const normalized = normalizeArabic(values.arabicText);
-    return findSimilarEntities(normalized).filter((e) => e.normalizedText !== initialValues?.normalizedText);
-  }, [values.arabicText, isEditing, initialValues]);
+    return findSimilarEntities(normalized).filter(
+      (e) => e.normalizedText !== initialValues?.normalizedText,
+    );
+  }, [values.arabicText, isEditing, initialValues, normalized]);
 
-  const showDuplicateWarning = similar.length > 0 && !acknowledgedDuplicate;
+  const showDuplicateWarning =
+    Boolean(exactDuplicate) || (similar.length > 0 && !acknowledgedDuplicate);
 
   function update<K extends keyof EntityFormValues>(key: K, value: string) {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -97,7 +108,31 @@ export function EntityFormDialog({
             />
           </div>
 
-          {showDuplicateWarning ? (
+          {exactDuplicate ? (
+            <div className="rounded-default border border-danger-text/25 bg-danger-bg p-3.5">
+              <div className="flex gap-2 text-sm font-medium text-danger-text">
+                <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                Duplicate Arabic entity detected (normalizedText must be unique)
+              </div>
+              <p className="mt-1 text-xs text-text-secondary">
+                An entity with normalized text <strong>&quot;{normalized}&quot;</strong> already exists. Duplicate entities with the same normalized text cannot be created.
+              </p>
+              <div className="mt-3 flex items-center justify-between gap-3 rounded-sm bg-white px-3 py-2 border border-border/50">
+                <div>
+                  <p dir="rtl" lang="ar" className="font-arabic text-base text-text">
+                    {exactDuplicate.arabicText}
+                  </p>
+                  <p className="text-xs text-text-secondary">
+                    {exactDuplicate.entityKey} · {exactDuplicate.meaningEnglish}
+                  </p>
+                  <RelationshipSummary entity={exactDuplicate} />
+                </div>
+                <Button size="sm" variant="secondary" onClick={() => onUseExisting(exactDuplicate)}>
+                  Use this entity
+                </Button>
+              </div>
+            </div>
+          ) : showDuplicateWarning ? (
             <div className="rounded-default border border-warning-text/25 bg-warning-bg p-3.5">
               <div className="flex gap-2 text-sm font-medium text-warning-text">
                 <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
@@ -179,7 +214,11 @@ export function EntityFormDialog({
                 </Button>
                 <Button
                   variant="primary"
-                  disabled={!values.arabicText.trim() || !values.meaningEnglish.trim()}
+                  disabled={
+                    !values.arabicText.trim() ||
+                    !values.meaningEnglish.trim() ||
+                    Boolean(exactDuplicate)
+                  }
                   onClick={() => {
                     onSaveDraft(values);
                     handleClose(false);

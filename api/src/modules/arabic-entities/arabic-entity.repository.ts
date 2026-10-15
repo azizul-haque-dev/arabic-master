@@ -1,5 +1,7 @@
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { v7 as randomUUIDv7 } from 'uuid';
+import { ConflictError } from '../../common/errors/app-error.js';
+import { generateNextSequentialKey } from '../../common/utils/key-generator.util.js';
 import { normalizeArabicText } from '../../common/utils/normalize-arabic.util.js';
 import { db, type Executor } from '../../database/db.js';
 import * as schema from '../../database/drizzle/schema.js';
@@ -31,14 +33,7 @@ export const ArabicEntityRepository = {
     return row ?? null;
   },
   async generateNextEntityKey(ex: Executor = db): Promise<string> {
-    const res = await ex.execute(sql`
-      SELECT MAX(CAST(SUBSTRING("entityKey" FROM 4) AS INTEGER)) as max_num 
-      FROM "ArabicEntity" 
-      WHERE "entityKey" ~ '^AE-[0-9]+$'
-    `);
-    const maxNum = (res.rows[0] as { max_num: number | null })?.max_num;
-    const nextNum = maxNum && maxNum >= 1000 ? maxNum + 1 : 1001;
-    return `AE-${nextNum}`;
+    return generateNextSequentialKey('ArabicEntity', 'entityKey', 'AE-', 1000, ex);
   },
   async create(
     d: {
@@ -53,6 +48,14 @@ export const ArabicEntityRepository = {
     },
     ex: Executor = db,
   ) {
+    const normalizedText = normalizeArabicText(d.arabicText);
+    const existing = await this.findByNormalizedText(normalizedText, ex);
+    if (existing) {
+      throw new ConflictError(
+        `Arabic entity with normalized text "${normalizedText}" already exists (entityKey: ${existing.entityKey})`,
+      );
+    }
+
     let attempts = 0;
     while (attempts < 5) {
       try {
@@ -63,7 +66,7 @@ export const ArabicEntityRepository = {
             id: randomUUIDv7(),
             entityKey,
             arabicText: d.arabicText,
-            normalizedText: normalizeArabicText(d.arabicText),
+            normalizedText,
             audioUrl: d.audioUrl,
             pronunciationBangla: d.pronunciationBangla ?? '',
             pronunciationEnglish: d.pronunciationEnglish ?? '',
@@ -78,6 +81,11 @@ export const ArabicEntityRepository = {
         if (!d.entityKey && pgErr?.code === '23505' && pgErr?.constraint?.includes('entityKey')) {
           attempts++;
           continue;
+        }
+        if (pgErr?.code === '23505' && pgErr?.constraint?.includes('normalizedText')) {
+          throw new ConflictError(
+            `Arabic entity with normalized text "${normalizedText}" already exists`,
+          );
         }
         throw err;
       }

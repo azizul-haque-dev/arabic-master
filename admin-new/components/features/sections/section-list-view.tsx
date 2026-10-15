@@ -17,6 +17,7 @@ import { mockCourses } from "@/lib/mock-data/courses";
 import { mockLessons } from "@/lib/mock-data/lessons";
 import type { Section, SectionFormValues, ContentStatus } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
+import { generateNextSectionKey } from "@/lib/key-generators";
 
 function courseTitle(courseId: string) {
     return mockCourses.find((c) => c.id === courseId)?.title ?? "Unknown course";
@@ -51,7 +52,7 @@ export function SectionListView() {
     function handleCreate(values: SectionFormValues) {
         const newSection: Section = {
             id: crypto.randomUUID(),
-            sectionKey: `SEC-${2000 + sections.length + 1}`,
+            sectionKey: generateNextSectionKey(sections),
             title: values.title,
             description: values.description,
             courseId: values.courseId,

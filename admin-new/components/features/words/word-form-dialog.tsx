@@ -17,6 +17,8 @@ import { EntityFormDialog } from "@/components/features/arabic-entities/entity-f
 import { mockArabicEntities } from "@/lib/mock-data/arabic-entities";
 import type { ArabicEntity, EntityFormValues, Word, WordFormValues, WordType } from "@/lib/types/content";
 import { WORD_TYPE_LABEL } from "@/lib/types/content";
+import { generateNextEntityKey } from "@/lib/key-generators";
+import { normalizeArabic } from "@/lib/normalize-arabic";
 
 const emptyValues: WordFormValues = {
   meaningBangla: "",
@@ -138,13 +140,18 @@ export function WordFormDialog({
   }
 
   function handleNewEntitySaved(formValues: EntityFormValues) {
-    // Mirrors the create logic in entity-list-view.tsx — in the real app
-    // this becomes the API response from POST /arabic-entities.
+    const normalized = normalizeArabic(formValues.arabicText);
+    const existing = mockArabicEntities.find((e) => e.normalizedText === normalized);
+    if (existing) {
+      setEntityCreateOpen(false);
+      handleEntitySelected(existing);
+      return;
+    }
     const newEntity: ArabicEntity = {
       id: crypto.randomUUID(),
-      entityKey: `AE-${1000 + mockArabicEntities.length + 1}`,
+      entityKey: generateNextEntityKey(mockArabicEntities),
       arabicText: formValues.arabicText,
-      normalizedText: formValues.arabicText.trim(),
+      normalizedText: normalized,
       meaningBangla: formValues.meaningBangla,
       meaningEnglish: formValues.meaningEnglish,
       pronunciationBangla: formValues.pronunciationBangla,
