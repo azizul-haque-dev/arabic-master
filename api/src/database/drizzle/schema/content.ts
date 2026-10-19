@@ -33,6 +33,32 @@ export const arabicEntity = pgTable(
   },
   (table) => [index('ArabicEntity_status_idx').on(table.status)],
 );
+
+export const arabicEntityAudio = pgTable(
+  'ArabicEntityAudio',
+  {
+    id: text('id').primaryKey(),
+    entityId: text('entityId')
+      .notNull()
+      .references(() => arabicEntity.id, { onDelete: 'cascade' }),
+    objectKey: text('objectKey').notNull().unique(),
+    mimeType: text('mimeType').notNull(),
+    fileSizeBytes: integer('fileSizeBytes').notNull(),
+    variant: text('variant').default('DEFAULT').notNull(),
+    speaker: text('speaker'),
+    createdById: text('createdById'),
+    createdAt: timestamp('createdAt').defaultNow().notNull(),
+    updatedAt: timestamp('updatedAt').defaultNow().notNull(),
+  },
+  (table) => [
+    index('ArabicEntityAudio_entityId_idx').on(table.entityId),
+    uniqueIndex('ArabicEntityAudio_entityId_variant_key').on(
+      table.entityId,
+      table.variant,
+    ),
+  ],
+);
+
 export const word = pgTable(
   'Word',
   {
