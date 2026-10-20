@@ -24,10 +24,33 @@ export async function requestArabicEntityList(
 ): Promise<ArabicEntityListResponse> {
   try {
     const result = await readBackend(`/arabic-entities?${buildQuery(query)}`);
-    if (!result.ok) throw new Error("Unable to load Arabic entities.");
+    if (!result.ok) {
+      if (result.status === 401) redirect("/login");
+      if (result.status === 403) redirect("/403");
+      console.error(`[requestArabicEntityList] Backend error status ${result.status}`);
+      return {
+        items: [],
+        meta: {
+          page: Number(query.page) || 1,
+          limit: Number(query.limit) || 20,
+          total: 0,
+          totalPages: 1,
+        },
+      };
+    }
     return normalizeArabicEntityList(result.data);
-  } catch {
-    throw new Error("Unable to load Arabic entities. Please try again.");
+  } catch (err: unknown) {
+    if ((err as { digest?: string })?.digest?.includes("NEXT_REDIRECT")) throw err;
+    console.error("[requestArabicEntityList] Failed to load Arabic entities:", err);
+    return {
+      items: [],
+      meta: {
+        page: Number(query.page) || 1,
+        limit: Number(query.limit) || 20,
+        total: 0,
+        totalPages: 1,
+      },
+    };
   }
 }
 
@@ -37,12 +60,17 @@ export async function requestArabicEntityById(
   try {
     const result = await readBackend(`/arabic-entities/${encodeURIComponent(id)}`);
     if (!result.ok) {
+      if (result.status === 401) redirect("/login");
+      if (result.status === 403) redirect("/403");
       if (result.status === 404) return null;
-      throw new Error("Unable to load Arabic entity.");
+      console.error(`[requestArabicEntityById] Backend error status ${result.status} for id ${id}`);
+      return null;
     }
     return normalizeArabicEntity(result.data);
-  } catch {
-    throw new Error("Unable to load Arabic entity. Please try again.");
+  } catch (err: unknown) {
+    if ((err as { digest?: string })?.digest?.includes("NEXT_REDIRECT")) throw err;
+    console.error("[requestArabicEntityById] Failed to load Arabic entity:", err);
+    return null;
   }
 }
 
@@ -53,7 +81,16 @@ export async function getArabicEntitiesForAdmin(
   if (!authorization.success) {
     if (authorization.code === "UNAUTHORIZED") redirect("/login");
     if (authorization.code === "FORBIDDEN") redirect("/403");
-    throw new Error(authorization.error);
+    console.error("[getArabicEntitiesForAdmin] Admin check:", authorization.error);
+    return {
+      items: [],
+      meta: {
+        page: Number(query.page) || 1,
+        limit: Number(query.limit) || 20,
+        total: 0,
+        totalPages: 1,
+      },
+    };
   }
   return requestArabicEntityList(query);
 }
@@ -65,7 +102,8 @@ export async function getArabicEntityForAdmin(
   if (!authorization.success) {
     if (authorization.code === "UNAUTHORIZED") redirect("/login");
     if (authorization.code === "FORBIDDEN") redirect("/403");
-    throw new Error(authorization.error);
+    console.error("[getArabicEntityForAdmin] Admin check:", authorization.error);
+    return null;
   }
   return requestArabicEntityById(id);
 }

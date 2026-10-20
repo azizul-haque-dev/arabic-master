@@ -7,8 +7,8 @@ import { logger } from '../common/http/logger.js';
  * when migrations haven't run or when connecting to an existing database.
  */
 export async function ensureDatabaseSchema(pool: Pool): Promise<void> {
+  // 1. Ensure ArabicEntityAudio table exists
   try {
-    // 1. Ensure ArabicEntityAudio table exists
     await pool.query(`
       CREATE TABLE IF NOT EXISTS "ArabicEntityAudio" (
         "id" text PRIMARY KEY NOT NULL,
@@ -24,8 +24,12 @@ export async function ensureDatabaseSchema(pool: Pool): Promise<void> {
         CONSTRAINT "ArabicEntityAudio_objectKey_unique" UNIQUE("objectKey")
       );
     `);
+  } catch (err) {
+    logger.warn({ err }, 'Could not ensure ArabicEntityAudio table');
+  }
 
-    // 2. Add foreign key if ArabicEntity exists and constraint does not
+  // 2. Add foreign key if ArabicEntity exists and constraint does not
+  try {
     await pool.query(`
       DO $$ BEGIN
         IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ArabicEntity') THEN
@@ -36,28 +40,49 @@ export async function ensureDatabaseSchema(pool: Pool): Promise<void> {
               ON DELETE CASCADE ON UPDATE NO ACTION;
           EXCEPTION
             WHEN duplicate_object THEN null;
+            WHEN others THEN null;
           END;
         END IF;
       END $$;
     `);
+  } catch (err) {
+    logger.warn({ err }, 'Could not add foreign key constraint');
+  }
 
-    // 3. Ensure indexes exist
+  // 3. Ensure indexes exist
+  try {
     await pool.query(`
       CREATE INDEX IF NOT EXISTS "ArabicEntityAudio_entityId_idx" ON "ArabicEntityAudio" USING btree ("entityId");
       CREATE UNIQUE INDEX IF NOT EXISTS "ArabicEntityAudio_entityId_variant_key" ON "ArabicEntityAudio" USING btree ("entityId","variant");
     `);
+  } catch (err) {
+    logger.warn({ err }, 'Could not create indexes on ArabicEntityAudio');
+  }
 
-    // 4. Ensure meaningBangla and meaningEnglish columns exist on ArabicEntity
+  // 4. Ensure meaningBangla and meaningEnglish columns exist on ArabicEntity
+  try {
     await pool.query(`
       DO $$ BEGIN
         IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ArabicEntity') THEN
           ALTER TABLE "ArabicEntity" ADD COLUMN IF NOT EXISTS "meaningBangla" text;
           ALTER TABLE "ArabicEntity" ADD COLUMN IF NOT EXISTS "meaningEnglish" text;
+          ALTER TABLE "ArabicEntity" ADD COLUMN IF NOT EXISTS "pronunciationBangla" text DEFAULT '';
+          ALTER TABLE "ArabicEntity" ADD COLUMN IF NOT EXISTS "pronunciationEnglish" text DEFAULT '';
+          BEGIN
+            ALTER TABLE "ArabicEntity" ALTER COLUMN "pronunciationBangla" DROP NOT NULL;
+            ALTER TABLE "ArabicEntity" ALTER COLUMN "pronunciationEnglish" DROP NOT NULL;
+          EXCEPTION
+            WHEN others THEN null;
+          END;
         END IF;
       END $$;
     `);
+  } catch (err) {
+    logger.warn({ err }, 'Could not ensure ArabicEntity columns');
+  }
 
-    // 5. Backfill: If any ArabicEntity has audioUrl but no record in ArabicEntityAudio, create a DEFAULT audio record
+  // 5. Backfill: If any ArabicEntity has audioUrl but no record in ArabicEntityAudio, create a DEFAULT audio record
+  try {
     await pool.query(`
       DO $$ BEGIN
         IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ArabicEntity') 
@@ -84,9 +109,9 @@ export async function ensureDatabaseSchema(pool: Pool): Promise<void> {
         END IF;
       END $$;
     `);
-
-    logger.info('Database schema and ArabicEntityAudio verified successfully');
   } catch (err) {
-    logger.warn({ err }, 'Schema verification encountered a non-fatal warning');
+    logger.warn({ err }, 'Could not backfill legacy audio into ArabicEntityAudio');
   }
+
+  logger.info('Database schema and ArabicEntityAudio verified successfully');
 }

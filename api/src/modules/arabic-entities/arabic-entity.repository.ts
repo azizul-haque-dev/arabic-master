@@ -18,6 +18,28 @@ import type { ContentStatus } from '../../database/drizzle/enums.js';
 import * as schema from '../../database/drizzle/schema.js';
 import type { ListArabicEntityQuery } from './arabic-entity.schemas.js';
 
+const detailedArabicEntitySelection = {
+  id: schema.arabicEntity.id,
+  entityKey: schema.arabicEntity.entityKey,
+  arabicText: schema.arabicEntity.arabicText,
+  normalizedText: schema.arabicEntity.normalizedText,
+  audioUrl: schema.arabicEntity.audioUrl,
+  pronunciationBangla: sql<string>`COALESCE("ArabicEntity"."pronunciationBangla", '')`,
+  pronunciationEnglish: sql<string>`COALESCE("ArabicEntity"."pronunciationEnglish", '')`,
+  meaningBangla: sql<string>`COALESCE("ArabicEntity"."meaningBangla", (SELECT "meaningBn" FROM "Word" WHERE "Word"."entityId" = "ArabicEntity"."id" LIMIT 1), (SELECT "meaningBn" FROM "Sentence" WHERE "Sentence"."entityId" = "ArabicEntity"."id" LIMIT 1), '')`,
+  meaningEnglish: sql<string>`COALESCE("ArabicEntity"."meaningEnglish", (SELECT "meaningEn" FROM "Word" WHERE "Word"."entityId" = "ArabicEntity"."id" LIMIT 1), (SELECT "meaningEn" FROM "Sentence" WHERE "Sentence"."entityId" = "ArabicEntity"."id" LIMIT 1), '')`,
+  status: schema.arabicEntity.status,
+  rejectionReason: schema.arabicEntity.rejectionReason,
+  createdById: schema.arabicEntity.createdById,
+  createdBy: sql<string>`COALESCE((SELECT "fullName" FROM "User" WHERE "User"."id" = "ArabicEntity"."createdById"), 'Content Admin')`,
+  createdAt: schema.arabicEntity.createdAt,
+  updatedAt: schema.arabicEntity.updatedAt,
+  wordUsageCount: sql<number>`(SELECT COUNT(*)::int FROM "Word" WHERE "Word"."entityId" = "ArabicEntity"."id")`,
+  sentenceUsageCount: sql<number>`(SELECT COUNT(*)::int FROM "Sentence" WHERE "Sentence"."entityId" = "ArabicEntity"."id")`,
+  conversationUsageCount: sql<number>`(SELECT COUNT(*)::int FROM "ConversationTurn" ct JOIN "Sentence" s ON s."id" = ct."sentenceId" WHERE s."entityId" = "ArabicEntity"."id")`,
+  hasAudio: sql<boolean>`EXISTS (SELECT 1 FROM "ArabicEntityAudio" aea WHERE aea."entityId" = "ArabicEntity"."id") OR ("ArabicEntity"."audioUrl" IS NOT NULL AND "ArabicEntity"."audioUrl" != '')`,
+};
+
 export const ArabicEntityRepository = {
   /** normalizedText আগে থেকেই normalize করা হতে হবে */
   async findByNormalizedText(normalizedText: string, ex: Executor = db) {
@@ -89,27 +111,7 @@ export const ArabicEntityRepository = {
     const offset = (query.page - 1) * query.limit;
 
     const rows = await ex
-      .select({
-        id: schema.arabicEntity.id,
-        entityKey: schema.arabicEntity.entityKey,
-        arabicText: schema.arabicEntity.arabicText,
-        normalizedText: schema.arabicEntity.normalizedText,
-        audioUrl: schema.arabicEntity.audioUrl,
-        pronunciationBangla: schema.arabicEntity.pronunciationBangla,
-        pronunciationEnglish: schema.arabicEntity.pronunciationEnglish,
-        meaningBangla: sql<string>`COALESCE(${schema.arabicEntity.meaningBangla}, (SELECT "meaningBn" FROM "Word" WHERE "Word"."entityId" = ${schema.arabicEntity.id} LIMIT 1), (SELECT "meaningBn" FROM "Sentence" WHERE "Sentence"."entityId" = ${schema.arabicEntity.id} LIMIT 1), '')`,
-        meaningEnglish: sql<string>`COALESCE(${schema.arabicEntity.meaningEnglish}, (SELECT "meaningEn" FROM "Word" WHERE "Word"."entityId" = ${schema.arabicEntity.id} LIMIT 1), (SELECT "meaningEn" FROM "Sentence" WHERE "Sentence"."entityId" = ${schema.arabicEntity.id} LIMIT 1), '')`,
-        status: schema.arabicEntity.status,
-        rejectionReason: schema.arabicEntity.rejectionReason,
-        createdById: schema.arabicEntity.createdById,
-        createdBy: sql<string>`COALESCE((SELECT "fullName" FROM "User" WHERE "User"."id" = ${schema.arabicEntity.createdById}), 'Content Admin')`,
-        createdAt: schema.arabicEntity.createdAt,
-        updatedAt: schema.arabicEntity.updatedAt,
-        wordUsageCount: sql<number>`(SELECT COUNT(*)::int FROM "Word" WHERE "Word"."entityId" = ${schema.arabicEntity.id})`,
-        sentenceUsageCount: sql<number>`(SELECT COUNT(*)::int FROM "Sentence" WHERE "Sentence"."entityId" = ${schema.arabicEntity.id})`,
-        conversationUsageCount: sql<number>`(SELECT COUNT(*)::int FROM "ConversationTurn" ct JOIN "Sentence" s ON s."id" = ct."sentenceId" WHERE s."entityId" = ${schema.arabicEntity.id})`,
-        hasAudio: sql<boolean>`EXISTS (SELECT 1 FROM "ArabicEntityAudio" aea WHERE aea."entityId" = ${schema.arabicEntity.id}) OR (${schema.arabicEntity.audioUrl} IS NOT NULL AND ${schema.arabicEntity.audioUrl} != '')`,
-      })
+      .select(detailedArabicEntitySelection)
       .from(schema.arabicEntity)
       .where(where)
       .orderBy(desc(schema.arabicEntity.createdAt))
@@ -126,27 +128,7 @@ export const ArabicEntityRepository = {
       : eq(schema.arabicEntity.entityKey, idOrKey);
 
     const [row] = await ex
-      .select({
-        id: schema.arabicEntity.id,
-        entityKey: schema.arabicEntity.entityKey,
-        arabicText: schema.arabicEntity.arabicText,
-        normalizedText: schema.arabicEntity.normalizedText,
-        audioUrl: schema.arabicEntity.audioUrl,
-        pronunciationBangla: schema.arabicEntity.pronunciationBangla,
-        pronunciationEnglish: schema.arabicEntity.pronunciationEnglish,
-        meaningBangla: sql<string>`COALESCE(${schema.arabicEntity.meaningBangla}, (SELECT "meaningBn" FROM "Word" WHERE "Word"."entityId" = ${schema.arabicEntity.id} LIMIT 1), (SELECT "meaningBn" FROM "Sentence" WHERE "Sentence"."entityId" = ${schema.arabicEntity.id} LIMIT 1), '')`,
-        meaningEnglish: sql<string>`COALESCE(${schema.arabicEntity.meaningEnglish}, (SELECT "meaningEn" FROM "Word" WHERE "Word"."entityId" = ${schema.arabicEntity.id} LIMIT 1), (SELECT "meaningEn" FROM "Sentence" WHERE "Sentence"."entityId" = ${schema.arabicEntity.id} LIMIT 1), '')`,
-        status: schema.arabicEntity.status,
-        rejectionReason: schema.arabicEntity.rejectionReason,
-        createdById: schema.arabicEntity.createdById,
-        createdBy: sql<string>`COALESCE((SELECT "fullName" FROM "User" WHERE "User"."id" = ${schema.arabicEntity.createdById}), 'Content Admin')`,
-        createdAt: schema.arabicEntity.createdAt,
-        updatedAt: schema.arabicEntity.updatedAt,
-        wordUsageCount: sql<number>`(SELECT COUNT(*)::int FROM "Word" WHERE "Word"."entityId" = ${schema.arabicEntity.id})`,
-        sentenceUsageCount: sql<number>`(SELECT COUNT(*)::int FROM "Sentence" WHERE "Sentence"."entityId" = ${schema.arabicEntity.id})`,
-        conversationUsageCount: sql<number>`(SELECT COUNT(*)::int FROM "ConversationTurn" ct JOIN "Sentence" s ON s."id" = ct."sentenceId" WHERE s."entityId" = ${schema.arabicEntity.id})`,
-        hasAudio: sql<boolean>`EXISTS (SELECT 1 FROM "ArabicEntityAudio" aea WHERE aea."entityId" = ${schema.arabicEntity.id}) OR (${schema.arabicEntity.audioUrl} IS NOT NULL AND ${schema.arabicEntity.audioUrl} != '')`,
-      })
+      .select(detailedArabicEntitySelection)
       .from(schema.arabicEntity)
       .where(filter)
       .limit(1);

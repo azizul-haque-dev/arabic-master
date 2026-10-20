@@ -39,6 +39,7 @@ export function mapHttpError(
 }
 
 let refreshPromise: Promise<string | null> | null = null;
+let cachedServerAccessToken: string | null = null;
 
 async function refreshAccessToken(): Promise<string | null> {
   if (refreshPromise) {
@@ -49,6 +50,7 @@ async function refreshAccessToken(): Promise<string | null> {
     try {
       const { refreshToken, user } = await getAuthSession();
       if (!refreshToken) {
+        cachedServerAccessToken = null;
         await clearAuthSession();
         return null;
       }
@@ -65,6 +67,7 @@ async function refreshAccessToken(): Promise<string | null> {
       });
 
       if (!response.ok) {
+        cachedServerAccessToken = null;
         if (response.status === 401 || response.status === 403) {
           try {
             await clearAuthSession();
@@ -79,6 +82,7 @@ async function refreshAccessToken(): Promise<string | null> {
       const newRefreshToken = data?.refreshToken || refreshToken;
 
       if (!newAccessToken) {
+        cachedServerAccessToken = null;
         try {
           await clearAuthSession();
         } catch {
@@ -86,6 +90,8 @@ async function refreshAccessToken(): Promise<string | null> {
         }
         return null;
       }
+
+      cachedServerAccessToken = newAccessToken;
 
       try {
         await setAuthSession({
@@ -118,6 +124,7 @@ export async function serverApiFetch(
   const url = `${backendUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
   const { accessToken } = await getAuthSession();
+  const token = cachedServerAccessToken || accessToken;
 
   const headers = new Headers(options.headers || {});
   if (!headers.has("Content-Type") && options.body) {
@@ -125,8 +132,8 @@ export async function serverApiFetch(
   }
   headers.set("x-client-type", "nextjs");
 
-  if (accessToken && !headers.has("Authorization")) {
-    headers.set("Authorization", `Bearer ${accessToken}`);
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
   }
 
   try {
@@ -137,6 +144,7 @@ export async function serverApiFetch(
     });
 
     if (response.status === 401 && retryOn401 && !endpoint.includes("/auth/login") && !endpoint.includes("/auth/register")) {
+      cachedServerAccessToken = null;
       const newAccessToken = await refreshAccessToken();
       if (newAccessToken) {
         headers.set("Authorization", `Bearer ${newAccessToken}`);

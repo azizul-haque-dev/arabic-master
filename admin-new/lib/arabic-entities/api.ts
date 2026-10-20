@@ -54,11 +54,30 @@ function normalizeStatus(value: unknown): ContentStatus {
 }
 
 export function normalizeArabicEntity(raw: unknown): ArabicEntity {
-  if (!isRecord(raw)) throw new Error("The service returned an invalid Arabic entity record.");
+  if (!isRecord(raw)) {
+    return {
+      id: "unknown",
+      entityKey: "AE-0000",
+      arabicText: "",
+      normalizedText: "",
+      meaningBangla: "",
+      meaningEnglish: "",
+      pronunciationBangla: "",
+      pronunciationEnglish: "",
+      hasAudio: false,
+      status: "DRAFT",
+      wordUsageCount: 0,
+      sentenceUsageCount: 0,
+      conversationUsageCount: 0,
+      createdBy: "Content Admin",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  }
 
-  const id = requiredString(raw, "id");
+  const id = typeof raw.id === "string" && raw.id ? raw.id : String(raw.id || "unknown");
   const entityKey = optionalString(raw.entityKey) ?? `AE-${id.slice(0, 4)}`;
-  const arabicText = requiredString(raw, "arabicText");
+  const arabicText = optionalString(raw.arabicText, raw.text, raw.arabic) ?? "";
   const normalizedText = optionalString(raw.normalizedText) ?? arabicText;
   const meaningBangla = optionalString(raw.meaningBangla, raw.meaningBn) ?? "";
   const meaningEnglish = optionalString(raw.meaningEnglish, raw.meaningEn) ?? "";
@@ -106,7 +125,16 @@ export function normalizeArabicEntity(raw: unknown): ArabicEntity {
 
 export function normalizeArabicEntityList(raw: unknown): ArabicEntityListResponse {
   if (!isRecord(raw)) {
-    throw new Error("The service returned an invalid Arabic entities list.");
+    if (Array.isArray(raw)) {
+      return {
+        items: raw.map(normalizeArabicEntity),
+        meta: { page: 1, limit: 20, total: raw.length, totalPages: 1 },
+      };
+    }
+    return {
+      items: [],
+      meta: { page: 1, limit: 20, total: 0, totalPages: 1 },
+    };
   }
 
   const items = Array.isArray(raw.items)

@@ -27,7 +27,7 @@ export const contentListQuerySchema = z.object({
   search: z.string().trim().max(500).optional(),
   category: sentenceCategories.optional(),
   status: z.enum(contentStatuses).optional(),
-}).strict();
+}).strip();
 
 export const wordCreateSchema = z.object({
   text: requiredText,
