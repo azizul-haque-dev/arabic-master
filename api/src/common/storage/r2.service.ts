@@ -43,8 +43,19 @@ export class R2StorageService implements StorageService {
       return this.s3Client;
     }
 
-    if (!env.R2_ACCESS_KEY_ID || !env.R2_SECRET_ACCESS_KEY || !this.bucket) {
-      logger.error('R2 credentials or bucket name are missing from environment configuration');
+    if (
+      !env.R2_ACCESS_KEY_ID ||
+      !env.R2_SECRET_ACCESS_KEY ||
+      env.R2_SECRET_ACCESS_KEY.includes('replace-with-your') ||
+      !this.bucket
+    ) {
+      if (env.R2_SECRET_ACCESS_KEY?.includes('replace-with-your')) {
+        logger.error(
+          'R2_SECRET_ACCESS_KEY is still set to placeholder value in .env. Please update it with your actual Cloudflare R2 Secret Access Key.',
+        );
+      } else {
+        logger.error('R2 credentials or bucket name are missing from environment configuration');
+      }
       throw new ServiceUnavailableError('Object storage service is not properly configured.');
     }
 
