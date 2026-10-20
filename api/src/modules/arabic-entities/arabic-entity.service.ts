@@ -140,17 +140,14 @@ export const ArabicEntityService = {
       );
 
       // 1. Upload to Cloudflare R2
-      const fileStream = fs.createReadStream(uploadedAudio.tempFilePath);
-      fileStream.on('error', (err) => {
-        logger.debug({ err }, 'Audio upload file stream event handled');
-      });
+      const fileBuffer = await fs.promises.readFile(uploadedAudio.tempFilePath);
 
       const uploadResult = await r2StorageService.uploadAudio({
         key: newObjectKey,
         entityId: entity.id,
         variant,
         extension: uploadedAudio.extension,
-        body: fileStream,
+        body: fileBuffer,
         mimeType: uploadedAudio.canonicalMime,
         sizeBytes: uploadedAudio.fileSizeBytes,
       });

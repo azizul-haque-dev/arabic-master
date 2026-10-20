@@ -48,10 +48,10 @@ export class R2StorageService implements StorageService {
       throw new ServiceUnavailableError('Object storage service is not properly configured.');
     }
 
-    const endpoint =
+    let endpoint =
       env.R2_ENDPOINT ||
       (env.R2_ACCOUNT_ID
-        ? `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`
+        ? `https://${env.R2_ACCOUNT_ID.trim()}.r2.cloudflarestorage.com`
         : undefined);
 
     if (!endpoint) {
@@ -59,13 +59,20 @@ export class R2StorageService implements StorageService {
       throw new ServiceUnavailableError('Storage endpoint is not configured.');
     }
 
+    endpoint = endpoint.trim().replace(/\/+$/, '');
+    if (!endpoint.startsWith('http://') && !endpoint.startsWith('https://')) {
+      endpoint = `https://${endpoint}`;
+    }
+
     this.s3Client = new S3Client({
       region: env.R2_REGION || 'auto',
       endpoint,
       credentials: {
-        accessKeyId: env.R2_ACCESS_KEY_ID,
-        secretAccessKey: env.R2_SECRET_ACCESS_KEY,
+        accessKeyId: env.R2_ACCESS_KEY_ID.trim(),
+        secretAccessKey: env.R2_SECRET_ACCESS_KEY.trim(),
       },
+      requestChecksumCalculation: 'WHEN_REQUIRED',
+      responseChecksumValidation: 'WHEN_REQUIRED',
       maxAttempts: 3,
     });
 
@@ -107,10 +114,24 @@ export class R2StorageService implements StorageService {
       );
 
     try {
+      // If a readable stream was passed, buffer it to prevent AWS SDK v3 from using
+      // chunked trailer encoding (which causes signature mismatch in Cloudflare R2)
+      let payloadBody = options.body;
+      if (
+        payloadBody &&
+        typeof (payloadBody as NodeJS.ReadableStream).pipe === 'function'
+      ) {
+        const chunks: Buffer[] = [];
+        for await (const chunk of payloadBody as AsyncIterable<Buffer | string>) {
+          chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+        }
+        payloadBody = Buffer.concat(chunks);
+      }
+
       const command = new PutObjectCommand({
         Bucket: this.bucket,
         Key: objectKey,
-        Body: options.body,
+        Body: payloadBody,
         ContentType: options.mimeType,
         ContentLength: options.sizeBytes,
         Metadata: {
