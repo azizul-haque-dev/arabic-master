@@ -18,6 +18,8 @@ import type { ArabicEntity, ContentStatus, EntityFormValues } from "@/lib/types/
 import { useRole } from "@/lib/role-context";
 import { generateNextEntityKey } from "@/lib/key-generators";
 import { normalizeArabic } from "@/lib/normalize-arabic";
+import { AudioUploadDialog } from "@/components/features/audio/audio-upload-dialog";
+import { checkAudioPermission } from "@/lib/audio/permissions";
 
 export function EntityListView() {
   const router = useRouter();
@@ -29,6 +31,7 @@ export function EntityListView() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ArabicEntity | null>(null);
+  const [audioTarget, setAudioTarget] = useState<ArabicEntity | null>(null);
 
   const filtered = useMemo(() => {
     return entities.filter((entity) => {
@@ -124,12 +127,28 @@ export function EntityListView() {
     {
       key: "audio",
       header: "Audio",
-      cell: (e) =>
-        e.hasAudio ? (
-          <Volume2 className="h-4 w-4 text-primary" aria-label="Audio ready" />
-        ) : (
-          <VolumeX className="h-4 w-4 text-text-muted" aria-label="No audio yet" />
-        ),
+      cell: (e) => (
+        <button
+          type="button"
+          onClick={(ev) => {
+            ev.stopPropagation();
+            setAudioTarget(e);
+          }}
+          className="flex h-8 w-8 items-center justify-center rounded-sm hover:bg-neutral-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          aria-label={
+            e.hasAudio
+              ? `Audio available for ${e.entityKey}. Click to manage audio.`
+              : `No audio for ${e.entityKey}. Click to upload audio.`
+          }
+          title={e.hasAudio ? "Audio ready (Click to upload/manage)" : "No audio (Click to upload)"}
+        >
+          {e.hasAudio ? (
+            <Volume2 className="h-4 w-4 text-primary" aria-hidden="true" />
+          ) : (
+            <VolumeX className="h-4 w-4 text-text-muted hover:text-text" aria-hidden="true" />
+          )}
+        </button>
+      ),
     },
     {
       key: "status",
@@ -142,6 +161,15 @@ export function EntityListView() {
       className: "text-right",
       cell: (e) => (
         <div className="flex justify-end gap-1" onClick={(ev) => ev.stopPropagation()}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={`Upload or manage audio for ${e.entityKey}`}
+            title="Upload audio"
+            onClick={() => setAudioTarget(e)}
+          >
+            <Volume2 className="h-4 w-4 text-text-muted hover:text-primary" />
+          </Button>
           {role === "ADMIN" ? (
             <Button
               variant="ghost"
@@ -149,7 +177,7 @@ export function EntityListView() {
               aria-label={`Delete ${e.entityKey}`}
               onClick={() => setDeleteTarget(e)}
             >
-              <Trash2 className="h-4 w-4 text-text-muted" />
+              <Trash2 className="h-4 w-4 text-text-muted hover:text-error-text" />
             </Button>
           ) : null}
         </div>
@@ -231,11 +259,31 @@ export function EntityListView() {
               <p className="text-sm text-text">{e.meaningEnglish}</p>
               <div className="flex items-center justify-between">
                 <RelationshipSummary entity={e} />
-                {e.hasAudio ? (
-                  <Volume2 className="h-4 w-4 text-primary" aria-label="Audio ready" />
-                ) : (
-                  <VolumeX className="h-4 w-4 text-text-muted" aria-label="No audio yet" />
-                )}
+                <button
+                  type="button"
+                  onClick={(ev) => {
+                    ev.stopPropagation();
+                    setAudioTarget(e);
+                  }}
+                  className="flex items-center gap-1.5 rounded-sm px-2 py-1 text-xs hover:bg-neutral-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[36px]"
+                  aria-label={
+                    e.hasAudio
+                      ? `Audio available for ${e.entityKey}. Click to manage.`
+                      : `No audio for ${e.entityKey}. Click to upload.`
+                  }
+                >
+                  {e.hasAudio ? (
+                    <>
+                      <Volume2 className="h-4 w-4 text-primary" aria-hidden="true" />
+                      <span className="text-primary font-medium">Audio</span>
+                    </>
+                  ) : (
+                    <>
+                      <VolumeX className="h-4 w-4 text-text-muted" aria-hidden="true" />
+                      <span className="text-text-muted">+ Audio</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           )}
@@ -264,6 +312,26 @@ export function EntityListView() {
         }
         onConfirm={() => deleteTarget && handleDelete(deleteTarget)}
       />
+
+      {audioTarget ? (
+        <AudioUploadDialog
+          open={Boolean(audioTarget)}
+          onOpenChange={(open) => {
+            if (!open) setAudioTarget(null);
+          }}
+          entityId={audioTarget.id}
+          entityLabel={audioTarget.arabicText}
+          canEdit={checkAudioPermission(role, audioTarget.status).canEdit}
+          disabledReason={checkAudioPermission(role, audioTarget.status).disabledReason}
+          onUploaded={() => {
+            setEntities((prev) =>
+              prev.map((item) =>
+                item.id === audioTarget.id ? { ...item, hasAudio: true } : item
+              )
+            );
+          }}
+        />
+      ) : null}
     </div>
   );
 }

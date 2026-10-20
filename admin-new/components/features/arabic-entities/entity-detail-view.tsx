@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight, Pencil, XCircle } from "lucide-react";
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
-import { AudioPlayer } from "@/components/shared/audio-player";
+import { EntityAudioPanel } from "@/components/features/audio/entity-audio-panel";
 import { ContentActionBar } from "@/components/shared/content-action-bar";
 import { RejectionDialog } from "@/components/shared/rejection-dialog";
 import { RelationshipPanel } from "@/components/features/arabic-entities/relationship-panel";
@@ -13,6 +13,7 @@ import { EntityFormDialog } from "@/components/features/arabic-entities/entity-f
 import { Button } from "@/components/ui/button";
 import type { ArabicEntity, ContentStatus } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
+import { checkAudioPermission } from "@/lib/audio/permissions";
 
 export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntity }) {
   const router = useRouter();
@@ -20,6 +21,8 @@ export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntit
   const [entity, setEntity] = useState(initialEntity);
   const [editOpen, setEditOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+
+  const audioPermission = checkAudioPermission(role, entity.status);
 
   function setStatus(status: ContentStatus, rejectionReason?: string) {
     setEntity((prev) => ({ ...prev, status, rejectionReason, updatedAt: new Date().toISOString() }));
@@ -98,7 +101,15 @@ export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntit
               </div>
             </dl>
             <div className="mt-4">
-              <AudioPlayer src={entity.audioUrl} label={entity.arabicText} />
+              <EntityAudioPanel
+                entityId={entity.id}
+                entityLabel={entity.arabicText}
+                canEdit={audioPermission.canEdit}
+                disabledReason={audioPermission.disabledReason}
+                onAudioChange={() => {
+                  setEntity((prev) => ({ ...prev, hasAudio: true }));
+                }}
+              />
             </div>
           </section>
 

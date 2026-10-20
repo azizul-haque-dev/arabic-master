@@ -16,6 +16,9 @@ import { findSimilarEntities, mockArabicEntities } from "@/lib/mock-data/arabic-
 import { normalizeArabic } from "@/lib/normalize-arabic";
 import type { ArabicEntity, EntityFormValues } from "@/lib/types/content";
 import { AlertCircle } from "lucide-react";
+import { EntityAudioPanel } from "@/components/features/audio/entity-audio-panel";
+import { checkAudioPermission } from "@/lib/audio/permissions";
+import { useRole } from "@/lib/role-context";
 
 const emptyValues: EntityFormValues = {
   arabicText: "",
@@ -43,6 +46,7 @@ export function EntityFormDialog({
   onUseExisting: (entity: ArabicEntity) => void;
 }) {
   const isEditing = Boolean(initialValues);
+  const { role } = useRole();
   const startingValues: EntityFormValues = initialValues ?? {
     ...emptyValues,
     arabicText: prefillArabicText ?? "",
@@ -207,6 +211,22 @@ export function EntityFormDialog({
                   />
                 </div>
               </div>
+
+              {/* Audio Management (Edit mode has entityId; Create mode requires saving first) */}
+              {isEditing && initialValues ? (
+                <div className="border-t border-border pt-4">
+                  <EntityAudioPanel
+                    entityId={initialValues.id}
+                    entityLabel={initialValues.arabicText}
+                    canEdit={checkAudioPermission(role, initialValues.status).canEdit}
+                    disabledReason={checkAudioPermission(role, initialValues.status).disabledReason}
+                  />
+                </div>
+              ) : (
+                <div className="rounded-default bg-neutral-bg/70 p-3 text-xs text-text-muted leading-relaxed">
+                  💡 <strong>Audio recording:</strong> অডিও যোগ করার জন্য প্রথমে Entity-টি সেভ করুন। সেভ করার পর Detail পেজ বা Edit মোড থেকে উচ্চারণ অডিও যোগ করা যাবে। (Audio recording can be attached after creating the entity).
+                </div>
+              )}
 
               <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                 <Button variant="ghost" onClick={() => handleClose(false)}>

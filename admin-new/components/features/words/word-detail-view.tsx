@@ -13,6 +13,8 @@ import { WORD_TYPE_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
 import { buildWordUpdatePayload } from "@/lib/words/api";
 import { useRouter } from "next/navigation";
+import { EntityAudioPanel } from "@/components/features/audio/entity-audio-panel";
+import { checkAudioPermission } from "@/lib/audio/permissions";
 
 export function WordDetailView({ initialWord }: { initialWord: Word }) {
   const router = useRouter();
@@ -122,15 +124,34 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
 
         <div className="flex flex-col gap-6">
           <section className="rounded-lg border border-border bg-white p-5">
-            <h2 className="flex items-center gap-1.5 font-heading text-sm font-semibold text-text">
-              <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-              Source Arabic Entity
-            </h2>
-            <div className="mt-3 rounded-default border border-border px-3.5 py-2.5">
-              <p dir="rtl" lang="ar" className="font-arabic text-lg text-text">
+            <div className="flex items-center justify-between pb-1">
+              <h2 className="flex items-center gap-1.5 font-heading text-sm font-semibold text-text">
+                <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                Source Arabic Entity
+              </h2>
+              <Link
+                href={`/admin/arabic-entities/${word.entityId}`}
+                className="text-xs text-primary hover:underline"
+              >
+                View entity →
+              </Link>
+            </div>
+            <div className="mt-2 rounded-default border border-border px-3.5 py-2.5">
+              <p dir="rtl" lang="ar" className="font-arabic text-xl text-text">
                 {word.arabicText || "Arabic text is unavailable."}
               </p>
-              <p className="text-xs text-text-muted">Entity ID: {word.entityId}</p>
+              <p className="mt-1 text-xs text-text-muted">Entity ID: {word.entityId}</p>
+            </div>
+            <p className="mt-3 text-xs text-text-secondary leading-relaxed">
+              অডিও এই শব্দের সাথে সরাসরি যুক্ত নয়, বরং মূল <strong>Arabic Entity</strong>-র অংশ। এখানে আপলোড বা পরিবর্তন করলে সংযুক্ত Entity-র অডিও আপডেট হবে। (Audio belongs to the underlying Arabic Entity).
+            </p>
+            <div className="mt-4 border-t border-border pt-4">
+              <EntityAudioPanel
+                entityId={word.entityId}
+                entityLabel={word.arabicText}
+                canEdit={checkAudioPermission(role, word.status).canEdit}
+                disabledReason={checkAudioPermission(role, word.status).disabledReason}
+              />
             </div>
           </section>
 

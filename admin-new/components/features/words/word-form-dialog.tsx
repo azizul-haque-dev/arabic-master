@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Volume2 } from "lucide-react";
 import { EntitySelector } from "@/components/features/arabic-entities/entity-selector";
 import { EntityFormDialog } from "@/components/features/arabic-entities/entity-form-dialog";
 import { mockArabicEntities } from "@/lib/mock-data/arabic-entities";
@@ -19,6 +19,9 @@ import type { ArabicEntity, EntityFormValues, Word, WordFormValues, WordType } f
 import { WORD_TYPE_LABEL } from "@/lib/types/content";
 import { generateNextEntityKey } from "@/lib/key-generators";
 import { normalizeArabic } from "@/lib/normalize-arabic";
+import { AudioUploadDialog } from "@/components/features/audio/audio-upload-dialog";
+import { checkAudioPermission } from "@/lib/audio/permissions";
+import { useRole } from "@/lib/role-context";
 
 const emptyValues: WordFormValues = {
   meaningBangla: "",
@@ -65,10 +68,12 @@ export function WordFormDialog({
       }
     : null;
 
+  const { role } = useRole();
   const [step, setStep] = useState<"entity" | "details">(isEditing ? "details" : "entity");
   const [selectedEntity, setSelectedEntity] = useState<ArabicEntity | null>(initialEntity);
   const [entityCreateOpen, setEntityCreateOpen] = useState(false);
   const [entityCreatePrefill, setEntityCreatePrefill] = useState("");
+  const [audioUploadOpen, setAudioUploadOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [values, setValues] = useState<WordFormValues>(
@@ -193,25 +198,43 @@ export function WordFormDialog({
           ) : (
             <div className="flex flex-col gap-4">
               {selectedEntity ? (
-                <div className="flex items-center justify-between rounded-default border border-border bg-background px-3.5 py-2.5">
-                  <div>
-                    <p dir="rtl" lang="ar" className="font-arabic text-2xl text-text">
-                      {selectedEntity.arabicText}
-                    </p>
-                    <p className="text-xs text-text-muted">
-                      {selectedEntity.entityKey} · canonical Arabic Entity
-                    </p>
+                <div className="flex flex-col gap-2 rounded-default border border-border bg-background p-3.5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p dir="rtl" lang="ar" className="font-arabic text-2xl text-text">
+                        {selectedEntity.arabicText}
+                      </p>
+                      <p className="text-xs text-text-muted">
+                        {selectedEntity.entityKey} · canonical Arabic Entity
+                      </p>
+                    </div>
+                    {!isEditing ? (
+                      <button
+                        type="button"
+                        onClick={() => setStep("entity")}
+                        className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                      >
+                        <ArrowLeft className="h-3 w-3" aria-hidden="true" />
+                        Change
+                      </button>
+                    ) : null}
                   </div>
-                  {!isEditing ? (
-                    <button
+
+                  <div className="flex items-center justify-between border-t border-border/70 pt-2 text-xs">
+                    <span className="flex items-center gap-1.5 text-text-secondary">
+                      <Volume2 className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                      Entity audio: {selectedEntity.hasAudio ? "Attached" : "Not attached"}
+                    </span>
+                    <Button
                       type="button"
-                      onClick={() => setStep("entity")}
-                      className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setAudioUploadOpen(true)}
+                      className="min-h-[32px] text-xs py-1 px-2.5"
                     >
-                      <ArrowLeft className="h-3 w-3" aria-hidden="true" />
-                      Change
-                    </button>
-                  ) : null}
+                      {selectedEntity.hasAudio ? "Replace audio" : "Add audio"}
+                    </Button>
+                  </div>
                 </div>
               ) : null}
 
@@ -343,6 +366,20 @@ export function WordFormDialog({
         onSaveDraft={handleNewEntitySaved}
         onUseExisting={handleEntitySelected}
       />
+
+      {selectedEntity ? (
+        <AudioUploadDialog
+          open={audioUploadOpen}
+          onOpenChange={setAudioUploadOpen}
+          entityId={selectedEntity.id}
+          entityLabel={selectedEntity.arabicText}
+          canEdit={checkAudioPermission(role, selectedEntity.status).canEdit}
+          disabledReason={checkAudioPermission(role, selectedEntity.status).disabledReason}
+          onUploaded={() => {
+            setSelectedEntity((prev) => (prev ? { ...prev, hasAudio: true } : null));
+          }}
+        />
+      ) : null}
     </>
   );
 }

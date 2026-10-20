@@ -16,6 +16,10 @@ import { listWordsAction } from "@/actions/content/word-actions";
 import { SENTENCE_CATEGORIES } from "@/lib/sentences/categories";
 import type { Sentence, SentenceFormValues, Word } from "@/lib/types/content";
 import { DIFFICULTY_LABEL } from "@/lib/types/content";
+import { Volume2 } from "lucide-react";
+import { AudioUploadDialog } from "@/components/features/audio/audio-upload-dialog";
+import { checkAudioPermission } from "@/lib/audio/permissions";
+import { useRole } from "@/lib/role-context";
 
 function valuesFor(sentence?: Sentence): SentenceFormValues {
     return {
@@ -46,6 +50,8 @@ export function SentenceFormDialog({
     onSave: (values: SentenceFormValues) => Promise<Sentence | void>;
 }) {
     const isEditing = Boolean(initialSentence);
+    const { role } = useRole();
+    const [audioUploadOpen, setAudioUploadOpen] = useState(false);
     const [values, setValues] = useState(() => valuesFor(initialSentence));
     const [words, setWords] = useState<Word[] | null>(null);
     const [wordSearch, setWordSearch] = useState("");
@@ -123,8 +129,9 @@ export function SentenceFormDialog({
         values.category;
 
     return (
-        <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent className="max-h-[85vh] overflow-y-auto">
+        <>
+            <Dialog open={open} onOpenChange={handleClose}>
+                <DialogContent className="max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>{isEditing ? "Edit sentence" : "Create sentence"}</DialogTitle>
                     <DialogDescription>
@@ -151,6 +158,25 @@ export function SentenceFormDialog({
                             <p className="mt-1 text-[11px] text-text-muted">Arabic text is managed by the linked Arabic Entity and cannot be changed through the sentence update API.</p>
                         ) : null}
                     </div>
+
+                    {isEditing && initialSentence ? (
+                        <div className="flex items-center justify-between rounded-default border border-border bg-neutral-bg/60 px-3.5 py-2.5 text-xs">
+                            <div>
+                                <span className="font-medium text-text">Linked Arabic Entity:</span>
+                                <span className="ml-1 text-text-muted font-mono">{initialSentence.entityId}</span>
+                            </div>
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => setAudioUploadOpen(true)}
+                                className="min-h-[32px] text-xs py-1 px-2.5"
+                            >
+                                <Volume2 className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                                Manage audio
+                            </Button>
+                        </div>
+                    ) : null}
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
@@ -266,5 +292,17 @@ export function SentenceFormDialog({
                 </div>
             </DialogContent>
         </Dialog>
+
+        {isEditing && initialSentence ? (
+            <AudioUploadDialog
+                open={audioUploadOpen}
+                onOpenChange={setAudioUploadOpen}
+                entityId={initialSentence.entityId}
+                entityLabel={initialSentence.arabicText}
+                canEdit={checkAudioPermission(role, initialSentence.status).canEdit}
+                disabledReason={checkAudioPermission(role, initialSentence.status).disabledReason}
+            />
+        ) : null}
+    </>
     );
 }
