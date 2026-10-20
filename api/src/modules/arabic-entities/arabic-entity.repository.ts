@@ -1,10 +1,22 @@
-import { eq } from 'drizzle-orm';
+import {
+  and,
+  count,
+  desc,
+  eq,
+  ilike,
+  or,
+  sql,
+  type SQL,
+} from 'drizzle-orm';
 import { v7 as randomUUIDv7 } from 'uuid';
-import { ConflictError } from '../../common/errors/app-error.js';
+import { ConflictError, NotFoundError } from '../../common/errors/app-error.js';
+import { escapeLike } from '../../common/utils/escape-like.util.js';
 import { generateNextSequentialKey } from '../../common/utils/key-generator.util.js';
 import { normalizeArabicText } from '../../common/utils/normalize-arabic.util.js';
 import { db, type Executor } from '../../database/db.js';
+import type { ContentStatus } from '../../database/drizzle/enums.js';
 import * as schema from '../../database/drizzle/schema.js';
+import type { ListArabicEntityQuery } from './arabic-entity.schemas.js';
 
 export const ArabicEntityRepository = {
   /** normalizedText আগে থেকেই normalize করা হতে হবে */
@@ -16,6 +28,7 @@ export const ArabicEntityRepository = {
       .limit(1);
     return row ?? null;
   },
+
   async findById(id: string, ex: Executor = db) {
     const [row] = await ex
       .select()
@@ -24,6 +37,7 @@ export const ArabicEntityRepository = {
       .limit(1);
     return row ?? null;
   },
+
   async findByEntityKey(entityKey: string, ex: Executor = db) {
     const [row] = await ex
       .select()
@@ -32,6 +46,7 @@ export const ArabicEntityRepository = {
       .limit(1);
     return row ?? null;
   },
+
   async generateNextEntityKey(
     exOrOffset: Executor | number = db,
     maybeOffset = 0,
@@ -40,11 +55,112 @@ export const ArabicEntityRepository = {
     const offset = typeof exOrOffset === 'number' ? exOrOffset : maybeOffset;
     return generateNextSequentialKey('ArabicEntity', 'entityKey', 'AE-', 1000, ex, offset);
   },
+
+  async list(query: ListArabicEntityQuery, ex: Executor = db) {
+    const conditions: SQL[] = [];
+    if (query.status) {
+      conditions.push(eq(schema.arabicEntity.status, query.status as ContentStatus));
+    }
+
+    if (query.search) {
+      const escaped = `%${escapeLike(query.search)}%`;
+      const normalizedSearch = `%${escapeLike(normalizeArabicText(query.search))}%`;
+      conditions.push(
+        or(
+          ilike(schema.arabicEntity.arabicText, escaped),
+          ilike(schema.arabicEntity.normalizedText, normalizedSearch),
+          ilike(schema.arabicEntity.entityKey, escaped),
+          ilike(schema.arabicEntity.pronunciationEnglish, escaped),
+          ilike(schema.arabicEntity.pronunciationBangla, escaped),
+          ilike(schema.arabicEntity.meaningEnglish, escaped),
+          ilike(schema.arabicEntity.meaningBangla, escaped),
+        )!,
+      );
+    }
+
+    const where = conditions.length ? and(...conditions) : undefined;
+
+    const [totalRow] = await ex
+      .select({ total: count() })
+      .from(schema.arabicEntity)
+      .where(where);
+
+    const total = Number(totalRow?.total ?? 0);
+    const offset = (query.page - 1) * query.limit;
+
+    const rows = await ex
+      .select({
+        id: schema.arabicEntity.id,
+        entityKey: schema.arabicEntity.entityKey,
+        arabicText: schema.arabicEntity.arabicText,
+        normalizedText: schema.arabicEntity.normalizedText,
+        audioUrl: schema.arabicEntity.audioUrl,
+        pronunciationBangla: schema.arabicEntity.pronunciationBangla,
+        pronunciationEnglish: schema.arabicEntity.pronunciationEnglish,
+        meaningBangla: sql<string>`COALESCE(${schema.arabicEntity.meaningBangla}, (SELECT "meaningBn" FROM "Word" WHERE "Word"."entityId" = ${schema.arabicEntity.id} LIMIT 1), (SELECT "meaningBn" FROM "Sentence" WHERE "Sentence"."entityId" = ${schema.arabicEntity.id} LIMIT 1), '')`,
+        meaningEnglish: sql<string>`COALESCE(${schema.arabicEntity.meaningEnglish}, (SELECT "meaningEn" FROM "Word" WHERE "Word"."entityId" = ${schema.arabicEntity.id} LIMIT 1), (SELECT "meaningEn" FROM "Sentence" WHERE "Sentence"."entityId" = ${schema.arabicEntity.id} LIMIT 1), '')`,
+        status: schema.arabicEntity.status,
+        rejectionReason: schema.arabicEntity.rejectionReason,
+        createdById: schema.arabicEntity.createdById,
+        createdBy: sql<string>`COALESCE((SELECT "fullName" FROM "User" WHERE "User"."id" = ${schema.arabicEntity.createdById}), 'Content Admin')`,
+        createdAt: schema.arabicEntity.createdAt,
+        updatedAt: schema.arabicEntity.updatedAt,
+        wordUsageCount: sql<number>`(SELECT COUNT(*)::int FROM "Word" WHERE "Word"."entityId" = ${schema.arabicEntity.id})`,
+        sentenceUsageCount: sql<number>`(SELECT COUNT(*)::int FROM "Sentence" WHERE "Sentence"."entityId" = ${schema.arabicEntity.id})`,
+        conversationUsageCount: sql<number>`(SELECT COUNT(*)::int FROM "ConversationTurn" ct JOIN "Sentence" s ON s."id" = ct."sentenceId" WHERE s."entityId" = ${schema.arabicEntity.id})`,
+        hasAudio: sql<boolean>`EXISTS (SELECT 1 FROM "ArabicEntityAudio" aea WHERE aea."entityId" = ${schema.arabicEntity.id}) OR (${schema.arabicEntity.audioUrl} IS NOT NULL AND ${schema.arabicEntity.audioUrl} != '')`,
+      })
+      .from(schema.arabicEntity)
+      .where(where)
+      .orderBy(desc(schema.arabicEntity.createdAt))
+      .limit(query.limit)
+      .offset(offset);
+
+    return { items: rows, total };
+  },
+
+  async findDetailedById(idOrKey: string, ex: Executor = db) {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrKey);
+    const filter = isUuid
+      ? eq(schema.arabicEntity.id, idOrKey)
+      : eq(schema.arabicEntity.entityKey, idOrKey);
+
+    const [row] = await ex
+      .select({
+        id: schema.arabicEntity.id,
+        entityKey: schema.arabicEntity.entityKey,
+        arabicText: schema.arabicEntity.arabicText,
+        normalizedText: schema.arabicEntity.normalizedText,
+        audioUrl: schema.arabicEntity.audioUrl,
+        pronunciationBangla: schema.arabicEntity.pronunciationBangla,
+        pronunciationEnglish: schema.arabicEntity.pronunciationEnglish,
+        meaningBangla: sql<string>`COALESCE(${schema.arabicEntity.meaningBangla}, (SELECT "meaningBn" FROM "Word" WHERE "Word"."entityId" = ${schema.arabicEntity.id} LIMIT 1), (SELECT "meaningBn" FROM "Sentence" WHERE "Sentence"."entityId" = ${schema.arabicEntity.id} LIMIT 1), '')`,
+        meaningEnglish: sql<string>`COALESCE(${schema.arabicEntity.meaningEnglish}, (SELECT "meaningEn" FROM "Word" WHERE "Word"."entityId" = ${schema.arabicEntity.id} LIMIT 1), (SELECT "meaningEn" FROM "Sentence" WHERE "Sentence"."entityId" = ${schema.arabicEntity.id} LIMIT 1), '')`,
+        status: schema.arabicEntity.status,
+        rejectionReason: schema.arabicEntity.rejectionReason,
+        createdById: schema.arabicEntity.createdById,
+        createdBy: sql<string>`COALESCE((SELECT "fullName" FROM "User" WHERE "User"."id" = ${schema.arabicEntity.createdById}), 'Content Admin')`,
+        createdAt: schema.arabicEntity.createdAt,
+        updatedAt: schema.arabicEntity.updatedAt,
+        wordUsageCount: sql<number>`(SELECT COUNT(*)::int FROM "Word" WHERE "Word"."entityId" = ${schema.arabicEntity.id})`,
+        sentenceUsageCount: sql<number>`(SELECT COUNT(*)::int FROM "Sentence" WHERE "Sentence"."entityId" = ${schema.arabicEntity.id})`,
+        conversationUsageCount: sql<number>`(SELECT COUNT(*)::int FROM "ConversationTurn" ct JOIN "Sentence" s ON s."id" = ct."sentenceId" WHERE s."entityId" = ${schema.arabicEntity.id})`,
+        hasAudio: sql<boolean>`EXISTS (SELECT 1 FROM "ArabicEntityAudio" aea WHERE aea."entityId" = ${schema.arabicEntity.id}) OR (${schema.arabicEntity.audioUrl} IS NOT NULL AND ${schema.arabicEntity.audioUrl} != '')`,
+      })
+      .from(schema.arabicEntity)
+      .where(filter)
+      .limit(1);
+
+    return row ?? null;
+  },
+
   async create(
     d: {
       entityKey?: string;
       arabicText: string;
       audioUrl?: string;
+      meaningBangla?: string;
+      meaningEnglish?: string;
       createdById?: string;
       pronunciationBangla?: string;
       pronunciationEnglish?: string;
@@ -72,6 +188,8 @@ export const ArabicEntityRepository = {
             entityKey,
             arabicText: d.arabicText,
             normalizedText,
+            meaningBangla: d.meaningBangla,
+            meaningEnglish: d.meaningEnglish,
             audioUrl: d.audioUrl,
             pronunciationBangla: d.pronunciationBangla ?? '',
             pronunciationEnglish: d.pronunciationEnglish ?? '',
@@ -97,6 +215,39 @@ export const ArabicEntityRepository = {
     }
     throw new Error('Failed to generate unique entityKey after 5 attempts');
   },
+
+  async update(
+    id: string,
+    d: {
+      arabicText?: string;
+      meaningBangla?: string;
+      meaningEnglish?: string;
+      pronunciationBangla?: string;
+      pronunciationEnglish?: string;
+      audioUrl?: string | null;
+      status?: (typeof schema.arabicEntity.$inferSelect)['status'];
+      rejectionReason?: string | null;
+    },
+    ex: Executor = db,
+  ) {
+    const updateData: Record<string, unknown> = {
+      ...d,
+      updatedAt: new Date(),
+    };
+
+    if (d.arabicText) {
+      updateData.normalizedText = normalizeArabicText(d.arabicText);
+    }
+
+    const [row] = await ex
+      .update(schema.arabicEntity)
+      .set(updateData)
+      .where(eq(schema.arabicEntity.id, id))
+      .returning();
+
+    return row ?? null;
+  },
+
   async updatePronunciation(
     id: string,
     d: { pronunciationBangla: string; pronunciationEnglish: string },
@@ -106,6 +257,41 @@ export const ArabicEntityRepository = {
       .update(schema.arabicEntity)
       .set({ ...d, updatedAt: new Date() })
       .where(eq(schema.arabicEntity.id, id));
+  },
+
+  async delete(id: string, ex: Executor = db) {
+    // Check if referenced by Word
+    const [word] = await ex
+      .select({ id: schema.word.id })
+      .from(schema.word)
+      .where(eq(schema.word.entityId, id))
+      .limit(1);
+
+    if (word) {
+      throw new ConflictError(
+        'Cannot delete Arabic entity because it is referenced by one or more Words.',
+      );
+    }
+
+    // Check if referenced by Sentence
+    const [sentence] = await ex
+      .select({ id: schema.sentence.id })
+      .from(schema.sentence)
+      .where(eq(schema.sentence.entityId, id))
+      .limit(1);
+
+    if (sentence) {
+      throw new ConflictError(
+        'Cannot delete Arabic entity because it is referenced by one or more Sentences.',
+      );
+    }
+
+    const [deleted] = await ex
+      .delete(schema.arabicEntity)
+      .where(eq(schema.arabicEntity.id, id))
+      .returning();
+
+    return deleted ?? null;
   },
 };
 

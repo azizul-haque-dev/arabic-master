@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RelationshipSummary } from "@/components/features/arabic-entities/relationship-summary";
-import { findSimilarEntities, mockArabicEntities } from "@/lib/mock-data/arabic-entities";
+import { mockArabicEntities } from "@/lib/mock-data/arabic-entities";
 import { normalizeArabic } from "@/lib/normalize-arabic";
 import type { ArabicEntity, EntityFormValues } from "@/lib/types/content";
 import { AlertCircle } from "lucide-react";
@@ -33,6 +33,7 @@ export function EntityFormDialog({
   onOpenChange,
   initialValues,
   prefillArabicText,
+  existingEntities,
   onSaveDraft,
   onUseExisting,
 }: {
@@ -42,6 +43,7 @@ export function EntityFormDialog({
   initialValues?: ArabicEntity;
   /** Create-mode only: pre-fill the Arabic text field (e.g. from a search query elsewhere). */
   prefillArabicText?: string;
+  existingEntities?: ArabicEntity[];
   onSaveDraft: (values: EntityFormValues) => void;
   onUseExisting: (entity: ArabicEntity) => void;
 }) {
@@ -55,20 +57,21 @@ export function EntityFormDialog({
   const [acknowledgedDuplicate, setAcknowledgedDuplicate] = useState(false);
 
   const normalized = useMemo(() => normalizeArabic(values.arabicText), [values.arabicText]);
+  const pool = existingEntities && existingEntities.length > 0 ? existingEntities : mockArabicEntities;
 
   const exactDuplicate = useMemo(() => {
     if (isEditing || !values.arabicText.trim()) return null;
-    return mockArabicEntities.find(
+    return pool.find(
       (e) => e.normalizedText === normalized && e.id !== initialValues?.id,
     );
-  }, [values.arabicText, isEditing, initialValues, normalized]);
+  }, [values.arabicText, isEditing, initialValues, normalized, pool]);
 
   const similar = useMemo(() => {
     if (isEditing || !values.arabicText.trim()) return [];
-    return findSimilarEntities(normalized).filter(
-      (e) => e.normalizedText !== initialValues?.normalizedText,
-    );
-  }, [values.arabicText, isEditing, initialValues, normalized]);
+    const needle = normalized.replace(/[إأآ]/g, "ا");
+    return pool
+      .filter((e) => e.normalizedText.includes(needle) && e.normalizedText !== initialValues?.normalizedText);
+  }, [values.arabicText, isEditing, initialValues, normalized, pool]);
 
   const showDuplicateWarning =
     Boolean(exactDuplicate) || (similar.length > 0 && !acknowledgedDuplicate);

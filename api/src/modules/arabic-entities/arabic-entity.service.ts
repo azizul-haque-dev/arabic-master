@@ -1,14 +1,24 @@
 import fs from 'node:fs';
-import { assertEditable } from '../../common/utils/content-workflow.util.js';
-import { NotFoundError } from '../../common/errors/app-error.js';
+import {
+  assertEditable,
+  resolveStatusChange,
+} from '../../common/utils/content-workflow.util.js';
+import { ForbiddenError, NotFoundError } from '../../common/errors/app-error.js';
 import { logger } from '../../common/http/logger.js';
+import { paginated } from '../../common/http/response.js';
 import { r2StorageService } from '../../common/storage/r2.service.js';
 import { withTransaction } from '../../database/db.js';
+import { ContentStatus, Role } from '../../database/drizzle/enums.js';
 import type { RequestUser } from '../auth/auth.types.js';
 import { ArabicEntityAudioRepository } from './arabic-entity-audio.repository.js';
 import * as schema from '../../database/drizzle/schema.js';
 import { ArabicEntityRepository } from './arabic-entity.repository.js';
 import type { UploadedAudioFile } from '../../common/middleware/audio-upload.js';
+import type {
+  CreateArabicEntityInput,
+  ListArabicEntityQuery,
+  UpdateArabicEntityInput,
+} from './arabic-entity.schemas.js';
 
 export interface AudioResourceResponse {
   id: string;
@@ -37,6 +47,66 @@ export const ArabicEntityService = {
       throw new NotFoundError('Arabic entity not found');
     }
     return entity;
+  },
+
+  async list(query: ListArabicEntityQuery) {
+    const { items, total } = await ArabicEntityRepository.list(query);
+    return paginated(items, query.page, query.limit, total);
+  },
+
+  async getById(idOrKey: string) {
+    const entity = await ArabicEntityRepository.findDetailedById(idOrKey);
+    if (!entity) {
+      throw new NotFoundError('Arabic entity not found');
+    }
+    return entity;
+  },
+
+  async create(input: CreateArabicEntityInput, userId: string) {
+    return ArabicEntityRepository.create({
+      ...input,
+      status: (input.status as ContentStatus) ?? ContentStatus.DRAFT,
+      createdById: userId,
+    });
+  },
+
+  async update(
+    idOrKey: string,
+    input: UpdateArabicEntityInput,
+    user: RequestUser,
+  ) {
+    const entity = await this.resolveEntity(idOrKey);
+    assertEditable(entity.status, user.role);
+
+    return ArabicEntityRepository.update(entity.id, {
+      ...input,
+      status: input.status as ContentStatus | undefined,
+    });
+  },
+
+  async updateStatus(
+    idOrKey: string,
+    targetStatus: ContentStatus,
+    rejectionReason: string | undefined,
+    user: RequestUser,
+  ) {
+    const entity = await this.resolveEntity(idOrKey);
+    const change = resolveStatusChange({
+      from: entity.status,
+      to: targetStatus,
+      role: user.role,
+      rejectionReason,
+    });
+
+    return ArabicEntityRepository.update(entity.id, change);
+  },
+
+  async remove(idOrKey: string, user: RequestUser) {
+    if (user.role !== Role.ADMIN) {
+      throw new ForbiddenError('Only admins can delete Arabic entities');
+    }
+    const entity = await this.resolveEntity(idOrKey);
+    return ArabicEntityRepository.delete(entity.id);
   },
 
   /**
@@ -189,6 +259,21 @@ export const ArabicEntityService = {
     );
 
     if (!audio) {
+      if (variant === 'DEFAULT' && entity.audioUrl) {
+        return {
+          id: `legacy-${entity.id}`,
+          entityId: entity.id,
+          entityKey: entity.entityKey,
+          variant: 'DEFAULT',
+          speaker: 'Original',
+          mimeType: 'audio/mpeg',
+          fileSizeBytes: 0,
+          objectKey: `legacy/${entity.id}`,
+          playbackUrl: entity.audioUrl,
+          createdAt: entity.createdAt,
+          updatedAt: entity.updatedAt,
+        };
+      }
       throw new NotFoundError(
         `Audio record for variant "${variant}" not found on this Arabic entity.`,
       );
@@ -217,6 +302,24 @@ export const ArabicEntityService = {
   async listAudios(idOrKey: string): Promise<AudioResourceResponse[]> {
     const entity = await this.resolveEntity(idOrKey);
     const audios = await ArabicEntityAudioRepository.findAllByEntityId(entity.id);
+
+    if (audios.length === 0 && entity.audioUrl) {
+      return [
+        {
+          id: `legacy-${entity.id}`,
+          entityId: entity.id,
+          entityKey: entity.entityKey,
+          variant: 'DEFAULT',
+          speaker: 'Original',
+          mimeType: 'audio/mpeg',
+          fileSizeBytes: 0,
+          objectKey: `legacy/${entity.id}`,
+          playbackUrl: entity.audioUrl,
+          createdAt: entity.createdAt,
+          updatedAt: entity.updatedAt,
+        },
+      ];
+    }
 
     return Promise.all(
       audios.map(async (audio) => ({

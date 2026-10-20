@@ -198,13 +198,17 @@ async function seed() {
       .where(eq(schema.arabicEntity.normalizedText, normalized))
       .limit(1);
 
+    let entityId: string;
     if (existingByNorm) {
+      entityId = existingByNorm.id;
       await db
         .update(schema.arabicEntity)
         .set({
           entityKey: item.entityKey,
           arabicText: item.arabicText,
           normalizedText: normalized,
+          meaningBangla: item.meaningBangla,
+          meaningEnglish: item.meaningEnglish,
           audioUrl: item.audioUrl ?? null,
           pronunciationBangla: item.pronunciationBangla,
           pronunciationEnglish: item.pronunciationEnglish,
@@ -227,11 +231,14 @@ async function seed() {
         continue;
       }
 
+      entityId = randomUUIDv7();
       await db.insert(schema.arabicEntity).values({
-        id: randomUUIDv7(),
+        id: entityId,
         entityKey: item.entityKey,
         arabicText: item.arabicText,
         normalizedText: normalized,
+        meaningBangla: item.meaningBangla,
+        meaningEnglish: item.meaningEnglish,
         audioUrl: item.audioUrl ?? null,
         pronunciationBangla: item.pronunciationBangla,
         pronunciationEnglish: item.pronunciationEnglish,
@@ -239,6 +246,30 @@ async function seed() {
         rejectionReason: item.rejectionReason ?? null,
       });
       console.log(`  ✨ Inserted seed entity: [${item.entityKey}] "${item.arabicText}"`);
+    }
+
+    // Ensure ArabicEntityAudio record exists if entity has audioUrl
+    if (item.audioUrl) {
+      const [existingAudio] = await db
+        .select()
+        .from(schema.arabicEntityAudio)
+        .where(
+          sql`${schema.arabicEntityAudio.entityId} = ${entityId} AND ${schema.arabicEntityAudio.variant} = 'DEFAULT'`,
+        )
+        .limit(1);
+
+      if (!existingAudio) {
+        await db.insert(schema.arabicEntityAudio).values({
+          id: randomUUIDv7(),
+          entityId,
+          objectKey: `seed-audio/${item.entityKey.toLowerCase()}-default.mp3`,
+          mimeType: 'audio/mpeg',
+          fileSizeBytes: 128000,
+          variant: 'DEFAULT',
+          speaker: 'Original',
+        });
+        console.log(`  🎵 Seeded ArabicEntityAudio for ${item.entityKey}`);
+      }
     }
   }
 

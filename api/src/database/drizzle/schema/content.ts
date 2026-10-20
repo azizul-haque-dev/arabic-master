@@ -23,6 +23,8 @@ export const arabicEntity = pgTable(
     arabicText: text('arabicText').notNull(),
     normalizedText: text('normalizedText').notNull().unique(),
     audioUrl: text('audioUrl'),
+    meaningBangla: text('meaningBangla'),
+    meaningEnglish: text('meaningEnglish'),
     pronunciationBangla: text('pronunciationBangla').notNull(),
     pronunciationEnglish: text('pronunciationEnglish').notNull(),
     status: contentStatusEnum('status').default('DRAFT').notNull(),

@@ -13,19 +13,31 @@ import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmatio
 import { EntityFormDialog } from "@/components/features/arabic-entities/entity-form-dialog";
 import { RelationshipSummary } from "@/components/features/arabic-entities/relationship-summary";
 import { Button } from "@/components/ui/button";
-import { mockArabicEntities } from "@/lib/mock-data/arabic-entities";
 import type { ArabicEntity, ContentStatus, EntityFormValues } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
-import { generateNextEntityKey } from "@/lib/key-generators";
-import { normalizeArabic } from "@/lib/normalize-arabic";
 import { AudioUploadDialog } from "@/components/features/audio/audio-upload-dialog";
 import { checkAudioPermission } from "@/lib/audio/permissions";
 
-export function EntityListView() {
+import {
+  createArabicEntityAction,
+  deleteArabicEntityAction,
+} from "@/actions/content/arabic-entity-actions";
+
+export interface EntityListViewProps {
+  initialEntities?: ArabicEntity[];
+  initialMeta?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export function EntityListView({ initialEntities = [] }: EntityListViewProps) {
   const router = useRouter();
   const { role } = useRole();
 
-  const [entities, setEntities] = useState<ArabicEntity[]>(mockArabicEntities);
+  const [entities, setEntities] = useState<ArabicEntity[]>(initialEntities);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<Set<ContentStatus>>(new Set());
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -62,36 +74,34 @@ export function EntityListView() {
     );
   }
 
-  function handleSaveDraft(values: EntityFormValues) {
-    const normalized = normalizeArabic(values.arabicText);
-    const existing = entities.find((e) => e.normalizedText === normalized);
-    if (existing) {
-      alert(`An Arabic entity with this normalized text already exists (${existing.entityKey}: ${existing.arabicText})`);
-      return;
-    }
-    const newEntity: ArabicEntity = {
-      id: crypto.randomUUID(),
-      entityKey: generateNextEntityKey(entities),
+  async function handleSaveDraft(values: EntityFormValues) {
+    const res = await createArabicEntityAction({
       arabicText: values.arabicText,
-      normalizedText: normalized,
-      meaningBangla: values.meaningBangla,
       meaningEnglish: values.meaningEnglish,
-      pronunciationBangla: values.pronunciationBangla,
+      meaningBangla: values.meaningBangla,
       pronunciationEnglish: values.pronunciationEnglish,
-      hasAudio: false,
+      pronunciationBangla: values.pronunciationBangla,
       status: "DRAFT",
-      wordUsageCount: 0,
-      sentenceUsageCount: 0,
-      conversationUsageCount: 0,
-      createdBy: role === "ADMIN" ? "You (Admin)" : "You (Content Manager)",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    setEntities((prev) => [newEntity, ...prev]);
+    });
+
+    if (res.success) {
+      setEntities((prev) => [res.data, ...prev]);
+      setCreateOpen(false);
+      router.refresh();
+    } else {
+      alert(res.error);
+    }
   }
 
-  function handleDelete(entity: ArabicEntity) {
-    setEntities((prev) => prev.filter((e) => e.id !== entity.id));
+  async function handleDelete(entity: ArabicEntity) {
+    const res = await deleteArabicEntityAction(entity.id);
+    if (res.success) {
+      setEntities((prev) => prev.filter((e) => e.id !== entity.id));
+      setDeleteTarget(null);
+      router.refresh();
+    } else {
+      alert(res.error);
+    }
   }
 
   const columns: DataTableColumn<ArabicEntity>[] = [
@@ -293,6 +303,7 @@ export function EntityListView() {
       <EntityFormDialog
         open={createOpen}
         onOpenChange={setCreateOpen}
+        existingEntities={entities}
         onSaveDraft={handleSaveDraft}
         onUseExisting={(entity) => {
           setCreateOpen(false);
