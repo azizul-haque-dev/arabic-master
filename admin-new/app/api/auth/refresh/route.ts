@@ -1,4 +1,5 @@
 import { getAuthSession, setAuthSession, clearAuthSession } from "@/lib/auth/session";
+import { getBackendApiUrl } from "@/lib/auth/backend-url";
 import { NextResponse } from "next/server";
 
 export async function POST() {
@@ -12,8 +13,7 @@ export async function POST() {
       );
     }
 
-    const backendUrl =
-      process.env.BACKEND_API_URL?.replace(/\/$/, "") || "http://localhost:5000/api/v1";
+    const backendUrl = getBackendApiUrl();
 
     const response = await fetch(`${backendUrl}/auth/refresh`, {
       method: "POST",
@@ -26,10 +26,12 @@ export async function POST() {
     });
 
     if (!response.ok) {
-      await clearAuthSession();
+      if (response.status === 401 || response.status === 403) {
+        await clearAuthSession();
+      }
       return NextResponse.json(
         { success: false, error: "Refresh token expired or invalid" },
-        { status: 401 }
+        { status: response.status }
       );
     }
 
@@ -39,10 +41,9 @@ export async function POST() {
     const newRefreshToken = data?.refreshToken || refreshToken;
 
     if (!newAccessToken) {
-      await clearAuthSession();
       return NextResponse.json(
         { success: false, error: "No access token returned from backend" },
-        { status: 401 }
+        { status: 500 }
       );
     }
 

@@ -1,11 +1,7 @@
 import "server-only";
 
 import { getAuthSession, setAuthSession, clearAuthSession } from "@/lib/auth/session";
-
-function getBackendApiUrl(): string {
-  const url = process.env.BACKEND_API_URL || "http://localhost:5000/api/v1";
-  return url.replace(/\/$/, "");
-}
+import { getBackendApiUrl } from "@/lib/auth/backend-url";
 
 /**
  * Forward multipart/form-data to the Express backend without overriding Content-Type.
@@ -76,7 +72,7 @@ export async function serverApiFetchMultipart(
         } else {
           await clearAuthSession().catch(() => {});
         }
-      } else {
+      } else if (refreshRes.status === 401 || refreshRes.status === 403) {
         await clearAuthSession().catch(() => {});
       }
     } catch {

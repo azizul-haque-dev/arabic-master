@@ -1,10 +1,6 @@
 import { getAuthSession, setAuthSession, clearAuthSession } from "./session";
+import { getBackendApiUrl } from "./backend-url";
 import { ActionFailure, AuthActionErrorCode } from "@/lib/types/auth";
-
-function getBackendApiUrl(): string {
-  const url = process.env.BACKEND_API_URL || "http://localhost:5000/api/v1";
-  return url.replace(/\/$/, "");
-}
 
 export function mapHttpError(
   status: number,
@@ -69,7 +65,11 @@ async function refreshAccessToken(): Promise<string | null> {
       });
 
       if (!response.ok) {
-        await clearAuthSession();
+        if (response.status === 401 || response.status === 403) {
+          try {
+            await clearAuthSession();
+          } catch {}
+        }
         return null;
       }
 

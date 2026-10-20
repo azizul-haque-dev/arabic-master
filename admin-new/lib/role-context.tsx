@@ -2,6 +2,7 @@
 
 import type { AdminRole } from "@/lib/types/content";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { SafeUser } from "./types/auth";
 
 interface ISession {
@@ -27,6 +28,7 @@ export function RoleProvider({
   initialRole?: AdminRole;
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   const [role, setRole] = useState<AdminRole>(initialRole);
   const [userSession, setSession] = useState<ISession | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -91,9 +93,13 @@ export function RoleProvider({
             setRole(data.user.role);
           }
         }
+      } else if (res.status === 401 || res.status === 403) {
+        // Refresh token was rejected by server (e.g. 30 days expired)
+        setSession(null);
+        router.push("/login");
       }
     } catch {
-      // Background refresh attempt failed silently; will retry on next interval or navigation
+      // Transient network failure; keep session and retry on next interval
     } finally {
       isRefreshingRef.current = false;
     }

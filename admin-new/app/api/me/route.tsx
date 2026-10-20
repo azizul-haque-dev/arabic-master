@@ -1,4 +1,5 @@
 import { getAuthSession, setAuthSession } from "@/lib/auth/session";
+import { getBackendApiUrl } from "@/lib/auth/backend-url";
 import { NextResponse } from "next/server";
 
 function isTokenExpired(token: string): boolean {
@@ -21,8 +22,7 @@ export async function GET() {
   // If access token is missing or expired, attempt refresh
   if ((!session.accessToken || isTokenExpired(session.accessToken)) && session.refreshToken) {
     try {
-      const backendUrl =
-        process.env.BACKEND_API_URL?.replace(/\/$/, "") || "http://localhost:5000/api/v1";
+      const backendUrl = getBackendApiUrl();
 
       const res = await fetch(`${backendUrl}/auth/refresh`, {
         method: "POST",

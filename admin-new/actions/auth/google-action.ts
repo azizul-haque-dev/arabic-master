@@ -1,9 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { getBackendApiUrl } from "@/lib/auth/backend-url";
 
 export async function googleAuthAction() {
-  const backendUrl = process.env.BACKEND_API_URL || "http://localhost:5000/api/v1";
-  const url = backendUrl.replace(/\/$/, "");
+  const url = getBackendApiUrl();
   redirect(`${url}/auth/google`);
 }
