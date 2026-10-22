@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>Arabic Master - Network Status</title>
+    <!-- Tailwind CSS CDN with Plugins -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#0F9559',
+                            dark: '#0B7A48',
+                            muted: '#688B7B',
+                        },
+                        neutral: {
+                            card: '#F6F8F9',
+                            textPrimary: '#1A2E35',
+                            textSecondary: '#64748B',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'SF Pro Text', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Custom Styles: iOS UI elements and animation -->
+    <style data-purpose="custom-styling">
+        /* Custom spinner rotation */
+        @keyframes spin-slow {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .animate-spin-custom {
+            animation: spin-slow 0.85s linear infinite;
+        }
+
+        /* iOS frame mock styling */
+        .ios-device {
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-slate-100 min-h-screen flex flex-col items-center justify-center p-3 sm:p-6 font-sans antialiased text-neutral-textPrimary selection:bg-brand/20">
+    <!-- BEGIN: InteractiveStateSwitcher -->
+    <!-- Floating state switcher for demonstration of both Loading & Error states -->
+    <aside aria-label="Screen View Controller"
+        class="mb-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-slate-200/80 flex items-center gap-1.5 z-50 text-xs">
+        <span class="text-slate-400 font-medium pl-1 pr-1.5">View Screen:</span>
+        <button class="px-3 py-1 font-semibold rounded-full bg-brand text-white transition-all shadow-xs"
+            id="showErrorBtn" onclick="switchState('error')" type="button">
+            Error State
+        </button>
+        <button class="px-3 py-1 font-semibold rounded-full text-slate-600 hover:text-slate-900 transition-all"
+            id="showLoadingBtn" onclick="switchState('loading')" type="button">
+            Loading Skeleton
+        </button>
+    </aside>
+    <!-- END: InteractiveStateSwitcher -->
+    <!-- BEGIN: MobileContainer -->
+    <!-- Outer iOS device frame wrapper -->
+    <main
+        class="ios-device w-full max-w-[393px] h-[844px] bg-white rounded-[44px] overflow-hidden flex flex-col relative border border-slate-200/70 select-none">
+        <!-- BEGIN: iOSStatusBar -->
+        <header class="w-full pt-3.5 px-7 flex justify-between items-center z-40 bg-transparent shrink-0"
+            data-purpose="status-bar">
+            <!-- Time -->
+            <span class="text-[15px] font-semibold tracking-tight text-slate-800">9:41</span>
+            <!-- iOS Right Status Icons -->
+            <div class="flex items-center gap-1.5 text-slate-800">
+                <!-- Cellular Signal Icon -->
+                <svg class="w-4 h-3.5 fill-current" viewbox="0 0 17 12">
+                    <rect height="4" rx="0.75" width="2.5" x="0.5" y="8"></rect>
+                    <rect height="6.5" rx="0.75" width="2.5" x="4.5" y="5.5"></rect>
+                    <rect height="9" rx="0.75" width="2.5" x="8.5" y="3"></rect>
+                    <rect height="11.5" rx="0.75" width="2.5" x="12.5" y="0.5"></rect>
+                </svg>
+                <!-- Wi-Fi Icon -->
+                <svg class="w-4 h-3.5 fill-current" viewbox="0 0 16 12">
+                    <path clip-rule="evenodd"
+                        d="M8 3.25C10.65 3.25 13.06 4.3 14.86 6.01L16 4.88C13.88 2.87 11.08 1.62 8 1.62C4.92 1.62 2.12 2.87 0 4.88L1.14 6.01C2.94 4.3 5.35 3.25 8 3.25ZM8 7.37C9.52 7.37 10.9 8 11.94 9.02L13.08 7.89C11.75 6.58 9.97 5.75 8 5.75C6.03 5.75 4.25 6.58 2.92 7.89L4.06 9.02C5.1 8 6.48 7.37 8 7.37ZM9.5 11.5C9.5 12.33 8.83 13 8 13C7.17 13 6.5 12.33 6.5 11.5C6.5 10.67 7.17 10 8 10C8.83 10 9.5 10.67 9.5 11.5Z"
+                        fill-rule="evenodd"></path>
+                </svg>
+                <!-- Battery Icon -->
+                <div class="flex items-center">
+                    <div class="w-5 h-[11px] border-[1.5px] border-slate-800 rounded-[3px] p-[1px] flex items-center">
+                        <div class="w-full h-full bg-slate-800 rounded-[1px]"></div>
+                    </div>
+                    <div class="w-[1.5px] h-1 bg-slate-800 rounded-r-full -ml-[0.5px]"></div>
+                </div>
+            </div>
+        </header>
+        <!-- END: iOSStatusBar -->
+        <!-- BEGIN: AppHeader -->
+        <!-- Screen navigation and Arabic Master logo -->
+        <section class="relative w-full pt-4 pb-2 px-6 flex items-center justify-center shrink-0"
+            data-purpose="app-header">
+            <!-- Back Chevron Button -->
+            <button aria-label="Go back"
+                class="absolute left-6 text-slate-500 hover:text-slate-800 transition-colors p-1 -ml-1" type="button">
+                <svg class="w-6 h-6 stroke-[2.2] stroke-current fill-none" viewbox="0 0 24 24">
+                    <path d="M15.75 19.5L8.25 12l7.5-7.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+            </button>
+            <!-- Center Logo & Branding -->
+            <div class="flex items-center gap-2">
+                <!-- Logo Emblem -->
+                <div
+                    class="w-9 h-9 rounded-xl bg-[#8ea499] flex flex-col items-center justify-center text-white shadow-xs">
+                    <div class="text-[9px] font-bold tracking-widest leading-none pt-0.5">ا ب ت</div>
+                    <svg class="w-4 h-3.5 fill-current mt-0.5 opacity-90" viewbox="0 0 20 16">
+                        <path
+                            d="M10 3.5C7.5 1.5 3.5 1.5 1 2.5V14.5C3.5 13.5 7.5 13.5 10 15.5C12.5 13.5 16.5 13.5 19 14.5V2.5C16.5 1.5 12.5 1.5 10 3.5Z"
+                            stroke="currentColor" stroke-linejoin="round" stroke-width="1.2"></path>
+                    </svg>
+                </div>
+                <!-- App Title -->
+                <span class="text-[17px] font-bold tracking-tight text-[#82998e]">Arabic Master</span>
+            </div>
+        </section>
+        <!-- END: AppHeader -->
+        <!-- ============================================== -->
+        <!-- VIEW 1: ERROR STATE SCREEN (Connection Problem) -->
+        <!-- ============================================== -->
+        <!-- BEGIN: ErrorStateView -->
+        <div class="flex-1 flex flex-col px-6 justify-between pt-12 pb-6" id="errorStateContainer">
+            <!-- Central Content (Graphic & Messages) -->
+            <section class="flex flex-col items-center text-center mt-6" data-purpose="error-info">
+                <!-- Graphic: Circular badge with Red Wi-Fi & Failed Cross Icon -->
+                <div class="relative w-28 h-28 rounded-full bg-[#fbeceb] flex items-center justify-center mb-9">
+                    <!-- Wi-Fi Waves -->
+                    <svg class="w-14 h-14 text-[#eb605b] fill-none stroke-current" viewbox="0 0 24 24">
+                        <!-- Outermost Wave -->
+                        <path d="M4.5 9C9 4.8 15 4.8 19.5 9" stroke-linecap="round" stroke-width="2.2"></path>
+                        <!-- Middle Wave -->
+                        <path d="M7.5 12.2C10.2 9.6 13.8 9.6 16.5 12.2" stroke-linecap="round" stroke-width="2.2">
+                        </path>
+                        <!-- Inner Wave -->
+                        <path d="M10.2 15.4C11.3 14.3 12.7 14.3 13.8 15.4" stroke-linecap="round" stroke-width="2.2">
+                        </path>
+                        <!-- Dot base -->
+                        <circle cx="12" cy="18.5" fill="currentColor" r="1.2" stroke="none"></circle>
+                    </svg>
+                    <!-- Failure Badge ("x" badge at bottom right) -->
+                    <div
+                        class="absolute bottom-4 right-4 w-6 h-6 rounded-full bg-[#e64646] border-2 border-white flex items-center justify-center shadow-xs">
+                        <svg class="w-3 h-3 text-white stroke-[2.8] stroke-current" fill="none" viewbox="0 0 12 12">
+                            <path d="M2.5 2.5l7 7m0-7l-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </div>
+                </div>
+                <!-- Heading Text -->
+                <h1 class="text-[23px] font-bold text-[#142930] mb-3 tracking-tight">
+                    Connection Problem
+                </h1>
+                <!-- Subtitle/Description -->
+                <p class="text-[14px] leading-relaxed text-[#75848d] max-w-[280px]">
+                    We couldn't connect to the server. Please check your internet connection and try again.
+                </p>
+            </section>
+            <!-- Bottom Actions -->
+            <footer class="w-full space-y-3 mb-2" data-purpose="error-actions">
+                <!-- Primary Button: Try Again -->
+                <button
+                    class="w-full h-[52px] bg-[#0F9559] hover:bg-[#0c834e] active:scale-[0.99] text-white text-[15.5px] font-semibold rounded-2xl transition-all shadow-sm flex items-center justify-center"
+                    type="button">
+                    Try Again
+                </button>
+                <!-- Secondary Button: Back to Login -->
+                <button
+                    class="w-full h-[52px] bg-white hover:bg-slate-50 active:scale-[0.99] text-[#133026] text-[15px] font-semibold rounded-2xl border border-slate-200/90 transition-all flex items-center justify-center"
+                    type="button">
+                    Back to Login
+                </button>
+            </footer>
+        </div>
+        <!-- END: ErrorStateView -->
+        <!-- ============================================== -->
+        <!-- VIEW 2: LOADING SKELETON STATE SCREEN          -->
+        <!-- ============================================== -->
+        <!-- BEGIN: LoadingStateView -->
+        <div class="hidden flex-1 flex-col px-6 justify-between pt-4 pb-8" id="loadingStateContainer">
+            <!-- Skeleton Form Elements -->
+            <section class="w-full space-y-5 animate-pulse pt-2" data-purpose="skeleton-content">
+                <!-- Title & Subtitle Skeletons -->
+                <div class="space-y-2.5">
+                    <div class="h-6 w-36 bg-[#e9eef0] rounded-full"></div>
+                    <div class="h-3.5 w-64 bg-[#edf1f3] rounded-full"></div>
+                </div>
+                <!-- Input Field Skeleton 1 -->
+                <div
+                    class="w-full h-13 bg-[#f2f5f6] border border-slate-100 rounded-xl p-3.5 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-4 h-4 rounded bg-[#dbe2e5]"></div>
+                        <div class="h-3 w-28 bg-[#dbe2e5] rounded"></div>
+                    </div>
+                    <div class="w-4 h-4 rounded-full bg-[#e2e8ea]"></div>
+                </div>
+                <!-- Input Field Skeleton 2 -->
+                <div
+                    class="w-full h-13 bg-[#f2f5f6] border border-slate-100 rounded-xl p-3.5 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-4 h-4 rounded bg-[#dbe2e5]"></div>
+                        <div class="h-3 w-20 bg-[#dbe2e5] rounded"></div>
+                    </div>
+                </div>
+                <!-- Primary Action Skeleton -->
+                <div class="w-full h-12 bg-[#e4eaec] rounded-xl mt-4"></div>
+            </section>
+            <!-- Center Spinner and Status Description -->
+            <section class="flex flex-col items-center justify-center text-center pb-12"
+                data-purpose="loading-indicator">
+                <!-- Circular Emerald Green Spinner -->
+                <div class="relative w-11 h-11 mb-3.5">
+                    <svg class="w-full h-full animate-spin-custom" viewbox="0 0 44 44">
+                        <circle class="opacity-15 stroke-[#0F9559]" cx="22" cy="22" fill="none" r="18"
+                            stroke-width="3.5"></circle>
+                        <path class="stroke-[#0F9559]" d="M 22 4 A 18 18 0 0 1 40 22" fill="none" stroke-linecap="round"
+                            stroke-width="3.5"></path>
+                    </svg>
+                </div>
+                <!-- Text Labels -->
+                <h2 class="text-[17px] font-bold text-[#1a2d33] tracking-tight">Loading...</h2>
+                <p class="text-xs text-[#788891] mt-1 font-medium">Please wait a moment.</p>
+            </section>
+            <!-- Empty spacer for layout parity -->
+            <div class="h-2"></div>
+        </div>
+        <!-- END: LoadingStateView -->
+        <!-- BEGIN: iOSHomeIndicator -->
+        <footer class="w-full pb-2 pt-1 flex justify-center shrink-0" data-purpose="home-indicator">
+            <div class="w-32 h-1 bg-slate-900/80 rounded-full"></div>
+        </footer>
+        <!-- END: iOSHomeIndicator -->
+    </main>
+    <!-- END: MobileContainer -->
+    <!-- BEGIN: InteractiveScript -->
+    <script data-purpose="state-controller">
+        // State toggle logic between Error Screen & Loading Screen
+        function switchState(state) {
+            const errorView = document.getElementById('errorStateContainer');
+            const loadingView = document.getElementById('loadingStateContainer');
+            const errorBtn = document.getElementById('showErrorBtn');
+            const loadingBtn = document.getElementById('showLoadingBtn');
+
+            if (state === 'error') {
+                errorView.classList.remove('hidden');
+                errorView.classList.add('flex');
+                loadingView.classList.add('hidden');
+                loadingView.classList.remove('flex');
+
+                errorBtn.className = "px-3 py-1 font-semibold rounded-full bg-brand text-white transition-all shadow-xs";
+                loadingBtn.className = "px-3 py-1 font-semibold rounded-full text-slate-600 hover:text-slate-900 transition-all";
+            } else {
+                errorView.classList.add('hidden');
+                errorView.classList.remove('flex');
+                loadingView.classList.remove('hidden');
+                loadingView.classList.add('flex');
+
+                loadingBtn.className = "px-3 py-1 font-semibold rounded-full bg-brand text-white transition-all shadow-xs";
+                errorBtn.className = "px-3 py-1 font-semibold rounded-full text-slate-600 hover:text-slate-900 transition-all";
+            }
+        }
+    </script>
+    <!-- END: InteractiveScript -->
+</body>
+
+</html>

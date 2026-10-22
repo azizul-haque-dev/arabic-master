@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>Arabic Master - Password Reset Successfully</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Tailwind Configuration -->
+    <script data-purpose="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            200: '#a7f3d0',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        },
+                        neutral: {
+                            850: '#1e293b',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Custom Styles: Animations & Details -->
+    <style data-purpose="custom-layout">
+        body {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .safe-top {
+            padding-top: env(safe-area-inset-top, 0px);
+        }
+
+        .safe-bottom {
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-slate-100 flex items-center justify-center min-h-screen p-0 sm:p-4 text-slate-800 antialiased font-sans">
+    <!-- BEGIN: PhoneContainer -->
+    <!-- Mimics an iPhone display container matching Screen 6 -->
+    <div class="w-full max-w-[393px] h-[852px] bg-white relative flex flex-col justify-between overflow-hidden sm:rounded-[48px] sm:shadow-2xl sm:ring-1 sm:ring-slate-900/10"
+        data-purpose="mobile-frame">
+        <!-- Top Safe Area / Status Bar & Header Wrapper -->
+        <div class="w-full flex flex-col shrink-0">
+            <!-- BEGIN: iOSStatusBar -->
+            <div class="w-full pt-3 px-8 pb-1 flex justify-between items-center text-[15px] font-semibold tracking-tight text-slate-900 select-none"
+                data-purpose="status-bar">
+                <!-- Time -->
+                <span>9:41</span>
+                <!-- Status Icons (Cellular, Wifi, Battery) -->
+                <div class="flex items-center space-x-2">
+                    <!-- Cellular Signal -->
+                    <svg class="w-4 h-3.5 fill-current" viewbox="0 0 17 12">
+                        <rect height="4" rx="1" width="3" x="0" y="8"></rect>
+                        <rect height="6.5" rx="1" width="3" x="4.5" y="5.5"></rect>
+                        <rect height="9" rx="1" width="3" x="9" y="3"></rect>
+                        <rect height="11.5" rx="1" width="3" x="13.5" y="0.5"></rect>
+                    </svg>
+                    <!-- Wi-Fi -->
+                    <svg class="w-4 h-3.5 fill-current" viewbox="0 0 16 12">
+                        <path clip-rule="evenodd"
+                            d="M8 2.2C4.9 2.2 2.1 3.5 0.2 5.5C-0.1 5.8 -0.1 6.2 0.2 6.5L7.4 13.7C7.7 14 8.2 14 8.5 13.7L15.7 6.5C16 6.2 16 5.8 15.7 5.5C13.8 3.5 11 2.2 8 2.2ZM8 4.2C10.4 4.2 12.6 5.2 14.1 6.8L8 12.9L1.9 6.8C3.4 5.2 5.6 4.2 8 4.2Z"
+                            fill-rule="evenodd"></path>
+                    </svg>
+                    <!-- Battery -->
+                    <div class="flex items-center">
+                        <div class="w-6 h-3 rounded-md border border-slate-900 p-0.5 flex items-center">
+                            <div class="w-full h-full bg-slate-900 rounded-sm"></div>
+                        </div>
+                        <div class="w-0.5 h-1.5 bg-slate-900 rounded-r-sm -ml-px"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: iOSStatusBar -->
+            <!-- BEGIN: NavigationHeader -->
+            <nav class="relative flex items-center justify-center px-6 py-3 min-h-[52px]" data-purpose="app-header">
+                <!-- Back Navigation Button -->
+                <button aria-label="Go back"
+                    class="absolute left-6 text-slate-800 hover:text-slate-600 transition-colors p-1.5 -ml-1.5 focus:outline-none"
+                    type="button">
+                    <svg class="w-6 h-6 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path d="M15.75 19.5L8.25 12l7.5-7.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </button>
+                <!-- Centered Logo and Brand Name -->
+                <div class="flex items-center space-x-2">
+                    <!-- Arabic Master Custom Book Emblem -->
+                    <div class="w-7 h-7 bg-brand-700 rounded-lg flex items-center justify-center shadow-sm">
+                        <span class="text-white text-[11px] font-bold tracking-tight pb-0.5 font-sans" dir="rtl">ا ب
+                            ت</span>
+                    </div>
+                    <!-- Brand Name -->
+                    <span class="text-[17px] font-bold tracking-tight text-slate-900">Arabic Master</span>
+                </div>
+            </nav>
+            <!-- END: NavigationHeader -->
+        </div>
+        <!-- BEGIN: MainContent -->
+        <main class="flex-1 flex flex-col justify-center items-center px-7 -mt-10" data-purpose="success-body">
+            <!-- Success Icon Badge with Soft Outer Glow Circles -->
+            <div class="relative flex items-center justify-center mb-8" data-purpose="success-badge-container">
+                <!-- Outer Soft Ring -->
+                <div class="w-32 h-32 rounded-full bg-emerald-50/70 flex items-center justify-center">
+                    <!-- Middle Ring -->
+                    <div class="w-24 h-24 rounded-full bg-emerald-100/70 flex items-center justify-center">
+                        <!-- Core Emerald Circle with Checkmark -->
+                        <div
+                            class="w-16 h-16 rounded-full bg-brand-600 shadow-md shadow-emerald-500/20 flex items-center justify-center transform transition-transform hover:scale-105 duration-200">
+                            <svg class="w-8 h-8 text-white stroke-[3.5]" fill="none" stroke="currentColor"
+                                viewbox="0 0 24 24">
+                                <path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Success Heading -->
+            <h1 class="text-[22px] sm:text-[23px] font-bold text-slate-900 text-center tracking-tight mb-3">
+                Password reset successfully!
+            </h1>
+            <!-- Informative Subtext -->
+            <p class="text-[14px] text-slate-500 text-center leading-relaxed max-w-[270px]">
+                Your password has been updated.<br />
+                You can now log in with your new password.
+            </p>
+        </main>
+        <!-- END: MainContent -->
+        <!-- BEGIN: FooterActionArea -->
+        <footer class="w-full px-6 pb-3 flex flex-col items-center" data-purpose="screen-footer">
+            <!-- Primary Action CTA -->
+            <div class="w-full mb-6">
+                <button
+                    class="w-full h-[52px] bg-brand-600 hover:bg-brand-700 active:scale-[0.99] text-white text-[16px] font-semibold rounded-xl transition duration-150 flex items-center justify-center shadow-sm shadow-emerald-600/10 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                    data-purpose="action-button" id="btn-back-login" type="button">
+                    Back to Login
+                </button>
+            </div>
+            <!-- iOS Home Bar / Indicator -->
+            <div class="w-36 h-1 bg-slate-900/90 rounded-full mb-1" data-purpose="home-indicator"></div>
+        </footer>
+        <!-- END: FooterActionArea -->
+    </div>
+    <!-- END: PhoneContainer -->
+    <!-- BEGIN: InteractiveHandlers -->
+    <script data-purpose="event-handlers">
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginButton = document.getElementById('btn-back-login');
+            if (loginButton) {
+                loginButton.addEventListener('click', () => {
+                    // Standard tap response/navigation handler
+                    console.log('Navigating to login screen...');
+                });
+            }
+        });
+    </script>
+    <!-- END: InteractiveHandlers -->
+</body>
+
+</html>

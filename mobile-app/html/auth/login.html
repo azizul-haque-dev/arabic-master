@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>Arabic Master - Welcome / Login</title>
+    <!-- Load Tailwind CSS v3 with plugins -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46'
+                        },
+                        charcoal: '#111827',
+                        mutedText: '#6B7280'
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"SF Pro Display"', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style data-purpose="custom-resets">
+        /* iOS frame setup & smooth rendering */
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #F3F4F6;
+        }
+
+        input::placeholder {
+            color: #9CA3AF;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen p-0 sm:p-4 select-none">
+    <!-- BEGIN: PhoneShellContainer -->
+    <!-- Container replicating the iPhone 390px mobile viewport -->
+    <div class="relative w-full max-w-[390px] h-[844px] bg-white overflow-hidden shadow-2xl sm:rounded-[44px] border border-gray-100 flex flex-col justify-between"
+        data-purpose="mobile-device-canvas">
+        <!-- BEGIN: TopAppSection -->
+        <div class="w-full flex flex-col">
+            <!-- BEGIN: IOSStatusBar -->
+            <!-- Standard iOS Status Bar -->
+            <div class="w-full h-11 pt-3 px-7 flex items-center justify-between text-black text-xs font-semibold z-20"
+                data-purpose="status-bar">
+                <span>9:41</span>
+                <div class="flex items-center space-x-1.5">
+                    <!-- Cellular Icon -->
+                    <svg class="w-4 h-3 fill-current" fill="none" viewbox="0 0 17 11">
+                        <path
+                            d="M1 9.5C1 8.94772 1.44772 8.5 2 8.5H3C3.55228 8.5 4 8.94772 4 9.5V10.5C4 11.0523 3.55228 11.5 3 11.5H2C1.44772 11.5 1 11.0523 1 10.5V9.5Z">
+                        </path>
+                        <path
+                            d="M5.5 7C5.5 6.44772 5.94772 6 6.5 6H7.5C8.05228 6 8.5 6.44772 8.5 7V10.5C8.5 11.0523 8.05228 11.5 7.5 11.5H6.5C5.94772 11.5 5.5 11.0523 5.5 10.5V7Z">
+                        </path>
+                        <path
+                            d="M10 4.5C10 3.94772 10.4477 3.5 11 3.5H12C12.5523 3.5 13 3.94772 13 4.5V10.5C13 11.0523 12.5523 11.5 12 11.5H11C10.4477 11.5 10 11.0523 10 10.5V4.5Z">
+                        </path>
+                        <path
+                            d="M14.5 2C14.5 1.44772 14.9477 1 15.5 1H16.5C17.0523 1 17.5 1.44772 17.5 2V10.5C17.5 11.0523 17.0523 11.5 16.5 11.5H15.5C14.9477 11.5 14.5 11.0523 14.5 10.5V2Z">
+                        </path>
+                    </svg>
+                    <!-- Wi-Fi Icon -->
+                    <svg class="w-3.5 h-3 fill-current" fill="none" viewbox="0 0 16 12">
+                        <path clip-rule="evenodd"
+                            d="M8 2.2C5.33 2.2 2.89 3.25 1.07 4.96C0.84 5.17 0.49 5.16 0.28 4.93C0.07 4.7 -0.06 4.35 0.17 4.12C2.26 2.16 5.01 1 8 1C10.99 1 13.74 2.16 15.83 4.12C16.06 4.35 15.93 4.7 15.72 4.93C15.51 5.16 15.16 5.17 14.93 4.96C13.11 3.25 10.67 2.2 8 2.2ZM8 5.6C6.26 5.6 4.67 6.29 3.48 7.42C3.26 7.63 2.91 7.62 2.7 7.4C2.49 7.18 2.37 6.83 2.59 6.61C4.04 5.23 5.95 4.4 8 4.4C10.05 4.4 11.96 5.23 13.41 6.61C13.63 6.83 13.51 7.18 13.3 7.4C13.09 7.62 12.74 7.63 12.52 7.42C11.33 6.29 9.74 5.6 8 5.6ZM8 9C7.07 9 6.22 9.37 5.59 9.97C5.38 10.18 5.03 10.17 4.82 9.96C4.61 9.75 4.5 9.4 4.71 9.18C5.58 8.35 6.74 7.8 8 7.8C9.26 7.8 10.42 8.35 11.29 9.18C11.5 9.4 11.39 9.75 11.18 9.96C10.97 10.17 10.62 10.18 10.41 9.97C9.78 9.37 8.93 9 8 9ZM8 12C8.55228 12 9 11.5523 9 11C9 10.4477 8.55228 10 8 10C7.44772 10 7 10.4477 7 11C7 11.5523 7.44772 12 8 12Z"
+                            fill-rule="evenodd"></path>
+                    </svg>
+                    <!-- Battery Icon -->
+                    <svg class="w-6 h-3" fill="none" viewbox="0 0 25 12">
+                        <rect height="10" rx="3" stroke="currentColor" stroke-width="1" width="20" x="1" y="1"></rect>
+                        <rect fill="currentColor" height="7" rx="1.5" width="14" x="2.5" y="2.5"></rect>
+                        <path d="M22.5 4.5V7.5C23.1 7.2 23.5 6.7 23.5 6C23.5 5.3 23.1 4.8 22.5 4.5Z"
+                            fill="currentColor"></path>
+                    </svg>
+                </div>
+            </div>
+            <!-- END: IOSStatusBar -->
+            <!-- BEGIN: BrandLogoHeader -->
+            <!-- Arabic Master brand mark matching Screen 1 -->
+            <div class="px-7 pt-2 flex items-center justify-start space-x-2.5" data-purpose="app-header">
+                <div class="w-9 h-9 rounded-xl bg-primary-700 flex flex-col items-center justify-center shadow-sm">
+                    <!-- Arabic script representation: ا ب ت -->
+                    <span class="text-white text-xs font-bold leading-none tracking-tight">ا ب ت</span>
+                    <!-- Book spine detail line -->
+                    <div class="w-4 h-[2px] bg-white/70 rounded-full mt-0.5"></div>
+                </div>
+                <span class="text-lg font-bold text-gray-900 tracking-tight">Arabic Master</span>
+            </div>
+            <!-- END: BrandLogoHeader -->
+            <!-- BEGIN: HeadlineAndDescription -->
+            <div class="px-7 pt-5">
+                <h1 class="text-2xl font-bold text-gray-900 leading-tight">
+                    Continue your<br />Arabic learning journey.
+                </h1>
+                <p class="text-[13px] text-gray-500 mt-1.5 leading-relaxed pr-2">
+                    Practical spoken Arabic for real-life situations in Saudi Arabia and the Gulf.
+                </p>
+            </div>
+            <!-- END: HeadlineAndDescription -->
+            <!-- BEGIN: MosqueSkylineIllustration -->
+            <!-- Skyline silhouette illustration of domes, minarets, and palms in soft mint color -->
+            <div class="w-full px-5 pt-3 overflow-hidden" data-purpose="skyline-illustration">
+                <div class="w-full h-24 relative flex items-end">
+                    <svg class="w-full h-full text-emerald-100/90" fill="currentColor" preserveaspectratio="none"
+                        viewbox="0 0 400 90">
+                        <!-- Palm tree 1 -->
+                        <path
+                            d="M30,90 L31,65 C31,65 24,60 18,65 C22,57 28,58 31,63 C29,54 26,51 21,50 C27,47 31,52 32,60 C32,50 35,47 41,49 C36,53 34,57 33,63 C36,57 41,56 45,62 C38,62 33,65 33,65 L33,90 Z"
+                            opacity="0.85"></path>
+                        <!-- Arch & buildings left -->
+                        <rect height="35" rx="3" width="26" x="50" y="55"></rect>
+                        <path d="M57,75 A6,6 0 0 1 69,75 L69,90 L57,90 Z" fill="#ffffff" opacity="0.6"></path>
+                        <!-- Minaret 1 -->
+                        <rect height="58" width="7" x="80" y="32"></rect>
+                        <polygon points="78,32 83.5,12 89,32"></polygon>
+                        <rect height="4" rx="1" width="13" x="77" y="38"></rect>
+                        <circle cx="83.5" cy="10" r="1.5"></circle>
+                        <!-- Central Grand Dome -->
+                        <path d="M125,90 L125,55 C125,55 125,32 155,32 C185,32 185,55 185,55 L185,90 Z"></path>
+                        <polygon points="153,32 155,22 157,32"></polygon>
+                        <circle cx="155" cy="20" r="1.8"></circle>
+                        <!-- Inner decorative dome door/arch -->
+                        <path d="M142,90 L142,68 A13,13 0 0 1 168,68 L168,90 Z" fill="#ffffff" opacity="0.65"></path>
+                        <!-- Minaret 2 (Right of Dome) -->
+                        <rect height="66" width="8" x="200" y="24"></rect>
+                        <polygon points="198,24 204,4 210,24"></polygon>
+                        <rect height="4" rx="1" width="16" x="196" y="32"></rect>
+                        <circle cx="204" cy="2" r="1.5"></circle>
+                        <!-- Smaller Dome Right -->
+                        <path d="M220,90 L220,62 C220,62 222,48 240,48 C258,48 260,62 260,62 L260,90 Z" opacity="0.9">
+                        </path>
+                        <polygon points="239,48 240,40 241,48"></polygon>
+                        <!-- Far minaret -->
+                        <rect height="52" width="6" x="275" y="38"></rect>
+                        <polygon points="273,38 278,22 283,38"></polygon>
+                        <!-- Arches building -->
+                        <rect height="30" rx="2" width="40" x="290" y="60"></rect>
+                        <path d="M296,78 A5,5 0 0 1 306,78 L306,90 L296,90 Z" fill="#ffffff" opacity="0.6"></path>
+                        <path d="M312,78 A5,5 0 0 1 322,78 L322,90 L312,90 Z" fill="#ffffff" opacity="0.6"></path>
+                        <!-- Palm Tree 2 -->
+                        <path
+                            d="M350,90 L351,62 C351,62 344,57 338,62 C342,54 348,55 351,60 C349,51 346,48 341,47 C347,44 351,49 352,57 C352,47 355,44 361,46 C356,50 354,54 353,60 C356,54 361,53 365,59 C358,59 353,62 353,62 L353,90 Z"
+                            opacity="0.85"></path>
+                    </svg>
+                    <!-- Ground baseline line -->
+                    <div class="absolute bottom-0 left-0 right-0 h-[1.5px] bg-emerald-100"></div>
+                </div>
+            </div>
+            <!-- END: MosqueSkylineIllustration -->
+            <!-- BEGIN: LoginForm -->
+            <form class="px-7 pt-4 space-y-3" data-purpose="login-form" onsubmit="event.preventDefault();">
+                <!-- Email Input -->
+                <div class="relative flex items-center">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                        <!-- Mail Icon -->
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+                            <path
+                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </div>
+                    <input
+                        class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition"
+                        placeholder="Enter your email" required="" type="email" />
+                </div>
+                <!-- Password Input -->
+                <div>
+                    <div class="relative flex items-center">
+                        <div
+                            class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                            <!-- Lock Icon -->
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8"
+                                viewbox="0 0 24 24">
+                                <rect height="11" rx="2" ry="2" width="18" x="3" y="11"></rect>
+                                <path d="M7 11V7a5 5 0 0110 0v4"></path>
+                            </svg>
+                        </div>
+                        <input
+                            class="w-full pl-10 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition"
+                            placeholder="Enter your password" required="" type="password" />
+                        <!-- Eye visibility icon toggle -->
+                        <button
+                            class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                            type="button">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8"
+                                viewbox="0 0 24 24">
+                                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round"
+                                    stroke-linejoin="round"></path>
+                                <path
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                    stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <!-- Forgot Password Link -->
+                    <div class="flex justify-end pt-1.5">
+                        <a class="text-xs font-medium text-emerald-600 hover:text-emerald-700 transition"
+                            href="#forgot">
+                            Forgot password?
+                        </a>
+                    </div>
+                </div>
+                <!-- Primary CTA: Log In -->
+                <button
+                    class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white text-sm font-semibold rounded-xl transition shadow-sm flex items-center justify-center"
+                    type="submit">
+                    Log In
+                </button>
+            </form>
+            <!-- END: LoginForm -->
+            <!-- BEGIN: SocialDivider -->
+            <div class="px-7 pt-4 flex items-center justify-between" data-purpose="or-divider">
+                <div class="flex-grow border-t border-gray-200"></div>
+                <span class="px-3 text-xs text-gray-400 font-normal">or continue with</span>
+                <div class="flex-grow border-t border-gray-200"></div>
+            </div>
+            <!-- END: SocialDivider -->
+            <!-- BEGIN: SocialAuthSection -->
+            <div class="px-7 pt-3">
+                <button
+                    class="w-full py-2.5 px-4 border border-gray-200 rounded-xl bg-white hover:bg-gray-50 flex items-center justify-center space-x-2 text-xs font-semibold text-gray-700 shadow-sm transition active:scale-[0.99]"
+                    data-purpose="google-login-button" type="button">
+                    <!-- Google 'G' official colored vector icon -->
+                    <svg class="w-4 h-4" viewbox="0 0 24 24">
+                        <path
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                            fill="#4285F4"></path>
+                        <path
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                            fill="#34A853"></path>
+                        <path
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                            fill="#FBBC05"></path>
+                        <path
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                            fill="#EA4335"></path>
+                    </svg>
+                    <span>Continue with Google</span>
+                </button>
+            </div>
+            <!-- END: SocialAuthSection -->
+        </div>
+        <!-- END: TopAppSection -->
+        <!-- BEGIN: BottomNavigationFooter -->
+        <div class="w-full flex flex-col items-center pb-2 pt-2" data-purpose="footer-options">
+            <!-- Create Account Row -->
+            <div class="text-xs text-gray-500 font-normal mb-2">
+                Don't have an account?
+                <a class="font-bold text-emerald-600 hover:text-emerald-700 ml-0.5" href="#create-account">
+                    Create account
+                </a>
+            </div>
+            <!-- Continue as Guest -->
+            <a class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition mb-3" href="#guest">
+                Continue as guest
+            </a>
+            <!-- iOS Home Indicator bar -->
+            <div class="w-32 h-1 bg-gray-900 rounded-full mb-1" data-purpose="home-indicator"></div>
+        </div>
+        <!-- END: BottomNavigationFooter -->
+    </div>
+    <!-- END: PhoneShellContainer -->
+</body>
+
+</html>
