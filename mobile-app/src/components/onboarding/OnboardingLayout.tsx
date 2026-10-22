@@ -51,7 +51,7 @@ export function OnboardingLayout({
               <Pressable
                 onPress={onBack}
                 hitSlop={12}
-                className="h-10 w-10 items-center justify-center rounded-full active:bg-surface-container-low"
+                className="h-10 w-10 items-center justify-center rounded-full active:opacity-70"
                 accessibilityRole="button"
                 accessibilityLabel="Go back"
               >
@@ -64,7 +64,7 @@ export function OnboardingLayout({
             <Pressable
               onPress={onSkip}
               hitSlop={12}
-              className="h-10 min-w-10 items-center justify-center px-2 rounded-full active:bg-surface-container-low"
+              className="h-10 min-w-10 items-center justify-center px-2 rounded-full active:opacity-70"
               accessibilityRole="button"
               accessibilityLabel="Skip this step"
             >
@@ -96,16 +96,16 @@ export function OnboardingLayout({
           </ScrollView>
 
           {/* Bottom Action Footer */}
-          <View className="border-t border-outline-variant/60 bg-background px-margin py-4">
+          <View className="border-t border-outline-variant bg-background px-margin py-4">
             <Pressable
               onPress={onContinue}
               disabled={continueDisabled}
               accessibilityRole="button"
               accessibilityState={{ disabled: continueDisabled }}
-              className={`min-h-12 w-full flex-row items-center justify-center rounded-xl py-3.5 shadow-sm transition-all ${
+              className={`min-h-12 w-full flex-row items-center justify-center rounded-xl py-3.5 active:opacity-90 ${
                 continueDisabled
                   ? "bg-surface-container-high"
-                  : "bg-primary active:bg-primary-strong shadow-primary/10"
+                  : "bg-primary"
               }`}
             >
               <Text

@@ -51,7 +51,6 @@ export default function WelcomeScreen() {
                   source={require("@/assets/images/myImages/arabic_logo.png")}
                   style={{ width: 130, height: 130, borderRadius: 28 }}
                   contentFit="cover"
-                  className="shadow-md shadow-primary/20"
                 />
               </View>
 
@@ -79,7 +78,7 @@ export default function WelcomeScreen() {
               }
               accessibilityRole="button"
               accessibilityLabel="I already have an account"
-              className="flex-row items-center justify-between rounded-2xl bg-primary p-4 shadow-sm active:bg-primary-strong"
+              className="flex-row items-center justify-between rounded-2xl bg-primary p-4 active:opacity-90"
             >
               <View className="flex-1 flex-row items-center gap-3.5">
                 <View className="h-11 w-11 items-center justify-center rounded-full bg-primary-strong text-on-primary">
@@ -99,10 +98,10 @@ export default function WelcomeScreen() {
               onPress={startOnboarding}
               accessibilityRole="button"
               accessibilityLabel="I'm new here, start learning without creating an account"
-              className="flex-row items-center justify-between rounded-2xl border-2 border-primary bg-primary-subtle p-4 shadow-xs active:bg-primary-subtle/70"
+              className="flex-row items-center justify-between rounded-2xl border-2 border-primary bg-primary-subtle p-4 active:opacity-90"
             >
               <View className="flex-1 flex-row items-center gap-3.5">
-                <View className="h-11 w-11 items-center justify-center rounded-full bg-primary/10">
+                <View className="h-11 w-11 items-center justify-center rounded-full bg-surface-container">
                   <Sparkles className="text-primary" size={22} strokeWidth={2.2} />
                 </View>
                 <View className="flex-1">

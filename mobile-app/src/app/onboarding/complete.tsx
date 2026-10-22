@@ -64,10 +64,10 @@ export default function CompleteScreen() {
             >
               {/* Outer celebratory burst sparkles */}
               <Sparkles className="absolute -top-1 right-2 text-secondary" size={20} />
-              <View className="absolute bottom-2 left-2 h-2.5 w-2.5 rounded-full bg-secondary/80" />
+              <View className="absolute bottom-2 left-2 h-2.5 w-2.5 rounded-full bg-secondary opacity-80" />
 
               {/* Center solid checkmark circle */}
-              <View className="h-16 w-16 items-center justify-center rounded-full bg-primary shadow-md shadow-primary/20">
+              <View className="h-16 w-16 items-center justify-center rounded-full bg-primary shadow-md">
                 <Check className="text-on-primary" size={32} strokeWidth={3.2} />
               </View>
             </View>
@@ -81,7 +81,7 @@ export default function CompleteScreen() {
           </View>
 
           {/* Summary Stats Card (3 Columns) */}
-          <View className="mt-6 flex-row rounded-2xl border border-primary/20 bg-primary-subtle py-3.5 shadow-xs">
+          <View className="mt-6 flex-row rounded-2xl border border-outline-variant bg-primary-subtle py-3.5">
             {/* Column 1: Daily Goal */}
             <View className="flex-1 items-center px-1">
               <Clock3 className="mb-1 text-primary" size={20} strokeWidth={2.2} />
@@ -94,7 +94,7 @@ export default function CompleteScreen() {
             </View>
 
             {/* Vertical Divider */}
-            <View className="w-px bg-primary/15" />
+            <View className="w-px bg-outline-variant" />
 
             {/* Column 2: Level */}
             <View className="flex-1 items-center px-1">
@@ -108,7 +108,7 @@ export default function CompleteScreen() {
             </View>
 
             {/* Vertical Divider */}
-            <View className="w-px bg-primary/15" />
+            <View className="w-px bg-outline-variant" />
 
             {/* Column 3: Focus Topic */}
             <View className="flex-1 items-center px-1">
@@ -156,12 +156,12 @@ export default function CompleteScreen() {
       </ScrollView>
 
       {/* Sticky Bottom Actions */}
-      <View className="gap-2.5 border-t border-outline-variant/60 bg-background px-margin py-4">
+      <View className="gap-2.5 border-t border-outline-variant bg-background px-margin py-4">
         {/* Primary Action Button */}
         <Pressable
           onPress={() => showAccountNotice("Create an account")}
           accessibilityRole="button"
-          className="min-h-12 w-full flex-row items-center justify-center gap-2 rounded-xl bg-primary py-3.5 shadow-sm active:bg-primary-strong"
+          className="min-h-12 w-full flex-row items-center justify-center gap-2 rounded-xl bg-primary py-3.5 active:opacity-90"
         >
           <Text className="font-label-lg text-base font-bold text-on-primary">
             Create an account
@@ -173,7 +173,7 @@ export default function CompleteScreen() {
         <Pressable
           onPress={() => showAccountNotice("Continue as guest")}
           accessibilityRole="button"
-          className="min-h-12 w-full flex-row items-center justify-center rounded-xl border border-primary bg-transparent py-3 active:bg-primary-subtle"
+          className="min-h-12 w-full flex-row items-center justify-center rounded-xl border border-primary bg-transparent py-3 active:opacity-90"
         >
           <Text className="font-label-lg text-sm font-semibold text-primary">
             Continue as guest

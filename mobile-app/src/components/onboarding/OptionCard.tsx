@@ -47,10 +47,10 @@ export function OptionCard({
         accessibilityRole={mode}
         accessibilityLabel={label}
         accessibilityState={{ checked: selected }}
-        className={`h-28 justify-between rounded-xl p-3.5 border transition-all ${
+        className={`h-28 justify-between rounded-xl p-3.5 border active:opacity-90 ${
           selected
-            ? "border-2 border-primary bg-primary-subtle shadow-sm"
-            : "border-outline-variant bg-surface-container-lowest active:bg-surface-container-low"
+            ? "border-2 border-primary bg-primary-subtle"
+            : "border-outline-variant bg-surface-container-lowest"
         }`}
       >
         <View className="flex-row items-start justify-between">
@@ -75,10 +75,10 @@ export function OptionCard({
       accessibilityRole={mode}
       accessibilityLabel={detail ? `${label}, ${detail}` : label}
       accessibilityState={{ checked: selected }}
-      className={`min-h-14 flex-row items-center justify-between rounded-xl px-4 py-3.5 border transition-all ${
+      className={`min-h-14 flex-row items-center justify-between rounded-xl px-4 py-3.5 border active:opacity-90 ${
         selected
-          ? "border-2 border-primary bg-primary-subtle shadow-sm"
-          : "border-outline-variant bg-surface-container-lowest active:bg-surface-container-low"
+          ? "border-2 border-primary bg-primary-subtle"
+          : "border-outline-variant bg-surface-container-lowest"
       }`}
     >
       <View className="min-w-0 flex-1 flex-row items-center gap-3.5">

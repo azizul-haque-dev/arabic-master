@@ -64,7 +64,7 @@ export default function GoalsScreen() {
                     leading={
                       <View
                         className={`h-9 w-9 items-center justify-center rounded-lg ${
-                          isSelected ? "bg-primary/10" : "bg-surface-container"
+                          isSelected ? "bg-primary-subtle" : "bg-surface-container"
                         }`}
                       >
                         <Icon
