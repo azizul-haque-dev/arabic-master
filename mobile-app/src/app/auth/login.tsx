@@ -1,13 +1,11 @@
 import * as Haptics from "expo-haptics";
 import {
   AlertCircle,
-  ArrowLeft,
   ArrowRight,
   CheckCircle2,
   ChevronRight,
   Eye,
   EyeOff,
-  HelpCircle,
   Lock,
   Mail,
   Send,
@@ -30,7 +28,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 
-import { BrandMark } from "@/components/onboarding/BrandMark";
+import { AuthPageHeader } from "@/components/auth/AuthPageHeader";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -98,7 +96,7 @@ export default function LoginScreen() {
         [
           {
             text: "Start Learning",
-            onPress: () => router.replace("/"),
+            onPress: () => router.replace("/home"),
           },
         ],
       );
@@ -116,7 +114,7 @@ export default function LoginScreen() {
         [
           {
             text: "Continue",
-            onPress: () => router.replace("/"),
+            onPress: () => router.replace("/home"),
           },
         ],
       );
@@ -125,10 +123,10 @@ export default function LoginScreen() {
 
   const handleOpenForgotModal = () => {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-    setForgotEmail(email.trim());
-    setForgotError(null);
-    setForgotSubmitted(false);
-    setShowForgotModal(true);
+    router.push({
+      pathname: "/auth/forgot-password",
+      params: email.trim() ? { email: email.trim() } : undefined,
+    });
   };
 
   const handleSendResetLink = () => {
@@ -152,39 +150,21 @@ export default function LoginScreen() {
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        {/* Top Minimal Navigation Bar */}
-        <View className="h-14 flex-row items-center justify-between px-margin">
-          {/* Back Navigation Button */}
-          <Pressable
-            onPress={() => {
-              triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-              router.back();
-            }}
-            hitSlop={12}
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-            className="h-10 w-10 items-center justify-center rounded-full border border-outline-variant bg-surface-container-lowest active:bg-surface-container-low active:scale-95"
-          >
-            <ArrowLeft size={20} color="#171717" strokeWidth={2.4} />
-          </Pressable>
-
-          {/* Help & Support Button */}
-          <Pressable
-            onPress={() => {
-              triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-              setShowHelpModal(true);
-            }}
-            hitSlop={10}
-            accessibilityRole="button"
-            accessibilityLabel="Help and support"
-            className="flex-row items-center gap-1.5 rounded-full border border-outline-variant bg-surface-container-lowest px-3 py-1.5 active:bg-surface-container-low"
-          >
-            <HelpCircle size={15} color="#737373" strokeWidth={2} />
-            <Text className="font-label-sm text-xs font-semibold text-on-surface-variant">
-              Help
-            </Text>
-          </Pressable>
-        </View>
+        <AuthPageHeader
+          mode="login"
+          onBack={() => {
+            triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+            router.back();
+          }}
+          onHelp={() => {
+            triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+            setShowHelpModal(true);
+          }}
+          onModeChange={(mode) => {
+            triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+            router.push(mode === "login" ? "/auth/login" : "/auth/register");
+          }}
+        />
 
         <ScrollView
           className="flex-1"
@@ -195,17 +175,6 @@ export default function LoginScreen() {
           <View className="flex-1 justify-between px-margin pb-6 pt-2">
             {/* Main Content Area */}
             <View>
-              {/* Brand Logo & Hero Header */}
-              <View className="items-center pb-2 pt-1">
-                <BrandMark variant="logo" size={48} />
-                <Text className="mt-4 text-center font-headline-md text-[28px] font-extrabold tracking-tight text-on-surface leading-tight">
-                  Welcome back
-                </Text>
-                <Text className="mt-1.5 text-center font-body-sm text-[14px] text-on-surface-variant max-w-[290px] leading-relaxed">
-                  Log in to continue your Arabic conversations, daily streak, and progress.
-                </Text>
-              </View>
-
               {/* Error Banner */}
               {errorMessage ? (
                 <View className="mt-4 flex-row items-center gap-2.5 rounded-2xl border border-error/20 bg-error-container p-3.5">
@@ -241,8 +210,8 @@ export default function LoginScreen() {
                     }}
                     className={`h-[56px] flex-row items-center rounded-2xl border px-4 ${
                       focusedField === "email"
-                        ? "border-2 border-primary bg-white"
-                        : "border-outline-variant bg-surface-container-low"
+                        ? "border-primary bg-surface"
+                        : "border-outline-variant bg-surface"
                     }`}
                   >
                     <Mail
@@ -315,8 +284,8 @@ export default function LoginScreen() {
                     }}
                     className={`h-[56px] flex-row items-center rounded-2xl border px-4 ${
                       focusedField === "password"
-                        ? "border-2 border-primary bg-white"
-                        : "border-outline-variant bg-surface-container-low"
+                        ? "border-primary bg-surface"
+                        : "border-outline-variant bg-surface"
                     }`}
                   >
                     <Lock
@@ -385,7 +354,7 @@ export default function LoginScreen() {
                       transform: [{ scale: pressed ? 0.985 : 1 }],
                     },
                   ]}
-                  className="mt-1 h-[56px] w-full flex-row items-center justify-center rounded-2xl bg-primary"
+                  className="mt-1 h-[56px] w-full flex-row items-center justify-center rounded-2xl bg-primary active:bg-primary-strong"
                 >
                   {isLoading ? (
                     <View className="flex-row items-center gap-2">
@@ -505,7 +474,7 @@ export default function LoginScreen() {
               <Pressable
                 onPress={() => {
                   triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-                  router.replace("/");
+                  router.replace("/home");
                 }}
                 hitSlop={10}
                 accessibilityRole="button"

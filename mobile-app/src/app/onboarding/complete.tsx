@@ -66,7 +66,7 @@ export default function CompleteScreen() {
       [
         {
           text: "Let's Go!",
-          onPress: () => router.replace("/"),
+          onPress: () => router.replace("/home"),
         },
       ],
     );
@@ -327,5 +327,4 @@ export default function CompleteScreen() {
     </SafeAreaView>
   );
 }
-
 

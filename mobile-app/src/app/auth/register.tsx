@@ -1,13 +1,11 @@
 import * as Haptics from "expo-haptics";
 import {
   AlertCircle,
-  ArrowLeft,
   ArrowRight,
   Check,
   CheckCircle2,
   Eye,
   EyeOff,
-  HelpCircle,
   Lock,
   Mail,
   ShieldCheck,
@@ -31,7 +29,7 @@ import Svg, {
   Path,
 } from "react-native-svg";
 
-import { BrandMark } from "@/components/onboarding/BrandMark";
+import { AuthPageHeader } from "@/components/auth/AuthPageHeader";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -122,7 +120,7 @@ export default function RegisterScreen() {
         [
           {
             text: "Start First Lesson",
-            onPress: () => router.replace("/"),
+            onPress: () => router.replace("/home"),
           },
         ],
       );
@@ -140,7 +138,7 @@ export default function RegisterScreen() {
         [
           {
             text: "Continue",
-            onPress: () => router.replace("/"),
+            onPress: () => router.replace("/home"),
           },
         ],
       );
@@ -153,38 +151,21 @@ export default function RegisterScreen() {
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        {/* Top Navigation Bar */}
-        <View className="h-14 flex-row items-center justify-between px-margin">
-          <Pressable
-            onPress={() => router.back()}
-            hitSlop={12}
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-            className="h-10 w-10 items-center justify-center rounded-full active:bg-surface-container-low"
-          >
-            <ArrowLeft size={22} color="#171717" strokeWidth={2.4} />
-          </Pressable>
-
-          {/* Centered Main Onboarding Logo */}
-          <BrandMark variant="logo" size={38} />
-
-          {/* Help Button */}
-          <Pressable
-            onPress={() => {
-              triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-              Alert.alert(
-                "Why Create an Account?",
-                "Creating a free account preserves your daily streak, tracks learned vocabulary, and syncs your level across mobile and web.",
-              );
-            }}
-            hitSlop={12}
-            accessibilityRole="button"
-            accessibilityLabel="Help"
-            className="h-10 w-10 items-center justify-center rounded-full active:bg-surface-container-low"
-          >
-            <HelpCircle size={20} color="#737373" strokeWidth={2.2} />
-          </Pressable>
-        </View>
+        <AuthPageHeader
+          mode="register"
+          onBack={() => router.back()}
+          onHelp={() => {
+            triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+            Alert.alert(
+              "Why Create an Account?",
+              "Creating a free account preserves your daily streak, tracks learned vocabulary, and syncs your level across mobile and web.",
+            );
+          }}
+          onModeChange={(mode) => {
+            triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+            router.push(mode === "login" ? "/auth/login" : "/auth/register");
+          }}
+        />
 
         <ScrollView
           className="flex-1"
@@ -195,54 +176,6 @@ export default function RegisterScreen() {
           <View className="flex-1 justify-between px-margin pb-6 pt-1">
             {/* Main Content Area */}
             <View>
-              {/* Modern 2026 Segmented Tab Switcher */}
-              <View className="mt-1 flex-row rounded-full bg-surface-container p-1 border border-outline-variant/60">
-                <Pressable
-                  onPress={() => {
-                    triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-                    router.push("/auth/login");
-                  }}
-                  accessibilityRole="tab"
-                  accessibilityLabel="Switch to Sign In"
-                  className="flex-1 items-center justify-center rounded-full py-2 active:opacity-70"
-                >
-                  <Text className="font-label-lg text-xs font-semibold text-on-surface-variant">
-                    Sign In
-                  </Text>
-                </Pressable>
-
-                <View
-                  style={{
-                    shadowColor: "#000000",
-                    shadowOffset: { width: 0, height: 1 },
-                    shadowOpacity: 0.08,
-                    shadowRadius: 3,
-                    elevation: 2,
-                  }}
-                  className="flex-1 items-center justify-center rounded-full bg-white py-2"
-                >
-                  <Text className="font-label-lg text-xs font-bold text-primary">
-                    Create Account
-                  </Text>
-                </View>
-              </View>
-
-              {/* Hero Typography & Value Affirmation */}
-              <View className="pt-4 items-center">
-                <View className="rounded-full border border-secondary/30 bg-secondary-subtle px-3 py-0.5">
-                  <Text className="font-label-sm text-[11px] font-bold text-on-secondary-subtle uppercase tracking-wider">
-                    Free Forever • 30s Setup
-                  </Text>
-                </View>
-
-                <Text className="mt-2 text-center font-headline-md text-[25px] font-extrabold tracking-tight text-on-surface leading-tight">
-                  Begin Your Arabic Mastery
-                </Text>
-                <Text className="mt-1 text-center font-body-sm text-xs font-normal text-on-surface-variant max-w-[290px] leading-relaxed">
-                  Join learners worldwide and save your progress, streaks, and certificates.
-                </Text>
-              </View>
-
               {/* Error Banner */}
               {errorMessage ? (
                 <View className="mt-3 flex-row items-center gap-2.5 rounded-2xl border border-error/20 bg-error-container p-3.5">
@@ -254,7 +187,7 @@ export default function RegisterScreen() {
               ) : null}
 
               {/* Interactive Form Fields */}
-              <View className="mt-4 gap-3.5">
+              <View className="mt-5 gap-4">
                 {/* Full Name Field */}
                 <View>
                   <Text className="mb-1.5 font-label-md text-xs font-semibold text-on-surface">
@@ -268,10 +201,10 @@ export default function RegisterScreen() {
                       shadowRadius: 6,
                       elevation: focusedField === "name" ? 3 : 1,
                     }}
-                    className={`h-[54px] flex-row items-center rounded-2xl border px-4 ${
+                    className={`h-[56px] flex-row items-center rounded-2xl border px-4 ${
                       focusedField === "name"
-                        ? "border-2 border-primary bg-white"
-                        : "border-outline-variant bg-surface-container-lowest"
+                        ? "border-primary bg-surface"
+                        : "border-outline-variant bg-surface"
                     }`}
                   >
                     <User
@@ -310,10 +243,10 @@ export default function RegisterScreen() {
                       shadowRadius: 6,
                       elevation: focusedField === "email" ? 3 : 1,
                     }}
-                    className={`h-[54px] flex-row items-center rounded-2xl border px-4 ${
+                    className={`h-[56px] flex-row items-center rounded-2xl border px-4 ${
                       focusedField === "email"
-                        ? "border-2 border-primary bg-white"
-                        : "border-outline-variant bg-surface-container-lowest"
+                        ? "border-primary bg-surface"
+                        : "border-outline-variant bg-surface"
                     }`}
                   >
                     <Mail
@@ -354,10 +287,10 @@ export default function RegisterScreen() {
                       shadowRadius: 6,
                       elevation: focusedField === "password" ? 3 : 1,
                     }}
-                    className={`h-[54px] flex-row items-center rounded-2xl border px-4 ${
+                    className={`h-[56px] flex-row items-center rounded-2xl border px-4 ${
                       focusedField === "password"
-                        ? "border-2 border-primary bg-white"
-                        : "border-outline-variant bg-surface-container-lowest"
+                        ? "border-primary bg-surface"
+                        : "border-outline-variant bg-surface"
                     }`}
                   >
                     <Lock
@@ -450,10 +383,10 @@ export default function RegisterScreen() {
                       shadowRadius: 6,
                       elevation: focusedField === "confirmPassword" ? 3 : 1,
                     }}
-                    className={`h-[54px] flex-row items-center rounded-2xl border px-4 ${
+                    className={`h-[56px] flex-row items-center rounded-2xl border px-4 ${
                       focusedField === "confirmPassword"
-                        ? "border-2 border-primary bg-white"
-                        : "border-outline-variant bg-surface-container-lowest"
+                        ? "border-primary bg-surface"
+                        : "border-outline-variant bg-surface"
                     }`}
                   >
                     <ShieldCheck
@@ -602,7 +535,7 @@ export default function RegisterScreen() {
                       transform: [{ scale: pressed ? 0.985 : 1 }],
                     },
                   ]}
-                  className="mt-2 h-[54px] w-full flex-row items-center justify-center rounded-2xl bg-primary"
+                  className="mt-2 h-[56px] w-full flex-row items-center justify-center rounded-2xl bg-primary active:bg-primary-strong"
                 >
                   {isLoading ? (
                     <View className="flex-row items-center gap-2">
@@ -623,7 +556,7 @@ export default function RegisterScreen() {
               </View>
 
               {/* Social Auth Divider */}
-              <View className="my-5 flex-row items-center">
+              <View className="my-6 flex-row items-center">
                 <View className="flex-1 h-px bg-outline-variant" />
                 <Text className="px-3 font-label-sm text-xs font-medium text-on-surface-variant">
                   or sign up with
@@ -631,8 +564,8 @@ export default function RegisterScreen() {
                 <View className="flex-1 h-px bg-outline-variant" />
               </View>
 
-              {/* Dual Social Sign Up Row */}
-              <View className="flex-row gap-3">
+              {/* Social Sign Up Actions */}
+              <View className="gap-3">
                 {/* Google Sign Up */}
                 <Pressable
                   onPress={() => handleSocialRegister("Google")}
@@ -645,7 +578,7 @@ export default function RegisterScreen() {
                       transform: [{ scale: pressed ? 0.985 : 1 }],
                     },
                   ]}
-                  className="h-[50px] flex-1 flex-row items-center justify-center gap-2.5 rounded-2xl border border-outline-variant bg-surface-container-lowest"
+                  className="h-[52px] w-full flex-row items-center justify-center gap-2.5 rounded-2xl border border-outline-variant bg-surface"
                 >
                   <Svg width={18} height={18} viewBox="0 0 24 24">
                     <Path
@@ -670,37 +603,38 @@ export default function RegisterScreen() {
                   </Text>
                 </Pressable>
 
-                {/* Apple Sign Up */}
-                <Pressable
-                  onPress={() => handleSocialRegister("Apple")}
-                  disabled={isLoading}
-                  accessibilityRole="button"
-                  accessibilityLabel="Sign up with Apple"
-                  style={({ pressed }) => [
-                    {
-                      opacity: pressed ? 0.85 : 1,
-                      transform: [{ scale: pressed ? 0.985 : 1 }],
-                    },
-                  ]}
-                  className="h-[50px] flex-1 flex-row items-center justify-center gap-2.5 rounded-2xl bg-black"
-                >
-                  <Svg width={16} height={16} viewBox="0 0 24 24" fill="#ffffff">
-                    <Path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.84c.64-.78 1.08-1.87.96-2.96-.93.04-2.05.62-2.72 1.4-.59.68-1.11 1.79-.97 2.85 1.04.08 2.09-.52 2.73-1.29" />
-                  </Svg>
-                  <Text className="font-label-lg text-sm font-semibold text-white">
-                    Apple
-                  </Text>
-                </Pressable>
+                {Platform.OS === "ios" ? (
+                  <Pressable
+                    onPress={() => handleSocialRegister("Apple")}
+                    disabled={isLoading}
+                    accessibilityRole="button"
+                    accessibilityLabel="Sign up with Apple"
+                    style={({ pressed }) => [
+                      {
+                        opacity: pressed ? 0.85 : 1,
+                        transform: [{ scale: pressed ? 0.985 : 1 }],
+                      },
+                    ]}
+                    className="h-[52px] w-full flex-row items-center justify-center gap-2.5 rounded-2xl bg-black"
+                  >
+                    <Svg width={16} height={16} viewBox="0 0 24 24" fill="#ffffff">
+                      <Path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.84c.64-.78 1.08-1.87.96-2.96-.93.04-2.05.62-2.72 1.4-.59.68-1.11 1.79-.97 2.85 1.04.08 2.09-.52 2.73-1.29" />
+                    </Svg>
+                    <Text className="font-label-lg text-sm font-semibold text-white">
+                      Apple
+                    </Text>
+                  </Pressable>
+                ) : null}
               </View>
             </View>
 
             {/* Bottom Actions Footer */}
-            <View className="items-center gap-2.5 pt-6">
+            <View className="items-center gap-3 pt-6">
               {/* Frictionless Guest Mode */}
               <Pressable
                 onPress={() => {
                   triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-                  router.replace("/");
+                  router.replace("/home");
                 }}
                 hitSlop={10}
                 accessibilityRole="button"

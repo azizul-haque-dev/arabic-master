@@ -12,6 +12,7 @@ colors:
   secondary-subtle: '#fef3c7'
   on-secondary-subtle: '#b45309'
   background: '#ffffff'
+  background-soft: '#f7faf8'
   on-background: '#171717'
   surface: '#ffffff'
   on-surface: '#171717'
@@ -186,6 +187,7 @@ Use the tokens as NativeWind classes: `bg-<token>`, `text-<token>`, `border-<tok
 | Secondary subtle | `secondary-subtle` | `#fef3c7` | Achievement tag backgrounds |
 | On secondary subtle | `on-secondary-subtle` | `#b45309` | Achievement tag text |
 | Background | `background` | `#ffffff` | Screen background |
+| Background soft | `background-soft` | `#f7faf8` | Cool, low-contrast background for learning dashboards |
 | On background | `on-background` | `#171717` | Text directly on background |
 | Surface | `surface` | `#ffffff` | Base layer for sheets and modals |
 | Text – primary | `on-surface` | `#171717` | Titles, body, option labels, icons |
@@ -241,9 +243,9 @@ There is no hover color. Mobile uses pressed states (§6).
 - `src/` has no `useFonts` / `expo-font` loading code.
 
 The font-family keys in `tailwind.config.js` (`SpaceGrotesk_*`, `PlusJakartaSans_*`,
-`NotoSansArabic_*`) are **placeholders in `@expo-google-fonts` naming**. Until fonts are
-loaded, every `font-*` class falls back to the platform system font. Don't describe these
-fonts as available.
+`NotoSansArabic_*`) are **placeholders in `@expo-google-fonts` naming**. Each token
+includes a system sans-serif fallback so unloaded font names do not resolve to a browser's
+default serif font. Don't describe the named custom fonts as available.
 
 | Use | Family | Source |
 | :-- | :-- | :-- |
