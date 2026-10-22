@@ -4,7 +4,6 @@ import {
   Check,
   Clock3,
   MessageCircle,
-  Sparkles,
 } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { Alert, Pressable, ScrollView, Text, View } from "react-native";
@@ -62,13 +61,13 @@ export default function CompleteScreen() {
               accessible={false}
               importantForAccessibility="no-hide-descendants"
             >
-              {/* Outer celebratory burst sparkles */}
-              <Sparkles className="absolute -top-1 right-2 text-secondary" size={20} />
+              {/* Outer celebratory accents */}
+              <View className="absolute -top-1 right-2 h-3 w-3 rounded-full bg-secondary" />
               <View className="absolute bottom-2 left-2 h-2.5 w-2.5 rounded-full bg-secondary opacity-80" />
 
               {/* Center solid checkmark circle */}
               <View className="h-16 w-16 items-center justify-center rounded-full bg-primary shadow-md">
-                <Check className="text-on-primary" size={32} strokeWidth={3.2} />
+                <Check color="#ffffff" size={32} strokeWidth={3.2} />
               </View>
             </View>
 
