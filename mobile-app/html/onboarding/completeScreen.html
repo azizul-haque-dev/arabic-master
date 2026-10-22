@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>Arabic Master - You're all set!</title>
+    <!-- Tailwind CSS CDN with plugins -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf7',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            500: '#10b981',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                            dark: '#01382b',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'SF Pro Display', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style data-purpose="custom-styling">
+        /* Native iOS smooth scrolling and font rendering */
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Dynamic checkmark circle styling */
+        .burst-dash {
+            stroke-linecap: round;
+            stroke-width: 2.5;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-0 sm:p-4">
+    <!-- BEGIN: PhoneContainer -->
+    <!-- Mimics an iPhone 14 / 15 viewport (390px x 844px) -->
+    <div class="w-full max-w-[390px] h-[844px] bg-white text-slate-800 flex flex-col justify-between relative overflow-hidden shadow-2xl sm:rounded-[48px] border-gray-200 sm:border-[8px]"
+        data-purpose="mobile-screen-wrapper">
+        <!-- BEGIN: TopBarArea -->
+        <header class="w-full pt-3 px-7 flex flex-col items-center select-none flex-shrink-0"
+            data-purpose="top-navigation-area">
+            <!-- iOS Status Bar -->
+            <div class="w-full flex justify-between items-center text-[14px] font-semibold tracking-tight text-slate-900 mb-4 px-1"
+                data-purpose="ios-status-bar">
+                <span>9:41</span>
+                <div class="flex items-center space-x-1.5">
+                    <!-- Cellular Signal -->
+                    <svg class="w-4 h-3.5 fill-current" viewbox="0 0 17 12">
+                        <rect height="4" rx="0.5" width="2.5" x="0" y="8"></rect>
+                        <rect height="6.5" rx="0.5" width="2.5" x="4.5" y="5.5"></rect>
+                        <rect height="9" rx="0.5" width="2.5" x="9" y="3"></rect>
+                        <rect height="12" rx="0.5" width="2.5" x="13.5" y="0"></rect>
+                    </svg>
+                    <!-- Wi-Fi Icon -->
+                    <svg class="w-4 h-3.5 fill-current" viewbox="0 0 16 12">
+                        <path
+                            d="M8 2.8c2.8 0 5.3 1.1 7.2 2.9l-1.3 1.4C12.3 5.5 10.3 4.6 8 4.6s-4.3.9-5.9 2.5L.8 5.7C2.7 3.9 5.2 2.8 8 2.8zm0 3.7c1.8 0 3.5.7 4.7 2L8 13.5 3.3 8.5c1.2-1.3 2.9-2 4.7-2z">
+                        </path>
+                    </svg>
+                    <!-- Battery Icon -->
+                    <svg class="w-6 h-3 fill-current" viewbox="0 0 24 12">
+                        <rect fill="none" height="10" rx="3" stroke="currentColor" stroke-width="1.5" width="19" x="1"
+                            y="1"></rect>
+                        <rect height="7" rx="1.5" width="13" x="2.5" y="2.5"></rect>
+                        <path d="M21 4.5v3c.6 0 1-.4 1-1v-1c0-.6-.4-1-1-1z"></path>
+                    </svg>
+                </div>
+            </div>
+            <!-- Brand Logo & Name -->
+            <div class="flex flex-col items-center mt-0.5" data-purpose="app-branding">
+                <!-- Logo Icon: Speech bubble with Arabic text on an open book -->
+                <div class="relative w-11 h-10 flex items-center justify-center">
+                    <svg class="w-full h-full fill-none" viewbox="0 0 48 42" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Speech bubble with Arabic text inside -->
+                        <rect fill="#047857" height="23" rx="7" width="34" x="7" y="1"></rect>
+                        <path d="M20 24L24 28L28 24H20Z" fill="#047857"></path>
+                        <!-- Arabic Letters: ا ب ت -->
+                        <text fill="white" font-family="-apple-system, system-ui, sans-serif" font-size="12"
+                            font-weight="bold" letter-spacing="1.5" text-anchor="middle" x="24" y="16.5">ا ب ت</text>
+                        <!-- Open Book below -->
+                        <path
+                            d="M12 32C16 30 22 30.5 24 33C26 30.5 32 30 36 32V39C32 37 26 37.5 24 40C22 37.5 16 37 12 39V32Z"
+                            fill="none" stroke="#047857" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2.2"></path>
+                        <line stroke="#047857" stroke-width="2" x1="24" x2="24" y1="33" y2="40"></line>
+                    </svg>
+                </div>
+                <h1 class="text-[#064e3b] font-extrabold text-[17px] tracking-tight mt-1">Arabic Master</h1>
+            </div>
+        </header>
+        <!-- END: TopBarArea -->
+        <!-- BEGIN: MainContent -->
+        <main class="flex-1 px-6 flex flex-col justify-start overflow-y-auto no-scrollbar pt-2"
+            data-purpose="onboarding-main-content">
+            <!-- Celebration & Confirmation Graphic -->
+            <section class="flex flex-col items-center mt-1" data-purpose="celebration-hero">
+                <div class="relative w-28 h-28 flex items-center justify-center">
+                    <!-- Subtle Accent Burst Dashing -->
+                    <svg class="absolute inset-0 w-full h-full" fill="none" viewbox="0 0 100 100">
+                        <!-- Top Right: Green & Yellow Accents -->
+                        <line class="burst-dash" stroke="#047857" x1="78" x2="84" y1="26" y2="22"></line>
+                        <line class="burst-dash" stroke="#f59e0b" x1="88" x2="94" y1="39" y2="40"></line>
+                        <line class="burst-dash" stroke="#047857" x1="78" x2="84" y1="51" y2="54"></line>
+                        <!-- Left Accents -->
+                        <line class="burst-dash" stroke="#047857" x1="22" x2="16" y1="30" y2="33"></line>
+                        <line class="burst-dash" stroke="#f59e0b" x1="15" x2="9" y1="48" y2="48"></line>
+                        <line class="burst-dash" stroke="#047857" x1="24" x2="18" y1="62" y2="67"></line>
+                    </svg>
+                    <!-- Outer Soft Mint Circular Aura -->
+                    <div
+                        class="w-[84px] h-[84px] rounded-full bg-[#dcfce7] bg-opacity-70 flex items-center justify-center">
+                        <!-- Center Solid Green Checkmark Circle -->
+                        <div class="w-14 h-14 rounded-full bg-[#047857] flex items-center justify-center shadow-md">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-linecap="round"
+                                stroke-linejoin="round" stroke-width="3.5" viewbox="0 0 24 24">
+                                <path d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <!-- Headline & Description -->
+                <h2 class="text-[25px] font-extrabold text-slate-900 tracking-tight mt-1 text-center">You’re all set!
+                </h2>
+                <p class="text-slate-500 text-[13.5px] mt-1 text-center font-medium">Your learning experience is ready.
+                </p>
+            </section>
+            <!-- Summary Stats Card (3 Columns) -->
+            <section
+                class="mt-4 bg-[#f0fdf4] border border-[#d1fae5] rounded-2xl p-3.5 grid grid-cols-3 divide-x divide-[#cde8da]"
+                data-purpose="goal-summary-card">
+                <!-- Column 1: Daily Goal -->
+                <div class="flex flex-col items-center text-center px-1">
+                    <div class="text-[#047857] mb-1">
+                        <svg class="w-5 h-5 stroke-current fill-none" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2" viewbox="0 0 24 24">
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <polyline points="12 7 12 12 15 14"></polyline>
+                        </svg>
+                    </div>
+                    <span class="text-[12.5px] font-bold text-slate-900 leading-tight">10 min / day</span>
+                    <span class="text-[11px] text-slate-500 font-normal mt-0.5">Daily goal</span>
+                </div>
+                <!-- Column 2: Proficiency Level -->
+                <div class="flex flex-col items-center text-center px-1">
+                    <div class="text-[#047857] mb-1">
+                        <svg class="w-5 h-5 fill-current" viewbox="0 0 24 24">
+                            <rect height="7" rx="1" width="3.5" x="4" y="14"></rect>
+                            <rect height="12" rx="1" width="3.5" x="10.25" y="9"></rect>
+                            <rect height="17" rx="1" width="3.5" x="16.5" y="4"></rect>
+                        </svg>
+                    </div>
+                    <span class="text-[12.5px] font-bold text-slate-900 leading-tight">Beginner</span>
+                    <span class="text-[11px] text-slate-500 font-normal mt-0.5">Your level</span>
+                </div>
+                <!-- Column 3: Focus Topic -->
+                <div class="flex flex-col items-center text-center px-1">
+                    <div class="text-[#047857] mb-1">
+                        <svg class="w-5 h-5 stroke-current fill-none" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2" viewbox="0 0 24 24">
+                            <path
+                                d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
+                            </path>
+                            <circle cx="8.5" cy="11.5" fill="currentColor" r="0.75" stroke="none"></circle>
+                            <circle cx="12" cy="11.5" fill="currentColor" r="0.75" stroke="none"></circle>
+                            <circle cx="15.5" cy="11.5" fill="currentColor" r="0.75" stroke="none"></circle>
+                        </svg>
+                    </div>
+                    <span class="text-[12px] font-bold text-slate-900 leading-tight">Everyday conversation</span>
+                    <span class="text-[11px] text-slate-500 font-normal mt-0.5">Your focus</span>
+                </div>
+            </section>
+            <!-- Save Your Progress Section -->
+            <section class="mt-4 text-left" data-purpose="save-progress-benefits">
+                <h3 class="text-[17px] font-bold text-slate-900">Save your progress</h3>
+                <p class="text-slate-500 text-[12.5px] mt-0.5 leading-snug">Create an account to keep your learning
+                    progress safe.</p>
+                <!-- Checklist of account benefits -->
+                <ul class="mt-3 space-y-2.5 text-[13px] text-slate-700 font-medium">
+                    <!-- Benefit 1 -->
+                    <li class="flex items-center space-x-2.5">
+                        <div
+                            class="flex-shrink-0 w-4 h-4 rounded-full bg-[#047857] flex items-center justify-center text-white">
+                            <svg class="w-2.5 h-2.5 stroke-current stroke-[3] fill-none" viewbox="0 0 24 24">
+                                <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </div>
+                        <span>Keep your XP and level</span>
+                    </li>
+                    <!-- Benefit 2 -->
+                    <li class="flex items-center space-x-2.5">
+                        <div
+                            class="flex-shrink-0 w-4 h-4 rounded-full bg-[#047857] flex items-center justify-center text-white">
+                            <svg class="w-2.5 h-2.5 stroke-current stroke-[3] fill-none" viewbox="0 0 24 24">
+                                <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </div>
+                        <span>Save lesson progress</span>
+                    </li>
+                    <!-- Benefit 3 -->
+                    <li class="flex items-center space-x-2.5">
+                        <div
+                            class="flex-shrink-0 w-4 h-4 rounded-full bg-[#047857] flex items-center justify-center text-white">
+                            <svg class="w-2.5 h-2.5 stroke-current stroke-[3] fill-none" viewbox="0 0 24 24">
+                                <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </div>
+                        <span>Protect your streak</span>
+                    </li>
+                    <!-- Benefit 4 -->
+                    <li class="flex items-center space-x-2.5">
+                        <div
+                            class="flex-shrink-0 w-4 h-4 rounded-full bg-[#047857] flex items-center justify-center text-white">
+                            <svg class="w-2.5 h-2.5 stroke-current stroke-[3] fill-none" viewbox="0 0 24 24">
+                                <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </div>
+                        <span>Continue learning across devices</span>
+                    </li>
+                </ul>
+            </section>
+        </main>
+        <!-- END: MainContent -->
+        <!-- BEGIN: ActionButtonsAndFooter -->
+        <footer class="px-6 pb-2 pt-2 flex flex-col space-y-2.5 items-center flex-shrink-0"
+            data-purpose="onboarding-actions">
+            <!-- Primary CTA: Create an account -->
+            <button
+                class="w-full h-12 bg-[#047857] hover:bg-[#065f46] active:bg-[#064e3b] text-white font-semibold text-[15px] rounded-xl flex items-center justify-center space-x-1.5 shadow-sm transition-colors duration-150"
+                type="button">
+                <span>Create an account</span>
+                <svg class="w-4 h-4 stroke-current stroke-[2.5] fill-none ml-0.5" viewbox="0 0 24 24">
+                    <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+            </button>
+            <!-- Secondary CTA: Continue as guest -->
+            <button
+                class="w-full h-11 bg-transparent hover:bg-emerald-50 active:bg-emerald-100 text-[#047857] font-semibold text-[14.5px] rounded-xl border border-[#047857] flex items-center justify-center transition-colors duration-150"
+                type="button">
+                Continue as guest
+            </button>
+            <!-- Subtitle helper note -->
+            <p class="text-slate-400 text-[11px] font-normal tracking-tight text-center pt-0.5">
+                You can create an account later.
+            </p>
+            <!-- iOS Home Indicator -->
+            <div class="w-32 h-1 bg-slate-900 rounded-full mt-2 mb-1 opacity-90" data-purpose="ios-home-indicator">
+            </div>
+        </footer>
+        <!-- END: ActionButtonsAndFooter -->
+    </div>
+    <!-- END: PhoneContainer -->
+</body>
+
+</html>

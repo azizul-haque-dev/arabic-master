@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>Arabic Master - Where are you living?</title>
+    <!-- Load Tailwind CSS v3 with forms & container queries plugins -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#16a34a',
+                            600: '#15803d',
+                            700: '#0e6245',
+                            800: '#0a4b35',
+                            900: '#073c2a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Base layout and styling fixes -->
+    <style data-purpose="custom-layout">
+        body {
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Hide default scrollbars for smooth mobile appearance */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="p-0 sm:p-4 text-slate-800">
+    <!-- BEGIN: MobileDeviceFrame -->
+    <main
+        class="w-full max-w-[390px] h-[844px] bg-white flex flex-col justify-between relative shadow-2xl rounded-[44px] overflow-hidden border border-slate-200">
+        <!-- BEGIN: TopHeaderSection -->
+        <header class="w-full pt-3 px-6 shrink-0 select-none">
+            <!-- iOS Status Bar -->
+            <div
+                class="flex justify-between items-center text-[15px] font-semibold tracking-tight text-slate-900 pt-1 pb-2">
+                <span>9:41</span>
+                <div class="flex items-center space-x-1.5">
+                    <!-- Cellular Signal Bars -->
+                    <svg class="w-4 h-3.5 fill-current" viewbox="0 0 18 12">
+                        <path
+                            d="M1 9.5a1 1 0 0 1 1-1h1.5a1 1 0 0 1 1 1V11a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-1.5zm5-3a1 1 0 0 1 1-1h1.5a1 1 0 0 1 1 1V11a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6.5zm5-3a1 1 0 0 1 1-1h1.5a1 1 0 0 1 1 1V11a1 1 0 0 1-1 1H12a1 1 0 0 1-1-1V3.5zm5-3a1 1 0 0 1 1-1H18a1 1 0 0 1 1 1V11a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1V.5z">
+                        </path>
+                    </svg>
+                    <!-- Wifi Icon -->
+                    <svg class="w-4 h-3.5 fill-current" viewbox="0 0 16 12">
+                        <path clip-rule="evenodd"
+                            d="M8 2.5a10.87 10.87 0 0 1 6.35 2.05.75.75 0 0 1 .1 1.05l-5.99 7.15a.75.75 0 0 1-1.15 0L1.31 5.6a.75.75 0 0 1 .1-1.05A10.87 10.87 0 0 1 8 2.5z"
+                            fill-rule="evenodd"></path>
+                    </svg>
+                    <!-- Battery Icon -->
+                    <div class="w-6 h-3 border border-slate-900 rounded-[4px] p-0.5 flex items-center relative ml-0.5">
+                        <div class="h-full bg-slate-900 rounded-[1.5px] w-full"></div>
+                        <div class="w-0.5 h-1.5 bg-slate-900 absolute -right-1 rounded-r-sm"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Navigation Bar: Back Button, Multi-dot Progress, Skip Action -->
+            <div class="flex items-center justify-between pt-3 pb-1">
+                <!-- Back Navigation Button -->
+                <button aria-label="Go back" class="p-1 -ml-1 text-slate-700 hover:text-slate-900 transition-colors"
+                    type="button">
+                    <svg class="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path d="M15.75 19.5L8.25 12l7.5-7.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </button>
+                <!-- 6-step Progress Indicator -->
+                <div aria-valuemax="6" aria-valuemin="1" aria-valuenow="2" class="flex items-center space-x-2"
+                    role="progressbar">
+                    <span class="w-2 h-2 rounded-full bg-emerald-700/40"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-700"></span>
+                    <span class="w-2 h-2 rounded-full bg-slate-200"></span>
+                    <span class="w-2 h-2 rounded-full bg-slate-200"></span>
+                    <span class="w-2 h-2 rounded-full bg-slate-200"></span>
+                    <span class="w-2 h-2 rounded-full bg-slate-200"></span>
+                </div>
+                <!-- Skip Action Link -->
+                <button class="text-sm font-medium text-emerald-700 hover:text-emerald-800 transition-colors"
+                    type="button">
+                    Skip
+                </button>
+            </div>
+        </header>
+        <!-- END: TopHeaderSection -->
+        <!-- BEGIN: MainContentSection -->
+        <section class="flex-1 px-6 pt-3 overflow-y-auto no-scrollbar" data-purpose="screen-content">
+            <!-- Title and Subtitle -->
+            <div class="mb-4">
+                <h1 class="text-2xl font-bold tracking-tight text-slate-900 leading-snug">
+                    Where are you living?
+                </h1>
+                <p class="text-xs text-slate-500 mt-1.5 leading-relaxed pr-2">
+                    We'll use this to make your Arabic practice more relevant to everyday life.
+                </p>
+            </div>
+            <!-- Search Field -->
+            <div class="relative mb-3.5">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                </div>
+                <input
+                    class="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 placeholder:text-xs focus:outline-none focus:ring-1 focus:ring-emerald-700 focus:border-emerald-700 transition"
+                    placeholder="Search country..." type="text" />
+            </div>
+            <!-- Country Options List -->
+            <fieldset class="space-y-2.5">
+                <legend class="sr-only">Choose your country of residence</legend>
+                <!-- Option 1: Saudi Arabia (Selected) -->
+                <label
+                    class="flex items-center justify-between p-3 rounded-xl border border-emerald-700 bg-[#ebf7ee] cursor-pointer shadow-sm transition">
+                    <input checked="" class="sr-only" name="country" type="radio" value="saudi-arabia" />
+                    <div class="flex items-center space-x-3">
+                        <!-- Country Emblem Badge -->
+                        <div
+                            class="w-7 h-7 rounded-lg bg-emerald-800 flex items-center justify-center text-white shrink-0 shadow-xs">
+                            <svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24">
+                                <path
+                                    d="M12 2L9 8h6l-3-6zm0 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-8-3l5 1-2 2-3-3zm16 0l-5 1 2 2 3-3z">
+                                </path>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-semibold text-slate-900">Saudi Arabia</span>
+                    </div>
+                    <!-- Selected Checkmark Icon -->
+                    <div class="w-5 h-5 rounded-full bg-emerald-700 flex items-center justify-center shrink-0">
+                        <svg class="w-3 h-3 text-white stroke-[3]" fill="none" stroke="currentColor"
+                            viewbox="0 0 24 24">
+                            <path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </div>
+                </label>
+                <!-- Option 2: United Arab Emirates (Unselected) -->
+                <label
+                    class="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/70 cursor-pointer transition">
+                    <input class="sr-only" name="country" type="radio" value="uae" />
+                    <div class="flex items-center space-x-3">
+                        <!-- Emblem Badge -->
+                        <div
+                            class="w-7 h-7 rounded-lg bg-slate-900 flex items-center justify-center text-white shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24">
+                                <path
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z">
+                                </path>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-slate-800">United Arab Emirates</span>
+                    </div>
+                    <!-- Unselected Radio Indicator -->
+                    <div class="w-5 h-5 rounded-full border border-slate-300 shrink-0"></div>
+                </label>
+                <!-- Option 3: Qatar (Unselected) -->
+                <label
+                    class="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/70 cursor-pointer transition">
+                    <input class="sr-only" name="country" type="radio" value="qatar" />
+                    <div class="flex items-center space-x-3">
+                        <!-- Emblem Badge -->
+                        <div
+                            class="w-7 h-7 rounded-lg bg-slate-800 flex items-center justify-center text-white shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24">
+                                <path
+                                    d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 17.93V15h-2v4.93A8 8 0 0 1 4.07 13H9v-2H4.07A8 8 0 0 1 11 4.07V9h2V4.07A8 8 0 0 1 19.93 11H15v2h4.93A8 8 0 0 1 13 19.93z">
+                                </path>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-slate-800">Qatar</span>
+                    </div>
+                    <!-- Unselected Radio Indicator -->
+                    <div class="w-5 h-5 rounded-full border border-slate-300 shrink-0"></div>
+                </label>
+                <!-- Option 4: Kuwait (Unselected) -->
+                <label
+                    class="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/70 cursor-pointer transition">
+                    <input class="sr-only" name="country" type="radio" value="kuwait" />
+                    <div class="flex items-center space-x-3">
+                        <!-- Emblem Badge -->
+                        <div
+                            class="w-7 h-7 rounded-lg bg-slate-800 flex items-center justify-center text-white shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24">
+                                <path d="M4 4h16v16H4V4zm2 2v12h12V6H6z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-slate-800">Kuwait</span>
+                    </div>
+                    <!-- Unselected Radio Indicator -->
+                    <div class="w-5 h-5 rounded-full border border-slate-300 shrink-0"></div>
+                </label>
+                <!-- Option 5: Bahrain (Unselected) -->
+                <label
+                    class="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/70 cursor-pointer transition">
+                    <input class="sr-only" name="country" type="radio" value="bahrain" />
+                    <div class="flex items-center space-x-3">
+                        <!-- Emblem Badge -->
+                        <div
+                            class="w-7 h-7 rounded-lg bg-slate-800 flex items-center justify-center text-white shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24">
+                                <path
+                                    d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z">
+                                </path>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-slate-800">Bahrain</span>
+                    </div>
+                    <!-- Unselected Radio Indicator -->
+                    <div class="w-5 h-5 rounded-full border border-slate-300 shrink-0"></div>
+                </label>
+                <!-- Option 6: Oman (Unselected) -->
+                <label
+                    class="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/70 cursor-pointer transition">
+                    <input class="sr-only" name="country" type="radio" value="oman" />
+                    <div class="flex items-center space-x-3">
+                        <!-- Emblem Badge -->
+                        <div
+                            class="w-7 h-7 rounded-lg bg-slate-800 flex items-center justify-center text-white shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24">
+                                <path
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14.5v-3.5h3.5c-.7 1.83-2.17 3.3-4 4zm3.5-5.5H13V7.5c1.83.7 3.3 2.17 4 4z">
+                                </path>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-slate-800">Oman</span>
+                    </div>
+                    <!-- Unselected Radio Indicator -->
+                    <div class="w-5 h-5 rounded-full border border-slate-300 shrink-0"></div>
+                </label>
+                <!-- Option 7: Other (Unselected) -->
+                <label
+                    class="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/70 cursor-pointer transition">
+                    <input class="sr-only" name="country" type="radio" value="other" />
+                    <div class="flex items-center space-x-3">
+                        <!-- Globe Badge -->
+                        <div
+                            class="w-7 h-7 rounded-lg bg-slate-800 flex items-center justify-center text-white shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path
+                                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                                </path>
+                                <path d="M2 12h20"></path>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-slate-800">Other</span>
+                    </div>
+                    <!-- Unselected Radio Indicator -->
+                    <div class="w-5 h-5 rounded-full border border-slate-300 shrink-0"></div>
+                </label>
+            </fieldset>
+        </section>
+        <!-- END: MainContentSection -->
+        <!-- BEGIN: BottomActionSection -->
+        <footer class="w-full px-6 pt-3 pb-3 bg-white shrink-0" data-purpose="bottom-cta-container">
+            <!-- Continue Button -->
+            <button
+                class="w-full py-3.5 bg-emerald-800 hover:bg-emerald-900 active:bg-emerald-950 text-white font-semibold text-sm rounded-xl transition duration-150 shadow-sm flex items-center justify-center tracking-wide"
+                type="button">
+                Continue
+            </button>
+            <!-- iOS Home Indicator -->
+            <div class="w-full flex justify-center pt-4 pb-1">
+                <div class="w-32 h-1 bg-slate-900 rounded-full"></div>
+            </div>
+        </footer>
+        <!-- END: BottomActionSection -->
+    </main>
+    <!-- END: MobileDeviceFrame -->
+</body>
+
+</html>

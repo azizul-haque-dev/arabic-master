@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>Arabic Master - Choose Goals</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#0F5B38',
+                            hover: '#0C4B2E',
+                            mint: '#EBF7F0',
+                            border: '#15803D',
+                            light: '#A3D9B8'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'Inter', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Global iOS App Styles -->
+    <style data-purpose="app-shell">
+        body {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            background-color: #f3f4f6;
+        }
+
+        .mobile-frame {
+            max-width: 412px;
+            min-height: 890px;
+        }
+    </style>
+</head>
+
+<body class="flex justify-center items-center min-h-screen py-0 sm:py-6 antialiased text-gray-900">
+    <!-- BEGIN: MobileDeviceFrame -->
+    <div
+        class="mobile-frame w-full bg-white flex flex-col justify-between shadow-2xl relative sm:rounded-[48px] overflow-hidden min-h-screen sm:min-h-[890px] border border-gray-100">
+        <!-- Top Area Wrapper (Status Bar + Navigation + Content) -->
+        <div class="flex flex-col w-full">
+            <!-- BEGIN: StatusBar -->
+            <div class="w-full pt-3 px-7 pb-1 flex justify-between items-center text-xs font-semibold tracking-tight text-black z-10"
+                data-purpose="status-bar">
+                <!-- Time -->
+                <span class="text-[15px] font-semibold tracking-tight">9:41</span>
+                <!-- Status Icons (Cellular, Wifi, Battery) -->
+                <div class="flex items-center space-x-1.5">
+                    <!-- Signal Icon -->
+                    <svg class="w-4 h-3 fill-current" viewbox="0 0 17 12">
+                        <rect height="3" rx="0.5" width="3" x="0" y="9"></rect>
+                        <rect height="5.5" rx="0.5" width="3" x="4.5" y="6.5"></rect>
+                        <rect height="8.5" rx="0.5" width="3" x="9" y="3.5"></rect>
+                        <rect height="11.5" rx="0.5" width="3" x="13.5" y="0.5"></rect>
+                    </svg>
+                    <!-- Wifi Icon -->
+                    <svg class="w-4 h-3 fill-current" viewbox="0 0 16 12">
+                        <path
+                            d="M8 2.8c2.4 0 4.6.9 6.2 2.5.3.3.7.3 1 0 .3-.3.3-.7 0-1C13.4 2.5 10.8 1.5 8 1.5S2.6 2.5.8 4.3c-.3.3-.3.7 0 1 .3.3.7.3 1 0C3.4 3.7 5.6 2.8 8 2.8zm0 3.6c1.5 0 2.9.6 4 1.6.3.3.7.3 1 0 .3-.3.3-.7 0-1-1.4-1.3-3.1-2-5-2s-3.6.7-5 2c-.3.3-.3.7 0 1 .3.3.7.3 1 0 1.1-1 2.5-1.6 4-1.6zm0 3.7c-.8 0-1.4.6-1.4 1.4 0 .8.6 1.4 1.4 1.4s1.4-.6 1.4-1.4c0-.8-.6-1.4-1.4-1.4z">
+                        </path>
+                    </svg>
+                    <!-- Battery Icon -->
+                    <div
+                        class="w-6 h-3 rounded-[3.5px] border-[1.2px] border-black p-0.5 flex items-center justify-start relative">
+                        <div class="h-full w-full bg-black rounded-[1.5px]"></div>
+                        <div class="w-0.5 h-1.5 bg-black rounded-r-sm absolute -right-[2.5px] top-1/2 -translate-y-1/2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: StatusBar -->
+            <!-- BEGIN: NavigationBar -->
+            <nav class="px-6 py-4 flex items-center justify-between" data-purpose="top-navigation">
+                <!-- Back Button -->
+                <button aria-label="Go back" class="p-1 -ml-1 text-gray-800 hover:text-gray-600 transition-colors"
+                    type="button">
+                    <svg class="w-5 h-5 stroke-[2.4]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </button>
+                <!-- Progress Dots (Step 3 of 6 active) -->
+                <div class="flex items-center space-x-2" data-purpose="progress-indicator">
+                    <!-- Step 1 -->
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-200"></span>
+                    <!-- Step 2 -->
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-200"></span>
+                    <!-- Step 3 (Active) -->
+                    <span class="w-2 h-2 rounded-full bg-[#0F5B38]"></span>
+                    <!-- Step 4 -->
+                    <span class="w-1.5 h-1.5 rounded-full bg-gray-200"></span>
+                    <!-- Step 5 -->
+                    <span class="w-1.5 h-1.5 rounded-full bg-gray-200"></span>
+                    <!-- Step 6 -->
+                    <span class="w-1.5 h-1.5 rounded-full bg-gray-200"></span>
+                </div>
+                <!-- Skip Button -->
+                <button class="text-sm font-semibold text-[#0F5B38] hover:opacity-80 transition-opacity" type="button">
+                    Skip
+                </button>
+            </nav>
+            <!-- END: NavigationBar -->
+            <!-- BEGIN: ScreenHeader -->
+            <header class="px-6 pt-2 pb-5">
+                <h1 class="text-[25px] leading-tight font-extrabold text-[#111827] tracking-tight mb-1.5">
+                    Why do you want to learn Arabic?
+                </h1>
+                <p class="text-[14px] text-gray-500 font-normal leading-relaxed">
+                    Choose what you want to use Arabic for.
+                </p>
+            </header>
+            <!-- END: ScreenHeader -->
+            <!-- BEGIN: GoalsGrid -->
+            <section class="px-6" data-purpose="learning-goals-selection">
+                <div class="grid grid-cols-2 gap-3">
+                    <!-- Option 1: Everyday conversation (Selected) -->
+                    <div class="relative flex flex-col justify-between p-3.5 h-[98px] rounded-2xl border-2 border-[#15803D] bg-[#EBF7EE] transition-all cursor-pointer"
+                        data-purpose="goal-card">
+                        <div class="flex items-start justify-between">
+                            <!-- Speech Bubble Icon -->
+                            <svg class="w-6 h-6 text-[#15803D]" fill="none" stroke="currentColor" stroke-width="1.8"
+                                viewbox="0 0 24 24">
+                                <path
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                                    stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                            <!-- Selected Checkmark -->
+                            <div class="w-5 h-5 rounded-full bg-[#15803D] flex items-center justify-center">
+                                <svg class="w-3 h-3 text-white stroke-[3]" fill="none" stroke="currentColor"
+                                    viewbox="0 0 24 24">
+                                    <path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <span
+                            class="text-[13px] font-semibold text-[#111827] leading-tight">Everyday<br />conversation</span>
+                    </div>
+                    <!-- Option 2: Work (Unselected) -->
+                    <div class="relative flex flex-col justify-between p-3.5 h-[98px] rounded-2xl border border-gray-200 bg-white hover:border-gray-300 transition-all cursor-pointer"
+                        data-purpose="goal-card">
+                        <div class="flex items-start justify-between">
+                            <!-- Briefcase Icon -->
+                            <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.8"
+                                viewbox="0 0 24 24">
+                                <path
+                                    d="M20 7h-4V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zm-10-2h4v2h-4V5zM4 11h16v8H4v-8z"
+                                    stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </div>
+                        <span class="text-[13px] font-semibold text-[#111827] leading-tight">Work</span>
+                    </div>
+                    <!-- Option 3: Shopping (Selected) -->
+                    <div class="relative flex flex-col justify-between p-3.5 h-[98px] rounded-2xl border-2 border-[#15803D] bg-[#EBF7EE] transition-all cursor-pointer"
+                        data-purpose="goal-card">
+                        <div class="flex items-start justify-between">
+                            <!-- Shopping Cart Icon -->
+                            <svg class="w-6 h-6 text-[#15803D]" fill="none" stroke="currentColor" stroke-width="1.8"
+                                viewbox="0 0 24 24">
+                                <path
+                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                                    stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                            <!-- Selected Checkmark -->
+                            <div class="w-5 h-5 rounded-full bg-[#15803D] flex items-center justify-center">
+                                <svg class="w-3 h-3 text-white stroke-[3]" fill="none" stroke="currentColor"
+                                    viewbox="0 0 24 24">
+                                    <path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <span class="text-[13px] font-semibold text-[#111827] leading-tight">Shopping</span>
+                    </div>
+                    <!-- Option 4: Restaurant & food (Unselected) -->
+                    <div class="relative flex flex-col justify-between p-3.5 h-[98px] rounded-2xl border border-gray-200 bg-white hover:border-gray-300 transition-all cursor-pointer"
+                        data-purpose="goal-card">
+                        <div class="flex items-start justify-between">
+                            <!-- Fork & Knife Icon -->
+                            <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.8"
+                                viewbox="0 0 24 24">
+                                <path d="M12 6v6m0 0v8m0-8h4a2 2 0 002-2V4M8 4v5a2 2 0 002 2h2M8 4H6m2 0h2"
+                                    stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path d="M18 4v16M6 4v7a2 2 0 002 2h0" stroke-linecap="round" stroke-linejoin="round">
+                                </path>
+                            </svg>
+                        </div>
+                        <span class="text-[13px] font-semibold text-[#111827] leading-tight">Restaurant<br />&amp;
+                            food</span>
+                    </div>
+                    <!-- Option 5: Transportation (Unselected) -->
+                    <div class="relative flex flex-col justify-between p-3.5 h-[98px] rounded-2xl border border-gray-200 bg-white hover:border-gray-300 transition-all cursor-pointer"
+                        data-purpose="goal-card">
+                        <div class="flex items-start justify-between">
+                            <!-- Train / Transit Icon -->
+                            <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.8"
+                                viewbox="0 0 24 24">
+                                <path
+                                    d="M8 17l-3 3m11-3l3 3M4 11V6a3 3 0 013-3h10a3 3 0 013 3v5m-16 0h16m-16 0v5a2 2 0 002 2h12a2 2 0 002-2v-5M8 7h.01M16 7h.01"
+                                    stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </div>
+                        <span class="text-[13px] font-semibold text-[#111827] leading-tight">Transportation</span>
+                    </div>
+                    <!-- Option 6: Making friends (Selected) -->
+                    <div class="relative flex flex-col justify-between p-3.5 h-[98px] rounded-2xl border-2 border-[#15803D] bg-[#EBF7EE] transition-all cursor-pointer"
+                        data-purpose="goal-card">
+                        <div class="flex items-start justify-between">
+                            <!-- Friends / Users Icon -->
+                            <svg class="w-6 h-6 text-[#15803D]" fill="none" stroke="currentColor" stroke-width="1.8"
+                                viewbox="0 0 24 24">
+                                <path
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                                    stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                            <!-- Selected Checkmark -->
+                            <div class="w-5 h-5 rounded-full bg-[#15803D] flex items-center justify-center">
+                                <svg class="w-3 h-3 text-white stroke-[3]" fill="none" stroke="currentColor"
+                                    viewbox="0 0 24 24">
+                                    <path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <span class="text-[13px] font-semibold text-[#111827] leading-tight">Making friends</span>
+                    </div>
+                    <!-- Option 7: Travel (Selected) -->
+                    <div class="relative flex flex-col justify-between p-3.5 h-[98px] rounded-2xl border-2 border-[#15803D] bg-[#EBF7EE] transition-all cursor-pointer"
+                        data-purpose="goal-card">
+                        <div class="flex items-start justify-between">
+                            <!-- Airplane Icon -->
+                            <svg class="w-6 h-6 text-[#15803D]" fill="none" stroke="currentColor" stroke-width="1.8"
+                                viewbox="0 0 24 24">
+                                <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" stroke-linecap="round"
+                                    stroke-linejoin="round"></path>
+                            </svg>
+                            <!-- Selected Checkmark -->
+                            <div class="w-5 h-5 rounded-full bg-[#15803D] flex items-center justify-center">
+                                <svg class="w-3 h-3 text-white stroke-[3]" fill="none" stroke="currentColor"
+                                    viewbox="0 0 24 24">
+                                    <path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <span class="text-[13px] font-semibold text-[#111827] leading-tight">Travel</span>
+                    </div>
+                    <!-- Option 8: Understanding people around me (Unselected) -->
+                    <div class="relative flex flex-col justify-between p-3.5 h-[98px] rounded-2xl border border-gray-200 bg-white hover:border-gray-300 transition-all cursor-pointer"
+                        data-purpose="goal-card">
+                        <div class="flex items-start justify-between">
+                            <!-- Heart Outline Icon -->
+                            <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.8"
+                                viewbox="0 0 24 24">
+                                <path
+                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                    stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </div>
+                        <span class="text-[12px] font-semibold text-[#111827] leading-snug">Understanding<br />people
+                            around me</span>
+                    </div>
+                </div>
+                <!-- Helper hint -->
+                <div class="flex items-center space-x-1.5 mt-4 text-gray-400">
+                    <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"
+                        viewbox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" x2="12" y1="16" y2="12"></line>
+                        <line x1="12" x2="12.01" y1="8" y2="8"></line>
+                    </svg>
+                    <span class="text-xs font-normal text-gray-500">You can select multiple goals.</span>
+                </div>
+            </section>
+            <!-- END: GoalsGrid -->
+        </div>
+        <!-- BEGIN: FooterAction -->
+        <footer class="p-6 pb-2 w-full flex flex-col items-center">
+            <!-- Continue Button -->
+            <button
+                class="w-full bg-[#0F5B38] hover:bg-[#0C4B2E] active:scale-[0.99] text-white font-bold py-4 px-6 rounded-2xl transition-all shadow-sm text-base text-center"
+                type="button">
+                Continue
+            </button>
+            <!-- iOS Home Indicator Bar -->
+            <div class="w-36 h-1 bg-black rounded-full mt-6 mb-1"></div>
+        </footer>
+        <!-- END: FooterAction -->
+    </div>
+    <!-- END: MobileDeviceFrame -->
+</body>
+
+</html>

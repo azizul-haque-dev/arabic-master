@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Welcome to Arabic Master</title>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts for Clean Typography & Arabic Script -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Noto+Sans+Arabic:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              emerald: '#056839',
+              dark: '#0e3a2b',
+              accent: '#0d7d4d',
+              mint: '#dff6ec',
+              lightMint: '#eaf8f1',
+              softBg: '#f8fcfa',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            arabic: ['"Noto Sans Arabic"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: Custom Styles -->
+<style data-purpose="typography">
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .font-arabic {
+      font-family: 'Noto Sans Arabic', sans-serif;
+    }
+  </style>
+<style data-purpose="illustrations">
+    /* Subtle floating burst accents */
+    .burst-dash {
+      background-color: #3bb884;
+      border-radius: 9999px;
+    }
+  </style>
+<!-- END: Custom Styles -->
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-0 sm:p-4">
+<!-- BEGIN: Phone Frame Container -->
+<div class="w-full max-w-[393px] h-[852px] bg-white relative flex flex-col justify-between overflow-hidden shadow-2xl sm:rounded-[48px] border sm:border-gray-200" data-purpose="mobile-screen">
+<!-- Top Safe Area & Status Bar -->
+<div class="relative z-20 flex-shrink-0">
+<!-- BEGIN: iOS Status Bar -->
+<div class="w-full px-7 pt-3.5 pb-1 flex justify-between items-center text-black font-semibold text-[15px]" data-purpose="status-bar">
+<!-- Time -->
+<span class="tracking-tight font-medium text-sm">9:41</span>
+<!-- Status Icons -->
+<div class="flex items-center space-x-1.5 text-black">
+<!-- Cellular Signal -->
+<svg class="w-4 h-3.5 fill-current" viewbox="0 0 17 12">
+<rect height="4" rx="0.75" width="2.5" x="0" y="8"></rect>
+<rect height="6.5" rx="0.75" width="2.5" x="4" y="5.5"></rect>
+<rect height="9" rx="0.75" width="2.5" x="8" y="3"></rect>
+<rect height="11.5" rx="0.75" width="2.5" x="12" y="0.5"></rect>
+</svg>
+<!-- Wi-Fi Icon -->
+<svg class="w-4 h-3 fill-current" viewbox="0 0 16 12">
+<path d="M8 2.8c2.4 0 4.6.9 6.3 2.4l1.3-1.4C13.7 1.8 11 1 8 1 5 1 2.3 1.8.4 3.8l1.3 1.4C3.4 3.7 5.6 2.8 8 2.8zm0 3.8c1.5 0 2.8.6 3.8 1.6l1.3-1.4C11.9 5.6 10 4.8 8 4.8s-3.9.8-5.1 2l1.3 1.4c1-1 2.3-1.6 3.8-1.6zm0 3.8c-.8 0-1.4.6-1.4 1.4 0 .8.6 1.4 1.4 1.4.8 0 1.4-.6 1.4-1.4 0-.8-.6-1.4-1.4-1.4z"></path>
+</svg>
+<!-- Battery Icon -->
+<div class="flex items-center">
+<div class="w-5 h-2.5 border border-black rounded-[3px] p-[1px] flex items-center">
+<div class="h-full w-full bg-black rounded-[1.5px]"></div>
+</div>
+<div class="w-0.5 h-1 bg-black rounded-r-sm -ml-[0.5px]"></div>
+</div>
+</div>
+</div>
+<!-- END: iOS Status Bar -->
+<!-- BEGIN: Branding Header -->
+<header class="flex flex-col items-center justify-center mt-3" data-purpose="app-branding">
+<!-- Logo Icon: Green bubble over open book -->
+<div class="flex flex-col items-center">
+<div class="relative w-12 h-11 flex flex-col items-center justify-center">
+<!-- Speech Bubble Base -->
+<div class="w-12 h-8 bg-brand-emerald rounded-lg flex items-center justify-center shadow-sm relative">
+<span class="text-white text-xs font-arabic font-bold tracking-widest mt-[-2px]">ا ب ت</span>
+<!-- Bubble tail pointer -->
+<div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-brand-emerald rotate-45"></div>
+</div>
+<!-- Open Book Icon Underneath -->
+<div class="mt-1 flex items-center justify-center">
+<svg class="w-9 h-3.5 text-brand-emerald" fill="currentColor" viewbox="0 0 36 14">
+<!-- Left Page -->
+<path d="M17 1.5C12 0.5 4 1 0.5 3.5C0.2 3.7 0 4 0 4.5V11.5C0 12.3 0.8 12.8 1.5 12.5C5 10.8 12 10.5 17 12.5V1.5Z"></path>
+<!-- Right Page -->
+<path d="M19 1.5C24 0.5 32 1 35.5 3.5C35.8 3.7 36 4 36 4.5V11.5C36 12.3 35.2 12.8 34.5 12.5C31 10.8 24 10.5 19 12.5V1.5Z"></path>
+</svg>
+</div>
+</div>
+<!-- Brand App Name -->
+<h2 class="text-brand-emerald font-extrabold text-[19px] tracking-tight mt-1.5">
+            Arabic Master
+          </h2>
+</div>
+</header>
+<!-- END: Branding Header -->
+</div>
+<!-- BEGIN: Main Content Area -->
+<main class="flex-1 flex flex-col items-center justify-between px-6 z-10 pt-2 pb-4" data-purpose="main-content">
+<!-- Headline & Subtitle -->
+<section class="text-center mt-2" data-purpose="hero-text">
+<h1 class="text-[28px] font-extrabold text-[#11241f] tracking-tight leading-tight">
+          Welcome to<br/>Arabic Master
+        </h1>
+<p class="text-gray-500 font-medium text-[14.5px] mt-2.5 max-w-[240px] mx-auto leading-snug">
+          Learn practical Arabic for everyday conversations.
+        </p>
+</section>
+<!-- Center Visual Illustration -->
+<section class="relative w-full flex items-center justify-center my-3" data-purpose="center-illustration">
+<!-- Soft Circular Mint Backdrop -->
+<div class="w-48 h-48 bg-[#edf7f2] rounded-full flex items-center justify-center relative">
+<!-- Radiating Bursts / Dashes -->
+<!-- Top Left -->
+<span class="burst-dash absolute w-3 h-1 -top-1 left-9 rotate-[-45deg] opacity-80"></span>
+<span class="burst-dash absolute w-3.5 h-1 top-8 left-3 rotate-[-10deg] opacity-80"></span>
+<span class="burst-dash absolute w-3 h-1 top-16 left-5 rotate-[35deg] opacity-80"></span>
+<!-- Right Dashes -->
+<span class="burst-dash absolute w-3 h-1 top-9 right-4 rotate-[-25deg] opacity-80"></span>
+<span class="burst-dash absolute w-3.5 h-1 top-17 right-3 rotate-[10deg] opacity-80"></span>
+<!-- Main Dark Green Speech Bubble (ا ب ت) -->
+<div class="relative z-10 -ml-5 -mt-2">
+<div class="bg-brand-emerald text-white rounded-2xl w-[98px] h-[68px] flex items-center justify-center shadow-lg relative">
+<span class="font-arabic font-extrabold text-2xl tracking-wider select-none pr-0.5">ا ب ت</span>
+<!-- Tail pointer -->
+<div class="absolute -bottom-2.5 left-7 w-0 h-0 border-l-[6px] border-l-transparent border-r-[12px] border-r-transparent border-t-[14px] border-t-brand-emerald transform -rotate-12"></div>
+</div>
+</div>
+<!-- Overlapping Mint Speech Bubble with Dots (...) -->
+<div class="absolute bottom-6 right-8 z-20">
+<div class="bg-[#cbeedf] w-[62px] h-[46px] rounded-2xl flex items-center justify-center space-x-1.5 shadow-sm relative">
+<!-- Three Conversation Dots -->
+<span class="w-2 h-2 rounded-full bg-[#1b7a52]"></span>
+<span class="w-2 h-2 rounded-full bg-[#1b7a52]"></span>
+<span class="w-2 h-2 rounded-full bg-[#1b7a52]"></span>
+<!-- Bubble tail -->
+<div class="absolute -bottom-1.5 right-4 w-0 h-0 border-l-[8px] border-l-transparent border-r-[4px] border-r-transparent border-t-[9px] border-t-[#cbeedf] transform rotate-12"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Action Choice Cards -->
+<section class="w-full flex flex-col space-y-3.5 mb-2" data-purpose="action-choices">
+<!-- Choice 1: "I already have an account" (Solid Emerald Card) -->
+<a class="flex items-center justify-between w-full bg-brand-emerald hover:bg-[#045931] transition-colors rounded-2xl px-4 py-3.5 shadow-sm text-white group" href="#login">
+<div class="flex items-center space-x-3.5">
+<!-- User Profile Icon Circle -->
+<div class="w-11 h-11 rounded-full bg-[#0d7d4c] flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5 text-white stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<!-- Text Content -->
+<div class="text-left">
+<span class="text-[16px] font-bold tracking-tight block leading-tight">I already have<br class="hidden xs:inline"/> an account</span>
+</div>
+</div>
+<!-- Chevron Right Icon -->
+<div class="pr-1 text-white opacity-90 group-hover:translate-x-0.5 transition-transform">
+<svg class="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</a>
+<!-- Choice 2: "I'm new here" (Bordered Mint Card) -->
+<a class="flex items-center justify-between w-full bg-[#f6fcf9] hover:bg-[#effaf4] transition-colors border-1.5 border-[#28a76d] rounded-2xl px-4 py-3 shadow-[0_1px_3px_rgba(0,0,0,0.03)] text-gray-800 group" href="#signup" style="border: 1.5px solid #2db879;">
+<div class="flex items-center space-x-3.5">
+<!-- Sprout / Seedling Icon Circle -->
+<div class="w-11 h-11 rounded-full bg-[#def5ea] flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5 text-brand-emerald" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" viewbox="0 0 24 24">
+<!-- Seedling / Sprout SVG -->
+<path d="M12 10a6 6 0 0 0-6-6H3v2a6 6 0 0 0 6 6h3"></path>
+<path d="M12 14a6 6 0 0 1 6-6h3v1a6 6 0 0 1-6 6h-3"></path>
+<path d="M12 20V10"></path>
+</svg>
+</div>
+<!-- Text Content -->
+<div class="text-left">
+<span class="text-[15.5px] font-bold text-gray-900 block leading-tight">I'm new here</span>
+<span class="text-[11.5px] text-gray-500 font-medium block mt-0.5 leading-snug">
+                Start learning without<br/>creating an account.
+              </span>
+</div>
+</div>
+<!-- Chevron Right Icon -->
+<div class="pr-1 text-brand-emerald opacity-90 group-hover:translate-x-0.5 transition-transform">
+<svg class="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</a>
+</section>
+</main>
+<!-- END: Main Content Area -->
+<!-- BEGIN: Decorative Wave & Home Indicator -->
+<div class="relative w-full pointer-events-none flex-shrink-0" data-purpose="bottom-section">
+<!-- Wave graphic at the bottom -->
+<svg class="w-full h-24 -mb-1 block" fill="none" preserveaspectratio="none" viewbox="0 0 393 100">
+<path d="M0,55 C120,20 230,85 393,30 L393,100 L0,100 Z" fill="#ebf7f1" fill-opacity="0.75"></path>
+<path d="M0,70 C140,40 260,95 393,50 L393,100 L0,100 Z" fill="#e0f4eb" fill-opacity="0.8"></path>
+</svg>
+<!-- iOS Home Indicator Bar -->
+<div class="absolute bottom-2 inset-x-0 flex justify-center pb-1">
+<div class="w-36 h-[4.5px] bg-[#1a2e26] rounded-full"></div>
+</div>
+</div>
+<!-- END: Decorative Wave & Home Indicator -->
+</div>
+<!-- END: Phone Frame Container -->
+</body></html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>Arabic Master - Onboarding</title>
+    <!-- Tailwind CSS v3 with Plugins -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Custom Fonts: Inter & Plus Jakarta Sans for clean mobile UI -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Noto+Sans+Bengali:wght@500;600;700&amp;family=Noto+Sans+Arabic:wght@700&amp;display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        bengali: ['"Noto Sans Bengali"', 'sans-serif'],
+                        arabic: ['"Noto Sans Arabic"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#F0F9F3',
+                            100: '#E1F5E8',
+                            200: '#C3E8D0',
+                            500: '#1F935B',
+                            600: '#137947',
+                            700: '#0F6139',
+                            800: '#0B482A',
+                            900: '#062E1A',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- BEGIN: Custom Styles -->
+    <style data-purpose="base-layout">
+        body {
+            background-color: #F8FAFC;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Mobile frame container lock */
+        .iphone-canvas {
+            width: 100%;
+            max-width: 390px;
+            height: 844px;
+            max-height: 100vh;
+            background: #FFFFFF;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+        }
+
+        @media (min-width: 640px) {
+            .iphone-canvas {
+                border-radius: 44px;
+                border: 9px solid #1F2937;
+                box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
+            }
+        }
+    </style>
+    <style data-purpose="decorative-accents">
+        /* Subtle radiating burst marks around brand illustration */
+        .burst-line {
+            position: absolute;
+            width: 3px;
+            height: 7px;
+            background-color: #A7F3D0;
+            border-radius: 9999px;
+        }
+    </style>
+    <!-- END: Custom Styles -->
+</head>
+
+<body>
+    <!-- BEGIN: MainMobileContainer -->
+    <div class="iphone-canvas" data-purpose="screen-container">
+        <!-- BEGIN: StatusBar -->
+        <header class="w-full pt-3 px-7 pb-2 flex justify-between items-center z-10 select-none"
+            data-purpose="ios-status-bar">
+            <!-- Time -->
+            <span class="text-sm font-semibold tracking-tight text-gray-900">9:41</span>
+            <!-- iOS Icons: Cellular, Wi-Fi, Battery -->
+            <div class="flex items-center space-x-2 text-gray-900">
+                <!-- Cellular Signal Icon -->
+                <svg class="w-4 h-3.5 fill-current" viewbox="0 0 17 12">
+                    <rect height="4" rx="0.8" width="3" x="0" y="8"></rect>
+                    <rect height="6.5" rx="0.8" width="3" x="4.5" y="5.5"></rect>
+                    <rect height="9" rx="0.8" width="3" x="9" y="3"></rect>
+                    <rect height="12" rx="0.8" width="3" x="13.5" y="0"></rect>
+                </svg>
+                <!-- Wifi Icon -->
+                <svg class="w-4 h-3.5 fill-current" viewbox="0 0 16 12">
+                    <path
+                        d="M8 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm-4.9-3.7a6.9 6.9 0 019.8 0 .9.9 0 101.3-1.3 8.7 8.7 0 00-12.4 0 .9.9 0 001.3 1.3zm-2.8-2.8a10.9 10.9 0 0115.4 0 .9.9 0 001.3-1.3 12.7 12.7 0 00-18 0 .9.9 0 001.3 1.3z">
+                    </path>
+                </svg>
+                <!-- Battery Icon -->
+                <div class="w-6 h-3 rounded-md border border-gray-900 p-0.5 flex items-center relative">
+                    <div class="h-full w-full bg-gray-900 rounded-sm"></div>
+                    <div class="absolute -right-1 top-1 w-0.5 h-1 bg-gray-900 rounded-r-xs"></div>
+                </div>
+            </div>
+        </header>
+        <!-- END: StatusBar -->
+        <!-- BEGIN: TopNavigation -->
+        <nav class="w-full px-6 pt-2 pb-1 flex items-center justify-between" data-purpose="onboarding-progress-bar">
+            <!-- Invisible spacer to keep dots perfectly centered -->
+            <div class="w-10"></div>
+            <!-- Pagination Progress Dots (6 Steps - Step 1 Active) -->
+            <div class="flex items-center space-x-2" data-purpose="stepper">
+                <span class="w-2.5 h-2.5 rounded-full bg-brand-700 transition-all duration-300"></span>
+                <span class="w-2 h-2 rounded-full bg-emerald-100"></span>
+                <span class="w-2 h-2 rounded-full bg-emerald-100"></span>
+                <span class="w-2 h-2 rounded-full bg-emerald-100"></span>
+                <span class="w-2 h-2 rounded-full bg-emerald-100"></span>
+                <span class="w-2 h-2 rounded-full bg-emerald-100"></span>
+            </div>
+            <!-- Skip Button -->
+            <button
+                class="w-10 text-right text-xs font-semibold text-brand-700 hover:text-brand-800 transition-colors focus:outline-none">
+                Skip
+            </button>
+        </nav>
+        <!-- END: TopNavigation -->
+        <!-- BEGIN: ContentArea -->
+        <main class="flex-1 px-6 flex flex-col justify-between pt-3 pb-6 overflow-y-auto">
+            <!-- Top Branding Section -->
+            <section class="flex flex-col items-center text-center" data-purpose="branding-header">
+                <!-- App Icon Graphic: Chat Bubble with Arabic 'ا ب ت' & Book Base -->
+                <div class="relative w-28 h-28 flex items-center justify-center mb-1">
+                    <!-- Light decorative radial burst lines -->
+                    <div class="burst-line -top-0.5 left-6 -rotate-45"></div>
+                    <div class="burst-line top-3 -left-1 -rotate-90"></div>
+                    <div class="burst-line bottom-8 -left-1 -rotate-90"></div>
+                    <div class="burst-line top-3 -right-1 rotate-90"></div>
+                    <div class="burst-line bottom-8 -right-1 rotate-90"></div>
+                    <div class="burst-line -top-0.5 right-6 rotate-45"></div>
+                    <!-- Main Speech Bubble / Icon Body -->
+                    <div
+                        class="relative w-20 h-20 bg-brand-700 rounded-3xl flex flex-col items-center justify-center shadow-lg shadow-emerald-900/10">
+                        <!-- Arabic Letters: Alif, Ba, Ta -->
+                        <span class="font-arabic text-white text-2xl font-bold tracking-wider mb-0.5 select-none">
+                            ا ب ت
+                        </span>
+                        <!-- Subtle speech tail triangle -->
+                        <div class="absolute -bottom-1.5 left-7 w-3.5 h-3.5 bg-brand-700 rotate-45 rounded-xs"></div>
+                    </div>
+                    <!-- Decorative Open Book Silhouette under Bubble -->
+                    <div class="absolute -bottom-1 flex items-center justify-center space-x-1">
+                        <svg class="w-14 h-5 text-brand-800" fill="none" viewbox="0 0 56 20"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M26.5 13.5C20.5 11 11 11 4 14.5V4C11 0.5 20.5 0.5 26.5 3V13.5Z" fill="#FFFFFF"
+                                stroke="#0F6139" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.6">
+                            </path>
+                            <path d="M29.5 13.5C35.5 11 45 11 52 14.5V4C45 0.5 35.5 0.5 29.5 3V13.5Z" fill="#FFFFFF"
+                                stroke="#0F6139" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.6">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <!-- App Name -->
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900 mt-2">
+                    Arabic Master
+                </h1>
+                <!-- Taglines -->
+                <div class="mt-1 space-y-0.5">
+                    <p class="text-xs font-normal text-slate-500 tracking-normal">
+                        Practical Arabic for real life.
+                    </p>
+                    <p class="text-xs font-normal text-slate-500 tracking-normal">
+                        Your journey starts here.
+                    </p>
+                </div>
+            </section>
+            <!-- Selection & Question Area -->
+            <section class="mt-4 flex flex-col" data-purpose="language-selection">
+                <!-- Section Header -->
+                <div class="mb-4">
+                    <h2 class="text-base font-bold text-gray-900 tracking-tight">
+                        How would you like to learn?
+                    </h2>
+                    <p class="text-xs text-gray-500 font-normal mt-0.5">
+                        Choose the language you're most comfortable with.
+                    </p>
+                </div>
+                <!-- Language Option Cards -->
+                <div aria-label="Choose your primary language" class="space-y-3" role="radiogroup">
+                    <!-- Option 1: Bengali (Active/Selected) -->
+                    <div aria-checked="true"
+                        class="cursor-pointer group relative flex items-center justify-between p-3.5 rounded-2xl border-2 border-emerald-600 bg-brand-50/70 transition-all shadow-sm"
+                        role="radio" tabindex="0">
+                        <div class="flex items-center space-x-3.5">
+                            <!-- Avatar Circle -->
+                            <div
+                                class="w-11 h-11 rounded-full bg-emerald-100/90 flex items-center justify-center text-brand-700 text-lg font-bold font-bengali">
+                                অ
+                            </div>
+                            <!-- Text Labels -->
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-gray-900 font-bengali leading-snug">বাংলা</span>
+                                <span class="text-xs text-gray-500 font-normal">Bengali</span>
+                            </div>
+                        </div>
+                        <!-- Active Checkbox Icon -->
+                        <div class="w-6 h-6 rounded-full bg-brand-700 flex items-center justify-center text-white">
+                            <svg class="w-3.5 h-3.5 stroke-current" fill="none" stroke-linecap="round"
+                                stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                    <!-- Option 2: English (Unselected) -->
+                    <div aria-checked="false"
+                        class="cursor-pointer group relative flex items-center justify-between p-3.5 rounded-2xl border border-gray-200 bg-white hover:border-gray-300 transition-all"
+                        role="radio" tabindex="0">
+                        <div class="flex items-center space-x-3.5">
+                            <!-- Avatar Circle -->
+                            <div
+                                class="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center text-gray-800 text-base font-semibold">
+                                Aa
+                            </div>
+                            <!-- Text Labels -->
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-gray-900 leading-snug">English</span>
+                                <span class="text-xs text-gray-400 font-normal">English</span>
+                            </div>
+                        </div>
+                        <!-- Inactive Radio Ring -->
+                        <div
+                            class="w-6 h-6 rounded-full border-2 border-gray-300 group-hover:border-gray-400 transition-colors">
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Bottom Action Area -->
+            <footer class="pt-4 flex flex-col items-center space-y-4" data-purpose="actions-and-navigation">
+                <!-- CTA Button -->
+                <button
+                    class="w-full py-3.5 bg-brand-800 hover:bg-brand-900 active:scale-[0.99] text-white font-semibold text-sm rounded-xl transition duration-150 shadow-md shadow-brand-900/10"
+                    type="button">
+                    Continue
+                </button>
+                <!-- Home Indicator Bar (iOS Style) -->
+                <div class="w-32 h-1 bg-gray-900 rounded-full select-none" data-purpose="ios-home-indicator"></div>
+            </footer>
+        </main>
+        <!-- END: ContentArea -->
+    </div>
+    <!-- END: MainMobileContainer -->
+</body>
+
+</html>
