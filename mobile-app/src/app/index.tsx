@@ -1,21 +1,125 @@
-import "../../global.css";
-import { StyleSheet, Text, View } from "react-native";
+import { ChevronRight, Sparkles, User } from "lucide-react-native";
+import { useRouter } from "expo-router";
+import { Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Image } from "expo-image";
 
-export default function Index() {
+import { BrandMark } from "@/components/onboarding/BrandMark";
+import { useOnboardingStore } from "@/features/onboarding/store";
+
+export default function WelcomeScreen() {
+  const router = useRouter();
+  const reset = useOnboardingStore((state) => state.reset);
+
+  const startOnboarding = () => {
+    reset();
+    router.push("/onboarding/language");
+  };
+
   return (
-    <View style={styles.container}>
-      <Text className="text-green-500 text-bold">
-        Edit src/app/index.tsx to edit this screen.
-      </Text>
+    <SafeAreaView className="flex-1 bg-background" edges={["top", "bottom"]}>
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1 }}
+      >
+        <View className="flex-1 justify-between px-margin pb-6 pt-4">
+          {/* Header Branding */}
+          <View className="items-center">
+            <BrandMark variant="logo" size={46} />
+          </View>
 
-    </View>
+          {/* Hero Section & Visual Centerpiece */}
+          <View className="items-center py-4">
+            <Text className="text-center font-headline-lg-mobile text-[28px] font-extrabold tracking-tight text-on-surface leading-tight">
+              Welcome to{"\n"}Arabic Master
+            </Text>
+            <Text className="mt-2 text-center font-body-md text-sm font-medium text-on-surface-variant max-w-[260px] leading-relaxed">
+              Learn practical Arabic for everyday conversations.
+            </Text>
+
+            {/* Layered Brand Illustration Aura */}
+            <View className="relative mt-6 h-52 w-52 items-center justify-center">
+              {/* Outer Soft Mint Circle Backdrop */}
+              <View
+                className="h-44 w-44 items-center justify-center rounded-full bg-primary-subtle"
+                accessible={false}
+                importantForAccessibility="no-hide-descendants"
+              >
+                {/* Visual Official Icon Artwork */}
+                <Image
+                  source={require("@/assets/images/myImages/arabic_logo.png")}
+                  style={{ width: 130, height: 130, borderRadius: 28 }}
+                  contentFit="cover"
+                  className="shadow-md shadow-primary/20"
+                />
+              </View>
+
+              {/* Decorative Accent Badges */}
+              <View
+                className="absolute -top-1 left-7 h-2 w-2 rounded-full bg-secondary"
+                accessible={false}
+              />
+              <View
+                className="absolute bottom-6 right-6 h-3 w-3 rounded-full bg-primary opacity-60"
+                accessible={false}
+              />
+            </View>
+          </View>
+
+          {/* Dual Action Choice Cards */}
+          <View className="gap-3.5 pt-2">
+            {/* Card 1: Existing Account */}
+            <Pressable
+              onPress={() =>
+                Alert.alert(
+                  "Sign in",
+                  "Sign-in screen will be connected with the authentication module.",
+                )
+              }
+              accessibilityRole="button"
+              accessibilityLabel="I already have an account"
+              className="flex-row items-center justify-between rounded-2xl bg-primary p-4 shadow-sm active:bg-primary-strong"
+            >
+              <View className="flex-1 flex-row items-center gap-3.5">
+                <View className="h-11 w-11 items-center justify-center rounded-full bg-primary-strong text-on-primary">
+                  <User className="text-on-primary" size={20} strokeWidth={2.2} />
+                </View>
+                <View className="flex-1">
+                  <Text className="font-label-lg text-base font-bold text-on-primary leading-tight">
+                    I already have an account
+                  </Text>
+                </View>
+              </View>
+              <ChevronRight className="text-on-primary opacity-90" size={20} strokeWidth={2.5} />
+            </Pressable>
+
+            {/* Card 2: New Learner Onboarding Flow */}
+            <Pressable
+              onPress={startOnboarding}
+              accessibilityRole="button"
+              accessibilityLabel="I'm new here, start learning without creating an account"
+              className="flex-row items-center justify-between rounded-2xl border-2 border-primary bg-primary-subtle p-4 shadow-xs active:bg-primary-subtle/70"
+            >
+              <View className="flex-1 flex-row items-center gap-3.5">
+                <View className="h-11 w-11 items-center justify-center rounded-full bg-primary/10">
+                  <Sparkles className="text-primary" size={22} strokeWidth={2.2} />
+                </View>
+                <View className="flex-1">
+                  <Text className="font-label-lg text-base font-bold text-on-surface leading-tight">
+                    I’m new here
+                  </Text>
+                  <Text className="mt-0.5 font-body-sm text-xs font-normal text-on-surface-variant leading-snug">
+                    Start learning without creating an account.
+                  </Text>
+                </View>
+              </View>
+              <ChevronRight className="text-primary opacity-90" size={20} strokeWidth={2.5} />
+            </Pressable>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

@@ -3,16 +3,17 @@
 ## 1. Project overview and verified architecture
 
 - This is a private Expo React Native app using Expo SDK 56 (`expo` 56.0.21 installed), React Native 0.85.3, React 19.2.3, TypeScript, and Expo Router.
-- The package entry is `expo-router/entry`. File-based routes live in `src/app/`; the current tree contains `_layout.tsx` and `index.tsx`. The root layout renders a Stack with headers hidden. Do not assume other routes or navigation patterns exist.
+- The package entry is `expo-router/entry`. File-based routes live in `src/app/`; the current onboarding routes are `index.tsx`, `onboarding/language.tsx`, `onboarding/country.tsx`, `onboarding/goals.tsx`, `onboarding/practice-time.tsx`, and `onboarding/complete.tsx`. The root layout renders a Stack with headers hidden. Inspect the route tree before assuming other navigation patterns exist.
 - NativeWind 4 with Tailwind CSS 3 is configured. React Compiler and Expo Router typed routes are enabled in `app.json`.
+- Shared onboarding UI is under `src/components/onboarding/`; the onboarding answer store is under `src/features/onboarding/` and uses the installed Zustand package.
 - `assets/` contains app and platform icons, splash assets, logos, and tab icon assets. Installed libraries include TanStack Query, Zustand, React Hook Form, AsyncStorage, SecureStore, Expo Image, and Lucide React Native; their presence alone does not establish an app pattern.
 
 ## 2. Sources of truth and directories
 
 - Treat `package.json`, `bun.lock`, `app.json`, `tsconfig.json`, `babel.config.js`, `metro.config.js`, `tailwind.config.js`, and `global.css` as configuration sources of truth.
 - `src/app/` is the verified route directory. `src/` is aliased as `@/*`; `assets/` is aliased as `@/assets/*` per `tsconfig.json`.
-- Follow existing structure when adding code. There is not yet a verified component, service, state, or test directory convention; inspect nearby code before creating one.
-- The repository currently has no root `GEMINI.md`, no test directories, and only two source files under `src/app/`. Recheck before relying on these observations in future work.
+- Follow existing structure when adding code. `src/components/onboarding/` and `src/features/onboarding/` are established for the current onboarding feature; there is still no general API service convention.
+- The repository currently has no root `GEMINI.md` or test directories. Recheck before relying on these observations in future work.
 
 ## 3. Expo SDK and React Native compatibility
 
@@ -41,7 +42,7 @@
 ## 7. NativeWind and styling
 
 - NativeWind is wired through `babel.config.js`, `metro.config.js`, and `global.css`; Tailwind scans `./src/**/*.{js,jsx,ts,tsx}` and uses `nativewind/preset`.
-- `global.css` is currently imported by `src/app/index.tsx`. Before adding routes, inspect the app setup and move the shared stylesheet import to a common root entry/layout if appropriate; avoid redundant per-screen imports. Confirm platform support before using web-only utilities.
+- `global.css` is imported once by `src/app/_layout.tsx`. Keep the shared stylesheet there; avoid redundant per-screen imports. Confirm platform support before using web-only utilities.
 - Prefer the existing theme tokens in `tailwind.config.js` for colors, spacing, typography, and radii. Font family keys correspond to Expo font names and may be placeholders until those fonts are loaded; inspect font setup before relying on them.
 - Use `className` for supported NativeWind styling and `StyleSheet` or inline styles when dynamic/native properties are clearer or unsupported. Do not replace existing theme/config wholesale.
 
