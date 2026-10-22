@@ -72,10 +72,11 @@ export const SectionService = {
       if (!(await SectionRepository.lockCourse(dto.courseId, tx)))
         throw new NotFoundError('Course not found');
       const maxOrder = await SectionRepository.maxOrder(dto.courseId, tx);
+      const sectionKey = await SectionRepository.generateNextSectionKey(tx);
       const created = await SectionRepository.insert(
         {
           id: randomUUIDv7(),
-          sectionKey: `section_${randomUUIDv7()}`,
+          sectionKey,
           courseId: dto.courseId,
           title: dto.title,
           description: dto.description ?? '',

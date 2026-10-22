@@ -62,14 +62,29 @@ export const CourseService = {
     };
   },
 
-  create: (dto: CreateCourseInput, actor: RequestUser) =>
-    CourseRepository.insert({
-      id: randomUUIDv7(),
-      courseKey: `course_${randomUUIDv7()}`,
-      ...dto,
-      status: ContentStatus.DRAFT,
-      createdById: actor.userId,
-    }),
+  create: async (dto: CreateCourseInput, actor: RequestUser) => {
+    let attempts = 0;
+    while (attempts < 5) {
+      try {
+        const courseKey = await CourseRepository.generateNextCourseKey(attempts);
+        return await CourseRepository.insert({
+          id: randomUUIDv7(),
+          courseKey,
+          ...dto,
+          status: ContentStatus.DRAFT,
+          createdById: actor.userId,
+        });
+      } catch (err: unknown) {
+        const pgErr = err as { code?: string; constraint?: string };
+        if (pgErr?.code === '23505' && pgErr?.constraint?.includes('courseKey')) {
+          attempts++;
+          continue;
+        }
+        throw err;
+      }
+    }
+    throw new Error('Failed to generate unique courseKey after 5 attempts');
+  },
 
   async update(id: string, dto: UpdateCourseInput, actor: RequestUser) {
     const course = await findOrThrow(id);

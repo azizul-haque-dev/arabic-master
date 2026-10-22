@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { pool } from '../database/db.js';
+import { arabicEntityRoutes } from '../modules/arabic-entities/arabic-entity.routes.js';
 import { authRoutes } from '../modules/auth/auth.routes.js';
 import { conversationRoutes } from '../modules/conversations/conversation.routes.js';
 import { courseRoutes } from '../modules/curriculum/courses/course.routes.js';
@@ -26,6 +27,7 @@ router.get('/health', async (_req, res) => {
 });
 
 router.use('/auth', authRoutes);
+router.use('/arabic-entities', arabicEntityRoutes);
 router.use('/words', wordRoutes);
 router.use('/sentences', sentenceRoutes);
 router.use('/conversations', conversationRoutes);

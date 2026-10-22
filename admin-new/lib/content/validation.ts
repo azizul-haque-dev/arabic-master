@@ -27,7 +27,7 @@ export const contentListQuerySchema = z.object({
   search: z.string().trim().max(500).optional(),
   category: sentenceCategories.optional(),
   status: z.enum(contentStatuses).optional(),
-}).strict();
+}).strip();
 
 export const wordCreateSchema = z.object({
   text: requiredText,
@@ -64,6 +64,38 @@ export const sentenceUpdateSchema = sentenceCreateSchema.extend({
   relatedWordId: wordId.nullable().optional(),
 }).partial();
 
+export const arabicEntityCreateSchema = z.object({
+  arabicText: requiredText,
+  meaningEn: z.string().trim().optional().default(""),
+  meaningBn: z.string().trim().optional().default(""),
+  pronunciationEn: z.string().trim().optional().default(""),
+  pronunciationBn: z.string().trim().optional().default(""),
+  meaningEnglish: z.string().trim().optional(),
+  meaningBangla: z.string().trim().optional(),
+  pronunciationEnglish: z.string().trim().optional(),
+  pronunciationBangla: z.string().trim().optional(),
+  status: z.enum(contentStatuses).optional().default("DRAFT"),
+}).strict();
+
+export const arabicEntityUpdateSchema = z.object({
+  arabicText: requiredText.optional(),
+  meaningEn: z.string().trim().optional(),
+  meaningBn: z.string().trim().optional(),
+  pronunciationEn: z.string().trim().optional(),
+  pronunciationBn: z.string().trim().optional(),
+  meaningEnglish: z.string().trim().optional(),
+  meaningBangla: z.string().trim().optional(),
+  pronunciationEnglish: z.string().trim().optional(),
+  pronunciationBangla: z.string().trim().optional(),
+  status: z.enum(contentStatuses).optional(),
+  rejectionReason: z.string().trim().nullable().optional(),
+}).strict();
+
+export const arabicEntityStatusSchema = z.object({
+  status: z.enum(contentStatuses),
+  rejectionReason: z.string().trim().optional(),
+}).strict();
+
 export const generateQuerySchema = z.string().trim().min(1).max(500);
 export const contentIdSchema = z.string().trim().min(1).max(200);
 
@@ -72,6 +104,9 @@ export type WordCreateInput = z.infer<typeof wordCreateSchema>;
 export type WordUpdateInput = z.infer<typeof wordUpdateSchema>;
 export type SentenceCreateInput = z.infer<typeof sentenceCreateSchema>;
 export type SentenceUpdateInput = z.infer<typeof sentenceUpdateSchema>;
+export type ArabicEntityCreateInput = z.infer<typeof arabicEntityCreateSchema>;
+export type ArabicEntityUpdateInput = z.infer<typeof arabicEntityUpdateSchema>;
+export type ArabicEntityStatusInput = z.infer<typeof arabicEntityStatusSchema>;
 
 export function queryFromUnknown(value: unknown): unknown {
   if (!isRecord(value)) return value;

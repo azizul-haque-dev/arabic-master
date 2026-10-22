@@ -5,14 +5,19 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight, Pencil, XCircle } from "lucide-react";
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
-import { AudioPlayer } from "@/components/shared/audio-player";
+import { EntityAudioPanel } from "@/components/features/audio/entity-audio-panel";
 import { ContentActionBar } from "@/components/shared/content-action-bar";
 import { RejectionDialog } from "@/components/shared/rejection-dialog";
 import { RelationshipPanel } from "@/components/features/arabic-entities/relationship-panel";
 import { EntityFormDialog } from "@/components/features/arabic-entities/entity-form-dialog";
 import { Button } from "@/components/ui/button";
-import type { ArabicEntity, ContentStatus } from "@/lib/types/content";
+import type { ArabicEntity, ContentStatus, EntityFormValues } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
+import { checkAudioPermission } from "@/lib/audio/permissions";
+import {
+  updateArabicEntityAction,
+  updateArabicEntityStatusAction,
+} from "@/actions/content/arabic-entity-actions";
 
 export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntity }) {
   const router = useRouter();
@@ -21,8 +26,33 @@ export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntit
   const [editOpen, setEditOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
 
-  function setStatus(status: ContentStatus, rejectionReason?: string) {
-    setEntity((prev) => ({ ...prev, status, rejectionReason, updatedAt: new Date().toISOString() }));
+  const audioPermission = checkAudioPermission(role, entity.status);
+
+  async function setStatus(status: ContentStatus, rejectionReason?: string) {
+    const res = await updateArabicEntityStatusAction(entity.id, status, rejectionReason);
+    if (res.success) {
+      setEntity(res.data);
+      router.refresh();
+    } else {
+      alert(res.error);
+    }
+  }
+
+  async function handleSaveEdit(values: EntityFormValues) {
+    const res = await updateArabicEntityAction(entity.id, {
+      arabicText: values.arabicText,
+      meaningEnglish: values.meaningEnglish,
+      meaningBangla: values.meaningBangla,
+      pronunciationEnglish: values.pronunciationEnglish,
+      pronunciationBangla: values.pronunciationBangla,
+    });
+    if (res.success) {
+      setEntity(res.data);
+      setEditOpen(false);
+      router.refresh();
+    } else {
+      alert(res.error);
+    }
   }
 
   return (
@@ -98,7 +128,15 @@ export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntit
               </div>
             </dl>
             <div className="mt-4">
-              <AudioPlayer src={entity.audioUrl} label={entity.arabicText} />
+              <EntityAudioPanel
+                entityId={entity.id}
+                entityLabel={entity.arabicText}
+                canEdit={audioPermission.canEdit}
+                disabledReason={audioPermission.disabledReason}
+                onAudioChange={() => {
+                  setEntity((prev) => ({ ...prev, hasAudio: true }));
+                }}
+              />
             </div>
           </section>
 
@@ -154,7 +192,7 @@ export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntit
         open={editOpen}
         onOpenChange={setEditOpen}
         initialValues={entity}
-        onSaveDraft={(values) => setEntity((prev) => ({ ...prev, ...values, updatedAt: new Date().toISOString() }))}
+        onSaveDraft={handleSaveEdit}
         onUseExisting={(existing) => {
           setEditOpen(false);
           router.push(`/admin/arabic-entities/${existing.id}`);

@@ -36,7 +36,7 @@ export function RootShell({
       ) : (
         <>
           <Header />
-          <main className="pt-24">{children}</main>
+          <main className="pt-20 sm:pt-24">{children}</main>
           <Footer />
         </>
       )}

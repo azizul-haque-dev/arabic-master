@@ -117,7 +117,7 @@ export async function readBackend(endpoint: string): Promise<{
   ok: false;
   status: number;
 }> {
-  const response = await serverApiFetch(endpoint, { cache: "no-store" }, false);
+  const response = await serverApiFetch(endpoint, { cache: "no-store" }, true);
   if (!response.ok) return { ok: false, status: response.status };
   return { ok: true, data: await responseData(response) };
 }

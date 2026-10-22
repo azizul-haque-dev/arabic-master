@@ -16,6 +16,12 @@ export default defineConfig({
       GOOGLE_CLIENT_ID: 'test-google-client-id.apps.googleusercontent.com',
       GOOGLE_CLIENT_SECRET: 'test-google-client-secret',
       GOOGLE_CALLBACK_URL: 'http://localhost:5000/api/v1/auth/google/callback',
+      R2_ACCOUNT_ID: 'test-r2-account-id',
+      R2_ACCESS_KEY_ID: 'test-r2-access-key-id',
+      R2_SECRET_ACCESS_KEY: 'test-r2-secret-access-key-minimum-length',
+      R2_BUCKET_NAME: 'test-arabic-audio-bucket',
+      R2_ENDPOINT: 'https://test-r2-account-id.r2.cloudflarestorage.com',
+      R2_REGION: 'auto',
     },
   },
 });

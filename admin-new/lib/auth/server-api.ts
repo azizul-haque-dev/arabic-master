@@ -1,10 +1,6 @@
 import { getAuthSession, setAuthSession, clearAuthSession } from "./session";
+import { getBackendApiUrl } from "./backend-url";
 import { ActionFailure, AuthActionErrorCode } from "@/lib/types/auth";
-
-function getBackendApiUrl(): string {
-  const url = process.env.BACKEND_API_URL || "http://localhost:5000/api/v1";
-  return url.replace(/\/$/, "");
-}
 
 export function mapHttpError(
   status: number,
@@ -43,6 +39,7 @@ export function mapHttpError(
 }
 
 let refreshPromise: Promise<string | null> | null = null;
+let cachedServerAccessToken: string | null = null;
 
 async function refreshAccessToken(): Promise<string | null> {
   if (refreshPromise) {
@@ -53,6 +50,7 @@ async function refreshAccessToken(): Promise<string | null> {
     try {
       const { refreshToken, user } = await getAuthSession();
       if (!refreshToken) {
+        cachedServerAccessToken = null;
         await clearAuthSession();
         return null;
       }
@@ -69,7 +67,12 @@ async function refreshAccessToken(): Promise<string | null> {
       });
 
       if (!response.ok) {
-        await clearAuthSession();
+        cachedServerAccessToken = null;
+        if (response.status === 401 || response.status === 403) {
+          try {
+            await clearAuthSession();
+          } catch {}
+        }
         return null;
       }
 
@@ -79,19 +82,30 @@ async function refreshAccessToken(): Promise<string | null> {
       const newRefreshToken = data?.refreshToken || refreshToken;
 
       if (!newAccessToken) {
-        await clearAuthSession();
+        cachedServerAccessToken = null;
+        try {
+          await clearAuthSession();
+        } catch {
+          // ignore cookie deletion failure in read-only contexts
+        }
         return null;
       }
 
-      await setAuthSession({
-        accessToken: newAccessToken,
-        refreshToken: newRefreshToken,
-        user,
-      });
+      cachedServerAccessToken = newAccessToken;
+
+      try {
+        await setAuthSession({
+          accessToken: newAccessToken,
+          refreshToken: newRefreshToken,
+          user,
+        });
+      } catch {
+        // In Next.js Server Components, cookies cannot be modified during rendering.
+        // We still return newAccessToken so the current in-flight request succeeds.
+      }
 
       return newAccessToken;
     } catch {
-      await clearAuthSession();
       return null;
     } finally {
       refreshPromise = null;
@@ -110,6 +124,7 @@ export async function serverApiFetch(
   const url = `${backendUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
   const { accessToken } = await getAuthSession();
+  const token = cachedServerAccessToken || accessToken;
 
   const headers = new Headers(options.headers || {});
   if (!headers.has("Content-Type") && options.body) {
@@ -117,8 +132,8 @@ export async function serverApiFetch(
   }
   headers.set("x-client-type", "nextjs");
 
-  if (accessToken && !headers.has("Authorization")) {
-    headers.set("Authorization", `Bearer ${accessToken}`);
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
   }
 
   try {
@@ -129,6 +144,7 @@ export async function serverApiFetch(
     });
 
     if (response.status === 401 && retryOn401 && !endpoint.includes("/auth/login") && !endpoint.includes("/auth/register")) {
+      cachedServerAccessToken = null;
       const newAccessToken = await refreshAccessToken();
       if (newAccessToken) {
         headers.set("Authorization", `Bearer ${newAccessToken}`);

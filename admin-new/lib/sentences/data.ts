@@ -1,5 +1,6 @@
 import "server-only";
 
+import { redirect } from "next/navigation";
 import type { ContentListQuery } from "@/lib/content/validation";
 import { readBackend, requireContentAdmin } from "@/lib/content/server";
 import { normalizeSentence, normalizeSentenceList, type SentenceListResponse } from "./api";
@@ -40,16 +41,24 @@ export async function requestSentenceById(id: string): Promise<Sentence | null> 
 }
 
 export async function getSentencesForAdmin(query: ContentListQuery): Promise<SentenceListResponse> {
-  const authorization = await requireContentAdmin(false);
-  if (!authorization.success) throw new Error(authorization.error);
+  const authorization = await requireContentAdmin();
+  if (!authorization.success) {
+    if (authorization.code === "UNAUTHORIZED") redirect("/login");
+    if (authorization.code === "FORBIDDEN") redirect("/403");
+    throw new Error(authorization.error);
+  }
   return requestSentenceList(query);
 }
 
 export async function getSentenceForAdmin(
   id: string,
 ): Promise<{ sentence: Sentence; relatedWord?: Word } | null> {
-  const authorization = await requireContentAdmin(false);
-  if (!authorization.success) throw new Error(authorization.error);
+  const authorization = await requireContentAdmin();
+  if (!authorization.success) {
+    if (authorization.code === "UNAUTHORIZED") redirect("/login");
+    if (authorization.code === "FORBIDDEN") redirect("/403");
+    throw new Error(authorization.error);
+  }
   const sentence = await requestSentenceById(id);
   if (!sentence) return null;
 

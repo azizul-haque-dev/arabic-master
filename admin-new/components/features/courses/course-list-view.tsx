@@ -19,6 +19,7 @@ import { mockLessons } from "@/lib/mock-data/lessons";
 import type { Course, CourseFormValues, ContentStatus } from "@/lib/types/content";
 import { DIFFICULTY_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
+import { generateNextCourseKey } from "@/lib/key-generators";
 
 function courseCounts(courseId: string) {
     const sections = mockSections.filter((s) => s.courseId === courseId);
@@ -50,7 +51,7 @@ export function CourseListView() {
     function handleCreate(values: CourseFormValues) {
         const newCourse: Course = {
             id: crypto.randomUUID(),
-            courseKey: `CRS-${1000 + courses.length + 1}`,
+            courseKey: generateNextCourseKey(courses),
             ...values,
             status: "DRAFT",
             createdBy: role === "ADMIN" ? "You (Admin)" : "You (Content Manager)",

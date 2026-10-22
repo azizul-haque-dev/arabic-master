@@ -9,9 +9,11 @@ const SPEEDS = [0.75, 1, 1.25] as const;
 export function AudioPlayer({
   src,
   label = "Pronunciation",
+  onError,
 }: {
   src?: string;
   label?: string;
+  onError?: () => void;
 }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -33,7 +35,10 @@ export function AudioPlayer({
     if (isPlaying) {
       audio.pause();
     } else {
-      audio.play().catch(() => setIsPlaying(false));
+      audio.play().catch(() => {
+        setIsPlaying(false);
+        onError?.();
+      });
     }
     setIsPlaying(!isPlaying);
   }
@@ -48,6 +53,10 @@ export function AudioPlayer({
       <audio
         ref={audioRef}
         src={src}
+        onError={() => {
+          setIsPlaying(false);
+          onError?.();
+        }}
         onTimeUpdate={(e) => {
           const el = e.currentTarget;
           setProgress(el.duration ? (el.currentTime / el.duration) * 100 : 0);

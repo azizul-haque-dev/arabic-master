@@ -4,11 +4,14 @@ import { logger } from '../common/http/logger.js';
 import { env } from '../config/env.js';
 import * as schema from './drizzle/schema.js';
 
+import { ensureDatabaseSchema } from './ensure-schema.js';
+
 export const pool = new pg.Pool({ connectionString: env.DATABASE_URL });
 export const db = drizzle(pool, { schema });
 
 export async function connectDatabase(): Promise<void> {
   await pool.query('SELECT 1');
+  await ensureDatabaseSchema(pool);
   logger.info('Database connected');
 }
 

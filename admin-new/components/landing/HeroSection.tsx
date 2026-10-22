@@ -3,46 +3,47 @@ import Link from "next/link";
 
 export function HeroSection() {
   return (
-    <section className="relative w-full overflow-hidden pt-space-xl pb-space-3xl lg:pt-space-2xl lg:pb-space-3xl bg-surface">
+    <section className="relative w-full overflow-hidden pt-6 pb-8 sm:pt-space-xl sm:pb-space-3xl lg:pt-space-2xl lg:pb-space-3xl bg-surface">
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-primary-fixed/30 rounded-full blur-3xl pointer-events-none -z-10" />
       <div className="absolute top-1/3 left-10 w-72 h-72 bg-surface-container rounded-full blur-2xl pointer-events-none -z-10" />
 
-      <div className="max-w-container-max mx-auto px-gutter-mobile lg:px-gutter-desktop">
-        <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-space-2xl">
-          <div className="inline-flex items-center gap-space-xs px-space-md py-1.5 rounded-full bg-surface-container-high text-primary font-label-md text-label-md mb-space-lg shadow-sm">
-            <span className="w-2.5 h-2.5 rounded-full bg-primary-container animate-pulse" />
+      <div className="max-w-container-max mx-auto px-6 sm:px-gutter-mobile lg:px-gutter-desktop">
+        <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-10 sm:mb-space-2xl">
+          <div className="mx-auto inline-flex max-w-full items-center justify-center gap-2 rounded-full bg-surface-container-high px-4 py-2 text-center font-label-md text-xs min-[390px]:text-sm leading-5 text-primary shadow-sm mb-3 sm:mb-space-lg sm:min-h-0 sm:gap-space-xs sm:px-space-md sm:py-1.5 sm:text-label-md">
+            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 shrink-0 rounded-full bg-primary-container animate-pulse" />
             <span>
-              Practical Arabic • Real Conversations • Learn at Your Pace
+              Practical Arabic • Real Conversations{" "}
+              <span className="hidden sm:inline">• Learn at Your Pace</span>
             </span>
           </div>
 
-          <h1 className="mb-space-lg font-headline-xl text-headline-xl font-normal tracking-tight text-on-surface lg:text-[56px] lg:leading-[64px]">
+          <h1 className="mx-auto max-w-[600px] text-center text-[34px] min-[390px]:text-[38px] min-[430px]:text-[40px] font-semibold leading-[1.12] tracking-[-0.035em] text-on-surface sm:max-w-none sm:font-headline-xl sm:text-headline-xl sm:font-normal sm:tracking-tight sm:leading-[3.5rem] lg:text-[56px] lg:leading-[64px] mb-0 sm:mb-space-lg">
             Learn the Arabic You Actually Need to Speak.
           </h1>
 
-          <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-space-xl leading-relaxed">
+          <p className="mx-auto mt-5 max-w-[540px] px-1 text-center text-[17px] leading-[1.5] text-on-surface-variant mb-6 sm:mt-0 sm:max-w-2xl sm:px-0 sm:font-body-lg sm:text-body-lg sm:leading-relaxed sm:mb-space-xl">
             Build practical Arabic skills through real-life words, useful
             sentences, and conversations designed for everyday situations.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center gap-space-md w-full sm:w-auto mb-space-md">
+          <div className="mx-auto flex w-full max-w-[480px] flex-col gap-3 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:gap-space-md mb-6 sm:mb-space-md">
             <Link
               href="/register"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs h-12 px-space-xl rounded-xl bg-primary-container text-on-primary font-title-md text-title-md shadow-md transition-all duration-200 hover:bg-primary-dark hover:shadow-lg active:translate-y-[1px]"
+              className="inline-flex h-14 w-full items-center justify-center gap-space-xs px-space-xl rounded-xl bg-primary-container text-on-primary font-title-md text-title-md shadow-md transition-all duration-200 hover:bg-primary-dark hover:shadow-lg active:translate-y-[1px] sm:h-12 sm:w-auto"
             >
               <span>Start Learning Free</span>
               <ArrowRight className="size-5" />
             </Link>
             <Link
               href="/pricing"
-              className="w-full sm:w-auto inline-flex items-center justify-center h-12 px-space-xl rounded-xl border border-border bg-surface-container-lowest text-on-surface font-title-md text-title-md shadow-sm transition-all hover:border-primary hover:bg-primary hover:text-on-primary hover:shadow-md active:translate-y-[1px]"
+              className="inline-flex h-14 w-full items-center justify-center px-space-xl rounded-xl border border-border bg-surface-container-lowest text-on-surface font-title-md text-title-md shadow-sm transition-all hover:border-primary hover:bg-primary hover:text-on-primary hover:shadow-md active:translate-y-[1px] sm:h-12 sm:w-auto"
             >
               <span>Explore Pro</span>
             </Link>
           </div>
 
-          <div className="flex items-center justify-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm">
-            <ShieldCheck className="size-4 text-primary-container" />
+          <div className="mx-auto flex max-w-[480px] items-start justify-center gap-2 text-center text-on-surface-variant text-xs min-[390px]:text-sm leading-6 sm:max-w-none sm:items-center sm:gap-space-xs sm:font-body-sm sm:text-body-sm sm:text-left">
+            <ShieldCheck className="size-4 shrink-0 mt-1 sm:mt-0 text-primary-container" />
             <span>
               No credit card required • 10-minute daily bite-sized sessions •
               Gulf &amp; Saudi spoken dialect focus

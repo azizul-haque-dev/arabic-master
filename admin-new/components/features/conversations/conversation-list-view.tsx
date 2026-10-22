@@ -22,6 +22,7 @@ import type {
 import { MessagesSquare, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { generateNextConversationKey } from "@/lib/key-generators";
 
 export function ConversationListView() {
   const router = useRouter();
@@ -53,7 +54,7 @@ export function ConversationListView() {
   function handleCreate(values: ConversationMetaFormValues) {
     const newConversation: Conversation = {
       id: crypto.randomUUID(),
-      conversationKey: `CNV-${3000 + conversations.length + 1}`,
+      conversationKey: generateNextConversationKey(conversations),
       ...values,
       turns: [],
       status: "DRAFT",

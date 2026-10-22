@@ -30,7 +30,7 @@ export interface SafeUser {
   name?: string;
   fullName?: string;
   role?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export type LoginActionData = {

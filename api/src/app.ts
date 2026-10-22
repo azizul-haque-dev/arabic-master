@@ -18,7 +18,7 @@ import apiRoutes from './routes/index.js';
 export function createApp(): Express {
   const app = express();
 
-  app.set('trust proxy', isProd ? 1 : false);
+  app.set('trust proxy', true);
 
   app.use((_req, res, next) => {
     res.setHeader('Cache-Control', 'private, no-store');

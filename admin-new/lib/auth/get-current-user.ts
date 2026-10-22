@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { getAuthSession } from "./session";
 
 export type AdminRole = "ADMIN" | "CONTENT_MANAGER";
@@ -23,7 +24,5 @@ export async function getCurrentUser(): Promise<CurrentAdminUser> {
     return { userId: String(user.id), role };
   }
 
-  throw new Error(
-    "getCurrentUser() must only be called inside a protected route with an active session."
-  );
+  redirect("/login");
 }

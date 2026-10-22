@@ -34,6 +34,53 @@ const EnvSchema = z.object({
   AUTH_COOKIE_HTTP_ONLY: z.stringbool().default(true),
   AUTH_COOKIE_SAME_SITE: z.enum(['lax', 'strict', 'none']).default('lax'),
   FRONTEND_URL: z.url().optional(),
+
+  // Cloudflare R2 Object Storage
+  R2_ACCOUNT_ID: z.string().trim().optional(),
+  R2_ACCESS_KEY_ID: z.string().trim().optional(),
+  R2_SECRET_ACCESS_KEY: z.string().trim().optional(),
+  R2_BUCKET_NAME: z.string().trim().optional(),
+  R2_ENDPOINT: z.string().trim().optional(),
+  R2_REGION: z.string().trim().default('auto'),
+  R2_PUBLIC_BASE_URL: z.string().trim().url().optional(),
+  R2_KEY_PREFIX: z.string().trim().default('arabic-entities/audio/'),
+  R2_MAX_AUDIO_SIZE_BYTES: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(10 * 1024 * 1024),
+  R2_PRESIGNED_EXPIRES_IN: z.coerce.number().int().positive().default(3600),
+}).superRefine((data, ctx) => {
+  if (data.NODE_ENV === 'production') {
+    if (!data.R2_ACCESS_KEY_ID) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'R2_ACCESS_KEY_ID is required in production',
+        path: ['R2_ACCESS_KEY_ID'],
+      });
+    }
+    if (!data.R2_SECRET_ACCESS_KEY) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'R2_SECRET_ACCESS_KEY is required in production',
+        path: ['R2_SECRET_ACCESS_KEY'],
+      });
+    }
+    if (!data.R2_BUCKET_NAME) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'R2_BUCKET_NAME is required in production',
+        path: ['R2_BUCKET_NAME'],
+      });
+    }
+    if (!data.R2_ENDPOINT && !data.R2_ACCOUNT_ID) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Either R2_ENDPOINT or R2_ACCOUNT_ID is required in production',
+        path: ['R2_ENDPOINT'],
+      });
+    }
+  }
 });
 
 const parsed = EnvSchema.safeParse(process.env);

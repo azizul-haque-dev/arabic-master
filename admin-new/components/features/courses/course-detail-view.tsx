@@ -15,6 +15,7 @@ import { mockLessons } from "@/lib/mock-data/lessons";
 import type { Course, CourseFormValues, ContentStatus, Section, SectionFormValues } from "@/lib/types/content";
 import { DIFFICULTY_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
+import { generateNextSectionKey } from "@/lib/key-generators";
 
 export function CourseDetailView({ initialCourse }: { initialCourse: Course }) {
     const { role } = useRole();
@@ -37,7 +38,7 @@ export function CourseDetailView({ initialCourse }: { initialCourse: Course }) {
     function handleAddSection(values: SectionFormValues) {
         const newSection: Section = {
             id: crypto.randomUUID(),
-            sectionKey: `SEC-${2000 + sections.length + 1}`,
+            sectionKey: generateNextSectionKey(sections.concat(initialMockSections)),
             title: values.title,
             description: values.description,
             courseId: course.id,

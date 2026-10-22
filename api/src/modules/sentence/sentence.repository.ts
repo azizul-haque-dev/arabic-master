@@ -11,6 +11,7 @@ import {
 import { v7 as randomUUIDv7 } from 'uuid';
 import { escapeLike } from '../../common/utils/escape-like.util.js';
 import { normalizeArabicText } from '../../common/utils/normalize-arabic.util.js';
+import { generateNextSequentialKey } from '../../common/utils/key-generator.util.js';
 import { db, type Executor } from '../../database/db.js';
 import type { ContentStatus } from '../../database/drizzle/enums.js';
 import * as schema from '../../database/drizzle/schema.js';
@@ -89,6 +90,15 @@ export const SentenceRepository = {
       .where(eq(schema.sentence.entityId, entityId))
       .limit(1);
     return row ?? null;
+  },
+
+  async generateNextSentenceKey(
+    exOrOffset: Executor | number = db,
+    maybeOffset = 0,
+  ): Promise<string> {
+    const ex = typeof exOrOffset === 'number' ? db : exOrOffset;
+    const offset = typeof exOrOffset === 'number' ? exOrOffset : maybeOffset;
+    return generateNextSequentialKey('Sentence', 'sentenceKey', 'SNT-', 1000, ex, offset);
   },
 
   async insert(v: SentenceInsert, ex: Executor = db) {

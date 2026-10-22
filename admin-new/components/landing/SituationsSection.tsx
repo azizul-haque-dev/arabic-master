@@ -37,7 +37,7 @@ export function SituationsSection() {
               <p className="font-body-md text-body-md text-on-surface-variant mb-space-md">
                 {situation.description}
               </p>
-              <div className="flex items-center justify-between rounded-xl border border-border/60 bg-surface-container-low p-space-sm">
+              <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-space-sm rounded-xl border border-border/60 bg-surface-container-low p-space-sm">
                 <span
                   dir="rtl"
                   lang="ar"

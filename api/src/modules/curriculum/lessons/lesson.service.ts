@@ -105,10 +105,11 @@ export const LessonService = {
       if (!(await LessonRepository.lockSection(dto.sectionId, tx)))
         throw new NotFoundError('Section not found');
       const maxOrder = await LessonRepository.maxOrder(dto.sectionId, tx);
+      const lessonKey = await LessonRepository.generateNextLessonKey(tx);
       const created = await LessonRepository.insert(
         {
           id: randomUUIDv7(),
-          lessonKey: `lesson_${randomUUIDv7()}`,
+          lessonKey,
           sectionId: dto.sectionId,
           title: dto.title,
           description: dto.description ?? '',

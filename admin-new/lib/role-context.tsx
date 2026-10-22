@@ -1,7 +1,8 @@
 "use client";
 
 import type { AdminRole } from "@/lib/types/content";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { SafeUser } from "./types/auth";
 
 interface ISession {
@@ -10,7 +11,6 @@ interface ISession {
   refreshToken?: string;
 }
 
-// 1. Expanded context type to share session information globally
 interface RoleContextType {
   role: AdminRole;
   user: SafeUser | null;
@@ -28,10 +28,13 @@ export function RoleProvider({
   initialRole?: AdminRole;
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   const [role, setRole] = useState<AdminRole>(initialRole);
   const [userSession, setSession] = useState<ISession | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const isRefreshingRef = useRef<boolean>(false);
 
+  // Initial session loader
   async function getUser() {
     try {
       setIsLoading(true);
@@ -54,18 +57,80 @@ export function RoleProvider({
       } else {
         setSession(null);
       }
-    } catch (error) {
-      console.error("Auth initialization error:", error);
+    } catch {
       setSession(null);
     } finally {
       setIsLoading(false);
     }
   }
 
+  // Silent background token refresh (no UI loading state, completely under the hood)
+  async function silentRefresh() {
+    if (isRefreshingRef.current) return;
+    try {
+      isRefreshingRef.current = true;
+      const res = await fetch("/api/auth/refresh", {
+        method: "POST",
+        headers: { "Cache-Control": "no-store" },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.accessToken) {
+          setSession((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  accessToken: data.accessToken,
+                  user: data.user || prev.user,
+                }
+              : {
+                  user: data.user,
+                  accessToken: data.accessToken,
+                }
+          );
+          if (data.user?.role) {
+            setRole(data.user.role);
+          }
+        }
+      } else if (res.status === 401 || res.status === 403) {
+        // Refresh token was rejected by server (e.g. 30 days expired)
+        setSession(null);
+        router.push("/login");
+      }
+    } catch {
+      // Transient network failure; keep session and retry on next interval
+    } finally {
+      isRefreshingRef.current = false;
+    }
+  }
+
   useEffect(() => {
+    // 1. Initial fetch
     void Promise.resolve().then(getUser);
+
+    // 2. Refresh silently every 4 minutes (since access tokens expire after 15 mins)
+    const intervalId = setInterval(() => {
+      void silentRefresh();
+    }, 4 * 60 * 1000);
+
+    // 3. Whenever user comes back to the browser tab/window after inactivity, refresh immediately
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === "visible") {
+        void silentRefresh();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityOrFocus);
+    window.addEventListener("focus", handleVisibilityOrFocus);
+
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", handleVisibilityOrFocus);
+      window.removeEventListener("focus", handleVisibilityOrFocus);
+    };
   }, []);
-  console.log(userSession, "session");
+
   return (
     <RoleContext.Provider
       value={{

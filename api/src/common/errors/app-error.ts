@@ -31,3 +31,18 @@ export class ConflictError extends AppError {
     super(409, m);
   }
 }
+export class PayloadTooLargeError extends AppError {
+  constructor(m: string | string[]) {
+    super(413, m);
+  }
+}
+export class UnsupportedMediaTypeError extends AppError {
+  constructor(m: string | string[]) {
+    super(415, m);
+  }
+}
+export class ServiceUnavailableError extends AppError {
+  constructor(m: string | string[]) {
+    super(503, m);
+  }
+}

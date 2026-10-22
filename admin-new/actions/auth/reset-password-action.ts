@@ -1,8 +1,8 @@
 "use server";
 
+import { getBackendApiUrl } from "@/lib/auth/backend-url";
 import { ResetPasswordFormValues, resetPasswordSchema } from "@/schemas/auth.shema";
 import { z } from "zod";
-
 
 export type ResetPasswordActionResult =
   | { success: true; message: string }
@@ -20,11 +20,6 @@ const apiResponseSchema = z.object({
   success: z.boolean().optional(),
   message: z.string().optional(),
 });
-
-function getApiUrl(): string | null {
-  const apiUrl = process.env.BACKEND_API_URL?.trim();
-  return apiUrl ? apiUrl.replace(/\/$/, "") : null;
-}
 
 export async function resetPasswordAction(
   input: unknown,
@@ -47,8 +42,7 @@ export async function resetPasswordAction(
     };
   }
 
-  const apiUrl = getApiUrl();
-  if (!apiUrl) return { success: false, message: DEFAULT_ERROR_MESSAGE };
+  const apiUrl = getBackendApiUrl();
 
   try {
     const response = await fetch(`${apiUrl}/auth/reset-password`, {

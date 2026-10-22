@@ -18,23 +18,27 @@ export function EntitySelector({
   onSelect,
   onCreateNew,
   selectedEntityId,
+  entities,
 }: {
   onSelect: (entity: ArabicEntity) => void;
   onCreateNew: (query: string) => void;
   selectedEntityId?: string;
+  entities?: ArabicEntity[];
 }) {
   const [query, setQuery] = useState("");
+  const pool = entities && entities.length > 0 ? entities : mockArabicEntities;
 
   const results = useMemo(() => {
-    if (!query.trim()) return mockArabicEntities.slice(0, 5);
-    const needle = query.trim();
-    return mockArabicEntities.filter(
+    if (!query.trim()) return pool.slice(0, 5);
+    const needle = query.trim().toLowerCase();
+    return pool.filter(
       (e) =>
-        e.arabicText.includes(needle) ||
-        e.meaningEnglish.toLowerCase().includes(needle.toLowerCase()) ||
-        e.meaningBangla.includes(needle),
+        e.arabicText.includes(query.trim()) ||
+        e.meaningEnglish.toLowerCase().includes(needle) ||
+        e.meaningBangla.includes(query.trim()) ||
+        e.entityKey.toLowerCase().includes(needle),
     );
-  }, [query]);
+  }, [query, pool]);
 
   return (
     <div className="flex flex-col gap-3">

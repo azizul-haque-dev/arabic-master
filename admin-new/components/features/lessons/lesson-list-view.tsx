@@ -17,6 +17,7 @@ import { mockSections } from "@/lib/mock-data/sections";
 import { mockCourses } from "@/lib/mock-data/courses";
 import type { Lesson, LessonMetaFormValues, ContentStatus } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
+import { generateNextLessonKey } from "@/lib/key-generators";
 
 function sectionOf(lesson: Lesson) {
     return mockSections.find((s) => s.id === lesson.sectionId);
@@ -63,7 +64,7 @@ export function LessonListView() {
     function handleCreate(values: LessonMetaFormValues) {
         const newLesson: Lesson = {
             id: crypto.randomUUID(),
-            lessonKey: `LSN-${4000 + lessons.length + 1}`,
+            lessonKey: generateNextLessonKey(lessons),
             ...values,
             items: [],
             status: "DRAFT",

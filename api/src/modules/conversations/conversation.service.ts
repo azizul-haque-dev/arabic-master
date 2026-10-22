@@ -65,10 +65,11 @@ export const ConversationService = {
     const { turns = [], ...meta } = dto;
     const id = await withTransaction(async (tx) => {
       await assertSentencesExist(tx, turns);
+      const conversationKey = await ConversationRepository.generateNextConversationKey(tx);
       const created = await ConversationRepository.insert(
         {
           id: randomUUIDv7(),
-          conversationKey: `conversation_${randomUUIDv7()}`,
+          conversationKey,
           ...meta,
           status: ContentStatus.DRAFT,
           createdById: actor.userId,

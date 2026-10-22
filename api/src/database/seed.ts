@@ -122,46 +122,70 @@ const mockArabicEntities: SeedArabicEntity[] = [
 async function seed() {
   console.log('🌱 Starting database seeding for Arabic Entities...');
 
-  // 1. Migrate existing non-AE entity keys to AE-XXXX
-  const nonAeEntities = await db
-    .select()
-    .from(schema.arabicEntity)
-    .where(sql`"entityKey" !~ '^AE-[0-9]+$'`);
+  async function migrateLegacyKeys(
+    tableName: string,
+    keyColumn: string,
+    tableSchema: any,
+    prefix: string,
+    baseNumber: number,
+    additionalUsedKeys: string[] = [],
+  ) {
+    const legacyRows = await db
+      .select({ id: tableSchema.id, key: tableSchema[keyColumn] })
+      .from(tableSchema)
+      .where(sql`"${sql.raw(keyColumn)}" !~ ${`^${prefix}[0-9]+$`}`);
 
-  if (nonAeEntities.length > 0) {
-    console.log(`Found ${nonAeEntities.length} existing entities with legacy entity keys.`);
-    
-    // Find all used AE numbers to avoid conflicts
-    const allExistingKeys = await db
-      .select({ entityKey: schema.arabicEntity.entityKey })
-      .from(schema.arabicEntity)
-      .where(sql`"entityKey" ~ '^AE-[0-9]+$'`);
+    if (legacyRows.length > 0) {
+      console.log(`Found ${legacyRows.length} existing ${tableName} records with legacy keys.`);
 
-    const usedNumbers = new Set<number>();
-    for (const row of allExistingKeys) {
-      const match = row.entityKey.match(/^AE-(\d+)$/);
-      if (match) usedNumbers.add(parseInt(match[1], 10));
-    }
-    for (const seedItem of mockArabicEntities) {
-      const match = seedItem.entityKey.match(/^AE-(\d+)$/);
-      if (match) usedNumbers.add(parseInt(match[1], 10));
-    }
+      const existingKeys = await db
+        .select({ key: tableSchema[keyColumn] })
+        .from(tableSchema)
+        .where(sql`"${sql.raw(keyColumn)}" ~ ${`^${prefix}[0-9]+$`}`);
 
-    let nextAvailable = 1001;
-    for (const entity of nonAeEntities) {
-      while (usedNumbers.has(nextAvailable)) {
-        nextAvailable++;
+      const usedNumbers = new Set<number>();
+      const regex = new RegExp(`^${prefix}(\\d+)$`);
+      for (const row of existingKeys) {
+        const match = (row.key as string).match(regex);
+        if (match) usedNumbers.add(parseInt(match[1], 10));
       }
-      const newKey = `AE-${nextAvailable}`;
-      usedNumbers.add(nextAvailable);
+      for (const key of additionalUsedKeys) {
+        const match = key.match(regex);
+        if (match) usedNumbers.add(parseInt(match[1], 10));
+      }
 
-      await db
-        .update(schema.arabicEntity)
-        .set({ entityKey: newKey, updatedAt: new Date() })
-        .where(eq(schema.arabicEntity.id, entity.id));
-      console.log(`  Updated entity "${entity.arabicText}" (${entity.id}): ${entity.entityKey} -> ${newKey}`);
+      let nextAvailable = baseNumber + 1;
+      for (const record of legacyRows) {
+        while (usedNumbers.has(nextAvailable)) {
+          nextAvailable++;
+        }
+        const newKey = `${prefix}${nextAvailable}`;
+        usedNumbers.add(nextAvailable);
+
+        await db
+          .update(tableSchema)
+          .set({ [keyColumn]: newKey, updatedAt: new Date() })
+          .where(eq(tableSchema.id, record.id));
+        console.log(`  Updated ${tableName} (${record.id}): ${record.key} -> ${newKey}`);
+      }
     }
   }
+
+  // 1. Migrate existing non-standard entity keys across all content tables
+  await migrateLegacyKeys(
+    'ArabicEntity',
+    'entityKey',
+    schema.arabicEntity,
+    'AE-',
+    1000,
+    mockArabicEntities.map((e) => e.entityKey),
+  );
+  await migrateLegacyKeys('Word', 'wordKey', schema.word, 'W-', 2000);
+  await migrateLegacyKeys('Sentence', 'sentenceKey', schema.sentence, 'SNT-', 1000);
+  await migrateLegacyKeys('Conversation', 'conversationKey', schema.conversation, 'CNV-', 3000);
+  await migrateLegacyKeys('Course', 'courseKey', schema.course, 'CRS-', 1000);
+  await migrateLegacyKeys('Section', 'sectionKey', schema.section, 'SEC-', 2000);
+  await migrateLegacyKeys('Lesson', 'lessonKey', schema.lesson, 'LSN-', 4000);
 
   // 2. Insert or update the 8 canonical mock Arabic entities
   for (const item of mockArabicEntities) {
@@ -174,13 +198,17 @@ async function seed() {
       .where(eq(schema.arabicEntity.normalizedText, normalized))
       .limit(1);
 
+    let entityId: string;
     if (existingByNorm) {
+      entityId = existingByNorm.id;
       await db
         .update(schema.arabicEntity)
         .set({
           entityKey: item.entityKey,
           arabicText: item.arabicText,
           normalizedText: normalized,
+          meaningBangla: item.meaningBangla,
+          meaningEnglish: item.meaningEnglish,
           audioUrl: item.audioUrl ?? null,
           pronunciationBangla: item.pronunciationBangla,
           pronunciationEnglish: item.pronunciationEnglish,
@@ -203,11 +231,14 @@ async function seed() {
         continue;
       }
 
+      entityId = randomUUIDv7();
       await db.insert(schema.arabicEntity).values({
-        id: randomUUIDv7(),
+        id: entityId,
         entityKey: item.entityKey,
         arabicText: item.arabicText,
         normalizedText: normalized,
+        meaningBangla: item.meaningBangla,
+        meaningEnglish: item.meaningEnglish,
         audioUrl: item.audioUrl ?? null,
         pronunciationBangla: item.pronunciationBangla,
         pronunciationEnglish: item.pronunciationEnglish,
@@ -215,6 +246,30 @@ async function seed() {
         rejectionReason: item.rejectionReason ?? null,
       });
       console.log(`  ✨ Inserted seed entity: [${item.entityKey}] "${item.arabicText}"`);
+    }
+
+    // Ensure ArabicEntityAudio record exists if entity has audioUrl
+    if (item.audioUrl) {
+      const [existingAudio] = await db
+        .select()
+        .from(schema.arabicEntityAudio)
+        .where(
+          sql`${schema.arabicEntityAudio.entityId} = ${entityId} AND ${schema.arabicEntityAudio.variant} = 'DEFAULT'`,
+        )
+        .limit(1);
+
+      if (!existingAudio) {
+        await db.insert(schema.arabicEntityAudio).values({
+          id: randomUUIDv7(),
+          entityId,
+          objectKey: `seed-audio/${item.entityKey.toLowerCase()}-default.mp3`,
+          mimeType: 'audio/mpeg',
+          fileSizeBytes: 128000,
+          variant: 'DEFAULT',
+          speaker: 'Original',
+        });
+        console.log(`  🎵 Seeded ArabicEntityAudio for ${item.entityKey}`);
+      }
     }
   }
 

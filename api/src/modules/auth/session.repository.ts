@@ -66,6 +66,14 @@ export const SessionRepository= {
         .limit(1);
       return row ?? null;
     },
+    async findRefreshById(id: string, ex: Executor = db) {
+      const [row] = await ex
+        .select()
+        .from(schema.refreshToken)
+        .where(eq(schema.refreshToken.id, id))
+        .limit(1);
+      return row ?? null;
+    },
     async revokeRefreshBySession(sessionId: string) {
       await db
         .update(schema.refreshToken)

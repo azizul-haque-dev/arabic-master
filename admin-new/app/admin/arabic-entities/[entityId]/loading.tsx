@@ -8,9 +8,13 @@ export default function Loading() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="flex flex-col gap-6 lg:col-span-2">
           <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-28 w-full" />
         </div>
-        <Skeleton className="h-64 w-full" />
+        <div className="flex flex-col gap-6">
+          <Skeleton className="h-48 w-full" />
+          <Skeleton className="h-36 w-full" />
+        </div>
       </div>
     </div>
   );
