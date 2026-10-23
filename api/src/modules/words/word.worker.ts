@@ -7,7 +7,7 @@ import {
   logger as defaultLogger,
   type Logger,
 } from '../../common/http/logger.js';
-import { WORD_QUEUE_NAME } from '../../config/constants.js';
+import { AI_PROCESSING, WORD_QUEUE_NAME } from '../../config/constants.js';
 import { bullConnection } from '../../config/redis.js';
 import { AiService } from '../ai/ai.service.js';
 import { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
@@ -99,11 +99,21 @@ export function createWordWorker(
     concurrency: 1,
   });
 
-  worker.on('failed', (job, err) =>
+  worker.on('failed', (job, err) => {
+    const attempts = job?.opts.attempts ?? AI_PROCESSING.QUEUE_RETRY_ATTEMPTS;
     log.error(
-      `Word job ${job?.id} failed (attempt ${job?.attemptsMade}): ${err.message}`,
-    ),
-  );
+      {
+        err,
+        jobId: job?.id,
+        wordId: job?.data.wordId,
+        arabicText: job?.data.arabicText,
+        attemptsMade: job?.attemptsMade,
+        maxAttempts: attempts,
+        retriesExhausted: Boolean(job && job.attemptsMade >= attempts),
+      },
+      'Word AI generation job failed',
+    );
+  });
 
   return worker;
 }

@@ -2,7 +2,10 @@ import type { Request, Response } from 'express';
 import { ok } from '../../common/http/response.js';
 import { bodyOf, paramsOf, queryOf } from '../../common/middleware/validate.js';
 import type { IdParam } from '../../common/schemas.js';
-import type { GenerateContentInput } from '../ai/generate-content.schema.js';
+import type {
+  GenerateContentInput,
+  GenerateWordListInput,
+} from '../ai/generate-content.schema.js';
 import type {
   CreateWordInput,
   ListWordQuery,
@@ -23,15 +26,21 @@ export const WordController = {
       await WordService.create(bodyOf<CreateWordInput>(req), req.auth!.userId),
       201,
     ),
-  generate: async (req: Request, res: Response) =>
+  generate: async (req: Request, res: Response) => {
+    const { query } = bodyOf<GenerateContentInput>(req);
+    ok(res, await WordService.generateWithAi(query, req.auth!.userId), 202);
+  },
+  generateList: async (req: Request, res: Response) =>
     ok(
       res,
-      await WordService.generateWithAi(
-        bodyOf<GenerateContentInput>(req).query,
+      await WordService.generateManyWithAi(
+        bodyOf<GenerateWordListInput>(req).query,
         req.auth!.userId,
       ),
       202,
     ),
+  getAiJobStatus: async (req: Request, res: Response) =>
+    ok(res, await WordService.getAiJobStatus(id(req))),
   update: async (req: Request, res: Response) =>
     ok(res, await WordService.update(id(req), bodyOf<UpdateWordInput>(req))),
   remove: async (req: Request, res: Response) => {
@@ -41,4 +50,3 @@ export const WordController = {
 };
 
 export type WordController = typeof WordController;
-

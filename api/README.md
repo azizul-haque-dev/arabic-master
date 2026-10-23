@@ -33,6 +33,8 @@ Layer-এর নিয়ম: **route → controller → service → repository*
 `/api/v1` এর অধীনে: `auth`, `words`, `sentences`, `conversations`, `courses`, `sections`, `lessons`, `health`।
 অতিরিক্ত nested route: `PATCH /courses/:id/sections/reorder`, `PATCH /sections/:id/lessons/reorder`, `POST|PATCH|DELETE /lessons/:id/items...`।
 
+`POST /api/v1/words/ai`-তে আগের `{ "query": "..." }` body দিয়ে একক শব্দ তৈরি হয়। একাধিক শব্দ queue করতে আলাদা `POST /api/v1/words/ai/word/list` endpoint-এ `{ "query": ["...", "..."] }` পাঠান (সর্বোচ্চ ২৫টি); response-এ প্রতি শব্দের `wordId`, `jobId` এবং enqueue সফলতার তথ্য থাকবে। job-এর অবস্থা/চূড়ান্ত ব্যর্থতা দেখতে staff token দিয়ে `GET /api/v1/words/ai/jobs/:id` কল করুন। `state: "failed"` হলে `failedReason`, `arabicText`, `attemptsMade`, এবং `maxAttempts` পাওয়া যাবে; worker log-এও সংশ্লিষ্ট শব্দের তথ্য থাকবে।
+
 ## পুরনো কোড থেকে আচরণের পার্থক্য (জেনে রাখুন)
 
 | বিষয়                  | আগে                                                  | এখন                                                            |

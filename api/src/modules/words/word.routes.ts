@@ -4,7 +4,10 @@ import { authorize } from '../../common/middleware/authorize.js';
 import { validate } from '../../common/middleware/validate.js';
 import { idParamSchema } from '../../common/schemas.js';
 import { Role } from '../../database/drizzle/enums.js';
-import { generateContentSchema } from '../ai/generate-content.schema.js';
+import {
+  generateContentSchema,
+  generateWordListSchema,
+} from '../ai/generate-content.schema.js';
 import { WordController } from './word.controller.js';
 import {
   createWordSchema,
@@ -22,7 +25,7 @@ wordRoutes.get(
   validate({ query: listWordQuerySchema }),
   WordController.list,
 );
-// TODO(security): আগের মতোই public (পর্ব README #2)
+
 wordRoutes.get('/:id', params, WordController.getOne);
 
 wordRoutes.post(
@@ -37,6 +40,13 @@ wordRoutes.post(
   validate({ body: generateContentSchema }),
   WordController.generate,
 );
+wordRoutes.post(
+  '/ai/list',
+  ...staff,
+  validate({ body: generateWordListSchema }),
+  WordController.generateList,
+);
+wordRoutes.get('/ai/jobs/:id', ...staff, params, WordController.getAiJobStatus);
 wordRoutes.patch(
   '/:id',
   ...staff,

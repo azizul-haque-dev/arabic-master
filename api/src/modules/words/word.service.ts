@@ -18,6 +18,16 @@ import type {
   UpdateWordInput,
 } from './word.schemas.js';
 
+type WordGenerationBatchResult =
+  | {
+      query: string;
+      success: true;
+      wordId: string;
+      jobId: string | null;
+      queued: boolean;
+    }
+  | { query: string; success: false; error: string };
+
 export const WordService = {
   async list(query: ListWordQuery) {
     const { items, total } = await WordRepository.list(query);
@@ -144,9 +154,53 @@ export const WordService = {
         throw err;
       }
     }
-    if (!word) throw new Error('Failed to generate unique wordKey after 5 attempts');
+    if (!word)
+      throw new Error('Failed to generate unique wordKey after 5 attempts');
 
-    await wordQueue.add('process-word', { wordId: word.id, arabicText: text });
+    await wordQueue.add(
+      'process-word',
+      { wordId: word.id, arabicText: text },
+      { jobId: word.id },
+    );
     return word;
+  },
+
+  async generateManyWithAi(queries: string[], createdById: string) {
+    const results: WordGenerationBatchResult[] = [];
+    for (const query of queries) {
+      try {
+        const word = await WordService.generateWithAi(query, createdById);
+        const job = await wordQueue.getJob(word.id);
+        results.push({
+          query,
+          success: true as const,
+          wordId: word.id,
+          jobId: job?.id ?? null,
+          queued: Boolean(job),
+        });
+      } catch (error) {
+        results.push({
+          query,
+          success: false as const,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+    return results;
+  },
+
+  async getAiJobStatus(jobId: string) {
+    const job = await wordQueue.getJob(jobId);
+    if (!job) throw new NotFoundError('AI word-generation job not found');
+
+    return {
+      jobId: job.id,
+      wordId: job.data.wordId,
+      arabicText: job.data.arabicText,
+      state: await job.getState(),
+      attemptsMade: job.attemptsMade,
+      maxAttempts: job.opts.attempts ?? 1,
+      failedReason: job.failedReason || null,
+    };
   },
 };
