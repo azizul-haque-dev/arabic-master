@@ -162,7 +162,8 @@ export default function ForgotPasswordScreen() {
                     Forgot password?
                   </Text>
                   <Text className="mt-2 text-center font-body-sm text-[14px] text-on-surface-variant max-w-[290px] leading-relaxed">
-                    No worries! Enter your registered email and we'll send you instructions to reset your password.
+                    Preview the password-reset flow. This UI demo does not send
+                    email.
                   </Text>
                 </View>
 
@@ -250,7 +251,7 @@ export default function ForgotPasswordScreen() {
                   onPress={handleSendLink}
                   disabled={isLoading}
                   accessibilityRole="button"
-                  accessibilityLabel="Send Reset Link"
+                  accessibilityLabel="Preview password reset"
                   accessibilityState={{ busy: isLoading }}
                   style={({ pressed }) => [
                     {
@@ -269,14 +270,14 @@ export default function ForgotPasswordScreen() {
                     <View className="flex-row items-center gap-2">
                       <ActivityIndicator color="#ffffff" size="small" />
                       <Text className="font-label-lg text-base font-bold text-white">
-                        Sending link...
+                        Preparing preview...
                       </Text>
                     </View>
                   ) : (
                     <View className="flex-row items-center gap-2">
                       <Send size={18} color="#ffffff" strokeWidth={2.4} />
                       <Text className="font-label-lg text-base font-bold text-white tracking-wide">
-                        Send Reset Link
+                        Preview reset email
                       </Text>
                     </View>
                   )}
@@ -288,38 +289,48 @@ export default function ForgotPasswordScreen() {
                     triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
                     router.push({
                       pathname: "/auth/reset-password",
-                      params: { email: email.trim() || "demo@arabicmaster.com" },
+                      params: {
+                        email: email.trim() || "demo@arabicmaster.com",
+                      },
                     });
                   }}
-                  className="mt-4 flex-row items-center justify-center py-2"
+                  accessibilityRole="button"
+                  accessibilityLabel="Open password form preview"
+                  accessibilityHint="Opens a local preview; no email is sent."
+                  className="mt-4 min-h-12 flex-row items-center justify-center px-3"
                 >
                   <Text className="font-body-sm text-xs font-medium text-on-surface-variant">
-                    Already have a reset link or code?{" "}
+                    Want to preview the password form?{" "}
                   </Text>
                   <Text className="font-label-sm text-xs font-bold text-primary">
-                    Enter here
+                    Open preview
                   </Text>
                 </Pressable>
               </View>
             ) : (
-              // ---------------- STATE 2: Email Dispatched ----------------
+              // ---------------- STATE 2: Reset Flow Preview ----------------
               <View className="items-center pt-6">
                 {/* Soft Concentric Glow Badge */}
                 <View className="items-center justify-center mb-6">
                   <View className="h-28 w-28 items-center justify-center rounded-full bg-emerald-50">
                     <View className="h-20 w-20 items-center justify-center rounded-full bg-emerald-100">
                       <View className="h-14 w-14 items-center justify-center rounded-full bg-primary shadow-sm shadow-emerald-500/20">
-                        <MailCheck size={28} color="#ffffff" strokeWidth={2.4} />
+                        <MailCheck
+                          size={28}
+                          color="#ffffff"
+                          strokeWidth={2.4}
+                        />
                       </View>
                     </View>
                   </View>
                 </View>
 
                 <Text className="text-center font-headline-md text-[24px] font-extrabold tracking-tight text-on-surface">
-                  Check your email
+                  Reset email preview
                 </Text>
                 <Text className="mt-2 text-center font-body-sm text-[14px] text-on-surface-variant leading-relaxed max-w-[280px]">
-                  We have sent password reset instructions to:
+                  No email or reset link is generated in this UI demo. Address
+                  entered:
                 </Text>
 
                 {/* Email Highlight Pill */}
@@ -345,13 +356,19 @@ export default function ForgotPasswordScreen() {
                 {/* Helpful Guidance Card */}
                 <View className="mt-6 w-full rounded-2xl border border-outline-variant bg-surface-container-lowest p-4">
                   <View className="flex-row items-start gap-3">
-                    <CheckCircle2 size={18} color="#15803d" strokeWidth={2.2} className="mt-0.5" />
+                    <CheckCircle2
+                      size={18}
+                      color="#15803d"
+                      strokeWidth={2.2}
+                      className="mt-0.5"
+                    />
                     <View className="flex-1">
                       <Text className="font-label-md text-xs font-bold text-on-surface">
-                        Didn't receive the email?
+                        Reset flow is not connected
                       </Text>
                       <Text className="mt-1 font-body-sm text-xs text-on-surface-variant leading-relaxed">
-                        Please check your spam or junk folder. The reset link is valid for 15 minutes.
+                        No reset email was sent, and no password change will be
+                        saved.
                       </Text>
                     </View>
                   </View>
@@ -401,7 +418,7 @@ export default function ForgotPasswordScreen() {
                     className="h-[52px] w-full flex-row items-center justify-center gap-2 rounded-2xl border border-outline-variant bg-surface-container-lowest"
                   >
                     <Text className="font-label-lg text-sm font-semibold text-on-surface">
-                      Set New Password Now
+                      Preview password reset
                     </Text>
                     <ArrowRight size={16} color="#171717" strokeWidth={2.2} />
                   </Pressable>
@@ -414,13 +431,20 @@ export default function ForgotPasswordScreen() {
                   >
                     {cooldownSeconds > 0 ? (
                       <Text className="font-label-sm text-xs font-medium text-on-surface-variant">
-                        Resend email in <Text className="font-bold text-primary">{cooldownSeconds}s</Text>
+                        Preview again in{" "}
+                        <Text className="font-bold text-primary">
+                          {cooldownSeconds}s
+                        </Text>
                       </Text>
                     ) : (
                       <View className="flex-row items-center gap-1.5">
-                        <RotateCcw size={14} color="#15803d" strokeWidth={2.2} />
+                        <RotateCcw
+                          size={14}
+                          color="#15803d"
+                          strokeWidth={2.2}
+                        />
                         <Text className="font-label-sm text-xs font-bold text-primary">
-                          Resend reset email
+                          Replay reset preview
                         </Text>
                       </View>
                     )}

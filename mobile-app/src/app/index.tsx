@@ -1,11 +1,5 @@
 import * as Haptics from "expo-haptics";
-import {
-  BookOpen,
-  ChevronRight,
-  Globe,
-  User,
-  Zap,
-} from "lucide-react-native";
+import { BookOpen, ChevronRight, Globe, User, Zap } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -61,7 +55,8 @@ export default function WelcomeScreen() {
               Master Arabic{"\n"}Through Real Dialogues
             </Text>
             <Text className="mt-2 text-center font-body-sm text-[14.5px] font-normal text-on-surface-variant max-w-[290px] leading-relaxed">
-              Learn practical, conversational Arabic step-by-step with zero overwhelm.
+              Learn practical, conversational Arabic step-by-step with zero
+              overwhelm.
             </Text>
 
             {/* Conversational Art Centerpiece */}
@@ -133,7 +128,9 @@ export default function WelcomeScreen() {
                 }}
                 className="absolute -top-1 right-2 flex-row items-center gap-1.5 rounded-full border border-primary/20 bg-white px-2.5 py-1"
               >
-                <Text className="text-xs font-bold text-primary">مَرْحَبًا</Text>
+                <Text className="text-xs font-bold text-primary">
+                  مَرْحَبًا
+                </Text>
                 <Text className="text-[10px] font-semibold text-on-surface-variant">
                   Ahlan
                 </Text>
@@ -216,7 +213,7 @@ export default function WelcomeScreen() {
               onPress={handleSignIn}
               accessibilityRole="button"
               accessibilityLabel="I already have an account, sign in"
-              accessibilityHint="Opens sign-in options to access your saved progress"
+              accessibilityHint="Opens a sign-in UI preview; authentication and saved progress are not connected."
               style={({ pressed }) => [
                 {
                   opacity: pressed ? 0.85 : 1,
@@ -234,7 +231,7 @@ export default function WelcomeScreen() {
                     I already have an account
                   </Text>
                   <Text className="mt-0.5 font-body-sm text-xs font-normal text-on-surface-variant leading-snug">
-                    Sign in to restore your streak & progress
+                    Preview sign-in; saved progress is not connected.
                   </Text>
                 </View>
               </View>
@@ -251,5 +248,3 @@ export default function WelcomeScreen() {
     </SafeAreaView>
   );
 }
-
-

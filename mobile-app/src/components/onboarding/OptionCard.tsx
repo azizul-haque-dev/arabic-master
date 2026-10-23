@@ -38,11 +38,7 @@ export function OptionCard({
       } items-center justify-center rounded-full bg-primary`}
       accessible={false}
     >
-      <Check
-        color="#ffffff"
-        size={isLarge ? 16 : 14}
-        strokeWidth={3}
-      />
+      <Check color="#ffffff" size={isLarge ? 16 : 14} strokeWidth={3} />
     </View>
   ) : (
     <View
@@ -60,6 +56,7 @@ export function OptionCard({
         accessibilityRole={mode}
         accessibilityLabel={label}
         accessibilityState={{ checked: selected }}
+        aria-checked={selected}
         className={`h-28 justify-between rounded-xl p-3.5 border active:opacity-90 ${
           selected
             ? "border-2 border-primary bg-primary-subtle"
@@ -88,6 +85,7 @@ export function OptionCard({
       accessibilityRole={mode}
       accessibilityLabel={detail ? `${label}, ${detail}` : label}
       accessibilityState={{ checked: selected }}
+      aria-checked={selected}
       className={`${
         isLarge
           ? "rounded-2xl p-5 border-2"
@@ -104,9 +102,7 @@ export function OptionCard({
           {routeLabel ? (
             <View
               className={`rounded-full px-2.5 py-0.5 ${
-                selected
-                  ? "bg-primary"
-                  : "bg-surface-container"
+                selected ? "bg-primary" : "bg-surface-container"
               }`}
             >
               <Text
@@ -123,9 +119,7 @@ export function OptionCard({
           {tag ? (
             <View
               className={`rounded-full px-2.5 py-0.5 ${
-                selected
-                  ? "bg-primary-strong"
-                  : "bg-secondary-subtle"
+                selected ? "bg-primary-strong" : "bg-secondary-subtle"
               }`}
             >
               <Text
@@ -160,7 +154,9 @@ export function OptionCard({
             {detail ? (
               <Text
                 className={`${
-                  isLarge ? "mt-1.5 text-sm font-normal" : "mt-0.5 text-xs font-normal"
+                  isLarge
+                    ? "mt-1.5 text-sm font-normal"
+                    : "mt-0.5 text-xs font-normal"
                 } font-body-sm text-on-surface-variant leading-relaxed`}
               >
                 {detail}
@@ -173,4 +169,3 @@ export function OptionCard({
     </Pressable>
   );
 }
-

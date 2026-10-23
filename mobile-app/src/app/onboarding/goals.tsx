@@ -153,6 +153,7 @@ export default function GoalsScreen() {
                     onPress={() => toggleGoal(id)}
                     accessibilityRole="checkbox"
                     accessibilityState={{ checked: isSelected }}
+                    aria-checked={isSelected}
                     accessibilityLabel={`${label}, ${bangla}`}
                     className={`min-h-[132px] justify-between rounded-2xl p-4 border-2 active:opacity-90 ${
                       isSelected
@@ -223,7 +224,8 @@ export default function GoalsScreen() {
             Tailored Practice
           </Text>
           <Text className="mt-0.5 text-xs text-on-surface-variant leading-relaxed">
-            আপনার পছন্দের লক্ষ্য অনুযায়ী অ্যাপের পাঠ ও প্রয়োজনীয় শব্দভাণ্ডারগুলো সাজানো হবে।
+            আপনার পছন্দের লক্ষ্য অনুযায়ী অ্যাপের পাঠ ও প্রয়োজনীয় শব্দভাণ্ডারগুলো
+            সাজানো হবে।
           </Text>
         </View>
       </View>

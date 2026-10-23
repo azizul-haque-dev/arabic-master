@@ -111,6 +111,7 @@ export default function PracticeTimeScreen() {
                 onPress={() => setPracticeDuration(value)}
                 accessibilityRole="radio"
                 accessibilityState={{ checked: isSelected }}
+                aria-checked={isSelected}
                 accessibilityLabel={`${label}, ${detail}`}
                 className={`min-h-[84px] flex-row items-center justify-between rounded-2xl p-5 border-2 active:opacity-90 ${
                   isSelected
@@ -192,7 +193,8 @@ export default function PracticeTimeScreen() {
             Small steps, big results
           </Text>
           <Text className="mt-0.5 text-xs text-on-surface-variant leading-relaxed">
-            প্রতিদিন মাত্র ১০ মিনিট নিয়মিত চর্চা করলে এক মাসে ৩০০+ প্রয়োজনীয় আরবি শব্দ ও কথোপকথন অনায়াসেই আয়ত্ত করা সম্ভব।
+            প্রতিদিন মাত্র ১০ মিনিট নিয়মিত চর্চা করলে এক মাসে ৩০০+ প্রয়োজনীয়
+            আরবি শব্দ ও কথোপকথন অনায়াসেই আয়ত্ত করা সম্ভব।
           </Text>
         </View>
       </View>

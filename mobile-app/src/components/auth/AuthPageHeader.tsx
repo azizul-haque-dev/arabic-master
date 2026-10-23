@@ -55,13 +55,16 @@ export function AuthPageHeader({
           accessibilityRole="tab"
           accessibilityLabel="Sign in"
           accessibilityState={{ selected: isLogin }}
+          aria-selected={isLogin}
           className={`flex-1 items-center justify-center rounded-xl py-2.5 ${
             isLogin ? "bg-surface shadow-sm" : "active:opacity-70"
           }`}
         >
           <Text
             className={`font-label-lg text-sm ${
-              isLogin ? "font-bold text-primary-strong" : "text-on-surface-variant"
+              isLogin
+                ? "font-bold text-primary-strong"
+                : "text-on-surface-variant"
             }`}
           >
             Sign in
@@ -73,13 +76,16 @@ export function AuthPageHeader({
           accessibilityRole="tab"
           accessibilityLabel="Create account"
           accessibilityState={{ selected: !isLogin }}
+          aria-selected={!isLogin}
           className={`flex-1 items-center justify-center rounded-xl py-2.5 ${
             !isLogin ? "bg-surface shadow-sm" : "active:opacity-70"
           }`}
         >
           <Text
             className={`font-label-lg text-sm ${
-              !isLogin ? "font-bold text-primary-strong" : "text-on-surface-variant"
+              !isLogin
+                ? "font-bold text-primary-strong"
+                : "text-on-surface-variant"
             }`}
           >
             Create account
@@ -89,15 +95,15 @@ export function AuthPageHeader({
 
       <View className="items-center px-2 pt-5">
         <Text className="font-label-sm text-[10px] font-bold uppercase tracking-[1.4px] text-primary">
-          {isLogin ? "YOUR LEARNING, IN SYNC" : "YOUR NEXT CHAPTER"}
+          {isLogin ? "SIGN-IN PREVIEW" : "ACCOUNT SETUP PREVIEW"}
         </Text>
         <Text className="mt-2 text-center font-headline-md text-[27px] font-bold leading-tight tracking-tight text-on-surface">
           {isLogin ? "Welcome back" : "Start speaking Arabic"}
         </Text>
         <Text className="mt-1.5 max-w-[310px] text-center font-body-sm text-sm leading-5 text-on-surface-variant">
           {isLogin
-            ? "Pick up where you left off. Your Arabic progress is right where you left it."
-            : "Create your free account and build confidence for the conversations that matter."}
+            ? "Authentication and saved progress are not connected in this UI demo."
+            : "Account creation and saved progress are not connected in this UI demo."}
         </Text>
       </View>
     </View>

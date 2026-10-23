@@ -21,15 +21,17 @@ import {
   TabScreen,
   tapFeedback,
 } from "@/components/learning/primitives";
+import { LearningAccessBadge } from "@/components/learning/LearningUI";
 import {
   continueLesson,
-  courses,
   goalMinutesFrom,
+  learningProducts,
   learner,
   situations,
   weeklyMinutes,
   wordOfTheDay,
   type LearnSection,
+  type LearningProductId,
 } from "@/features/learning/data";
 import { useOnboardingStore } from "@/features/onboarding/store";
 
@@ -40,12 +42,6 @@ function greetingFor(hour: number) {
   if (hour < 17) return "Good afternoon";
   return "Good evening";
 }
-
-const PRACTICE_META: Record<LearnSection, string> = {
-  words: "120 words",
-  sentences: "48 phrases",
-  conversations: "12 dialogues",
-};
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -64,12 +60,23 @@ export default function HomeScreen() {
 
   // Surface situations that match the learner's onboarding goals first.
   const recommended = [...situations].sort(
-    (a, b) => Number(goals.includes(b.goalId)) - Number(goals.includes(a.goalId)),
+    (a, b) =>
+      Number(goals.includes(b.goalId)) - Number(goals.includes(a.goalId)),
   );
 
   const openLearn = (section: LearnSection) => {
     tapFeedback();
     router.navigate({ pathname: "/learn", params: { section } });
+  };
+
+  const openProduct = (productId: LearningProductId) => {
+    tapFeedback();
+    if (productId === "curriculum") {
+      router.navigate("/curriculum");
+      return;
+    }
+
+    router.navigate({ pathname: "/learn", params: { section: productId } });
   };
 
   return (
@@ -173,7 +180,8 @@ export default function HomeScreen() {
           {WEEK_DAYS.map((day, index) => {
             const isToday = index === todayIndex;
             const isFuture = index > todayIndex;
-            const metGoal = !isFuture && (weeklyMinutes[index] ?? 0) >= goalMinutes;
+            const metGoal =
+              !isFuture && (weeklyMinutes[index] ?? 0) >= goalMinutes;
             return (
               <View
                 key={`${day}-${index}`}
@@ -185,7 +193,9 @@ export default function HomeScreen() {
               >
                 <Text
                   className={`font-label-sm text-[11px] ${
-                    isToday ? "font-bold text-primary" : "text-on-surface-variant"
+                    isToday
+                      ? "font-bold text-primary"
+                      : "text-on-surface-variant"
                   }`}
                 >
                   {day}
@@ -241,7 +251,8 @@ export default function HomeScreen() {
                 {continueLesson.title}
               </Text>
               <Text className="mt-1 font-body-sm text-xs text-primary-subtle">
-                {continueLesson.completed} of {continueLesson.total} words learned
+                {continueLesson.completed} of {continueLesson.total} words
+                learned
               </Text>
             </View>
             <View className="h-[72px] w-[72px] items-center justify-center rounded-3xl border border-white/15 bg-white/10">
@@ -278,42 +289,47 @@ export default function HomeScreen() {
         </LinearGradient>
       </View>
 
-      {/* Quick practice */}
+      {/* Learning products */}
       <View className="gap-3">
         <SectionHeader
-          title="Quick practice"
-          subtitle="Five focused minutes go a long way"
+          title="Explore learning"
+          subtitle="Choose a path for today's practice"
         />
-        <View className="flex-row gap-2.5">
-          {courses.map((course) => {
-            const Icon = course.icon;
+        <View className="flex-row flex-wrap justify-between gap-y-3">
+          {learningProducts.map((product) => {
+            const Icon = product.icon;
             return (
               <Pressable
-                key={course.id}
-                onPress={() => openLearn(course.id)}
+                key={product.id}
+                onPress={() => openProduct(product.id)}
                 accessibilityRole="button"
-                accessibilityLabel={`Practise ${course.title.toLowerCase()}`}
-                className="min-h-[124px] flex-1 justify-between rounded-3xl border border-outline-variant/70 bg-white p-3.5 active:bg-surface-container-low"
+                accessibilityLabel={`${product.title}, ${product.access === "mixed" ? "free and premium" : product.access}. ${product.description}`}
+                className="min-h-[164px] w-[48.5%] justify-between rounded-3xl border border-outline-variant/70 bg-white p-3.5 active:bg-surface-container-low"
               >
-                <View
-                  className={`h-10 w-10 items-center justify-center rounded-2xl ${course.tileClass}`}
-                >
-                  <Icon size={19} color={course.iconColor} strokeWidth={2.2} />
-                </View>
-                <View>
+                <View className="gap-2.5">
+                  <View
+                    className={`h-10 w-10 items-center justify-center rounded-2xl ${product.tileClass}`}
+                  >
+                    <Icon
+                      size={19}
+                      color={product.iconColor}
+                      strokeWidth={2.2}
+                    />
+                  </View>
                   <Text
-                    numberOfLines={1}
+                    numberOfLines={2}
                     className="font-label-lg text-sm font-bold text-on-surface"
                   >
-                    {course.id === "conversations" ? "Talk" : course.title}
+                    {product.title}
                   </Text>
                   <Text
-                    numberOfLines={1}
-                    className="mt-0.5 font-body-sm text-[11px] text-on-surface-variant"
+                    numberOfLines={2}
+                    className="font-body-sm text-[11px] leading-4 text-on-surface-variant"
                   >
-                    {PRACTICE_META[course.id]}
+                    {product.description}
                   </Text>
                 </View>
+                <LearningAccessBadge access={product.access} />
               </Pressable>
             );
           })}
@@ -334,7 +350,7 @@ export default function HomeScreen() {
             hitSlop={8}
             accessibilityRole="button"
             accessibilityLabel={savedWord ? "Remove saved word" : "Save word"}
-            accessibilityState={{ selected: savedWord }}
+            aria-pressed={savedWord}
             className={`h-9 w-9 items-center justify-center rounded-full ${
               savedWord ? "bg-primary" : "bg-surface-container-low"
             }`}

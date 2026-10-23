@@ -36,9 +36,9 @@ export default function ResetPasswordScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [focusedField, setFocusedField] = useState<"password" | "confirm" | null>(
-    null,
-  );
+  const [focusedField, setFocusedField] = useState<
+    "password" | "confirm" | null
+  >(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -155,7 +155,8 @@ export default function ResetPasswordScreen() {
                     Create new password
                   </Text>
                   <Text className="mt-2 text-center font-body-sm text-[14px] text-on-surface-variant max-w-[290px] leading-relaxed">
-                    Your new password must be secure and different from previously used passwords.
+                    This UI demo previews the reset flow. Password changes are
+                    not connected.
                   </Text>
                   {params.email ? (
                     <View className="mt-3 rounded-full bg-surface-container-low px-3 py-1 border border-outline-variant">
@@ -195,7 +196,8 @@ export default function ResetPasswordScreen() {
                         shadowColor:
                           focusedField === "password" ? "#15803d" : "#000000",
                         shadowOffset: { width: 0, height: 2 },
-                        shadowOpacity: focusedField === "password" ? 0.08 : 0.02,
+                        shadowOpacity:
+                          focusedField === "password" ? 0.08 : 0.02,
                         shadowRadius: 6,
                         elevation: focusedField === "password" ? 3 : 1,
                       }}
@@ -264,22 +266,30 @@ export default function ResetPasswordScreen() {
                         <View className="h-1.5 w-full flex-row gap-1.5 overflow-hidden rounded-full bg-surface-container-high">
                           <View
                             className={`flex-1 rounded-full ${
-                              strengthScore >= 1 ? strength.color : "bg-transparent"
+                              strengthScore >= 1
+                                ? strength.color
+                                : "bg-transparent"
                             }`}
                           />
                           <View
                             className={`flex-1 rounded-full ${
-                              strengthScore >= 2 ? strength.color : "bg-transparent"
+                              strengthScore >= 2
+                                ? strength.color
+                                : "bg-transparent"
                             }`}
                           />
                           <View
                             className={`flex-1 rounded-full ${
-                              strengthScore >= 3 ? strength.color : "bg-transparent"
+                              strengthScore >= 3
+                                ? strength.color
+                                : "bg-transparent"
                             }`}
                           />
                           <View
                             className={`flex-1 rounded-full ${
-                              strengthScore >= 4 ? strength.color : "bg-transparent"
+                              strengthScore >= 4
+                                ? strength.color
+                                : "bg-transparent"
                             }`}
                           />
                         </View>
@@ -361,7 +371,11 @@ export default function ResetPasswordScreen() {
                       </Text>
                       {passwordsMatch ? (
                         <View className="flex-row items-center gap-1">
-                          <CheckCircle2 size={13} color="#15803d" strokeWidth={2.4} />
+                          <CheckCircle2
+                            size={13}
+                            color="#15803d"
+                            strokeWidth={2.4}
+                          />
                           <Text className="font-label-sm text-xs font-bold text-primary">
                             Passwords match
                           </Text>
@@ -417,7 +431,9 @@ export default function ResetPasswordScreen() {
                         }}
                         hitSlop={10}
                         accessibilityLabel={
-                          showConfirmPassword ? "Hide password" : "Show password"
+                          showConfirmPassword
+                            ? "Hide password"
+                            : "Show password"
                         }
                         className="p-1.5"
                       >
@@ -436,7 +452,7 @@ export default function ResetPasswordScreen() {
                   onPress={handleResetPassword}
                   disabled={isLoading || !hasMinLength || !passwordsMatch}
                   accessibilityRole="button"
-                  accessibilityLabel="Reset Password"
+                  accessibilityLabel="Preview password reset"
                   accessibilityState={{ busy: isLoading }}
                   style={({ pressed }) => [
                     {
@@ -454,7 +470,9 @@ export default function ResetPasswordScreen() {
                       transform: [
                         {
                           scale:
-                            hasMinLength && passwordsMatch && pressed ? 0.985 : 1,
+                            hasMinLength && passwordsMatch && pressed
+                              ? 0.985
+                              : 1,
                         },
                       ],
                     },
@@ -465,13 +483,13 @@ export default function ResetPasswordScreen() {
                     <View className="flex-row items-center gap-2">
                       <ActivityIndicator color="#ffffff" size="small" />
                       <Text className="font-label-lg text-base font-bold text-white">
-                        Updating password...
+                        Preparing preview...
                       </Text>
                     </View>
                   ) : (
                     <View className="flex-row items-center gap-2">
                       <Text className="font-label-lg text-base font-bold text-white tracking-wide">
-                        Reset Password
+                        Preview password reset
                       </Text>
                       <ArrowRight color="#ffffff" size={18} strokeWidth={2.6} />
                     </View>
@@ -526,13 +544,13 @@ export default function ResetPasswordScreen() {
 
               {/* Success Heading */}
               <Text className="text-center font-headline-md text-[23px] font-bold tracking-tight text-on-surface mb-3">
-                Password reset successfully!
+                Password reset preview
               </Text>
 
               {/* Informative Subtext */}
               <Text className="text-center font-body-sm text-[14px] text-on-surface-variant leading-relaxed max-w-[270px]">
-                Your password has been updated.{"\n"}
-                You can now log in with your new password.
+                No account password was changed.{"\n"}
+                Reset submission is not connected in this UI demo.
               </Text>
             </View>
 

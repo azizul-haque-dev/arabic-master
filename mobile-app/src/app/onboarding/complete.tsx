@@ -62,7 +62,7 @@ export default function CompleteScreen() {
     }
     Alert.alert(
       "Continue as Guest",
-      "You are entering guest mode. Your streak and progress can be safely backed up anytime in your profile settings.",
+      "Guest mode is a local UI preview. Progress is not saved to an account or backed up.",
       [
         {
           text: "Let's Go!",
@@ -123,7 +123,7 @@ export default function CompleteScreen() {
             {/* Cultural Micro-Chip */}
             <View className="mt-1 flex-row items-center rounded-full border border-secondary/30 bg-secondary-subtle px-3 py-0.5">
               <Text className="font-label-sm text-[11px] font-bold text-on-secondary-subtle">
-                مَبْرُوك • Plan Ready!
+                مَبْرُوك • Sample Plan Preview
               </Text>
             </View>
 
@@ -132,7 +132,7 @@ export default function CompleteScreen() {
               You’re all set!
             </Text>
             <Text className="mt-1 text-center font-body-sm text-[14px] font-medium text-on-surface-variant max-w-[280px] leading-relaxed">
-              We’ve crafted a personalized Arabic curriculum tailored to your daily goals.
+              Here is a sample learning plan using the choices shown below.
             </Text>
           </View>
 
@@ -182,7 +182,11 @@ export default function CompleteScreen() {
                 {/* Tile 2: Primary Focus */}
                 <View className="flex-1 rounded-xl bg-white p-3 border border-outline-variant/60">
                   <View className="flex-row items-center gap-1.5">
-                    <MessageCircle size={15} color="#15803d" strokeWidth={2.2} />
+                    <MessageCircle
+                      size={15}
+                      color="#15803d"
+                      strokeWidth={2.2}
+                    />
                     <Text className="font-label-sm text-[11px] font-semibold text-on-surface-variant">
                       Focus Area
                     </Text>
@@ -201,7 +205,11 @@ export default function CompleteScreen() {
                 {/* Tile 3: Starting Point */}
                 <View className="flex-1 rounded-xl bg-white p-3 border border-outline-variant/60">
                   <View className="flex-row items-center gap-1.5">
-                    <GraduationCap size={15} color="#15803d" strokeWidth={2.2} />
+                    <GraduationCap
+                      size={15}
+                      color="#15803d"
+                      strokeWidth={2.2}
+                    />
                     <Text className="font-label-sm text-[11px] font-semibold text-on-surface-variant">
                       Starting Level
                     </Text>
@@ -230,7 +238,8 @@ export default function CompleteScreen() {
             <View className="mt-3.5 flex-row items-center gap-2 rounded-xl bg-[#e3f7ed] px-3 py-2 border border-primary/10">
               <TrendingUp size={16} color="#15803d" strokeWidth={2.2} />
               <Text className="flex-1 font-body-sm text-[11.5px] font-medium text-primary-strong leading-snug">
-                Consistent practice will unlock 150+ spoken phrases in your first 30 days.
+                Consistent practice can help build a foundation in spoken
+                Arabic.
               </Text>
             </View>
           </View>
@@ -243,10 +252,11 @@ export default function CompleteScreen() {
               </View>
               <View className="flex-1">
                 <Text className="font-headline-sm text-sm font-bold text-on-surface">
-                  Save your learning journey
+                  Account feature preview
                 </Text>
                 <Text className="font-body-sm text-xs text-on-surface-variant">
-                  Create a free profile to preserve your progress
+                  These are illustrative benefits; account saving, sync, and
+                  backup are not connected.
                 </Text>
               </View>
             </View>
@@ -254,10 +264,10 @@ export default function CompleteScreen() {
             {/* 4 Feature Checklist Items */}
             <View className="mt-3.5 gap-2.5">
               {[
-                { title: "Preserve your daily streak & XP", icon: Zap },
-                { title: "Sync smoothly across phone and tablet", icon: Globe },
-                { title: "Bookmark important vocabulary & audios", icon: CheckCircle2 },
-                { title: "Earn completion badges & certificates", icon: Award },
+                { title: "Streak and XP overview", icon: Zap },
+                { title: "Lesson progress overview", icon: Globe },
+                { title: "Vocabulary and audio review", icon: CheckCircle2 },
+                { title: "Lesson milestones", icon: Award },
               ].map(({ title, icon: IconItem }) => (
                 <View key={title} className="flex-row items-center gap-2.5">
                   <View className="h-5 w-5 items-center justify-center rounded-full bg-primary">
@@ -279,8 +289,8 @@ export default function CompleteScreen() {
         <Pressable
           onPress={handleCreateAccount}
           accessibilityRole="button"
-          accessibilityLabel="Create an account and save progress"
-          accessibilityHint="Registers your account to save streaks and access lessons"
+          accessibilityLabel="Preview account setup"
+          accessibilityHint="Opens a local UI preview; account creation and progress saving are not connected."
           style={({ pressed }) => [
             {
               shadowColor: "#15803d",
@@ -295,7 +305,7 @@ export default function CompleteScreen() {
           className="min-h-[54px] w-full flex-row items-center justify-center gap-2 rounded-2xl bg-primary py-3.5"
         >
           <Text className="font-label-lg text-base font-bold text-white tracking-wide">
-            Create an account
+            Preview account setup
           </Text>
           <ArrowRight color="#ffffff" size={19} strokeWidth={2.6} />
         </Pressable>
@@ -321,10 +331,10 @@ export default function CompleteScreen() {
 
         {/* Reassurance Subtitle */}
         <Text className="pt-2 text-center font-body-sm text-[11px] text-on-surface-variant">
-          You can create an account anytime from settings • Free forever
+          Account creation and progress saving are not connected in this UI
+          demo.
         </Text>
       </View>
     </SafeAreaView>
   );
 }
-

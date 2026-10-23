@@ -145,6 +145,7 @@ export default function CountryScreen() {
                 onPress={() => setCountry(country.name)}
                 accessibilityRole="radio"
                 accessibilityState={{ checked: isSelected }}
+                aria-checked={isSelected}
                 accessibilityLabel={`${country.name}, ${country.nativeName}`}
                 className={`min-h-[82px] flex-row items-center justify-between rounded-2xl p-5 border-2 active:opacity-90 ${
                   isSelected
@@ -220,7 +221,8 @@ export default function CountryScreen() {
             No countries found
           </Text>
           <Text className="mt-1 text-center font-body-sm text-sm text-on-surface-variant">
-            “{search}” খুঁজে পাওয়া যায়নি। আপনি “Other” নির্বাচন করে এগিয়ে যেতে পারেন।
+            “{search}” খুঁজে পাওয়া যায়নি। আপনি “Other” নির্বাচন করে এগিয়ে যেতে
+            পারেন।
           </Text>
           <Pressable
             onPress={() => {
@@ -247,7 +249,8 @@ export default function CountryScreen() {
             Dialect Personalization
           </Text>
           <Text className="mt-0.5 text-xs text-on-surface-variant leading-relaxed">
-            Local terms and dialect nuances (যেমন সৌদি বা আমিরাতি কথ্যরীতি) স্বয়ংক্রিয়ভাবে আপনার পাঠ্যক্রমে যুক্ত হবে।
+            Local terms and dialect nuances (যেমন সৌদি বা আমিরাতি কথ্যরীতি)
+            স্বয়ংক্রিয়ভাবে আপনার পাঠ্যক্রমে যুক্ত হবে।
           </Text>
         </View>
       </View>

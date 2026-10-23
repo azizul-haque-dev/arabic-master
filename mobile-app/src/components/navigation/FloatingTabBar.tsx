@@ -8,7 +8,12 @@ import {
   UserRound,
   type LucideIcon,
 } from "lucide-react-native";
-import { useEffect, useState, type ComponentProps, type ReactNode } from "react";
+import {
+  useEffect,
+  useState,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
 import { Keyboard, Platform, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -37,7 +42,11 @@ export function useTabBarClearance() {
   return useBottomOffset() + BAR_HEIGHT + 24;
 }
 
-export function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
+export function FloatingTabBar({
+  state,
+  descriptors,
+  navigation,
+}: TabBarProps) {
   const bottom = useBottomOffset();
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
@@ -95,6 +104,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) 
             onLongPress={onLongPress}
             accessibilityRole="tab"
             accessibilityState={{ selected: focused }}
+            aria-selected={focused}
             accessibilityLabel={options?.tabBarAccessibilityLabel ?? item.label}
             className="flex-1 items-center justify-center"
             style={{ height: BAR_HEIGHT }}

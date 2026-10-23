@@ -91,11 +91,11 @@ export default function LoginScreen() {
     setTimeout(() => {
       setIsLoading(false);
       Alert.alert(
-        "Welcome Back!",
-        "You have successfully logged in. Your Arabic learning journey continues!",
+        "Sign-in preview",
+        "Authentication is not connected in this UI demo. Continue to the sample Home screen?",
         [
           {
-            text: "Start Learning",
+            text: "Open sample Home",
             onPress: () => router.replace("/home"),
           },
         ],
@@ -109,11 +109,11 @@ export default function LoginScreen() {
     setTimeout(() => {
       setIsLoading(false);
       Alert.alert(
-        `${provider} Sign-In`,
-        `Connecting with ${provider}. Your learning progress will be synced.`,
+        `${provider} sign-in preview`,
+        `${provider} sign-in and progress sync are not connected in this UI demo. Continue to the sample Home screen?`,
         [
           {
-            text: "Continue",
+            text: "Open sample Home",
             onPress: () => router.replace("/home"),
           },
         ],
@@ -437,7 +437,12 @@ export default function LoginScreen() {
                     ]}
                     className="h-[52px] w-full flex-row items-center justify-center gap-2.5 rounded-2xl bg-black shadow-xs"
                   >
-                    <Svg width={16} height={16} viewBox="0 0 24 24" fill="#ffffff">
+                    <Svg
+                      width={16}
+                      height={16}
+                      viewBox="0 0 24 24"
+                      fill="#ffffff"
+                    >
                       <Path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.84c.64-.78 1.08-1.87.96-2.96-.93.04-2.05.62-2.72 1.4-.59.68-1.11 1.79-.97 2.85 1.04.08 2.09-.52 2.73-1.29" />
                     </Svg>
                     <Text className="font-label-lg text-sm font-semibold text-white">
@@ -514,7 +519,7 @@ export default function LoginScreen() {
               <View>
                 <View className="flex-row items-center justify-between pb-2">
                   <Text className="font-headline-sm text-xl font-bold text-on-surface">
-                    Reset Password
+                    Reset password preview
                   </Text>
                   <Pressable
                     onPress={() => setShowForgotModal(false)}
@@ -525,7 +530,8 @@ export default function LoginScreen() {
                   </Pressable>
                 </View>
                 <Text className="mt-1 font-body-sm text-sm text-on-surface-variant leading-relaxed">
-                  Enter your registered email address and we'll send you instructions to reset your password.
+                  This UI demo does not send reset emails. Enter an address to
+                  preview the flow.
                 </Text>
 
                 {forgotError ? (
@@ -571,7 +577,7 @@ export default function LoginScreen() {
                     <>
                       <Send size={18} color="#ffffff" />
                       <Text className="font-label-lg text-base font-bold text-white">
-                        Send Reset Link
+                        Preview reset flow
                       </Text>
                     </>
                   )}
@@ -583,14 +589,14 @@ export default function LoginScreen() {
                   <CheckCircle2 size={36} color="#15803d" strokeWidth={2.4} />
                 </View>
                 <Text className="mt-4 font-headline-sm text-xl font-bold text-on-surface">
-                  Check your inbox
+                  Reset flow preview
                 </Text>
                 <Text className="mt-2 text-center font-body-sm text-sm text-on-surface-variant max-w-[280px] leading-relaxed">
-                  We've sent password reset instructions to{" "}
+                  No reset email was sent to{" "}
                   <Text className="font-semibold text-on-surface">
                     {forgotEmail}
                   </Text>
-                  . Please check your spam folder if it doesn't arrive within 2 minutes.
+                  . Reset submission is not connected in this UI demo.
                 </Text>
 
                 <Pressable
@@ -635,7 +641,8 @@ export default function LoginScreen() {
                   Forgot your password?
                 </Text>
                 <Text className="mt-1 font-body-sm text-xs text-on-surface-variant leading-relaxed">
-                  Tap "Forgot password?" right above the password input to receive a reset link by email.
+                  Use the Forgot password option above to preview the reset
+                  flow. No email is sent in this UI demo.
                 </Text>
               </View>
 
@@ -644,7 +651,7 @@ export default function LoginScreen() {
                   Signed up with Google or Apple?
                 </Text>
                 <Text className="mt-1 font-body-sm text-xs text-on-surface-variant leading-relaxed">
-                  Use the one-tap Google or Apple buttons to quickly access your account without a password.
+                  Google and Apple sign-in are not connected in this UI demo.
                 </Text>
               </View>
 
@@ -653,7 +660,8 @@ export default function LoginScreen() {
                   Still having issues?
                 </Text>
                 <Text className="mt-1 font-body-sm text-xs text-on-surface-variant leading-relaxed">
-                  Contact our support team anytime at support@arabicmaster.app for assistance.
+                  Contact our support team anytime at support@arabicmaster.app
+                  for assistance.
                 </Text>
               </View>
             </View>

@@ -25,9 +25,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Svg, {
-  Path,
-} from "react-native-svg";
+import Svg, { Path } from "react-native-svg";
 
 import { AuthPageHeader } from "@/components/auth/AuthPageHeader";
 
@@ -62,7 +60,8 @@ export default function RegisterScreen() {
   // Password Strength Calculation
   const hasMinLength = password.length >= 6;
   const hasMixedChars =
-    password.length >= 8 && (/\d/.test(password) || /[^A-Za-z0-9]/.test(password));
+    password.length >= 8 &&
+    (/\d/.test(password) || /[^A-Za-z0-9]/.test(password));
   const hasConfirmMatch =
     confirmPassword.length > 0 && password === confirmPassword;
 
@@ -115,11 +114,11 @@ export default function RegisterScreen() {
     setTimeout(() => {
       setIsLoading(false);
       Alert.alert(
-        "Account Created!",
-        `Welcome to Arabic Master, ${trimmedName}! Your personalized Arabic journey is saved.`,
+        "Account setup preview",
+        `Account creation is not connected in this UI demo. Continue to the sample Home screen?`,
         [
           {
-            text: "Start First Lesson",
+            text: "Open sample Home",
             onPress: () => router.replace("/home"),
           },
         ],
@@ -133,11 +132,11 @@ export default function RegisterScreen() {
     setTimeout(() => {
       setIsLoading(false);
       Alert.alert(
-        `${provider} Sign-Up`,
-        `Account successfully linked with ${provider}! Your streak is safe.`,
+        `${provider} sign-up preview`,
+        `Account linking and progress backup are not connected in this UI demo. Continue to the sample Home screen?`,
         [
           {
-            text: "Continue",
+            text: "Open sample Home",
             onPress: () => router.replace("/home"),
           },
         ],
@@ -158,7 +157,7 @@ export default function RegisterScreen() {
             triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
             Alert.alert(
               "Why Create an Account?",
-              "Creating a free account preserves your daily streak, tracks learned vocabulary, and syncs your level across mobile and web.",
+              "Account creation, saved progress, and cross-device sync are not connected in this UI demo.",
             );
           }}
           onModeChange={(mode) => {
@@ -195,7 +194,8 @@ export default function RegisterScreen() {
                   </Text>
                   <View
                     style={{
-                      shadowColor: focusedField === "name" ? "#15803d" : "#000000",
+                      shadowColor:
+                        focusedField === "name" ? "#15803d" : "#000000",
                       shadowOffset: { width: 0, height: 2 },
                       shadowOpacity: focusedField === "name" ? 0.08 : 0.02,
                       shadowRadius: 6,
@@ -237,7 +237,8 @@ export default function RegisterScreen() {
                   </Text>
                   <View
                     style={{
-                      shadowColor: focusedField === "email" ? "#15803d" : "#000000",
+                      shadowColor:
+                        focusedField === "email" ? "#15803d" : "#000000",
                       shadowOffset: { width: 0, height: 2 },
                       shadowOpacity: focusedField === "email" ? 0.08 : 0.02,
                       shadowRadius: 6,
@@ -342,17 +343,23 @@ export default function RegisterScreen() {
                     <View className="flex-row items-center gap-1.5">
                       <View
                         className={`h-1.5 flex-1 rounded-full ${
-                          passwordStrengthLevel >= 1 ? "bg-error" : "bg-surface-container"
+                          passwordStrengthLevel >= 1
+                            ? "bg-error"
+                            : "bg-surface-container"
                         }`}
                       />
                       <View
                         className={`h-1.5 flex-1 rounded-full ${
-                          passwordStrengthLevel >= 2 ? "bg-secondary" : "bg-surface-container"
+                          passwordStrengthLevel >= 2
+                            ? "bg-secondary"
+                            : "bg-surface-container"
                         }`}
                       />
                       <View
                         className={`h-1.5 flex-1 rounded-full ${
-                          passwordStrengthLevel >= 3 ? "bg-primary" : "bg-surface-container"
+                          passwordStrengthLevel >= 3
+                            ? "bg-primary"
+                            : "bg-surface-container"
                         }`}
                       />
                     </View>
@@ -511,9 +518,14 @@ export default function RegisterScreen() {
                   </View>
                   <Text className="flex-1 font-body-sm text-xs text-on-surface-variant leading-snug">
                     I agree to the{" "}
-                    <Text className="font-semibold text-primary">Terms of Service</Text>{" "}
+                    <Text className="font-semibold text-primary">
+                      Terms of Service
+                    </Text>{" "}
                     and{" "}
-                    <Text className="font-semibold text-primary">Privacy Policy</Text>.
+                    <Text className="font-semibold text-primary">
+                      Privacy Policy
+                    </Text>
+                    .
                   </Text>
                 </Pressable>
 
@@ -617,7 +629,12 @@ export default function RegisterScreen() {
                     ]}
                     className="h-[52px] w-full flex-row items-center justify-center gap-2.5 rounded-2xl bg-black"
                   >
-                    <Svg width={16} height={16} viewBox="0 0 24 24" fill="#ffffff">
+                    <Svg
+                      width={16}
+                      height={16}
+                      viewBox="0 0 24 24"
+                      fill="#ffffff"
+                    >
                       <Path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.84c.64-.78 1.08-1.87.96-2.96-.93.04-2.05.62-2.72 1.4-.59.68-1.11 1.79-.97 2.85 1.04.08 2.09-.52 2.73-1.29" />
                     </Svg>
                     <Text className="font-label-lg text-sm font-semibold text-white">

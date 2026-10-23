@@ -20,6 +20,7 @@ export default function LearningTabsLayout() {
         name="progress"
         options={{ title: "Progress", tabBarAccessibilityLabel: "Progress" }}
       />
+      <Tabs.Screen name="curriculum" options={{ href: null }} />
       <Tabs.Screen
         name="profile"
         options={{ title: "Profile", tabBarAccessibilityLabel: "Profile" }}
