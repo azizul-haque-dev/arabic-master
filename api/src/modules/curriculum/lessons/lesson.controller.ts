@@ -12,6 +12,7 @@ import type {
 } from '../../../common/schemas.js';
 import type {
   AddLessonItemInput,
+  AddLessonWordsBatchInput,
   CreateLessonInput,
   ItemParam,
   ListLessonQuery,
@@ -70,6 +71,15 @@ export const LessonController = {
       ),
       201,
     ),
+  addWordsSmart: async (req: Request, res: Response) => {
+    const input = bodyOf<AddLessonWordsBatchInput>(req);
+    const result = await LessonService.addWordsSmart(
+      id(req),
+      input.words,
+      req.auth!,
+    );
+    ok(res, result, 200);
+  },
   reorderItems: async (req: Request, res: Response) =>
     ok(
       res,

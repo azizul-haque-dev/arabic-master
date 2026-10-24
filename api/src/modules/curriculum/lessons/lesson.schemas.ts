@@ -30,8 +30,37 @@ export const itemParamSchema = z.strictObject({
   itemId: z.string().min(1),
 });
 
+export const addLessonWordsBatchSchema = z
+  .union([
+    z.strictObject({
+      words: z.union([
+        z.array(z.string().trim().min(1)).min(1).max(50),
+        z.string().trim().min(1).transform((s) => [s]),
+      ]),
+    }),
+    z.strictObject({
+      word: z.string().trim().min(1).transform((s) => [s]),
+    }),
+    z
+      .array(z.string().trim().min(1))
+      .min(1)
+      .max(50)
+      .transform((arr) => ({ words: arr })),
+  ])
+  .transform((val) => {
+    if ('words' in val) {
+      return { words: Array.isArray(val.words) ? val.words : [val.words] };
+    }
+    if ('word' in val) {
+      return { words: val.word };
+    }
+    return val;
+  });
+
 export type CreateLessonInput = z.infer<typeof createLessonSchema>;
 export type UpdateLessonInput = z.infer<typeof updateLessonSchema>;
 export type ListLessonQuery = z.infer<typeof listLessonQuerySchema>;
 export type AddLessonItemInput = z.infer<typeof addLessonItemSchema>;
+export type AddLessonWordsBatchInput = z.infer<typeof addLessonWordsBatchSchema>;
 export type ItemParam = z.infer<typeof itemParamSchema>;
+

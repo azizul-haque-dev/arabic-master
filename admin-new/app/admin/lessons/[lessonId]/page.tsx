@@ -1,18 +1,44 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { mockLessons } from "@/lib/mock-data/lessons";
 import { LessonDetailView } from "@/components/features/lessons/lesson-detail-view";
+import { contentIdSchema } from "@/lib/content/validation";
+import { getLessonForAdmin, getSectionOptionsForAdmin } from "@/lib/lessons/data";
+import Loading from "./loading";
 
-export default async function LessonDetailPage({
-    params,
+export default function LessonDetailPage({
+  params,
 }: {
-    params: Promise<{ lessonId: string }>;
+  params: Promise<{ lessonId: string }>;
 }) {
-    const { lessonId } = await params;
-    const lesson = mockLessons.find((l) => l.id === lessonId);
+  return (
+    <Suspense fallback={<Loading />}>
+      <LessonDetailData params={params} />
+    </Suspense>
+  );
+}
 
-    if (!lesson) {
-        notFound();
-    }
+async function LessonDetailData({
+  params,
+}: {
+  params: Promise<{ lessonId: string }>;
+}) {
+  const { lessonId } = await params;
+  const parsedId = contentIdSchema.safeParse(lessonId);
+  if (!parsedId.success) notFound();
 
-    return <LessonDetailView initialLesson={lesson} />;
+  const [lesson, sectionOptions] = await Promise.all([
+    getLessonForAdmin(parsedId.data),
+    getSectionOptionsForAdmin(),
+  ]);
+
+  if (!lesson) {
+    notFound();
+  }
+
+  return (
+    <LessonDetailView
+      initialLesson={lesson}
+      sectionOptions={sectionOptions}
+    />
+  );
 }

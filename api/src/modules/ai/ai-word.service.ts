@@ -97,7 +97,22 @@ export function createAiWordService(dependencies: {
     }
   }
 
-  return { createWordViaAi };
+  async function resolveWordWithAi(input: string, createdById?: string) {
+    const text = isArabicText(input)
+      ? input
+      : await ai.translateToArabic(input);
+    const normalized = normalizeArabicText(text);
+
+    const { word } = await lookup(normalized);
+    if (word) {
+      return { word, createdViaAi: false };
+    }
+
+    const created = await createWordViaAi(input, createdById);
+    return { word: created, createdViaAi: true };
+  }
+
+  return { createWordViaAi, resolveWordWithAi };
 }
 
 let defaultAiWordService: ReturnType<typeof createAiWordService> | undefined;
@@ -115,6 +130,8 @@ function getAiWordService() {
 export const AiWordService = {
   createWordViaAi: (input: string, createdById?: string) =>
     getAiWordService().createWordViaAi(input, createdById),
+  resolveWordWithAi: (input: string, createdById?: string) =>
+    getAiWordService().resolveWordWithAi(input, createdById),
 };
 
 export type AiWordService = typeof AiWordService;

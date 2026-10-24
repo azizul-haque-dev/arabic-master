@@ -16,6 +16,7 @@ export function LessonContentPanel({
     onAdd,
     onRemove,
     onReorder,
+    extraAction,
 }: {
     /** Already filtered to a single content type and sorted by `order`. */
     items: LessonContentItem[];
@@ -24,10 +25,11 @@ export function LessonContentPanel({
     pickerTitle: string;
     pickerDescription: string;
     renderPicker: (onPick: (contentId: string) => void) => React.ReactNode;
-    renderPreview: (contentId: string) => React.ReactNode;
+    renderPreview: (contentId: string, item: LessonContentItem) => React.ReactNode;
     onAdd: (contentId: string) => void;
     onRemove: (itemId: string) => void;
     onReorder: (reordered: LessonContentItem[]) => void;
+    extraAction?: React.ReactNode;
 }) {
     const [addOpen, setAddOpen] = useState(false);
 
@@ -68,7 +70,7 @@ export function LessonContentPanel({
                             <span className="w-5 flex-shrink-0 text-center text-xs font-semibold text-[var(--color-text-muted)]">
                                 {item.order}
                             </span>
-                            <div className="flex-1">{renderPreview(item.contentId)}</div>
+                            <div className="flex-1">{renderPreview(item.contentId, item)}</div>
                             <div className="flex flex-shrink-0 gap-1">
                                 <button
                                     type="button"
@@ -102,14 +104,17 @@ export function LessonContentPanel({
                 </ol>
             )}
 
-            <button
-                type="button"
-                onClick={() => setAddOpen(true)}
-                className="flex items-center justify-center gap-2 rounded-[var(--radius-default)] border border-dashed border-[var(--color-border-strong)] px-3.5 py-2.5 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary-light)]/15"
-            >
-                <Plus className="h-4 w-4" aria-hidden="true" />
-                {addLabel}
-            </button>
+            <div className="flex flex-col gap-2 sm:flex-row">
+                <button
+                    type="button"
+                    onClick={() => setAddOpen(true)}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-[var(--radius-default)] border border-dashed border-[var(--color-border-strong)] px-3.5 py-2.5 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary-light)]/15"
+                >
+                    <Plus className="h-4 w-4" aria-hidden="true" />
+                    {addLabel}
+                </button>
+                {extraAction}
+            </div>
 
             <Dialog open={addOpen} onOpenChange={setAddOpen}>
                 <DialogContent>

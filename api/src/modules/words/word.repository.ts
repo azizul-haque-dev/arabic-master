@@ -97,6 +97,15 @@ export const WordRepository = {
     return word ?? null;
   },
 
+  async findByWordKey(wordKey: string, ex: Executor = db) {
+    const [word] = await ex
+      .select()
+      .from(schema.word)
+      .where(ilike(schema.word.wordKey, wordKey.trim()))
+      .limit(1);
+    return word ?? null;
+  },
+
   async findByEntityId(entityId: string, ex: Executor = db) {
     const [word] = await ex
       .select()

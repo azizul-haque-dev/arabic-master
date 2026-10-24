@@ -1,18 +1,35 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { mockCourses } from "@/lib/mock-data/courses";
 import { CourseDetailView } from "@/components/features/courses/course-detail-view";
+import { contentIdSchema } from "@/lib/content/validation";
+import { getCourseForAdmin } from "@/lib/courses/data";
+import Loading from "./loading";
 
-export default async function CourseDetailPage({
-    params,
+export default function CourseDetailPage({
+  params,
 }: {
-    params: Promise<{ courseId: string }>;
+  params: Promise<{ courseId: string }>;
 }) {
-    const { courseId } = await params;
-    const course = mockCourses.find((c) => c.id === courseId);
+  return (
+    <Suspense fallback={<Loading />}>
+      <CourseDetailData params={params} />
+    </Suspense>
+  );
+}
 
-    if (!course) {
-        notFound();
-    }
+async function CourseDetailData({
+  params,
+}: {
+  params: Promise<{ courseId: string }>;
+}) {
+  const { courseId } = await params;
+  const parsedId = contentIdSchema.safeParse(courseId);
+  if (!parsedId.success) notFound();
 
-    return <CourseDetailView initialCourse={course} />;
+  const course = await getCourseForAdmin(parsedId.data);
+  if (!course) {
+    notFound();
+  }
+
+  return <CourseDetailView initialCourse={course} />;
 }

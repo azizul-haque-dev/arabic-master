@@ -19,6 +19,8 @@ import {
   Role,
 } from '../../../database/drizzle/enums.js';
 import type { RequestUser } from '../../auth/auth.types.js';
+import { AiWordService } from '../../ai/ai-word.service.js';
+import { WordRepository } from '../../words/word.repository.js';
 import { LessonRepository } from './lesson.repository.js';
 import type {
   AddLessonItemInput,
@@ -269,6 +271,143 @@ export const LessonService = {
       await LessonRepository.update(lessonId, {}, tx);
     });
     return getById(lessonId);
+  },
+
+  async addWordsSmart(
+    lessonId: string,
+    words: string[],
+    actor: RequestUser,
+  ) {
+    const lesson = await findOrThrow(lessonId);
+    assertEditable(lesson.status, actor.role);
+
+    const cleanQueries = Array.from(
+      new Set(
+        words
+          .map((w) => (typeof w === 'string' ? w.trim() : ''))
+          .filter(Boolean),
+      ),
+    );
+
+    if (!cleanQueries.length) {
+      throw new BadRequestError('At least one word must be provided');
+    }
+
+    interface ResolvedItem {
+      query: string;
+      word: { id: string; wordKey: string };
+      createdViaAi: boolean;
+    }
+
+    const resolvedList: ResolvedItem[] = [];
+    const results: Array<{
+      query: string;
+      wordId?: string;
+      wordKey?: string;
+      status: 'added' | 'already_in_lesson' | 'failed';
+      createdViaAi?: boolean;
+      error?: string;
+    }> = [];
+
+    for (const query of cleanQueries) {
+      try {
+        let word: { id: string; wordKey: string } | null = null;
+        let createdViaAi = false;
+
+        if (/^[0-9a-fA-F-]{36}$/.test(query)) {
+          word = await WordRepository.findById(query);
+        }
+
+        if (!word && /^w-\d+$/i.test(query)) {
+          word = await WordRepository.findByWordKey(query);
+        }
+
+        if (!word) {
+          const res = await AiWordService.resolveWordWithAi(
+            query,
+            actor.userId,
+          );
+          word = res.word;
+          createdViaAi = res.createdViaAi;
+        }
+
+        if (!word) {
+          throw new Error('Unable to resolve or create word');
+        }
+
+        resolvedList.push({ query, word, createdViaAi });
+      } catch (err) {
+        results.push({
+          query,
+          status: 'failed',
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+
+    if (resolvedList.length > 0) {
+      await withTransaction(async (tx) => {
+        await lockLesson(tx, lessonId);
+        assertEditable(lesson.status, actor.role);
+
+        let maxOrder = await LessonRepository.maxItemOrder(lessonId, tx);
+
+        for (const item of resolvedList) {
+          const exists = await LessonRepository.hasItem(
+            lessonId,
+            LessonContentType.WORD,
+            item.word.id,
+            tx,
+          );
+
+          if (exists) {
+            results.push({
+              query: item.query,
+              wordId: item.word.id,
+              wordKey: item.word.wordKey,
+              status: 'already_in_lesson',
+              createdViaAi: item.createdViaAi,
+            });
+          } else {
+            maxOrder += 1;
+            await LessonRepository.insertItem(
+              {
+                id: randomUUIDv7(),
+                lessonId,
+                contentType: LessonContentType.WORD,
+                wordId: item.word.id,
+                sentenceId: null,
+                conversationId: null,
+                order: maxOrder,
+              },
+              tx,
+            );
+            results.push({
+              query: item.query,
+              wordId: item.word.id,
+              wordKey: item.word.wordKey,
+              status: 'added',
+              createdViaAi: item.createdViaAi,
+            });
+          }
+        }
+
+        await LessonRepository.update(lessonId, {}, tx);
+      });
+    }
+
+    const updated = await getById(lessonId);
+
+    return {
+      summary: {
+        total: cleanQueries.length,
+        added: results.filter((r) => r.status === 'added').length,
+        alreadyInLesson: results.filter((r) => r.status === 'already_in_lesson').length,
+        failed: results.filter((r) => r.status === 'failed').length,
+      },
+      results,
+      lesson: updated,
+    };
   },
 };
 

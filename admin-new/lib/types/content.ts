@@ -210,35 +210,66 @@ export interface LessonContentItem {
   order: number;
   contentType: LessonContentType;
   contentId: string; // id of a Word, Sentence, or Conversation
+  preview?: unknown;
+}
+
+export interface LessonSectionSummary {
+  id: string;
+  sectionKey: string;
+  title: string;
+  courseId: string;
+}
+
+export interface LessonTypeCounts {
+  words: number;
+  sentences: number;
+  conversations: number;
 }
 
 export interface Lesson {
   id: string;
   lessonKey: string; // e.g. "LSN-4021"
   title: string;
-  /** Real FK now that Course/Section screens exist — no more freeform strings. */
+  description?: string;
   sectionId: string;
   items: LessonContentItem[];
-  /** Configurable per PRD §16/§17 — a recommendation, not a hard cap. */
-  maxItemsRecommended: number;
+  maxItemsRecommended?: number;
   status: ContentStatus;
   rejectionReason?: string;
   createdBy: string;
   createdAt: string;
   updatedAt: string;
+  sectionTitle?: string;
+  courseId?: string;
+  courseTitle?: string;
+  counts?: LessonTypeCounts;
+  section?: LessonSectionSummary | null;
+  course?: SectionCourseSummary | null;
 }
 
 export interface LessonMetaFormValues {
   title: string;
+  description?: string;
   sectionId: string;
-  maxItemsRecommended: number;
+  maxItemsRecommended?: number;
 }
 
-/**
- * Course → Section → Lesson hierarchy (PRD §10). `Course.level` reuses
- * `DifficultyLevel` rather than a duplicate enum — same four values apply.
- */
 export type CourseType = "FREE" | "PRO";
+
+export interface CourseSectionSummary {
+  id: string;
+  sectionKey: string;
+  courseId: string;
+  title: string;
+  description: string;
+  order: number;
+  status: ContentStatus;
+  rejectionReason?: string | null;
+  createdById?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  lessonCount: number;
+}
 
 export interface Course {
   id: string;
@@ -252,6 +283,9 @@ export interface Course {
   createdBy: string;
   createdAt: string;
   updatedAt: string;
+  sectionCount?: number;
+  lessonCount?: number;
+  sections?: CourseSectionSummary[];
 }
 
 export interface CourseFormValues {
@@ -259,6 +293,27 @@ export interface CourseFormValues {
   description: string;
   level: DifficultyLevel;
   courseType: CourseType;
+}
+
+export interface SectionCourseSummary {
+  id: string;
+  courseKey: string;
+  title: string;
+}
+
+export interface SectionLessonSummary {
+  id: string;
+  lessonKey: string;
+  sectionId: string;
+  title: string;
+  description: string;
+  order: number;
+  status: ContentStatus;
+  rejectionReason?: string | null;
+  createdById?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  itemCount: number;
 }
 
 export interface Section {
@@ -273,6 +328,10 @@ export interface Section {
   createdBy: string;
   createdAt: string;
   updatedAt: string;
+  courseTitle?: string;
+  lessonCount?: number;
+  course?: SectionCourseSummary | null;
+  lessons?: SectionLessonSummary[];
 }
 
 export interface SectionFormValues {

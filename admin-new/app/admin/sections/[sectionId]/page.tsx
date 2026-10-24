@@ -1,18 +1,44 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { mockSections } from "@/lib/mock-data/sections";
 import { SectionDetailView } from "@/components/features/sections/section-detail-view";
+import { contentIdSchema } from "@/lib/content/validation";
+import { getCourseOptionsForAdmin, getSectionForAdmin } from "@/lib/sections/data";
+import Loading from "./loading";
 
-export default async function SectionDetailPage({
-    params,
+export default function SectionDetailPage({
+  params,
 }: {
-    params: Promise<{ sectionId: string }>;
+  params: Promise<{ sectionId: string }>;
 }) {
-    const { sectionId } = await params;
-    const section = mockSections.find((s) => s.id === sectionId);
+  return (
+    <Suspense fallback={<Loading />}>
+      <SectionDetailData params={params} />
+    </Suspense>
+  );
+}
 
-    if (!section) {
-        notFound();
-    }
+async function SectionDetailData({
+  params,
+}: {
+  params: Promise<{ sectionId: string }>;
+}) {
+  const { sectionId } = await params;
+  const parsedId = contentIdSchema.safeParse(sectionId);
+  if (!parsedId.success) notFound();
 
-    return <SectionDetailView initialSection={section} />;
+  const [section, courseOptions] = await Promise.all([
+    getSectionForAdmin(parsedId.data),
+    getCourseOptionsForAdmin(),
+  ]);
+
+  if (!section) {
+    notFound();
+  }
+
+  return (
+    <SectionDetailView
+      initialSection={section}
+      courseOptions={courseOptions}
+    />
+  );
 }
