@@ -100,11 +100,45 @@ export const WordService = {
       : await AiService.translateToArabic(rawText);
     const normalizedText = normalizeArabicText(text);
 
+    const queueWordJobIfNeeded = async (
+      existingWord: NonNullable<
+        Awaited<ReturnType<typeof WordRepository.findByEntityId>>
+      >,
+    ) => {
+      const isMissingContent =
+        !existingWord.meaningBn ||
+        !existingWord.meaningEn ||
+        existingWord.meaningBn.trim() === '' ||
+        existingWord.meaningEn.trim() === '';
+
+      if (isMissingContent) {
+        const existingJob = await wordQueue.getJob(existingWord.id);
+        if (!existingJob) {
+          await wordQueue.add(
+            'process-word',
+            { wordId: existingWord.id, arabicText: text },
+            { jobId: existingWord.id },
+          );
+        } else {
+          const state = await existingJob.getState();
+          if (state === 'failed') {
+            await existingJob.remove();
+            await wordQueue.add(
+              'process-word',
+              { wordId: existingWord.id, arabicText: text },
+              { jobId: existingWord.id },
+            );
+          }
+        }
+      }
+      return existingWord;
+    };
+
     let entity =
       await ArabicEntityRepository.findByNormalizedText(normalizedText);
     if (entity) {
       const existingWord = await WordRepository.findByEntityId(entity.id);
-      if (existingWord) return existingWord;
+      if (existingWord) return queueWordJobIfNeeded(existingWord);
     } else {
       try {
         entity = await ArabicEntityRepository.create({
@@ -118,7 +152,7 @@ export const WordService = {
         if (!entity) throw error;
 
         const existingWord = await WordRepository.findByEntityId(entity.id);
-        if (existingWord) return existingWord;
+        if (existingWord) return queueWordJobIfNeeded(existingWord);
       }
     }
 

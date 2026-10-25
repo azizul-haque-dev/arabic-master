@@ -112,11 +112,53 @@ export const SentenceService = {
       : await AiService.translateToArabic(rawText);
     const normalizedText = normalizeArabicText(text);
 
+    const queueSentenceJobIfNeeded = async (
+      existingSentence: NonNullable<
+        Awaited<ReturnType<typeof SentenceRepository.findByEntityId>>
+      >,
+    ) => {
+      const isMissingContent =
+        !existingSentence.meaningBn ||
+        !existingSentence.meaningEn ||
+        existingSentence.meaningBn.trim() === '' ||
+        existingSentence.meaningEn.trim() === '';
+
+      if (isMissingContent) {
+        const existingJob = await sentenceQueue.getJob(existingSentence.id);
+        if (!existingJob) {
+          await sentenceQueue.add(
+            'process-sentence',
+            {
+              sentenceId: existingSentence.id,
+              arabicText: text,
+              createdById,
+            },
+            { jobId: existingSentence.id },
+          );
+        } else {
+          const state = await existingJob.getState();
+          if (state === 'failed') {
+            await existingJob.remove();
+            await sentenceQueue.add(
+              'process-sentence',
+              {
+                sentenceId: existingSentence.id,
+                arabicText: text,
+                createdById,
+              },
+              { jobId: existingSentence.id },
+            );
+          }
+        }
+      }
+      return existingSentence;
+    };
+
     let entity =
       await ArabicEntityRepository.findByNormalizedText(normalizedText);
     if (entity) {
       const existing = await SentenceRepository.findByEntityId(entity.id);
-      if (existing) return existing;
+      if (existing) return queueSentenceJobIfNeeded(existing);
     } else {
       try {
         entity = await ArabicEntityRepository.create({
@@ -130,7 +172,7 @@ export const SentenceService = {
         if (!entity) throw error;
 
         const existing = await SentenceRepository.findByEntityId(entity.id);
-        if (existing) return existing;
+        if (existing) return queueSentenceJobIfNeeded(existing);
       }
     }
 
