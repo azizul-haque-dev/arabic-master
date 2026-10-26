@@ -237,4 +237,32 @@ export const WordService = {
       failedReason: job.failedReason || null,
     };
   },
+
+  async regenerateWithAi(id: string) {
+    const word = await WordRepository.findDetailedById(id);
+    if (!word) throw new NotFoundError('Word not found');
+
+    const arabicText = word.arabicText || word.entity?.arabicText;
+    if (!arabicText) {
+      throw new ConflictError('Word does not have associated Arabic text');
+    }
+
+    const existingJob = await wordQueue.getJob(word.id);
+    if (existingJob) {
+      await existingJob.remove();
+    }
+
+    await wordQueue.add(
+      'process-word',
+      { wordId: word.id, arabicText },
+      { jobId: word.id },
+    );
+
+    return {
+      wordId: word.id,
+      jobId: word.id,
+      queued: true,
+      message: 'AI generation queued successfully',
+    };
+  },
 };

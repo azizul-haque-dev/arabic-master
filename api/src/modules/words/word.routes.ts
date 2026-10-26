@@ -47,6 +47,18 @@ wordRoutes.post(
   WordController.generateList,
 );
 wordRoutes.get('/ai/jobs/:id', ...staff, params, WordController.getAiJobStatus);
+wordRoutes.post(
+  '/:id/generate',
+  ...staff,
+  params,
+  WordController.regenerate,
+);
+wordRoutes.post(
+  '/:id/ai',
+  ...staff,
+  params,
+  WordController.regenerate,
+);
 wordRoutes.patch(
   '/:id',
   ...staff,

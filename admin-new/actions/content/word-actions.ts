@@ -197,3 +197,29 @@ export async function deleteWordAction(idInput: unknown): Promise<ContentActionR
   revalidatePath("/admin/sentences");
   return { success: true, data: null };
 }
+
+export async function regenerateWordAction(
+  idInput: unknown,
+): Promise<ContentActionResult<{ wordId: string; jobId: string; queued: boolean }>> {
+  const authorization = await requireContentAdmin();
+  if (!authorization.success) return toFailure(authorization);
+
+  const id = contentIdSchema.safeParse(idInput);
+  if (!id.success) return validationFailure(id.error.issues);
+
+  try {
+    const response = await callBackend(`/words/${encodeURIComponent(id.data)}/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.success) return toFailure(response);
+    revalidatePath("/admin/words");
+    revalidatePath(`/admin/words/${encodeURIComponent(id.data)}`);
+    return {
+      success: true,
+      data: response.data as { wordId: string; jobId: string; queued: boolean },
+    };
+  } catch {
+    return safeFailure();
+  }
+}

@@ -41,6 +41,8 @@ export const WordController = {
     ),
   getAiJobStatus: async (req: Request, res: Response) =>
     ok(res, await WordService.getAiJobStatus(id(req))),
+  regenerate: async (req: Request, res: Response) =>
+    ok(res, await WordService.regenerateWithAi(id(req)), 202),
   update: async (req: Request, res: Response) =>
     ok(res, await WordService.update(id(req), bodyOf<UpdateWordInput>(req))),
   remove: async (req: Request, res: Response) => {

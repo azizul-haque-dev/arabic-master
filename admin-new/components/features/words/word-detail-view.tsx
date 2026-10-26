@@ -7,7 +7,11 @@ import { ContentStatusBadge } from "@/components/shared/content-status-badge";
 import { WordFormDialog } from "@/components/features/words/word-form-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { updateWordAction } from "@/actions/content/word-actions";
+import {
+  getWordAction,
+  regenerateWordAction,
+  updateWordAction,
+} from "@/actions/content/word-actions";
 import type { ArabicEntity, Word, WordFormValues } from "@/lib/types/content";
 import { WORD_TYPE_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
@@ -21,6 +25,9 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
   const { role } = useRole();
   const [word, setWord] = useState(initialWord);
   const [editOpen, setEditOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateMessage, setGenerateMessage] = useState<string | null>(null);
+  const [generateError, setGenerateError] = useState<string | null>(null);
 
   async function handleSave(entity: ArabicEntity, values: WordFormValues) {
     const result = await updateWordAction(word.id, buildWordUpdatePayload(values));
@@ -32,6 +39,58 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
       arabicText: entity.arabicText,
     }));
     router.refresh();
+  }
+
+  async function handleRegenerate() {
+    if (isGenerating) return;
+    setIsGenerating(true);
+    setGenerateError(null);
+    setGenerateMessage("AI generation queued in background. Fetching updated content…");
+
+    try {
+      const result = await regenerateWordAction(word.id);
+      if (!result.success) {
+        setGenerateError(result.error);
+        setGenerateMessage(null);
+        setIsGenerating(false);
+        return;
+      }
+
+      let attempts = 0;
+      const interval = setInterval(async () => {
+        attempts += 1;
+        try {
+          const fresh = await getWordAction(word.id);
+          if (fresh.success && fresh.data) {
+            const hasMeaning =
+              Boolean(fresh.data.meaningEnglish?.trim()) &&
+              Boolean(fresh.data.meaningBangla?.trim());
+            if (hasMeaning || attempts >= 15) {
+              clearInterval(interval);
+              setWord(fresh.data);
+              setIsGenerating(false);
+              setGenerateMessage(
+                hasMeaning
+                  ? "AI generation completed successfully!"
+                  : "Generation is still running in background. Please refresh in a moment.",
+              );
+              router.refresh();
+            }
+          }
+        } catch {
+          if (attempts >= 15) {
+            clearInterval(interval);
+            setIsGenerating(false);
+          }
+        }
+      }, 2000);
+    } catch (cause) {
+      setGenerateError(
+        cause instanceof Error ? cause.message : "Failed to queue AI generation.",
+      );
+      setGenerateMessage(null);
+      setIsGenerating(false);
+    }
   }
 
   return (
@@ -57,11 +116,35 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
             </Badge>
           </div>
         </div>
-        <Button variant="secondary" onClick={() => setEditOpen(true)}>
-          <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-          Edit
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            disabled={isGenerating}
+            onClick={() => void handleRegenerate()}
+          >
+            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+            {isGenerating ? "Generating with AI…" : "Generate with AI"}
+          </Button>
+          <Button variant="secondary" onClick={() => setEditOpen(true)}>
+            <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+            Edit
+          </Button>
+        </div>
       </div>
+
+      {generateMessage ? (
+        <div
+          role="status"
+          className="flex items-center justify-between gap-3 rounded-default border border-border bg-white p-3 text-sm text-text-secondary"
+        >
+          <span>{generateMessage}</span>
+        </div>
+      ) : null}
+      {generateError ? (
+        <p role="alert" className="text-sm text-error-text">
+          {generateError}
+        </p>
+      ) : null}
 
       {word.status === "REJECTED" && word.rejectionReason ? (
         <div className="flex gap-2.5 rounded-default border border-error/20 bg-error-bg p-3.5 text-sm text-error-text">
