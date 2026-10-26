@@ -14,6 +14,14 @@ import { Label } from "@/components/ui/label";
 import type { Lesson, LessonMetaFormValues } from "@/lib/types/content";
 import type { SectionOption } from "@/lib/lessons/api";
 
+export const LESSON_TITLE_OPTIONS = [
+  "Basics – Lesson 1",
+  "Basics – Lesson 2",
+  "Intermediate – Lesson 1",
+  "Intermediate – Lesson 2",
+  "Advanced - Lesson 1",
+] as const;
+
 export function LessonMetaDialog({
   open,
   onOpenChange,
@@ -33,7 +41,7 @@ export function LessonMetaDialog({
     initialLesson?.sectionId ?? sectionOptions[0]?.id ?? "";
 
   const [values, setValues] = useState<LessonMetaFormValues>({
-    title: initialLesson?.title ?? "",
+    title: initialLesson?.title ?? LESSON_TITLE_OPTIONS[0],
     description: initialLesson?.description ?? "",
     sectionId: defaultSectionId,
     maxItemsRecommended: initialLesson?.maxItemsRecommended ?? 10,
@@ -44,7 +52,7 @@ export function LessonMetaDialog({
   useEffect(() => {
     if (open) {
       setValues({
-        title: initialLesson?.title ?? "",
+        title: initialLesson?.title ?? LESSON_TITLE_OPTIONS[0],
         description: initialLesson?.description ?? "",
         sectionId: initialLesson?.sectionId ?? sectionOptions[0]?.id ?? "",
         maxItemsRecommended: initialLesson?.maxItemsRecommended ?? 10,
@@ -110,14 +118,23 @@ export function LessonMetaDialog({
 
           <div>
             <Label htmlFor="l-title">Title</Label>
-            <Input
+            <select
               id="l-title"
               value={values.title}
               disabled={isSubmitting}
               onChange={(e) => update("title", e.target.value)}
-              placeholder="e.g. Shopping Basics — Lesson 1"
-              maxLength={200}
-            />
+              className="h-11 w-full rounded-[var(--radius-default)] border border-[var(--color-border-strong)] bg-white px-3 text-sm disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:border-[var(--color-primary)] focus-visible:ring-4 focus-visible:ring-[var(--color-primary)]/10"
+            >
+              <option value="">Select a lesson title...</option>
+              {LESSON_TITLE_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+              {values.title && !LESSON_TITLE_OPTIONS.includes(values.title as (typeof LESSON_TITLE_OPTIONS)[number]) ? (
+                <option value={values.title}>{values.title}</option>
+              ) : null}
+            </select>
           </div>
 
           <div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, BookX, Trash2, Sparkles, ListPlus } from "lucide-react";
+import { Plus, BookX, Trash2, Sparkles } from "lucide-react";
 import { ContentPageHeader } from "@/components/shared/content-page-header";
 import { ContentSearch } from "@/components/shared/content-search";
 import { ContentStatusFilter } from "@/components/shared/content-filters";
@@ -20,7 +20,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ArabicEntity, ContentStatus, Word, WordFormValues } from "@/lib/types/content";
 import { WORD_TYPE_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
@@ -57,11 +56,10 @@ export function WordListView({
   const [statusFilter, setStatusFilter] = useState<Set<ContentStatus>>(new Set());
   const [createOpen, setCreateOpen] = useState(false);
   const [generateOpen, setGenerateOpen] = useState(false);
-  const [generateMode, setGenerateMode] = useState<"single" | "list">("single");
 
   const [generationQuery, setGenerationQuery] = useState("");
-  const [listQuery, setListQuery] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generatingAction, setGeneratingAction] = useState<"single" | "list" | null>(null);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [generationMessage, setGenerationMessage] = useState<string | null>(null);
   const [generationPendingId, setGenerationPendingId] = useState<string | null>(null);
@@ -72,7 +70,7 @@ export function WordListView({
   const [error, setError] = useState<string | null>(null);
   const firstListEffect = useRef(true);
 
-  const parsedBatchQueries = listQuery
+  const parsedBatchQueries = generationQuery
     .split(/[\n,]+/)
     .map((q) => q.trim())
     .filter((q) => q.length > 0);
@@ -178,6 +176,7 @@ export function WordListView({
   async function handleGenerateSingle() {
     if (isGenerating || !generationQuery.trim()) return;
     setIsGenerating(true);
+    setGeneratingAction("single");
     setGenerationError(null);
     try {
       const result = await generateWordAction(generationQuery.trim());
@@ -202,6 +201,7 @@ export function WordListView({
       );
     } finally {
       setIsGenerating(false);
+      setGeneratingAction(null);
     }
   }
 
@@ -216,6 +216,7 @@ export function WordListView({
     }
 
     setIsGenerating(true);
+    setGeneratingAction("list");
     setGenerationError(null);
     try {
       const result = await generateWordListAction(parsedBatchQueries);
@@ -238,7 +239,7 @@ export function WordListView({
         );
       }
 
-      setListQuery("");
+      setGenerationQuery("");
       setGenerateOpen(false);
       setRefreshToken((value) => value + 1);
     } catch (cause) {
@@ -247,6 +248,7 @@ export function WordListView({
       );
     } finally {
       setIsGenerating(false);
+      setGeneratingAction(null);
     }
   }
 
@@ -322,28 +324,16 @@ export function WordListView({
         title="Words"
         description="Learner-facing vocabulary. Every word reuses a canonical Arabic Entity instead of storing its own Arabic text."
         primaryAction={
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-2">
             <Button
               variant="secondary"
               onClick={() => {
-                setGenerateMode("single");
                 setGenerationError(null);
                 setGenerateOpen(true);
               }}
             >
               <Sparkles className="h-4 w-4" aria-hidden="true" />
               Generate with AI
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setGenerateMode("list");
-                setGenerationError(null);
-                setGenerateOpen(true);
-              }}
-            >
-              <ListPlus className="h-4 w-4" aria-hidden="true" />
-              Generate List (AI)
             </Button>
             <Button onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4" aria-hidden="true" />
@@ -479,101 +469,65 @@ export function WordListView({
       <WordFormDialog open={createOpen} onOpenChange={setCreateOpen} onSave={handleCreate} />
 
       <Dialog open={generateOpen} onOpenChange={(open) => !isGenerating && setGenerateOpen(open)}>
-        <DialogContent className="sm:max-w-[540px]">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Generate with AI</DialogTitle>
+            <DialogTitle>Generate word with AI</DialogTitle>
             <DialogDescription>
-              Create vocabulary drafts with AI automatically generating meanings, pronunciations, and usage.
+              Enter an Arabic word or phrase to generate a single word, or enter multiple words (one per line or comma-separated) to generate a batch list.
             </DialogDescription>
           </DialogHeader>
-
-          <Tabs
-            value={generateMode}
-            onValueChange={(val) => {
-              setGenerateMode(val as "single" | "list");
-              setGenerationError(null);
-            }}
-          >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="single">Single Word</TabsTrigger>
-              <TabsTrigger value="list">Word List (Batch)</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="single" className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
               <label htmlFor="word-ai-query" className="text-sm font-medium text-text">
-                Prompt or Arabic Word
+                Prompt / Words
               </label>
-              <textarea
-                id="word-ai-query"
-                value={generationQuery}
-                onChange={(event) => setGenerationQuery(event.target.value)}
-                maxLength={500}
-                rows={4}
-                className="w-full rounded-default border border-border-strong bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10"
-                placeholder="Enter Arabic text (e.g. علبة) or describe the word"
-              />
-              {generationError ? <p role="alert" className="text-sm text-error-text">{generationError}</p> : null}
-              <div className="flex justify-end gap-2 pt-2">
-                <Button variant="ghost" disabled={isGenerating} onClick={() => setGenerateOpen(false)}>
-                  Cancel
-                </Button>
-                <Button
-                  disabled={!generationQuery.trim() || isGenerating}
-                  onClick={() => void handleGenerateSingle()}
-                >
-                  {isGenerating ? "Queueing…" : "Generate"}
-                </Button>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="list" className="flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <label htmlFor="word-ai-list-query" className="text-sm font-medium text-text">
-                  Arabic Word List (1 - 25 words)
-                </label>
+              {parsedBatchCount > 1 ? (
                 <span
                   className={cn(
                     "text-xs font-medium",
-                    parsedBatchCount > 25
-                      ? "text-error-text"
-                      : "text-text-muted",
+                    parsedBatchCount > 25 ? "text-error-text" : "text-text-muted",
                   )}
                 >
-                  {parsedBatchCount} / 25 words
+                  {parsedBatchCount} / 25 words detected
                 </span>
-              </div>
-              <textarea
-                id="word-ai-list-query"
-                dir="rtl"
-                value={listQuery}
-                onChange={(event) => setListQuery(event.target.value)}
-                rows={6}
-                className="w-full font-arabic text-base rounded-default border border-border-strong bg-white px-3 py-2 focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10"
-                placeholder={"Enter Arabic words (one per line or comma-separated):\nواحد\nاثنين\nثلاثة\nأربعة\nخمسة"}
-              />
-              <p className="text-xs text-text-muted">
-                Each word will be queued as a background BullMQ job to generate English and Bangla meanings and pronunciations.
-              </p>
-              {generationError ? <p role="alert" className="text-sm text-error-text">{generationError}</p> : null}
-              <div className="flex justify-end gap-2 pt-2">
-                <Button variant="ghost" disabled={isGenerating} onClick={() => setGenerateOpen(false)}>
-                  Cancel
-                </Button>
-                <Button
-                  disabled={
-                    parsedBatchCount === 0 ||
-                    parsedBatchCount > 25 ||
-                    isGenerating
-                  }
-                  onClick={() => void handleGenerateList()}
-                >
-                  {isGenerating
-                    ? "Queueing Batch…"
-                    : `Generate ${parsedBatchCount > 0 ? `${parsedBatchCount} Words` : "List"}`}
-                </Button>
-              </div>
-            </TabsContent>
-          </Tabs>
+              ) : null}
+            </div>
+            <textarea
+              id="word-ai-query"
+              value={generationQuery}
+              onChange={(event) => setGenerationQuery(event.target.value)}
+              rows={5}
+              className="w-full rounded-default border border-border-strong bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10"
+              placeholder={"Enter a single word (e.g. علبة) or multiple words:\nواحد\nاثنين\nثلاثة"}
+            />
+            {generationError ? <p role="alert" className="text-sm text-error-text">{generationError}</p> : null}
+            <div className="flex flex-wrap justify-end gap-2 pt-1">
+              <Button
+                variant="ghost"
+                disabled={isGenerating}
+                onClick={() => setGenerateOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="outline"
+                disabled={!generationQuery.trim() || isGenerating}
+                onClick={() => void handleGenerateList()}
+              >
+                {isGenerating && generatingAction === "list"
+                  ? "Queueing…"
+                  : `Generate List${parsedBatchCount > 1 ? ` (${parsedBatchCount})` : ""}`}
+              </Button>
+              <Button
+                disabled={!generationQuery.trim() || isGenerating}
+                onClick={() => void handleGenerateSingle()}
+              >
+                {isGenerating && generatingAction === "single"
+                  ? "Queueing…"
+                  : "Generate One"}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
