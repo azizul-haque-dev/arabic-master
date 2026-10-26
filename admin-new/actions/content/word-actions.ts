@@ -7,6 +7,7 @@ import {
   contentIdSchema,
   contentListQuerySchema,
   generateQuerySchema,
+  generateWordListQuerySchema,
   queryFromUnknown,
   wordCreateSchema,
   wordUpdateSchema,
@@ -108,6 +109,47 @@ export async function generateWordAction(input: unknown): Promise<ContentActionR
     const word = normalizeWord(response.data);
     revalidatePath("/admin/words");
     return { success: true, data: word };
+  } catch {
+    return safeFailure();
+  }
+}
+
+export interface WordBatchResult {
+  query: string;
+  success: boolean;
+  wordId?: string;
+  jobId?: string | null;
+  queued?: boolean;
+  error?: string;
+}
+
+export async function generateWordListAction(
+  input: unknown,
+): Promise<ContentActionResult<WordBatchResult[]>> {
+  const authorization = await requireContentAdmin();
+  if (!authorization.success) return toFailure(authorization);
+
+  const rawQueries = Array.isArray(input)
+    ? input
+    : typeof input === "object" && input !== null && "query" in input && Array.isArray((input as { query: unknown }).query)
+      ? (input as { query: unknown }).query
+      : input;
+
+  const parsed = generateWordListQuerySchema.safeParse(rawQueries);
+  if (!parsed.success) return validationFailure(parsed.error.issues);
+
+  try {
+    const response = await callBackend("/words/ai/list", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: parsed.data }),
+    });
+    if (!response.success) return toFailure(response);
+    revalidatePath("/admin/words");
+    return {
+      success: true,
+      data: Array.isArray(response.data) ? (response.data as WordBatchResult[]) : [],
+    };
   } catch {
     return safeFailure();
   }

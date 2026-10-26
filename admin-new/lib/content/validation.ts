@@ -97,6 +97,7 @@ export const arabicEntityStatusSchema = z.object({
 }).strict();
 
 export const generateQuerySchema = z.string().trim().min(1).max(500);
+export const generateWordListQuerySchema = z.array(generateQuerySchema).min(1).max(25);
 export const contentIdSchema = z.string().trim().min(1).max(200);
 
 export const sectionCreateSchema = z.object({

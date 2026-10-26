@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, BookX, Trash2, Sparkles } from "lucide-react";
+import { Plus, BookX, Trash2, Sparkles, ListPlus } from "lucide-react";
 import { ContentPageHeader } from "@/components/shared/content-page-header";
 import { ContentSearch } from "@/components/shared/content-search";
 import { ContentStatusFilter } from "@/components/shared/content-filters";
@@ -20,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ArabicEntity, ContentStatus, Word, WordFormValues } from "@/lib/types/content";
 import { WORD_TYPE_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
@@ -27,58 +28,102 @@ import {
   createWordAction,
   deleteWordAction,
   generateWordAction,
+  generateWordListAction,
   getWordAction,
   listWordsAction,
 } from "@/actions/content/word-actions";
 import { buildWordPayload } from "@/lib/words/api";
+import { cn } from "@/lib/utils";
 
-export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
+const PAGE_LIMIT = 20;
+
+export function WordListView({
+  initialWords = [],
+  initialMeta = { page: 1, limit: PAGE_LIMIT, total: initialWords.length, totalPages: 1 },
+}: {
+  initialWords?: Word[];
+  initialMeta?: { page: number; limit: number; total: number; totalPages: number };
+}) {
   const router = useRouter();
   const { role } = useRole();
 
   const [words, setWords] = useState<Word[]>(initialWords);
+  const [page, setPage] = useState(initialMeta.page);
+  const [total, setTotal] = useState(initialMeta.total);
+  const [totalPages, setTotalPages] = useState(initialMeta.totalPages);
+  const [refreshToken, setRefreshToken] = useState(0);
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<Set<ContentStatus>>(new Set());
   const [createOpen, setCreateOpen] = useState(false);
   const [generateOpen, setGenerateOpen] = useState(false);
+  const [generateMode, setGenerateMode] = useState<"single" | "list">("single");
+
   const [generationQuery, setGenerationQuery] = useState("");
+  const [listQuery, setListQuery] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [generationMessage, setGenerationMessage] = useState<string | null>(null);
   const [generationPendingId, setGenerationPendingId] = useState<string | null>(null);
   const [generationCheck, setGenerationCheck] = useState(0);
+
   const [deleteTarget, setDeleteTarget] = useState<Word | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const requestSequence = useRef(0);
+  const firstListEffect = useRef(true);
 
-  async function loadWords(nextSearch: string, nextStatus: ContentStatus | undefined) {
-    const sequence = ++requestSequence.current;
+  const parsedBatchQueries = listQuery
+    .split(/[\n,]+/)
+    .map((q) => q.trim())
+    .filter((q) => q.length > 0);
+  const parsedBatchCount = parsedBatchQueries.length;
+
+  useEffect(() => {
+    if (firstListEffect.current) {
+      firstListEffect.current = false;
+      return;
+    }
+    let active = true;
     setIsLoading(true);
     setError(null);
-    try {
-      const result = await listWordsAction({
-        page: 1,
-        limit: 20,
-        search: nextSearch.trim() || undefined,
-        status: nextStatus,
-      });
-      if (sequence !== requestSequence.current) return;
-      if (result.success) {
-        setWords(result.data.items);
-      } else {
-        setWords([]);
-        setError(result.error);
-      }
-    } catch {
-      if (sequence === requestSequence.current) {
-        setWords([]);
+
+    listWordsAction({
+      page,
+      limit: PAGE_LIMIT,
+      search: search.trim() || undefined,
+      status: statusFilter.values().next().value,
+    })
+      .then((result) => {
+        if (!active) return;
+        if (result.success) {
+          setWords(result.data.items);
+          setTotal(result.data.meta.total);
+          setTotalPages(result.data.meta.totalPages);
+          if (page > result.data.meta.totalPages && result.data.meta.totalPages > 0) {
+            setPage(result.data.meta.totalPages);
+          }
+        } else {
+          setError(result.error);
+          setWords([]);
+          setTotal(0);
+          setTotalPages(1);
+        }
+      })
+      .catch(() => {
+        if (!active) return;
         setError("Unable to load words. Please try again.");
-      }
-    } finally {
-      if (sequence === requestSequence.current) setIsLoading(false);
-    }
-  }
+        setWords([]);
+        setTotal(0);
+        setTotalPages(1);
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [page, search, statusFilter, refreshToken]);
 
   useEffect(() => {
     if (!generationPendingId) return;
@@ -98,7 +143,7 @@ export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
         if (word.meaningEnglish.trim() && word.meaningBangla.trim()) {
           setGenerationMessage(`AI generation completed for ${word.wordKey}.`);
           setGenerationPendingId(null);
-          void loadWords(search, statusFilter.values().next().value);
+          setRefreshToken((value) => value + 1);
           return;
         }
         attempts += 1;
@@ -127,10 +172,10 @@ export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
   async function handleCreate(entity: ArabicEntity, values: WordFormValues) {
     const result = await createWordAction(buildWordPayload(values, entity));
     if (!result.success) throw new Error(result.error);
-    await loadWords(search, statusFilter.values().next().value);
+    setRefreshToken((value) => value + 1);
   }
 
-  async function handleGenerate() {
+  async function handleGenerateSingle() {
     if (isGenerating || !generationQuery.trim()) return;
     setIsGenerating(true);
     setGenerationError(null);
@@ -150,10 +195,55 @@ export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
       }
       setGenerationQuery("");
       setGenerateOpen(false);
-      void loadWords(search, statusFilter.values().next().value);
+      setRefreshToken((value) => value + 1);
     } catch (cause) {
       setGenerationError(
         cause instanceof Error ? cause.message : "Unable to queue word generation.",
+      );
+    } finally {
+      setIsGenerating(false);
+    }
+  }
+
+  async function handleGenerateList() {
+    if (parsedBatchCount === 0) {
+      setGenerationError("Please enter at least one word.");
+      return;
+    }
+    if (parsedBatchCount > 25) {
+      setGenerationError("You can generate up to 25 words in a single batch.");
+      return;
+    }
+
+    setIsGenerating(true);
+    setGenerationError(null);
+    try {
+      const result = await generateWordListAction(parsedBatchQueries);
+      if (!result.success) {
+        setGenerationError(result.error);
+        return;
+      }
+
+      const results = result.data;
+      const queuedCount = results.filter((r) => r.queued).length;
+      const failedCount = results.filter((r) => !r.success).length;
+
+      if (failedCount > 0) {
+        setGenerationMessage(
+          `Batch submitted: ${results.length - failedCount} succeeded (${queuedCount} queued in background), ${failedCount} failed.`,
+        );
+      } else {
+        setGenerationMessage(
+          `Batch submitted: ${results.length} words queued for background AI processing.`,
+        );
+      }
+
+      setListQuery("");
+      setGenerateOpen(false);
+      setRefreshToken((value) => value + 1);
+    } catch (cause) {
+      setGenerationError(
+        cause instanceof Error ? cause.message : "Unable to queue batch word generation.",
       );
     } finally {
       setIsGenerating(false);
@@ -164,7 +254,7 @@ export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
     const result = await deleteWordAction(word.id);
     if (result.success) {
       setDeleteTarget(null);
-      await loadWords(search, statusFilter.values().next().value);
+      setRefreshToken((value) => value + 1);
     } else {
       setError(result.error);
     }
@@ -232,10 +322,28 @@ export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
         title="Words"
         description="Learner-facing vocabulary. Every word reuses a canonical Arabic Entity instead of storing its own Arabic text."
         primaryAction={
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => setGenerateOpen(true)}>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setGenerateMode("single");
+                setGenerationError(null);
+                setGenerateOpen(true);
+              }}
+            >
               <Sparkles className="h-4 w-4" aria-hidden="true" />
               Generate with AI
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setGenerateMode("list");
+                setGenerationError(null);
+                setGenerateOpen(true);
+              }}
+            >
+              <ListPlus className="h-4 w-4" aria-hidden="true" />
+              Generate List (AI)
             </Button>
             <Button onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4" aria-hidden="true" />
@@ -263,7 +371,7 @@ export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => void loadWords(search, statusFilter.values().next().value)}
+            onClick={() => setRefreshToken((value) => value + 1)}
           >
             Retry
           </Button>
@@ -278,7 +386,7 @@ export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
             value={search}
             onChange={(value) => {
               setSearch(value);
-              void loadWords(value, statusFilter.values().next().value);
+              setPage(1);
             }}
             placeholder="Search Arabic, English, Bangla, category..."
           />
@@ -286,14 +394,14 @@ export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
             selected={statusFilter}
             onChange={(value) => {
               setStatusFilter(value);
-              void loadWords(search, value.values().next().value);
+              setPage(1);
             }}
             options={["DRAFT", "IN_REVIEW", "APPROVED", "PUBLISHED", "REJECTED", "ARCHIVED"]}
             singleSelection
           />
         </div>
         <p className="text-xs text-text-muted">
-          {words.length} {words.length === 1 ? "word" : "words"}
+          {total} {total === 1 ? "word" : "words"}
         </p>
       </div>
 
@@ -336,35 +444,136 @@ export function WordListView({ initialWords = [] }: { initialWords?: Word[] }) {
         />
       ) : null}
 
+      {!isLoading && totalPages > 1 ? (
+        <div className="flex items-center justify-between text-sm text-text-muted">
+          <span>Page {page} of {totalPages}</span>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={page <= 1}
+              onClick={() => {
+                setIsLoading(true);
+                setError(null);
+                setPage((value) => value - 1);
+              }}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={page >= totalPages}
+              onClick={() => {
+                setIsLoading(true);
+                setError(null);
+                setPage((value) => value + 1);
+              }}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
       <WordFormDialog open={createOpen} onOpenChange={setCreateOpen} onSave={handleCreate} />
 
       <Dialog open={generateOpen} onOpenChange={(open) => !isGenerating && setGenerateOpen(open)}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[540px]">
           <DialogHeader>
-            <DialogTitle>Generate word with AI</DialogTitle>
+            <DialogTitle>Generate with AI</DialogTitle>
             <DialogDescription>
-              Enter an Arabic word or a phrase to translate into Arabic. The word is created as a draft while the backend job runs.
+              Create vocabulary drafts with AI automatically generating meanings, pronunciations, and usage.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col gap-3">
-            <label htmlFor="word-ai-query" className="text-sm font-medium text-text">Prompt</label>
-            <textarea
-              id="word-ai-query"
-              value={generationQuery}
-              onChange={(event) => setGenerationQuery(event.target.value)}
-              maxLength={500}
-              rows={4}
-              className="w-full rounded-default border border-border-strong bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10"
-              placeholder="Enter Arabic text or describe the word"
-            />
-            {generationError ? <p role="alert" className="text-sm text-error-text">{generationError}</p> : null}
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" disabled={isGenerating} onClick={() => setGenerateOpen(false)}>Cancel</Button>
-              <Button disabled={!generationQuery.trim() || isGenerating} onClick={() => void handleGenerate()}>
-                {isGenerating ? "Queueing…" : "Generate"}
-              </Button>
-            </div>
-          </div>
+
+          <Tabs
+            value={generateMode}
+            onValueChange={(val) => {
+              setGenerateMode(val as "single" | "list");
+              setGenerationError(null);
+            }}
+          >
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="single">Single Word</TabsTrigger>
+              <TabsTrigger value="list">Word List (Batch)</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="single" className="flex flex-col gap-3">
+              <label htmlFor="word-ai-query" className="text-sm font-medium text-text">
+                Prompt or Arabic Word
+              </label>
+              <textarea
+                id="word-ai-query"
+                value={generationQuery}
+                onChange={(event) => setGenerationQuery(event.target.value)}
+                maxLength={500}
+                rows={4}
+                className="w-full rounded-default border border-border-strong bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10"
+                placeholder="Enter Arabic text (e.g. علبة) or describe the word"
+              />
+              {generationError ? <p role="alert" className="text-sm text-error-text">{generationError}</p> : null}
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="ghost" disabled={isGenerating} onClick={() => setGenerateOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  disabled={!generationQuery.trim() || isGenerating}
+                  onClick={() => void handleGenerateSingle()}
+                >
+                  {isGenerating ? "Queueing…" : "Generate"}
+                </Button>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="list" className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <label htmlFor="word-ai-list-query" className="text-sm font-medium text-text">
+                  Arabic Word List (1 - 25 words)
+                </label>
+                <span
+                  className={cn(
+                    "text-xs font-medium",
+                    parsedBatchCount > 25
+                      ? "text-error-text"
+                      : "text-text-muted",
+                  )}
+                >
+                  {parsedBatchCount} / 25 words
+                </span>
+              </div>
+              <textarea
+                id="word-ai-list-query"
+                dir="rtl"
+                value={listQuery}
+                onChange={(event) => setListQuery(event.target.value)}
+                rows={6}
+                className="w-full font-arabic text-base rounded-default border border-border-strong bg-white px-3 py-2 focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10"
+                placeholder={"Enter Arabic words (one per line or comma-separated):\nواحد\nاثنين\nثلاثة\nأربعة\nخمسة"}
+              />
+              <p className="text-xs text-text-muted">
+                Each word will be queued as a background BullMQ job to generate English and Bangla meanings and pronunciations.
+              </p>
+              {generationError ? <p role="alert" className="text-sm text-error-text">{generationError}</p> : null}
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="ghost" disabled={isGenerating} onClick={() => setGenerateOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  disabled={
+                    parsedBatchCount === 0 ||
+                    parsedBatchCount > 25 ||
+                    isGenerating
+                  }
+                  onClick={() => void handleGenerateList()}
+                >
+                  {isGenerating
+                    ? "Queueing Batch…"
+                    : `Generate ${parsedBatchCount > 0 ? `${parsedBatchCount} Words` : "List"}`}
+                </Button>
+              </div>
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
 

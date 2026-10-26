@@ -17,5 +17,5 @@ async function WordListData() {
     limit: 20,
   });
 
-  return <WordListView initialWords={result.items} />;
+  return <WordListView initialWords={result.items} initialMeta={result.meta} />;
 }
