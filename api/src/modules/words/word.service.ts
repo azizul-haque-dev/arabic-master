@@ -122,7 +122,12 @@ export const WordService = {
         } else {
           const state = await existingJob.getState();
           if (state === 'failed') {
-            await existingJob.remove();
+            try {
+              await existingJob.remove();
+            } catch (err: unknown) {
+              const error = err as Error;
+              if (!error?.message?.includes('locked')) throw err;
+            }
             await wordQueue.add(
               'process-word',
               { wordId: existingWord.id, arabicText: text },
@@ -249,7 +254,38 @@ export const WordService = {
 
     const existingJob = await wordQueue.getJob(word.id);
     if (existingJob) {
-      await existingJob.remove();
+      const state = await existingJob.getState();
+      if (state === 'active') {
+        return {
+          wordId: word.id,
+          jobId: word.id,
+          queued: true,
+          message: 'AI generation is currently in progress',
+        };
+      }
+      if (state === 'waiting' || state === 'delayed') {
+        return {
+          wordId: word.id,
+          jobId: word.id,
+          queued: true,
+          message: 'AI generation is already queued',
+        };
+      }
+
+      try {
+        await existingJob.remove();
+      } catch (err: unknown) {
+        const error = err as Error;
+        if (error?.message?.includes('locked')) {
+          return {
+            wordId: word.id,
+            jobId: word.id,
+            queued: true,
+            message: 'AI generation is currently in progress',
+          };
+        }
+        throw err;
+      }
     }
 
     await wordQueue.add(

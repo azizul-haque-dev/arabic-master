@@ -138,7 +138,12 @@ export const SentenceService = {
         } else {
           const state = await existingJob.getState();
           if (state === 'failed') {
-            await existingJob.remove();
+            try {
+              await existingJob.remove();
+            } catch (err: unknown) {
+              const error = err as Error;
+              if (!error?.message?.includes('locked')) throw err;
+            }
             await sentenceQueue.add(
               'process-sentence',
               {
