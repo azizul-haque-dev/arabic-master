@@ -11,6 +11,7 @@ import { ContentStatusBadge } from "@/components/shared/content-status-badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
 import { WordFormDialog } from "@/components/features/words/word-form-dialog";
+import { Pagination } from "@/components/shared/pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -434,36 +435,20 @@ export function WordListView({
         />
       ) : null}
 
-      {!isLoading && totalPages > 1 ? (
-        <div className="flex items-center justify-between text-sm text-text-muted">
-          <span>Page {page} of {totalPages}</span>
-          <div className="flex gap-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              disabled={page <= 1}
-              onClick={() => {
-                setIsLoading(true);
-                setError(null);
-                setPage((value) => value - 1);
-              }}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              disabled={page >= totalPages}
-              onClick={() => {
-                setIsLoading(true);
-                setError(null);
-                setPage((value) => value + 1);
-              }}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
+      {words.length > 0 ? (
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalItems={total}
+          pageSize={PAGE_LIMIT}
+          itemName="words"
+          isLoading={isLoading}
+          onPageChange={(newPage) => {
+            if (newPage !== page) {
+              setPage(newPage);
+            }
+          }}
+        />
       ) : null}
 
       <WordFormDialog open={createOpen} onOpenChange={setCreateOpen} onSave={handleCreate} />

@@ -12,6 +12,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SentenceFormDialog } from "@/components/features/sentences/sentence-form-dialog";
+import { Pagination } from "@/components/shared/pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SENTENCE_CATEGORIES } from "@/lib/sentences/categories";
@@ -393,26 +394,20 @@ export function SentenceListView({
                 />
             ) : null}
 
-            {!isLoading && totalPages > 1 ? (
-                <div className="flex items-center justify-between text-sm text-text-muted">
-                    <span>Page {page} of {totalPages}</span>
-                    <div className="flex gap-2">
-                        <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => {
-                            setIsLoading(true);
-                            setError(null);
-                            setPage((value) => value - 1);
-                        }}>
-                            Previous
-                        </Button>
-                        <Button variant="secondary" size="sm" disabled={page >= totalPages} onClick={() => {
-                            setIsLoading(true);
-                            setError(null);
-                            setPage((value) => value + 1);
-                        }}>
-                            Next
-                        </Button>
-                    </div>
-                </div>
+            {sentences.length > 0 ? (
+                <Pagination
+                    currentPage={page}
+                    totalPages={totalPages}
+                    totalItems={total}
+                    pageSize={PAGE_LIMIT}
+                    itemName="sentences"
+                    isLoading={isLoading}
+                    onPageChange={(newPage) => {
+                        if (newPage !== page) {
+                            setPage(newPage);
+                        }
+                    }}
+                />
             ) : null}
 
             <SentenceFormDialog open={createOpen} onOpenChange={setCreateOpen} onSave={handleCreate} />
