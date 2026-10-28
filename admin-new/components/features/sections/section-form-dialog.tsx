@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import type { Section, SectionFormValues } from "@/lib/types/content";
 import type { CourseOption } from "@/lib/sections/api";
 
@@ -147,13 +148,14 @@ export function SectionFormDialog({
 
           <div>
             <Label htmlFor="sec-desc">Description</Label>
-            <Input
+            <Textarea
               id="sec-desc"
               value={values.description}
               disabled={isSubmitting}
               onChange={(e) => update("description", e.target.value)}
               placeholder="Words for prices, bargaining, and buying things."
               maxLength={1000}
+              rows={3}
             />
           </div>
 

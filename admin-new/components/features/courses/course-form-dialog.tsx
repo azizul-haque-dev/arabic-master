@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import type { Course, CourseFormValues, CourseType, DifficultyLevel } from "@/lib/types/content";
 import { DIFFICULTY_LABEL } from "@/lib/types/content";
 
@@ -125,13 +126,14 @@ export function CourseFormDialog({
 
           <div>
             <Label htmlFor="crs-desc">Description</Label>
-            <Input
+            <Textarea
               id="crs-desc"
               value={values.description}
               disabled={isSubmitting}
               onChange={(e) => update("description", e.target.value)}
               placeholder="Core vocabulary for daily life, shopping, and travel."
               maxLength={1000}
+              rows={3}
             />
           </div>
 

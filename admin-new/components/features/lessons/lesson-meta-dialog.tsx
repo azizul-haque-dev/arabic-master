@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import type { Lesson, LessonMetaFormValues } from "@/lib/types/content";
 import type { SectionOption } from "@/lib/lessons/api";
 
@@ -139,13 +140,14 @@ export function LessonMetaDialog({
 
           <div>
             <Label htmlFor="l-desc">Description</Label>
-            <Input
+            <Textarea
               id="l-desc"
               value={values.description ?? ""}
               disabled={isSubmitting}
               onChange={(e) => update("description", e.target.value)}
               placeholder="Introductory words and phrases for shopping."
               maxLength={1000}
+              rows={3}
             />
           </div>
 
