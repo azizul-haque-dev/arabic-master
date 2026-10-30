@@ -117,6 +117,8 @@ export const SentenceProcessor = {
     await entities.updatePronunciation(sentence.entityId, {
       pronunciationBangla: result.pronunciationBn,
       pronunciationEnglish: result.pronunciationEn,
+      meaningBangla: result.meaningBn,
+      meaningEnglish: result.meaningEn,
     });
 
     await sentences.update(sentenceId, {

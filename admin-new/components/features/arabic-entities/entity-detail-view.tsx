@@ -3,18 +3,23 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Pencil, XCircle } from "lucide-react";
+import { ChevronRight, Pencil, Sparkles, XCircle } from "lucide-react";
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
 import { EntityAudioPanel } from "@/components/features/audio/entity-audio-panel";
 import { ContentActionBar } from "@/components/shared/content-action-bar";
 import { RejectionDialog } from "@/components/shared/rejection-dialog";
 import { RelationshipPanel } from "@/components/features/arabic-entities/relationship-panel";
 import { EntityFormDialog } from "@/components/features/arabic-entities/entity-form-dialog";
+import {
+  EntityAiDialog,
+  type EntityAiQueuedResult,
+} from "@/components/features/arabic-entities/entity-ai-dialog";
 import { Button } from "@/components/ui/button";
 import type { ArabicEntity, ContentStatus, EntityFormValues } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
 import { checkAudioPermission } from "@/lib/audio/permissions";
 import {
+  getArabicEntityAction,
   updateArabicEntityAction,
   updateArabicEntityStatusAction,
 } from "@/actions/content/arabic-entity-actions";
@@ -25,6 +30,10 @@ export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntit
   const [entity, setEntity] = useState(initialEntity);
   const [editOpen, setEditOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+  const [generateOpen, setGenerateOpen] = useState(false);
+  const [isPollingAi, setIsPollingAi] = useState(false);
+  const [aiResult, setAiResult] = useState<EntityAiQueuedResult | null>(null);
+  const [aiMessage, setAiMessage] = useState<string | null>(null);
 
   const audioPermission = checkAudioPermission(role, entity.status);
 
@@ -55,6 +64,43 @@ export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntit
     }
   }
 
+  function handleAiQueued(queued: EntityAiQueuedResult) {
+    setAiResult(queued);
+    setIsPollingAi(true);
+    setAiMessage(
+      `${queued.targetLabel} (${queued.targetKey}) queued for AI generation. Fetching updated content…`,
+    );
+
+    let attempts = 0;
+    const interval = setInterval(async () => {
+      attempts += 1;
+      try {
+        const fresh = await getArabicEntityAction(entity.id);
+        if (fresh.success && fresh.data) {
+          setEntity(fresh.data);
+          const hasMeaning =
+            Boolean(fresh.data.meaningEnglish?.trim()) &&
+            Boolean(fresh.data.meaningBangla?.trim());
+          if (hasMeaning || attempts >= 15) {
+            clearInterval(interval);
+            setIsPollingAi(false);
+            setAiMessage(
+              hasMeaning
+                ? `AI generation completed for ${queued.targetLabel} (${queued.targetKey})!`
+                : `AI generation is still running in background for ${queued.targetKey}.`,
+            );
+            router.refresh();
+          }
+        }
+      } catch {
+        if (attempts >= 15) {
+          clearInterval(interval);
+          setIsPollingAi(false);
+        }
+      }
+    }, 2000);
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <nav className="flex items-center gap-1.5 text-xs text-text-muted" aria-label="Breadcrumb">
@@ -77,11 +123,38 @@ export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntit
             </div>
           </div>
         </div>
-        <Button variant="secondary" onClick={() => setEditOpen(true)}>
-          <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-          Edit
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            disabled={isPollingAi}
+            onClick={() => setGenerateOpen(true)}
+          >
+            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+            {isPollingAi ? "Generating with AI…" : "Generate with AI"}
+          </Button>
+          <Button variant="secondary" onClick={() => setEditOpen(true)}>
+            <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+            Edit
+          </Button>
+        </div>
       </div>
+
+      {aiMessage ? (
+        <div
+          role="status"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-default border border-border bg-white p-3 text-sm text-text-secondary"
+        >
+          <span>{aiMessage}</span>
+          {aiResult ? (
+            <Link
+              href={aiResult.href}
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              View {aiResult.targetLabel} ({aiResult.targetKey}) →
+            </Link>
+          ) : null}
+        </div>
+      ) : null}
 
       {entity.status === "REJECTED" && entity.rejectionReason ? (
         <div className="flex gap-2.5 rounded-default border border-error/20 bg-error-bg p-3.5 text-sm text-error-text">
@@ -187,6 +260,13 @@ export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntit
           </section>
         </div>
       </div>
+
+      <EntityAiDialog
+        open={generateOpen}
+        onOpenChange={setGenerateOpen}
+        entity={entity}
+        onQueued={handleAiQueued}
+      />
 
       <EntityFormDialog
         open={editOpen}

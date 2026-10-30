@@ -53,10 +53,12 @@ export const WordProcessor = {
       );
     }
 
-    // Entity ও Word দুজনেই নিজের pronunciation কপি রাখে
+    // Entity ও Word দুজনেই নিজের pronunciation ও meaning কপি রাখে
     await entities.updatePronunciation(word.entityId, {
       pronunciationBangla: result.pronunciationBn,
       pronunciationEnglish: result.pronunciationEn,
+      meaningBangla: result.meaningBn,
+      meaningEnglish: result.meaningEn,
     });
 
     await words.update(wordId, {

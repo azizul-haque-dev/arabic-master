@@ -232,7 +232,12 @@ export const ArabicEntityRepository = {
 
   async updatePronunciation(
     id: string,
-    d: { pronunciationBangla: string; pronunciationEnglish: string },
+    d: {
+      pronunciationBangla: string;
+      pronunciationEnglish: string;
+      meaningBangla?: string;
+      meaningEnglish?: string;
+    },
     ex: Executor = db,
   ) {
     await ex
