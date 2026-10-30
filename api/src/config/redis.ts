@@ -9,5 +9,7 @@ export function bullConnection(): ConnectionOptions {
     username: url.username || undefined,
     password: url.password || undefined,
     tls: url.protocol === 'rediss:' ? {} : undefined,
+    keepAlive: 10000,
+    maxRetriesPerRequest: null,
   };
 }

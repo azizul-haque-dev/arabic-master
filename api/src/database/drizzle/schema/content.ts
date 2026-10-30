@@ -11,6 +11,7 @@ import {
   contentStatusEnum,
   difficultyLevelEnum,
   grammaticalFormEnum,
+  sentenceTypeEnum,
   tenseEnum,
   wordTypeEnum,
 } from '../enums.js';
@@ -144,6 +145,7 @@ export const sentence = pgTable(
     whenToUseBn: text('whenToUseBn').notNull(),
     feminineBn: text('feminineBn').notNull(),
     feminineEn: text('feminineEn').notNull(),
+    sentenceType: sentenceTypeEnum('sentenceType').default('LONG').notNull(),
     difficulty: difficultyLevelEnum('difficulty').default('BEGINNER').notNull(),
     category: text('category').notNull(),
     relatedWordId: text('relatedWordId'),
@@ -158,6 +160,7 @@ export const sentence = pgTable(
   (table) => [
     index('Sentence_entityId_idx').on(table.entityId),
     index('Sentence_relatedWordId_idx').on(table.relatedWordId),
+    index('Sentence_sentenceType_idx').on(table.sentenceType),
     index('Sentence_status_idx').on(table.status),
     index('Sentence_category_idx').on(table.category),
   ],

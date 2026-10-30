@@ -1,4 +1,5 @@
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
+import { AI_PROCESSING } from '../../config/constants.js';
 import { env } from '../../config/env.js';
 import {
   createSaudiTeacherPrompt,
@@ -15,19 +16,25 @@ export function createAiService() {
     temperature: 0,
     model: env.AI_MODEL_NAME,
     apiKey: env.GOOGLE_API_KEY,
+    maxRetries: AI_PROCESSING.MAX_INTERNAL_RETRIES,
   });
+
+  const contentGenerator = model.withStructuredOutput(AIResponseSchema);
+  const translator = model.withStructuredOutput(SaudiArabicTranslationSchema);
 
   return {
     async generateContent(query: string): Promise<AiResponse> {
-      const result = await model
-        .withStructuredOutput(AIResponseSchema)
-        .invoke(createSaudiTeacherPrompt(query));
+      const result = await contentGenerator.invoke(
+        createSaudiTeacherPrompt(query),
+        { timeout: AI_PROCESSING.REQUEST_TIMEOUT_MS },
+      );
       return AIResponseSchema.parse(result); // AI-ও external source, তাই আবার validate
     },
     async translateToArabic(text: string): Promise<string> {
-      const result = await model
-        .withStructuredOutput(SaudiArabicTranslationSchema)
-        .invoke(textToTranslateSaudiNativeArabic(text));
+      const result = await translator.invoke(
+        textToTranslateSaudiNativeArabic(text),
+        { timeout: AI_PROCESSING.REQUEST_TIMEOUT_MS },
+      );
       return SaudiArabicTranslationSchema.parse(result).translatedText;
     },
   };

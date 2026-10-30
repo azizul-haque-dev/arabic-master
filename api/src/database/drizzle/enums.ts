@@ -45,6 +45,7 @@ export const difficultyLevelEnum = pgEnum('DifficultyLevel', [
   'INTERMEDIATE',
   'ADVANCED',
 ]);
+export const sentenceTypeEnum = pgEnum('SentenceType', ['SHORT', 'LONG']);
 export const courseTypeEnum = pgEnum('CourseType', ['FREE', 'PRO']);
 export const lessonContentTypeEnum = pgEnum('LessonContentType', [
   'WORD',
@@ -119,6 +120,10 @@ export const DifficultyLevel = {
   INTERMEDIATE: difficultyLevelEnum.enumValues[2],
   ADVANCED: difficultyLevelEnum.enumValues[3],
 } as const;
+export const SentenceType = {
+  SHORT: sentenceTypeEnum.enumValues[0],
+  LONG: sentenceTypeEnum.enumValues[1],
+} as const;
 export const CourseType = {
   FREE: courseTypeEnum.enumValues[0],
   PRO: courseTypeEnum.enumValues[1],
@@ -162,6 +167,7 @@ export type GrammaticalForm =
 export type Tense = (typeof Tense)[keyof typeof Tense];
 export type DifficultyLevel =
   (typeof DifficultyLevel)[keyof typeof DifficultyLevel];
+export type SentenceType = (typeof SentenceType)[keyof typeof SentenceType];
 export type CourseType = (typeof CourseType)[keyof typeof CourseType];
 export type LessonContentType =
   (typeof LessonContentType)[keyof typeof LessonContentType];

@@ -6,7 +6,10 @@ import { conversationRoutes } from '../modules/conversations/conversation.routes
 import { courseRoutes } from '../modules/curriculum/courses/course.routes.js';
 import { lessonRoutes } from '../modules/curriculum/lessons/lesson.routes.js';
 import { sectionRoutes } from '../modules/curriculum/sections/section.routes.js';
-import { sentenceRoutes } from '../modules/sentence/sentence.routes.js';
+import {
+  sentenceRoutes,
+  shortSentenceRoutes,
+} from '../modules/sentence/sentence.routes.js';
 import { wordRoutes } from '../modules/words/word.routes.js';
 
 const router = Router();
@@ -30,6 +33,7 @@ router.use('/auth', authRoutes);
 router.use('/arabic-entities', arabicEntityRoutes);
 router.use('/words', wordRoutes);
 router.use('/sentences', sentenceRoutes);
+router.use('/short-sentences', shortSentenceRoutes);
 router.use('/conversations', conversationRoutes);
 router.use('/courses', courseRoutes);
 router.use('/sections', sectionRoutes);

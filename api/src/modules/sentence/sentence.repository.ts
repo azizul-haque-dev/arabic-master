@@ -13,7 +13,10 @@ import { escapeLike } from '../../common/utils/escape-like.util.js';
 import { normalizeArabicText } from '../../common/utils/normalize-arabic.util.js';
 import { generateNextSequentialKey } from '../../common/utils/key-generator.util.js';
 import { db, type Executor } from '../../database/db.js';
-import type { ContentStatus } from '../../database/drizzle/enums.js';
+import type {
+  ContentStatus,
+  SentenceType,
+} from '../../database/drizzle/enums.js';
 import * as schema from '../../database/drizzle/schema.js';
 
 export interface SentenceFilters {
@@ -21,6 +24,7 @@ export interface SentenceFilters {
   limit: number;
   category?: string;
   status?: ContentStatus;
+  sentenceType?: SentenceType;
   search?: string;
 }
 
@@ -38,6 +42,9 @@ export const SentenceRepository = {
     const c: SQL[] = [];
     if (f.category) c.push(eq(schema.sentence.category, f.category));
     if (f.status) c.push(eq(schema.sentence.status, f.status));
+    if (f.sentenceType) {
+      c.push(eq(schema.sentence.sentenceType, f.sentenceType));
+    }
     if (f.search) {
       const p = `%${escapeLike(f.search)}%`;
       const n = `%${escapeLike(normalizeArabicText(f.search))}%`;
@@ -98,7 +105,14 @@ export const SentenceRepository = {
   ): Promise<string> {
     const ex = typeof exOrOffset === 'number' ? db : exOrOffset;
     const offset = typeof exOrOffset === 'number' ? exOrOffset : maybeOffset;
-    return generateNextSequentialKey('Sentence', 'sentenceKey', 'SNT-', 1000, ex, offset);
+    return generateNextSequentialKey(
+      'Sentence',
+      'sentenceKey',
+      'SNT-',
+      1000,
+      ex,
+      offset,
+    );
   },
 
   async insert(v: SentenceInsert, ex: Executor = db) {
@@ -136,4 +150,3 @@ export const SentenceRepository = {
 };
 
 export type SentenceRepository = typeof SentenceRepository;
-

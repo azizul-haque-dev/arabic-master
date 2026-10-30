@@ -8,6 +8,7 @@ export {
   paymentProviderEnum,
   preferredLanguageEnum,
   roleEnum,
+  sentenceTypeEnum,
   subscriptionStatusEnum,
   transactionStatusEnum,
   userStatusEnum,

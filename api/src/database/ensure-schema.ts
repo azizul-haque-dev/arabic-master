@@ -113,5 +113,26 @@ export async function ensureDatabaseSchema(pool: Pool): Promise<void> {
     logger.warn({ err }, 'Could not backfill legacy audio into ArabicEntityAudio');
   }
 
+  // 6. Ensure SentenceType enum and Sentence.sentenceType column + index exist
+  try {
+    await pool.query(`
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'SentenceType') THEN
+          CREATE TYPE "SentenceType" AS ENUM ('SHORT', 'LONG');
+        END IF;
+      END $$;
+    `);
+    await pool.query(`
+      DO $$ BEGIN
+        IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'Sentence') THEN
+          ALTER TABLE "Sentence" ADD COLUMN IF NOT EXISTS "sentenceType" "SentenceType" DEFAULT 'LONG' NOT NULL;
+          CREATE INDEX IF NOT EXISTS "Sentence_sentenceType_idx" ON "Sentence" USING btree ("sentenceType");
+        END IF;
+      END $$;
+    `);
+  } catch (err) {
+    logger.warn({ err }, 'Could not ensure Sentence.sentenceType column');
+  }
+
   logger.info('Database schema and ArabicEntityAudio verified successfully');
 }

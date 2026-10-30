@@ -11,6 +11,7 @@ import { withTransaction } from '../../database/db.js';
 import {
   ContentStatus,
   DifficultyLevel,
+  SentenceType,
 } from '../../database/drizzle/enums.js';
 import { AiService } from '../ai/ai.service.js';
 import { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
@@ -32,9 +33,21 @@ function replaceWords(sentenceId: string, words: WordLink[]) {
 }
 
 export const SentenceService = {
-  async list(q: ListSentenceQuery) {
-    const { items, total } = await SentenceRepository.list(q);
+  async list(q: ListSentenceQuery, forcedType?: SentenceType) {
+    const sentenceType = forcedType ?? q.sentenceType ?? q.type;
+    const { items, total } = await SentenceRepository.list({
+      ...q,
+      sentenceType,
+    });
     return paginated(items, q.page, q.limit, total);
+  },
+
+  async listShort(q: ListSentenceQuery) {
+    return SentenceService.list(q, SentenceType.SHORT);
+  },
+
+  async listLong(q: ListSentenceQuery) {
+    return SentenceService.list(q, SentenceType.LONG);
   },
 
   async getById(id: string) {
@@ -43,8 +56,14 @@ export const SentenceService = {
     return sentence;
   },
 
-  async create(dto: CreateSentenceInput, createdById: string) {
+  async create(
+    dto: CreateSentenceInput,
+    createdById: string,
+    forcedType?: SentenceType,
+  ) {
     const { text, audioUrl, words, ...fields } = dto;
+    const sentenceType =
+      forcedType ?? fields.sentenceType ?? SentenceType.LONG;
 
     let entity = await ArabicEntityRepository.findByNormalizedText(
       normalizeArabicText(text),
@@ -66,12 +85,14 @@ export const SentenceService = {
     let sentence = null;
     while (attempts < 5) {
       try {
-        const sentenceKey = await SentenceRepository.generateNextSentenceKey(attempts);
+        const sentenceKey =
+          await SentenceRepository.generateNextSentenceKey(attempts);
         sentence = await SentenceRepository.insert({
           id: randomUUIDv7(),
           sentenceKey,
           entityId: entity.id,
           ...fields,
+          sentenceType,
           difficulty: fields.difficulty ?? DifficultyLevel.BEGINNER,
           status: ContentStatus.DRAFT,
           createdById,
@@ -79,15 +100,27 @@ export const SentenceService = {
         break;
       } catch (err: unknown) {
         const pgErr = err as { code?: string; constraint?: string };
-        if (pgErr?.code === '23505' && pgErr?.constraint?.includes('sentenceKey')) {
+        if (
+          pgErr?.code === '23505' &&
+          pgErr?.constraint?.includes('sentenceKey')
+        ) {
           attempts++;
           continue;
         }
         throw err;
       }
     }
-    if (!sentence) throw new Error('Failed to generate unique sentenceKey after 5 attempts');
+    if (!sentence)
+      throw new Error('Failed to generate unique sentenceKey after 5 attempts');
     return words?.length ? replaceWords(sentence.id, words) : sentence;
+  },
+
+  async createShort(dto: CreateSentenceInput, createdById: string) {
+    return SentenceService.create(dto, createdById, SentenceType.SHORT);
+  },
+
+  async createLong(dto: CreateSentenceInput, createdById: string) {
+    return SentenceService.create(dto, createdById, SentenceType.LONG);
   },
 
   async update(id: string, dto: UpdateSentenceInput) {
@@ -106,7 +139,11 @@ export const SentenceService = {
     await SentenceRepository.delete(id);
   },
 
-  async generateWithAi(rawText: string, createdById: string) {
+  async generateWithAi(
+    rawText: string,
+    createdById: string,
+    sentenceType: SentenceType = SentenceType.LONG,
+  ) {
     const text = isArabicText(rawText)
       ? rawText
       : await AiService.translateToArabic(rawText);
@@ -117,23 +154,32 @@ export const SentenceService = {
         Awaited<ReturnType<typeof SentenceRepository.findByEntityId>>
       >,
     ) => {
+      let current = existingSentence;
+      if (current.sentenceType !== sentenceType) {
+        current =
+          (await SentenceRepository.update(current.id, {
+            sentenceType,
+            updatedAt: new Date(),
+          })) ?? current;
+      }
+
       const isMissingContent =
-        !existingSentence.meaningBn ||
-        !existingSentence.meaningEn ||
-        existingSentence.meaningBn.trim() === '' ||
-        existingSentence.meaningEn.trim() === '';
+        !current.meaningBn ||
+        !current.meaningEn ||
+        current.meaningBn.trim() === '' ||
+        current.meaningEn.trim() === '';
 
       if (isMissingContent) {
-        const existingJob = await sentenceQueue.getJob(existingSentence.id);
+        const existingJob = await sentenceQueue.getJob(current.id);
         if (!existingJob) {
           await sentenceQueue.add(
             'process-sentence',
             {
-              sentenceId: existingSentence.id,
+              sentenceId: current.id,
               arabicText: text,
               createdById,
             },
-            { jobId: existingSentence.id },
+            { jobId: current.id },
           );
         } else {
           const state = await existingJob.getState();
@@ -147,16 +193,16 @@ export const SentenceService = {
             await sentenceQueue.add(
               'process-sentence',
               {
-                sentenceId: existingSentence.id,
+                sentenceId: current.id,
                 arabicText: text,
                 createdById,
               },
-              { jobId: existingSentence.id },
+              { jobId: current.id },
             );
           }
         }
       }
-      return existingSentence;
+      return current;
     };
 
     let entity =
@@ -186,7 +232,8 @@ export const SentenceService = {
     let sentence = null;
     while (attempts < 5) {
       try {
-        const sentenceKey = await SentenceRepository.generateNextSentenceKey(attempts);
+        const sentenceKey =
+          await SentenceRepository.generateNextSentenceKey(attempts);
         sentence = await SentenceRepository.insert({
           id: randomUUIDv7(),
           sentenceKey,
@@ -199,6 +246,7 @@ export const SentenceService = {
           pronunciationBn: blank,
           feminineEn: blank,
           feminineBn: blank,
+          sentenceType,
           category: DEFAULT_CATEGORY,
           difficulty: DifficultyLevel.BEGINNER,
           status: ContentStatus.DRAFT,
@@ -207,20 +255,40 @@ export const SentenceService = {
         break;
       } catch (err: unknown) {
         const pgErr = err as { code?: string; constraint?: string };
-        if (pgErr?.code === '23505' && pgErr?.constraint?.includes('sentenceKey')) {
+        if (
+          pgErr?.code === '23505' &&
+          pgErr?.constraint?.includes('sentenceKey')
+        ) {
           attempts++;
           continue;
         }
         throw err;
       }
     }
-    if (!sentence) throw new Error('Failed to generate unique sentenceKey after 5 attempts');
+    if (!sentence)
+      throw new Error('Failed to generate unique sentenceKey after 5 attempts');
     await sentenceQueue.add('process-sentence', {
       sentenceId: sentence.id,
       arabicText: text,
       createdById,
     });
     return sentence;
+  },
+
+  async generateShortWithAi(rawText: string, createdById: string) {
+    return SentenceService.generateWithAi(
+      rawText,
+      createdById,
+      SentenceType.SHORT,
+    );
+  },
+
+  async generateLongWithAi(rawText: string, createdById: string) {
+    return SentenceService.generateWithAi(
+      rawText,
+      createdById,
+      SentenceType.LONG,
+    );
   },
 
   async resyncWords(id: string) {
