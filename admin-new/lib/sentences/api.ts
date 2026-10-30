@@ -1,6 +1,16 @@
 import { z } from "zod";
 import type { DifficultyLevel, Sentence, SentenceFormValues, SentenceType } from "@/lib/types/content";
 
+const sentenceLinkedWordSchema = z.object({
+  id: z.string(),
+  wordId: z.string(),
+  position: z.number().nullable().optional().default(null),
+  wordKey: z.string().optional().default(""),
+  arabicText: z.string().optional().default(""),
+  meaningEn: z.string().optional().default(""),
+  meaningBn: z.string().optional().default(""),
+});
+
 const sentenceRecordSchema = z.object({
   id: z.string(),
   sentenceKey: z.string(),
@@ -23,6 +33,7 @@ const sentenceRecordSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   entity: z.object({ arabicText: z.string() }).nullable().optional(),
+  words: z.array(sentenceLinkedWordSchema).optional(),
 });
 
 export interface SentenceListResponse {
@@ -80,6 +91,15 @@ export function normalizeSentence(value: unknown): Sentence {
     difficulty: record.difficulty,
     category: record.category,
     relatedWordId: record.relatedWordId ?? undefined,
+    linkedWords: record.words?.map((w) => ({
+      id: w.id,
+      wordId: w.wordId,
+      position: w.position,
+      wordKey: w.wordKey,
+      arabicText: w.arabicText,
+      meaningEnglish: w.meaningEn,
+      meaningBangla: w.meaningBn,
+    })),
     status: record.status,
     rejectionReason: record.rejectionReason ?? undefined,
     createdBy: record.createdById ?? "Unknown",

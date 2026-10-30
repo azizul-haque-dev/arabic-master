@@ -1,5 +1,6 @@
 import {
   and,
+  asc,
   count,
   desc,
   eq,
@@ -83,11 +84,43 @@ export const SentenceRepository = {
 
   async findById(id: string, ex: Executor = db) {
     const [row] = await ex
-      .select()
+      .select({
+        ...getTableColumns(schema.sentence),
+        entity: entityColumns,
+      })
       .from(schema.sentence)
+      .leftJoin(
+        schema.arabicEntity,
+        eq(schema.sentence.entityId, schema.arabicEntity.id),
+      )
       .where(eq(schema.sentence.id, id))
       .limit(1);
-    return row ?? null;
+
+    if (!row) return null;
+
+    const linkedWords = await ex
+      .select({
+        id: schema.sentenceWord.id,
+        wordId: schema.sentenceWord.wordId,
+        position: schema.sentenceWord.position,
+        wordKey: schema.word.wordKey,
+        meaningEn: schema.word.meaningEn,
+        meaningBn: schema.word.meaningBn,
+        arabicText: schema.arabicEntity.arabicText,
+      })
+      .from(schema.sentenceWord)
+      .innerJoin(schema.word, eq(schema.sentenceWord.wordId, schema.word.id))
+      .innerJoin(
+        schema.arabicEntity,
+        eq(schema.word.entityId, schema.arabicEntity.id),
+      )
+      .where(eq(schema.sentenceWord.sentenceId, id))
+      .orderBy(asc(schema.sentenceWord.position));
+
+    return {
+      ...row,
+      words: linkedWords,
+    };
   },
 
   async findByEntityId(entityId: string, ex: Executor = db) {

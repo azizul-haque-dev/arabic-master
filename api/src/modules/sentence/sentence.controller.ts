@@ -55,63 +55,79 @@ export const SentenceController = {
     const sentenceType = body.sentenceType ?? body.type ?? SentenceType.LONG;
     ok(
       res,
-      await SentenceService.generateWithAi(
-        body.query,
-        req.auth!.userId,
+      await SentenceService.generateWithAi(body.query, req.auth!.userId, {
         sentenceType,
-      ),
+        linkWords: body.linkWords,
+        relatedWordId: body.relatedWordId,
+      }),
       202,
     );
   },
-  generateShort: async (req: Request, res: Response) =>
+  generateShort: async (req: Request, res: Response) => {
+    const body = bodyOf<GenerateSentenceAiInput>(req);
     ok(
       res,
-      await SentenceService.generateShortWithAi(
-        bodyOf<GenerateSentenceAiInput>(req).query,
-        req.auth!.userId,
-      ),
+      await SentenceService.generateShortWithAi(body.query, req.auth!.userId, {
+        linkWords: body.linkWords,
+        relatedWordId: body.relatedWordId,
+      }),
       202,
-    ),
-  generateLong: async (req: Request, res: Response) =>
+    );
+  },
+  generateLong: async (req: Request, res: Response) => {
+    const body = bodyOf<GenerateSentenceAiInput>(req);
     ok(
       res,
-      await SentenceService.generateLongWithAi(
-        bodyOf<GenerateSentenceAiInput>(req).query,
-        req.auth!.userId,
-      ),
+      await SentenceService.generateLongWithAi(body.query, req.auth!.userId, {
+        linkWords: body.linkWords,
+        relatedWordId: body.relatedWordId,
+      }),
       202,
-    ),
+    );
+  },
   generateList: async (req: Request, res: Response) => {
     const body = bodyOf<GenerateSentenceListAiInput>(req);
     const sentenceType = body.sentenceType ?? body.type ?? SentenceType.LONG;
     ok(
       res,
-      await SentenceService.generateManyWithAi(
+      await SentenceService.generateManyWithAi(body.query, req.auth!.userId, {
+        sentenceType,
+        linkWords: body.linkWords,
+        relatedWordId: body.relatedWordId,
+      }),
+      202,
+    );
+  },
+  generateShortList: async (req: Request, res: Response) => {
+    const body = bodyOf<GenerateSentenceListAiInput>(req);
+    ok(
+      res,
+      await SentenceService.generateManyShortWithAi(
         body.query,
         req.auth!.userId,
-        sentenceType,
+        {
+          linkWords: body.linkWords,
+          relatedWordId: body.relatedWordId,
+        },
       ),
       202,
     );
   },
-  generateShortList: async (req: Request, res: Response) =>
-    ok(
-      res,
-      await SentenceService.generateManyShortWithAi(
-        bodyOf<GenerateSentenceListAiInput>(req).query,
-        req.auth!.userId,
-      ),
-      202,
-    ),
-  generateLongList: async (req: Request, res: Response) =>
+  generateLongList: async (req: Request, res: Response) => {
+    const body = bodyOf<GenerateSentenceListAiInput>(req);
     ok(
       res,
       await SentenceService.generateManyLongWithAi(
-        bodyOf<GenerateSentenceListAiInput>(req).query,
+        body.query,
         req.auth!.userId,
+        {
+          linkWords: body.linkWords,
+          relatedWordId: body.relatedWordId,
+        },
       ),
       202,
-    ),
+    );
+  },
   getAiJobStatus: async (req: Request, res: Response) =>
     ok(res, await SentenceService.getAiJobStatus(id(req))),
   regenerate: async (req: Request, res: Response) =>

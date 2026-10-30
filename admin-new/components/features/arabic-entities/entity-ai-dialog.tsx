@@ -14,6 +14,7 @@ import { generateWordAction, regenerateWordAction } from "@/actions/content/word
 import {
   generateSentenceAction,
   regenerateSentenceAction,
+  resyncSentenceWordsAction,
 } from "@/actions/content/sentence-actions";
 import type { ArabicEntity } from "@/lib/types/content";
 import { cn } from "@/lib/utils";
@@ -43,7 +44,7 @@ const TARGET_OPTIONS: {
   {
     value: "SENTENCE",
     label: "Sentence",
-    description: "Generate a full spoken sentence (Long sentence) and link words.",
+    description: "Generate a full spoken sentence (Long sentence) with AI.",
     icon: MessageSquareText,
   },
   {
@@ -66,6 +67,7 @@ export function EntityAiDialog({
   onQueued: (result: EntityAiQueuedResult) => void;
 }) {
   const [target, setTarget] = useState<EntityAiTargetType>("WORD");
+  const [linkWords, setLinkWords] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -100,6 +102,7 @@ export function EntityAiDialog({
       const res = await generateSentenceAction({
         query: entity.arabicText,
         sentenceType,
+        linkWords,
       });
       if (!res.success) {
         setError(res.error);
@@ -108,6 +111,9 @@ export function EntityAiDialog({
       const sentence = res.data;
       if (sentence.meaningEnglish.trim() && sentence.meaningBangla.trim()) {
         await regenerateSentenceAction(sentence.id);
+        if (linkWords) {
+          await resyncSentenceWordsAction(sentence.id);
+        }
       }
       onOpenChange(false);
       onQueued({
@@ -189,6 +195,21 @@ export function EntityAiDialog({
             })}
           </div>
 
+          {target === "SENTENCE" || target === "SHORT_SENTENCE" ? (
+            <label className="flex cursor-pointer items-center gap-2 rounded-default border border-border bg-neutral-bg/50 px-3 py-2 text-xs text-text-secondary">
+              <input
+                type="checkbox"
+                checked={linkWords}
+                onChange={(event) => setLinkWords(event.target.checked)}
+                className="h-4 w-4 rounded border-border-strong text-primary focus:ring-primary"
+              />
+              <span>
+                Link words automatically for this{" "}
+                {target === "SHORT_SENTENCE" ? "short sentence" : "sentence"}
+              </span>
+            </label>
+          ) : null}
+
           {error ? (
             <p role="alert" className="text-sm text-error-text">
               {error}
@@ -216,4 +237,3 @@ export function EntityAiDialog({
     </Dialog>
   );
 }
-

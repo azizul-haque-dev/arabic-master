@@ -7,6 +7,7 @@ import {
   logger as defaultLogger,
   type Logger,
 } from '../../common/http/logger.js';
+import { isArabicText } from '../../common/utils/normalize-arabic.util.js';
 import { AI_PROCESSING, WORD_QUEUE_NAME } from '../../config/constants.js';
 import { bullConnection } from '../../config/redis.js';
 import { AiService } from '../ai/ai.service.js';
@@ -35,12 +36,25 @@ export const WordProcessor = {
       context: 'WordProcessor',
     });
 
-    const { wordId, arabicText } = job.data;
+    const { wordId, arabicText: rawText } = job.data;
 
     const word = await words.findById(wordId);
     if (!word) {
       log.warn(`Word ${wordId} was deleted before the AI job ran — skipping.`);
       return;
+    }
+
+    let arabicText = rawText;
+    if (!isArabicText(rawText)) {
+      arabicText = await ai.translateToArabic(rawText);
+      try {
+        await entities.update(word.entityId, { arabicText });
+      } catch (err) {
+        log.warn(
+          { err, wordId, entityId: word.entityId },
+          'Could not update entity arabicText after deferred translation.',
+        );
+      }
     }
 
     const result = await ai.generateContent(arabicText);

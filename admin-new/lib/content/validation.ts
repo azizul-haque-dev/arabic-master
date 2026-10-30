@@ -17,6 +17,10 @@ const sentenceCategories = z.enum(SENTENCE_CATEGORIES);
 const wordCategory = sentenceCategories;
 const wordId = z.string().trim().min(1).max(200);
 const requiredText = z.string().trim().min(1);
+const sentenceWordLinkSchema = z.object({
+  wordId,
+  position: z.number().int().min(0),
+}).strict();
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -61,10 +65,12 @@ export const sentenceCreateSchema = z.object({
   sentenceType: z.enum(sentenceTypes).optional().default("LONG"),
   difficulty: z.enum(difficulties).optional(),
   relatedWordId: wordId.optional(),
+  words: z.array(sentenceWordLinkSchema).optional(),
 }).strict();
 
 export const sentenceUpdateSchema = sentenceCreateSchema.extend({
   relatedWordId: wordId.nullable().optional(),
+  words: z.array(sentenceWordLinkSchema).optional(),
 }).partial();
 
 export const arabicEntityCreateSchema = z.object({
@@ -102,17 +108,31 @@ export const arabicEntityStatusSchema = z.object({
 export const generateQuerySchema = z.string().trim().min(1).max(500);
 export const generateWordListQuerySchema = z.array(generateQuerySchema).min(1).max(25);
 export const generateSentenceSchema = z.union([
-  generateQuerySchema.transform((query) => ({ query, sentenceType: undefined })),
+  generateQuerySchema.transform((query) => ({
+    query,
+    sentenceType: undefined,
+    linkWords: undefined,
+    relatedWordId: undefined,
+  })),
   z.object({
     query: generateQuerySchema,
     sentenceType: z.enum(sentenceTypes).optional(),
+    linkWords: z.boolean().optional(),
+    relatedWordId: wordId.optional(),
   }).strict(),
 ]);
 export const generateSentenceListSchema = z.union([
-  generateWordListQuerySchema.transform((query) => ({ query, sentenceType: undefined })),
+  generateWordListQuerySchema.transform((query) => ({
+    query,
+    sentenceType: undefined,
+    linkWords: undefined,
+    relatedWordId: undefined,
+  })),
   z.object({
     query: generateWordListQuerySchema,
     sentenceType: z.enum(sentenceTypes).optional(),
+    linkWords: z.boolean().optional(),
+    relatedWordId: wordId.optional(),
   }).strict(),
 ]);
 export const contentIdSchema = z.string().trim().min(1).max(200);

@@ -1,6 +1,7 @@
 import { v7 as randomUUIDv7 } from 'uuid';
 import { DEFAULT_CATEGORY } from '../../common/constants/category.constant.js';
 import { ConflictError, NotFoundError } from '../../common/errors/app-error.js';
+import { logger } from '../../common/http/logger.js';
 import { paginated } from '../../common/http/response.js';
 import { isUniqueViolation } from '../../common/utils/db-error.util.js';
 import {
@@ -25,6 +26,12 @@ import type {
 
 type WordLink = { wordId: string; position: number };
 
+export interface SentenceAiOptions {
+  sentenceType?: SentenceType;
+  linkWords?: boolean;
+  relatedWordId?: string;
+}
+
 type SentenceGenerationBatchResult =
   | {
       query: string;
@@ -40,6 +47,21 @@ function replaceWords(sentenceId: string, words: WordLink[]) {
     await SentenceRepository.replaceWords(sentenceId, words, tx);
     return SentenceRepository.findById(sentenceId, tx);
   });
+}
+
+async function resolveArabicTextOrDefer(rawText: string): Promise<string> {
+  if (isArabicText(rawText)) {
+    return rawText;
+  }
+  try {
+    return await AiService.translateToArabic(rawText);
+  } catch (err) {
+    logger.warn(
+      { err, rawText },
+      'Inline Arabic translation timed out or failed; deferring translation to background worker.',
+    );
+    return rawText;
+  }
 }
 
 export const SentenceService = {
@@ -122,7 +144,9 @@ export const SentenceService = {
     }
     if (!sentence)
       throw new Error('Failed to generate unique sentenceKey after 5 attempts');
-    return words?.length ? replaceWords(sentence.id, words) : sentence;
+    return words?.length
+      ? replaceWords(sentence.id, words)
+      : SentenceRepository.findById(sentence.id);
   },
 
   async createShort(dto: CreateSentenceInput, createdById: string) {
@@ -137,11 +161,14 @@ export const SentenceService = {
     await SentenceService.getById(id);
     // TODO: text/audioUrl আসলে entity-র field; আগের কোডেও ignore হত
     const { words, text: _t, audioUrl: _a, ...rest } = dto;
-    const sentence = await SentenceRepository.update(id, {
+    await SentenceRepository.update(id, {
       ...rest,
       updatedAt: new Date(),
     });
-    return words ? replaceWords(id, words) : sentence;
+    if (words) {
+      return replaceWords(id, words);
+    }
+    return SentenceRepository.findById(id);
   },
 
   async remove(id: string) {
@@ -152,11 +179,17 @@ export const SentenceService = {
   async generateWithAi(
     rawText: string,
     createdById: string,
-    sentenceType: SentenceType = SentenceType.LONG,
+    typeOrOptions: SentenceType | SentenceAiOptions = SentenceType.LONG,
   ) {
-    const text = isArabicText(rawText)
-      ? rawText
-      : await AiService.translateToArabic(rawText);
+    const opts: SentenceAiOptions =
+      typeof typeOrOptions === 'string'
+        ? { sentenceType: typeOrOptions }
+        : typeOrOptions;
+    const sentenceType = opts.sentenceType ?? SentenceType.LONG;
+    const linkWords = opts.linkWords ?? true;
+    const relatedWordId = opts.relatedWordId;
+
+    const text = await resolveArabicTextOrDefer(rawText);
     const normalizedText = normalizeArabicText(text);
 
     const queueSentenceJobIfNeeded = async (
@@ -165,10 +198,14 @@ export const SentenceService = {
       >,
     ) => {
       let current = existingSentence;
-      if (current.sentenceType !== sentenceType) {
+      const needsPatch =
+        current.sentenceType !== sentenceType ||
+        (relatedWordId !== undefined && current.relatedWordId !== relatedWordId);
+      if (needsPatch) {
         current =
           (await SentenceRepository.update(current.id, {
             sentenceType,
+            ...(relatedWordId !== undefined ? { relatedWordId } : {}),
             updatedAt: new Date(),
           })) ?? current;
       }
@@ -188,6 +225,7 @@ export const SentenceService = {
               sentenceId: current.id,
               arabicText: text,
               createdById,
+              linkWords,
             },
             { jobId: current.id },
           );
@@ -206,13 +244,19 @@ export const SentenceService = {
                 sentenceId: current.id,
                 arabicText: text,
                 createdById,
+                linkWords,
               },
               { jobId: current.id },
             );
           }
         }
+      } else if (linkWords) {
+        await sentenceQueue.add('resync-sentence-words', {
+          sentenceId: current.id,
+          arabicText: text,
+        });
       }
-      return current;
+      return (await SentenceRepository.findById(current.id)) ?? current;
     };
 
     let entity =
@@ -257,6 +301,7 @@ export const SentenceService = {
           feminineEn: blank,
           feminineBn: blank,
           sentenceType,
+          relatedWordId: relatedWordId ?? null,
           category: DEFAULT_CATEGORY,
           difficulty: DifficultyLevel.BEGINNER,
           status: ContentStatus.DRAFT,
@@ -283,32 +328,39 @@ export const SentenceService = {
         sentenceId: sentence.id,
         arabicText: text,
         createdById,
+        linkWords,
       },
       { jobId: sentence.id },
     );
-    return sentence;
+    return (await SentenceRepository.findById(sentence.id)) ?? sentence;
   },
 
-  async generateShortWithAi(rawText: string, createdById: string) {
-    return SentenceService.generateWithAi(
-      rawText,
-      createdById,
-      SentenceType.SHORT,
-    );
+  async generateShortWithAi(
+    rawText: string,
+    createdById: string,
+    options?: Omit<SentenceAiOptions, 'sentenceType'>,
+  ) {
+    return SentenceService.generateWithAi(rawText, createdById, {
+      ...options,
+      sentenceType: SentenceType.SHORT,
+    });
   },
 
-  async generateLongWithAi(rawText: string, createdById: string) {
-    return SentenceService.generateWithAi(
-      rawText,
-      createdById,
-      SentenceType.LONG,
-    );
+  async generateLongWithAi(
+    rawText: string,
+    createdById: string,
+    options?: Omit<SentenceAiOptions, 'sentenceType'>,
+  ) {
+    return SentenceService.generateWithAi(rawText, createdById, {
+      ...options,
+      sentenceType: SentenceType.LONG,
+    });
   },
 
   async generateManyWithAi(
     queries: string[],
     createdById: string,
-    sentenceType: SentenceType = SentenceType.LONG,
+    typeOrOptions: SentenceType | SentenceAiOptions = SentenceType.LONG,
   ) {
     const results: SentenceGenerationBatchResult[] = [];
     for (const query of queries) {
@@ -316,7 +368,7 @@ export const SentenceService = {
         const sentence = await SentenceService.generateWithAi(
           query,
           createdById,
-          sentenceType,
+          typeOrOptions,
         );
         const job = await sentenceQueue.getJob(sentence.id);
         results.push({
@@ -337,20 +389,26 @@ export const SentenceService = {
     return results;
   },
 
-  async generateManyShortWithAi(queries: string[], createdById: string) {
-    return SentenceService.generateManyWithAi(
-      queries,
-      createdById,
-      SentenceType.SHORT,
-    );
+  async generateManyShortWithAi(
+    queries: string[],
+    createdById: string,
+    options?: Omit<SentenceAiOptions, 'sentenceType'>,
+  ) {
+    return SentenceService.generateManyWithAi(queries, createdById, {
+      ...options,
+      sentenceType: SentenceType.SHORT,
+    });
   },
 
-  async generateManyLongWithAi(queries: string[], createdById: string) {
-    return SentenceService.generateManyWithAi(
-      queries,
-      createdById,
-      SentenceType.LONG,
-    );
+  async generateManyLongWithAi(
+    queries: string[],
+    createdById: string,
+    options?: Omit<SentenceAiOptions, 'sentenceType'>,
+  ) {
+    return SentenceService.generateManyWithAi(queries, createdById, {
+      ...options,
+      sentenceType: SentenceType.LONG,
+    });
   },
 
   async getAiJobStatus(jobId: string) {

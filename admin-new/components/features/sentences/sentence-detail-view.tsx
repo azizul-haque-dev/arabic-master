@@ -3,16 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Pencil, XCircle, Sparkles, Type, MessagesSquare, GraduationCap } from "lucide-react";
+import { ChevronRight, Pencil, XCircle, Sparkles, MessagesSquare, GraduationCap } from "lucide-react";
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
 import { SentenceFormDialog } from "@/components/features/sentences/sentence-form-dialog";
 import { SentenceTypeBadge } from "@/components/features/sentences/sentence-type-badge";
+import { SentenceWordLinker } from "@/components/features/sentences/sentence-word-linker";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     getSentenceAction,
     regenerateSentenceAction,
-    resyncSentenceWordsAction,
     updateSentenceAction,
 } from "@/actions/content/sentence-actions";
 import { buildSentenceUpdatePayload } from "@/lib/sentences/api";
@@ -36,14 +36,14 @@ export function SentenceDetailView({
     const [isGenerating, setIsGenerating] = useState(false);
     const [generateMessage, setGenerateMessage] = useState<string | null>(null);
     const [generateError, setGenerateError] = useState<string | null>(null);
-    const [isResyncing, setIsResyncing] = useState(false);
-    const [resyncMessage, setResyncMessage] = useState<string | null>(null);
-    const [resyncError, setResyncError] = useState<string | null>(null);
 
     async function handleSave(values: SentenceFormValues): Promise<Sentence> {
         const result = await updateSentenceAction(sentence.id, buildSentenceUpdatePayload(values));
         if (!result.success) throw new Error(result.error);
-        const sentenceWithArabicText = { ...result.data, arabicText: sentence.arabicText };
+        const sentenceWithArabicText = {
+            ...result.data,
+            arabicText: result.data.arabicText || sentence.arabicText,
+        };
         setSentence(sentenceWithArabicText);
         router.refresh();
         return sentenceWithArabicText;
@@ -101,25 +101,6 @@ export function SentenceDetailView({
             );
             setGenerateMessage(null);
             setIsGenerating(false);
-        }
-    }
-
-    async function handleResyncWords() {
-        if (isResyncing) return;
-        setIsResyncing(true);
-        setResyncError(null);
-        setResyncMessage(null);
-        try {
-            const result = await resyncSentenceWordsAction(sentence.id);
-            if (!result.success) {
-                setResyncError(result.error);
-                return;
-            }
-            setResyncMessage("Word-link resync was queued.");
-        } catch (cause) {
-            setResyncError(cause instanceof Error ? cause.message : "Unable to queue word-link resync.");
-        } finally {
-            setIsResyncing(false);
         }
     }
 
@@ -270,13 +251,6 @@ export function SentenceDetailView({
                             </p>
                             <p className="mt-1 text-xs text-text-muted">Entity ID: {sentence.entityId}</p>
                         </div>
-                        <div className="mt-3 flex flex-col gap-2">
-                            <Button variant="secondary" size="sm" disabled={isResyncing} onClick={() => void handleResyncWords()}>
-                                {isResyncing ? "Queueing…" : "Resync word links"}
-                            </Button>
-                            {resyncMessage ? <p role="status" className="text-xs text-text-secondary">{resyncMessage}</p> : null}
-                            {resyncError ? <p role="alert" className="text-xs text-error-text">{resyncError}</p> : null}
-                        </div>
                         <p className="mt-3 text-xs text-text-secondary leading-relaxed">
                             অডিও এই বাক্যের সাথে সরাসরি যুক্ত নয়, বরং মূল <strong>Arabic Entity</strong>-র অংশ। এখানে আপলোড বা পরিবর্তন করলে সংযুক্ত Entity-র অডিও আপডেট হবে। (Audio belongs to the underlying Arabic Entity).
                         </p>
@@ -290,26 +264,11 @@ export function SentenceDetailView({
                         </div>
                     </section>
 
-                    {initialRelatedWord ? (
-                        <section className="rounded-lg border border-border bg-white p-5">
-                            <h2 className="flex items-center gap-1.5 font-heading text-sm font-semibold text-text">
-                                <Type className="h-3.5 w-3.5 text-secondary" aria-hidden="true" />
-                                Related word
-                            </h2>
-                            <Link
-                                href={`/admin/words/${initialRelatedWord.id}`}
-                                className="mt-3 flex items-center justify-between rounded-default border border-border px-3.5 py-2.5 transition-colors hover:border-primary/40 hover:bg-primary-light/10"
-                            >
-                                <div>
-                                    <p dir="rtl" lang="ar" className="font-arabic text-lg text-text">
-                                        {initialRelatedWord.arabicText}
-                                    </p>
-                                    <p className="text-xs text-text-muted">{initialRelatedWord.meaningEnglish}</p>
-                                </div>
-                                <ChevronRight className="h-4 w-4 text-text-muted" aria-hidden="true" />
-                            </Link>
-                        </section>
-                    ) : null}
+                    <SentenceWordLinker
+                        sentence={sentence}
+                        initialRelatedWord={initialRelatedWord}
+                        onSentenceUpdated={setSentence}
+                    />
 
                     <section className="rounded-lg border border-border bg-white p-5">
                         <h2 className="font-heading text-sm font-semibold text-text">Where this is used</h2>

@@ -37,7 +37,9 @@ export const createSentenceSchema = z.strictObject({
     .array(z.strictObject({ wordId: text, position: z.number().int().min(0) }))
     .optional(),
 });
-export const updateSentenceSchema = createSentenceSchema.partial();
+export const updateSentenceSchema = createSentenceSchema.extend({
+  relatedWordId: z.string().nullable().optional(),
+}).partial();
 
 export const listSentenceQuerySchema = z.strictObject({
   ...paginationShape,
@@ -52,12 +54,16 @@ export const generateSentenceAiSchema = z.strictObject({
   query: aiQuery,
   sentenceType: sentenceType.optional(),
   type: sentenceType.optional(),
+  linkWords: z.boolean().optional(),
+  relatedWordId: z.string().optional(),
 });
 
 export const generateSentenceListAiSchema = z.strictObject({
   query: z.array(aiQuery).min(1).max(25),
   sentenceType: sentenceType.optional(),
   type: sentenceType.optional(),
+  linkWords: z.boolean().optional(),
+  relatedWordId: z.string().optional(),
 });
 
 export type CreateSentenceInput = z.infer<typeof createSentenceSchema>;

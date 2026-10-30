@@ -33,7 +33,7 @@ export function createAiService() {
     async translateToArabic(text: string): Promise<string> {
       const result = await translator.invoke(
         textToTranslateSaudiNativeArabic(text),
-        { timeout: AI_PROCESSING.REQUEST_TIMEOUT_MS },
+        { timeout: AI_PROCESSING.TRANSLATE_TIMEOUT_MS },
       );
       return SaudiArabicTranslationSchema.parse(result).translatedText;
     },

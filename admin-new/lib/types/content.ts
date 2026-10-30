@@ -113,6 +113,16 @@ export const WORD_TYPE_LABEL: Record<WordType, string> = {
 export type DifficultyLevel = "BEGINNER" | "ELEMENTARY" | "INTERMEDIATE" | "ADVANCED";
 export type SentenceType = "SHORT" | "LONG";
 
+export interface SentenceLinkedWord {
+  id: string;
+  wordId: string;
+  position: number | null;
+  wordKey: string;
+  arabicText: string;
+  meaningEnglish: string;
+  meaningBangla: string;
+}
+
 export interface Sentence {
   id: string;
   sentenceKey: string; // e.g. "SNT-1024"
@@ -130,6 +140,7 @@ export interface Sentence {
   difficulty: DifficultyLevel;
   category: string;
   relatedWordId?: string; // optional link to a Word that uses the same entity
+  linkedWords?: SentenceLinkedWord[];
   usedInLessons?: number;
   usedInConversations?: number;
   status: ContentStatus;

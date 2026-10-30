@@ -6,8 +6,9 @@ export const PAGINATION = {
 export const AI_PROCESSING = {
   QUEUE_RETRY_ATTEMPTS: 5,
   QUEUE_RETRY_DELAY_MS: 15000,
-  REQUEST_TIMEOUT_MS: 30000,
-  MAX_INTERNAL_RETRIES: 1,
+  REQUEST_TIMEOUT_MS: 60000,
+  TRANSLATE_TIMEOUT_MS: 15000,
+  MAX_INTERNAL_RETRIES: 2,
 };
 export const WORD_QUEUE_NAME = 'word-ai-processing';
 export const SENTENCE_QUEUE_NAME = 'sentence-ai-processing';

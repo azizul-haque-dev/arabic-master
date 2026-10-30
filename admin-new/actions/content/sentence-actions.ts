@@ -158,6 +158,8 @@ export async function generateSentenceAction(input: unknown): Promise<ContentAct
       body: JSON.stringify({
         query: parsed.data.query,
         ...(parsed.data.sentenceType ? { sentenceType: parsed.data.sentenceType } : {}),
+        ...(parsed.data.linkWords !== undefined ? { linkWords: parsed.data.linkWords } : {}),
+        ...(parsed.data.relatedWordId ? { relatedWordId: parsed.data.relatedWordId } : {}),
       }),
     });
     if (!response.success) return toFailure(response);
@@ -196,6 +198,8 @@ export async function generateSentenceListAction(
       body: JSON.stringify({
         query: parsed.data.query,
         ...(parsed.data.sentenceType ? { sentenceType: parsed.data.sentenceType } : {}),
+        ...(parsed.data.linkWords !== undefined ? { linkWords: parsed.data.linkWords } : {}),
+        ...(parsed.data.relatedWordId ? { relatedWordId: parsed.data.relatedWordId } : {}),
       }),
     });
     if (!response.success) return toFailure(response);

@@ -41,6 +41,7 @@ export function SentenceAiDialog({
     const resolvedDefaultType = fixedSentenceType ?? defaultSentenceType;
     const [query, setQuery] = useState("");
     const [sentenceType, setSentenceType] = useState<SentenceType>(resolvedDefaultType);
+    const [linkWords, setLinkWords] = useState(true);
     const [isGenerating, setIsGenerating] = useState(false);
     const [generatingAction, setGeneratingAction] = useState<"single" | "list" | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -54,6 +55,7 @@ export function SentenceAiDialog({
     useEffect(() => {
         if (open) {
             setSentenceType(resolvedDefaultType);
+            setLinkWords(true);
             setError(null);
         }
     }, [open, resolvedDefaultType]);
@@ -67,6 +69,7 @@ export function SentenceAiDialog({
             const result = await generateSentenceAction({
                 query: query.trim(),
                 sentenceType: fixedSentenceType ?? sentenceType,
+                linkWords,
             });
             if (!result.success) {
                 setError(result.error);
@@ -104,6 +107,7 @@ export function SentenceAiDialog({
             const result = await generateSentenceListAction({
                 query: parsedBatchQueries,
                 sentenceType: fixedSentenceType ?? sentenceType,
+                linkWords,
             });
             if (!result.success) {
                 setError(result.error);
@@ -184,6 +188,21 @@ export function SentenceAiDialog({
                             placeholder={"Enter a single sentence (e.g. كم السعر؟) or multiple sentences:\nكم السعر؟\nأين الحمام؟\nأريد هذا"}
                         />
                     </div>
+
+                    <label className="flex cursor-pointer items-center gap-2 rounded-default border border-border bg-neutral-bg/50 px-3 py-2 text-xs text-text-secondary">
+                        <input
+                            type="checkbox"
+                            checked={linkWords}
+                            onChange={(event) => setLinkWords(event.target.checked)}
+                            className="h-4 w-4 rounded border-border-strong text-primary focus:ring-primary"
+                        />
+                        <span>
+                            Link words automatically for this{" "}
+                            {(fixedSentenceType ?? sentenceType) === "SHORT"
+                                ? "short sentence"
+                                : "sentence"}
+                        </span>
+                    </label>
 
                     {error ? (
                         <p role="alert" className="text-sm text-error-text">

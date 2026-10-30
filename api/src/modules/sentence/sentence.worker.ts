@@ -7,7 +7,10 @@ import {
   logger as defaultLogger,
   type Logger,
 } from '../../common/http/logger.js';
-import { cleanTextAndSpaces } from '../../common/utils/normalize-arabic.util.js';
+import {
+  cleanTextAndSpaces,
+  isArabicText,
+} from '../../common/utils/normalize-arabic.util.js';
 import { SENTENCE_QUEUE_NAME } from '../../config/constants.js';
 import { bullConnection } from '../../config/redis.js';
 import { withTransaction } from '../../database/db.js';
@@ -20,6 +23,7 @@ export interface SentenceProcessData {
   sentenceId: string;
   arabicText: string;
   createdById?: string;
+  linkWords?: boolean;
 }
 
 export interface SentenceResyncData {
@@ -94,7 +98,7 @@ export const SentenceProcessor = {
       return;
     }
 
-    const { sentenceId, arabicText, createdById } =
+    const { sentenceId, arabicText: rawText, createdById, linkWords } =
       job.data as SentenceProcessData;
     const sentence = await sentences.findById(sentenceId);
     if (!sentence) {
@@ -102,6 +106,19 @@ export const SentenceProcessor = {
         `Sentence ${sentenceId} was deleted before the AI job ran — skipping.`,
       );
       return;
+    }
+
+    let arabicText = rawText;
+    if (!isArabicText(rawText)) {
+      arabicText = await ai.translateToArabic(rawText);
+      try {
+        await entities.update(sentence.entityId, { arabicText });
+      } catch (err) {
+        log.warn(
+          { err, sentenceId, entityId: sentence.entityId },
+          'Could not update entity arabicText after deferred translation.',
+        );
+      }
     }
 
     const result = await ai.generateContent(arabicText);
@@ -136,7 +153,12 @@ export const SentenceProcessor = {
       updatedAt: new Date(),
     });
 
-    await replaceWords(sentenceId, await resolveWords(arabicText, createdById));
+    if (linkWords !== false) {
+      await replaceWords(
+        sentenceId,
+        await resolveWords(arabicText, createdById),
+      );
+    }
   },
 };
 
