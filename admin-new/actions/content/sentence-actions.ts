@@ -6,6 +6,7 @@ import { callBackend, requireContentAdmin, validationFailure } from "@/lib/conte
 import {
   contentIdSchema,
   contentListQuerySchema,
+  generateSentenceListSchema,
   generateSentenceSchema,
   queryFromUnknown,
   sentenceCreateSchema,
@@ -163,6 +164,71 @@ export async function generateSentenceAction(input: unknown): Promise<ContentAct
     const sentence = normalizeSentence(response.data);
     revalidateSentencePaths();
     return { success: true, data: sentence };
+  } catch {
+    return safeFailure();
+  }
+}
+
+export interface SentenceBatchResult {
+  query: string;
+  success: boolean;
+  sentenceId?: string;
+  jobId?: string | null;
+  queued?: boolean;
+  error?: string;
+}
+
+export async function generateSentenceListAction(
+  input: unknown,
+): Promise<ContentActionResult<SentenceBatchResult[]>> {
+  const authorization = await requireContentAdmin();
+  if (!authorization.success) return toFailure(authorization);
+
+  const parsed = generateSentenceListSchema.safeParse(input);
+  if (!parsed.success) return validationFailure(parsed.error.issues);
+
+  try {
+    const endpoint =
+      parsed.data.sentenceType === "SHORT" ? "/sentences/short/ai/list" : "/sentences/ai/list";
+    const response = await callBackend(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: parsed.data.query,
+        ...(parsed.data.sentenceType ? { sentenceType: parsed.data.sentenceType } : {}),
+      }),
+    });
+    if (!response.success) return toFailure(response);
+    revalidateSentencePaths();
+    return {
+      success: true,
+      data: Array.isArray(response.data) ? (response.data as SentenceBatchResult[]) : [],
+    };
+  } catch {
+    return safeFailure();
+  }
+}
+
+export async function regenerateSentenceAction(
+  idInput: unknown,
+): Promise<ContentActionResult<{ sentenceId: string; jobId: string; queued: boolean }>> {
+  const authorization = await requireContentAdmin();
+  if (!authorization.success) return toFailure(authorization);
+
+  const id = contentIdSchema.safeParse(idInput);
+  if (!id.success) return validationFailure(id.error.issues);
+
+  try {
+    const response = await callBackend(`/sentences/${encodeURIComponent(id.data)}/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.success) return toFailure(response);
+    revalidateSentencePaths(id.data);
+    return {
+      success: true,
+      data: response.data as { sentenceId: string; jobId: string; queued: boolean },
+    };
   } catch {
     return safeFailure();
   }

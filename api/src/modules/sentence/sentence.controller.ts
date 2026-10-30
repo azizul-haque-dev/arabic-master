@@ -6,6 +6,7 @@ import { SentenceType } from '../../database/drizzle/enums.js';
 import type {
   CreateSentenceInput,
   GenerateSentenceAiInput,
+  GenerateSentenceListAiInput,
   ListSentenceQuery,
   UpdateSentenceInput,
 } from './sentence.schemas.js';
@@ -78,6 +79,45 @@ export const SentenceController = {
         bodyOf<GenerateSentenceAiInput>(req).query,
         req.auth!.userId,
       ),
+      202,
+    ),
+  generateList: async (req: Request, res: Response) => {
+    const body = bodyOf<GenerateSentenceListAiInput>(req);
+    const sentenceType = body.sentenceType ?? body.type ?? SentenceType.LONG;
+    ok(
+      res,
+      await SentenceService.generateManyWithAi(
+        body.query,
+        req.auth!.userId,
+        sentenceType,
+      ),
+      202,
+    );
+  },
+  generateShortList: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await SentenceService.generateManyShortWithAi(
+        bodyOf<GenerateSentenceListAiInput>(req).query,
+        req.auth!.userId,
+      ),
+      202,
+    ),
+  generateLongList: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await SentenceService.generateManyLongWithAi(
+        bodyOf<GenerateSentenceListAiInput>(req).query,
+        req.auth!.userId,
+      ),
+      202,
+    ),
+  getAiJobStatus: async (req: Request, res: Response) =>
+    ok(res, await SentenceService.getAiJobStatus(id(req))),
+  regenerate: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await SentenceService.regenerateWithAi(id(req), req.auth?.userId),
       202,
     ),
   resyncWords: async (req: Request, res: Response) =>

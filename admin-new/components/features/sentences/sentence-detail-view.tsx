@@ -9,7 +9,12 @@ import { SentenceFormDialog } from "@/components/features/sentences/sentence-for
 import { SentenceTypeBadge } from "@/components/features/sentences/sentence-type-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { resyncSentenceWordsAction, updateSentenceAction } from "@/actions/content/sentence-actions";
+import {
+    getSentenceAction,
+    regenerateSentenceAction,
+    resyncSentenceWordsAction,
+    updateSentenceAction,
+} from "@/actions/content/sentence-actions";
 import { buildSentenceUpdatePayload } from "@/lib/sentences/api";
 import type { Sentence, SentenceFormValues, Word } from "@/lib/types/content";
 import { DIFFICULTY_LABEL, SENTENCE_TYPE_LABEL } from "@/lib/types/content";
@@ -28,6 +33,9 @@ export function SentenceDetailView({
     const { role } = useRole();
     const [sentence, setSentence] = useState(initialSentence);
     const [editOpen, setEditOpen] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [generateMessage, setGenerateMessage] = useState<string | null>(null);
+    const [generateError, setGenerateError] = useState<string | null>(null);
     const [isResyncing, setIsResyncing] = useState(false);
     const [resyncMessage, setResyncMessage] = useState<string | null>(null);
     const [resyncError, setResyncError] = useState<string | null>(null);
@@ -39,6 +47,61 @@ export function SentenceDetailView({
         setSentence(sentenceWithArabicText);
         router.refresh();
         return sentenceWithArabicText;
+    }
+
+    async function handleRegenerate() {
+        if (isGenerating) return;
+        setIsGenerating(true);
+        setGenerateError(null);
+        setGenerateMessage("AI generation queued in background. Fetching updated content…");
+
+        try {
+            const result = await regenerateSentenceAction(sentence.id);
+            if (!result.success) {
+                setGenerateError(result.error);
+                setGenerateMessage(null);
+                setIsGenerating(false);
+                return;
+            }
+
+            let attempts = 0;
+            const interval = setInterval(async () => {
+                attempts += 1;
+                try {
+                    const fresh = await getSentenceAction(sentence.id);
+                    if (fresh.success && fresh.data) {
+                        const hasMeaning =
+                            Boolean(fresh.data.meaningEnglish?.trim()) &&
+                            Boolean(fresh.data.meaningBangla?.trim());
+                        if (hasMeaning || attempts >= 15) {
+                            clearInterval(interval);
+                            setSentence((prev) => ({
+                                ...fresh.data,
+                                arabicText: fresh.data.arabicText || prev.arabicText,
+                            }));
+                            setIsGenerating(false);
+                            setGenerateMessage(
+                                hasMeaning
+                                    ? "AI generation completed successfully!"
+                                    : "Generation is still running in background. Please refresh in a moment.",
+                            );
+                            router.refresh();
+                        }
+                    }
+                } catch {
+                    if (attempts >= 15) {
+                        clearInterval(interval);
+                        setIsGenerating(false);
+                    }
+                }
+            }, 2000);
+        } catch (cause) {
+            setGenerateError(
+                cause instanceof Error ? cause.message : "Failed to queue AI generation.",
+            );
+            setGenerateMessage(null);
+            setIsGenerating(false);
+        }
     }
 
     async function handleResyncWords() {
@@ -87,11 +150,35 @@ export function SentenceDetailView({
                         </Badge>
                     </div>
                 </div>
-                <Button variant="secondary" onClick={() => setEditOpen(true)}>
-                    <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-                    Edit
-                </Button>
+                <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                        variant="outline"
+                        disabled={isGenerating}
+                        onClick={() => void handleRegenerate()}
+                    >
+                        <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                        {isGenerating ? "Generating with AI…" : "Generate with AI"}
+                    </Button>
+                    <Button variant="secondary" onClick={() => setEditOpen(true)}>
+                        <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                        Edit
+                    </Button>
+                </div>
             </div>
+
+            {generateMessage ? (
+                <div
+                    role="status"
+                    className="flex items-center justify-between gap-3 rounded-default border border-border bg-white p-3 text-sm text-text-secondary"
+                >
+                    <span>{generateMessage}</span>
+                </div>
+            ) : null}
+            {generateError ? (
+                <p role="alert" className="text-sm text-error-text">
+                    {generateError}
+                </p>
+            ) : null}
 
             {sentence.status === "REJECTED" && sentence.rejectionReason ? (
                 <div className="flex gap-2.5 rounded-default border border-error/20 bg-error-bg p-3.5 text-sm text-error-text">

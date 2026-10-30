@@ -100,6 +100,7 @@ export const arabicEntityStatusSchema = z.object({
 }).strict();
 
 export const generateQuerySchema = z.string().trim().min(1).max(500);
+export const generateWordListQuerySchema = z.array(generateQuerySchema).min(1).max(25);
 export const generateSentenceSchema = z.union([
   generateQuerySchema.transform((query) => ({ query, sentenceType: undefined })),
   z.object({
@@ -107,7 +108,13 @@ export const generateSentenceSchema = z.union([
     sentenceType: z.enum(sentenceTypes).optional(),
   }).strict(),
 ]);
-export const generateWordListQuerySchema = z.array(generateQuerySchema).min(1).max(25);
+export const generateSentenceListSchema = z.union([
+  generateWordListQuerySchema.transform((query) => ({ query, sentenceType: undefined })),
+  z.object({
+    query: generateWordListQuerySchema,
+    sentenceType: z.enum(sentenceTypes).optional(),
+  }).strict(),
+]);
 export const contentIdSchema = z.string().trim().min(1).max(200);
 
 export const sectionCreateSchema = z.object({

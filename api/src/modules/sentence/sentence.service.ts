@@ -25,6 +25,16 @@ import type {
 
 type WordLink = { wordId: string; position: number };
 
+type SentenceGenerationBatchResult =
+  | {
+      query: string;
+      success: true;
+      sentenceId: string;
+      jobId: string | null;
+      queued: boolean;
+    }
+  | { query: string; success: false; error: string };
+
 function replaceWords(sentenceId: string, words: WordLink[]) {
   return withTransaction(async (tx) => {
     await SentenceRepository.replaceWords(sentenceId, words, tx);
@@ -267,11 +277,15 @@ export const SentenceService = {
     }
     if (!sentence)
       throw new Error('Failed to generate unique sentenceKey after 5 attempts');
-    await sentenceQueue.add('process-sentence', {
-      sentenceId: sentence.id,
-      arabicText: text,
-      createdById,
-    });
+    await sentenceQueue.add(
+      'process-sentence',
+      {
+        sentenceId: sentence.id,
+        arabicText: text,
+        createdById,
+      },
+      { jobId: sentence.id },
+    );
     return sentence;
   },
 
@@ -289,6 +303,130 @@ export const SentenceService = {
       createdById,
       SentenceType.LONG,
     );
+  },
+
+  async generateManyWithAi(
+    queries: string[],
+    createdById: string,
+    sentenceType: SentenceType = SentenceType.LONG,
+  ) {
+    const results: SentenceGenerationBatchResult[] = [];
+    for (const query of queries) {
+      try {
+        const sentence = await SentenceService.generateWithAi(
+          query,
+          createdById,
+          sentenceType,
+        );
+        const job = await sentenceQueue.getJob(sentence.id);
+        results.push({
+          query,
+          success: true as const,
+          sentenceId: sentence.id,
+          jobId: job?.id ?? null,
+          queued: Boolean(job),
+        });
+      } catch (error) {
+        results.push({
+          query,
+          success: false as const,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+    return results;
+  },
+
+  async generateManyShortWithAi(queries: string[], createdById: string) {
+    return SentenceService.generateManyWithAi(
+      queries,
+      createdById,
+      SentenceType.SHORT,
+    );
+  },
+
+  async generateManyLongWithAi(queries: string[], createdById: string) {
+    return SentenceService.generateManyWithAi(
+      queries,
+      createdById,
+      SentenceType.LONG,
+    );
+  },
+
+  async getAiJobStatus(jobId: string) {
+    const job = await sentenceQueue.getJob(jobId);
+    if (!job) throw new NotFoundError('AI sentence-generation job not found');
+
+    return {
+      jobId: job.id,
+      sentenceId: job.data.sentenceId,
+      arabicText: job.data.arabicText,
+      state: await job.getState(),
+      attemptsMade: job.attemptsMade,
+      maxAttempts: job.opts.attempts ?? 1,
+      failedReason: job.failedReason || null,
+    };
+  },
+
+  async regenerateWithAi(id: string, userId?: string) {
+    const sentence = await SentenceRepository.findById(id);
+    if (!sentence) throw new NotFoundError('Sentence not found');
+
+    const entity = await ArabicEntityRepository.findById(sentence.entityId);
+    const arabicText = entity?.arabicText;
+    if (!arabicText) {
+      throw new ConflictError('Sentence does not have associated Arabic text');
+    }
+
+    const createdById = sentence.createdById ?? userId ?? '';
+    const existingJob = await sentenceQueue.getJob(sentence.id);
+    if (existingJob) {
+      const state = await existingJob.getState();
+      if (state === 'active') {
+        return {
+          sentenceId: sentence.id,
+          jobId: sentence.id,
+          queued: true,
+          message: 'AI generation is currently in progress',
+        };
+      }
+      if (state === 'waiting' || state === 'delayed') {
+        return {
+          sentenceId: sentence.id,
+          jobId: sentence.id,
+          queued: true,
+          message: 'AI generation is already queued',
+        };
+      }
+
+      try {
+        await existingJob.remove();
+      } catch (err: unknown) {
+        const error = err as Error;
+        if (error?.message?.includes('locked')) {
+          return {
+            sentenceId: sentence.id,
+            jobId: sentence.id,
+            queued: true,
+            message: 'AI generation is currently in progress',
+          };
+        }
+        throw err;
+      }
+    }
+
+    await sentenceQueue.add(
+      'process-sentence',
+      { sentenceId: sentence.id, arabicText, createdById },
+      { jobId: sentence.id },
+    );
+
+    return {
+      sentenceId: sentence.id,
+      jobId: sentence.id,
+      queued: true,
+      message: 'AI generation queued successfully',
+    };
   },
 
   async resyncWords(id: string) {

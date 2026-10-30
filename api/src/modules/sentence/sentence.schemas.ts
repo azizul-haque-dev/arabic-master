@@ -10,6 +10,11 @@ import {
 const text = z.string().min(1);
 const category = z.enum(ALLOWED_CATEGORIES);
 const sentenceType = z.enum(sentenceTypeEnum.enumValues);
+const aiQuery = z
+  .string()
+  .trim()
+  .min(1, 'Query is required')
+  .max(500, 'Query is too long');
 
 export const createSentenceSchema = z.strictObject({
   text: text.describe('Arabic text'),
@@ -44,11 +49,13 @@ export const listSentenceQuerySchema = z.strictObject({
 });
 
 export const generateSentenceAiSchema = z.strictObject({
-  query: z
-    .string()
-    .trim()
-    .min(1, 'Query is required')
-    .max(500, 'Query is too long'),
+  query: aiQuery,
+  sentenceType: sentenceType.optional(),
+  type: sentenceType.optional(),
+});
+
+export const generateSentenceListAiSchema = z.strictObject({
+  query: z.array(aiQuery).min(1).max(25),
   sentenceType: sentenceType.optional(),
   type: sentenceType.optional(),
 });
@@ -57,3 +64,6 @@ export type CreateSentenceInput = z.infer<typeof createSentenceSchema>;
 export type UpdateSentenceInput = z.infer<typeof updateSentenceSchema>;
 export type ListSentenceQuery = z.infer<typeof listSentenceQuerySchema>;
 export type GenerateSentenceAiInput = z.infer<typeof generateSentenceAiSchema>;
+export type GenerateSentenceListAiInput = z.infer<
+  typeof generateSentenceListAiSchema
+>;

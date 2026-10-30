@@ -20,6 +20,7 @@ import {
     deleteSentenceAction,
     getSentenceAction,
     listSentencesAction,
+    type SentenceBatchResult,
 } from "@/actions/content/sentence-actions";
 import { buildSentenceCreatePayload } from "@/lib/sentences/api";
 import {
@@ -178,6 +179,22 @@ export function SentenceListView({
         } else {
             setGenerationPendingId(queued.id);
             setGenerationMessage(`AI generation queued for ${queued.sentenceKey}.`);
+        }
+        triggerReload(true);
+    }
+
+    function handleBatchGenerated(results: SentenceBatchResult[]) {
+        const queuedCount = results.filter((r) => r.queued).length;
+        const failedCount = results.filter((r) => !r.success).length;
+
+        if (failedCount > 0) {
+            setGenerationMessage(
+                `Batch submitted: ${results.length - failedCount} succeeded (${queuedCount} queued in background), ${failedCount} failed.`,
+            );
+        } else {
+            setGenerationMessage(
+                `Batch submitted: ${results.length} sentences queued for background AI processing.`,
+            );
         }
         triggerReload(true);
     }
@@ -445,6 +462,7 @@ export function SentenceListView({
                 defaultSentenceType={fixedSentenceType ?? "LONG"}
                 fixedSentenceType={fixedSentenceType}
                 onGenerated={handleGenerated}
+                onBatchGenerated={handleBatchGenerated}
             />
 
             <DeleteConfirmationDialog

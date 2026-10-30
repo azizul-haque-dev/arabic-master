@@ -8,6 +8,7 @@ import { SentenceController } from './sentence.controller.js';
 import {
   createSentenceSchema,
   generateSentenceAiSchema,
+  generateSentenceListAiSchema,
   listSentenceQuerySchema,
   updateSentenceSchema,
 } from './sentence.schemas.js';
@@ -60,10 +61,22 @@ sentenceRoutes.post(
   SentenceController.generate,
 );
 sentenceRoutes.post(
+  '/ai/list',
+  ...staff,
+  validate({ body: generateSentenceListAiSchema }),
+  SentenceController.generateList,
+);
+sentenceRoutes.post(
   '/short/ai',
   ...staff,
   validate({ body: generateSentenceAiSchema }),
   SentenceController.generateShort,
+);
+sentenceRoutes.post(
+  '/short/ai/list',
+  ...staff,
+  validate({ body: generateSentenceListAiSchema }),
+  SentenceController.generateShortList,
 );
 sentenceRoutes.post(
   '/ai/short',
@@ -72,16 +85,52 @@ sentenceRoutes.post(
   SentenceController.generateShort,
 );
 sentenceRoutes.post(
+  '/ai/short/list',
+  ...staff,
+  validate({ body: generateSentenceListAiSchema }),
+  SentenceController.generateShortList,
+);
+sentenceRoutes.post(
   '/long/ai',
   ...staff,
   validate({ body: generateSentenceAiSchema }),
   SentenceController.generateLong,
 );
 sentenceRoutes.post(
+  '/long/ai/list',
+  ...staff,
+  validate({ body: generateSentenceListAiSchema }),
+  SentenceController.generateLongList,
+);
+sentenceRoutes.post(
   '/ai/long',
   ...staff,
   validate({ body: generateSentenceAiSchema }),
   SentenceController.generateLong,
+);
+sentenceRoutes.post(
+  '/ai/long/list',
+  ...staff,
+  validate({ body: generateSentenceListAiSchema }),
+  SentenceController.generateLongList,
+);
+sentenceRoutes.get(
+  '/ai/jobs/:id',
+  ...staff,
+  params,
+  SentenceController.getAiJobStatus,
+);
+sentenceRoutes.post(
+  '/:id/generate',
+  ...staff,
+  params,
+  SentenceController.regenerate,
+);
+sentenceRoutes.post(
+  '/:id/ai',
+  ...staff,
+  params,
+  SentenceController.regenerate,
 );
 sentenceRoutes.post(
   '/:id/resync-words',
@@ -115,6 +164,30 @@ shortSentenceRoutes.post(
   ...staff,
   validate({ body: generateSentenceAiSchema }),
   SentenceController.generateShort,
+);
+shortSentenceRoutes.post(
+  '/ai/list',
+  ...staff,
+  validate({ body: generateSentenceListAiSchema }),
+  SentenceController.generateShortList,
+);
+shortSentenceRoutes.get(
+  '/ai/jobs/:id',
+  ...staff,
+  params,
+  SentenceController.getAiJobStatus,
+);
+shortSentenceRoutes.post(
+  '/:id/generate',
+  ...staff,
+  params,
+  SentenceController.regenerate,
+);
+shortSentenceRoutes.post(
+  '/:id/ai',
+  ...staff,
+  params,
+  SentenceController.regenerate,
 );
 shortSentenceRoutes.post(
   '/:id/resync-words',
