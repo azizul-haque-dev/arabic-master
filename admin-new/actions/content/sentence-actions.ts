@@ -6,7 +6,7 @@ import { callBackend, requireContentAdmin, validationFailure } from "@/lib/conte
 import {
   contentIdSchema,
   contentListQuerySchema,
-  generateQuerySchema,
+  generateSentenceSchema,
   queryFromUnknown,
   sentenceCreateSchema,
   sentenceUpdateSchema,
@@ -27,6 +27,14 @@ function safeFailure<T>(): ContentActionResult<T> {
     code: "SERVER_ERROR",
     error: "The request could not be completed. Please try again.",
   };
+}
+
+function revalidateSentencePaths(id?: string) {
+  revalidatePath("/admin/sentences");
+  revalidatePath("/admin/short-sentences");
+  if (id) {
+    revalidatePath(`/admin/sentences/${encodeURIComponent(id)}`);
+  }
 }
 
 export async function listSentencesAction(
@@ -78,14 +86,15 @@ export async function createSentenceAction(input: unknown): Promise<ContentActio
   if (!parsed.success) return validationFailure(parsed.error.issues);
 
   try {
-    const response = await callBackend("/sentences", {
+    const endpoint = parsed.data.sentenceType === "SHORT" ? "/sentences/short" : "/sentences";
+    const response = await callBackend(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(parsed.data),
     });
     if (!response.success) return toFailure(response);
     const sentence = normalizeSentence(response.data);
-    revalidatePath("/admin/sentences");
+    revalidateSentencePaths();
     return { success: true, data: sentence };
   } catch {
     return safeFailure();
@@ -112,8 +121,7 @@ export async function updateSentenceAction(
     });
     if (!response.success) return toFailure(response);
     const sentence = normalizeSentence(response.data);
-    revalidatePath("/admin/sentences");
-    revalidatePath(`/admin/sentences/${encodeURIComponent(id.data)}`);
+    revalidateSentencePaths(id.data);
     return { success: true, data: sentence };
   } catch {
     return safeFailure();
@@ -128,8 +136,7 @@ export async function deleteSentenceAction(idInput: unknown): Promise<ContentAct
   if (!id.success) return validationFailure(id.error.issues);
   const response = await callBackend(`/sentences/${encodeURIComponent(id.data)}`, { method: "DELETE" });
   if (!response.success) return toFailure(response);
-  revalidatePath("/admin/sentences");
-  revalidatePath(`/admin/sentences/${encodeURIComponent(id.data)}`);
+  revalidateSentencePaths(id.data);
   revalidatePath("/admin/conversations");
   revalidatePath("/admin/lessons");
   return { success: true, data: null };
@@ -139,18 +146,22 @@ export async function generateSentenceAction(input: unknown): Promise<ContentAct
   const authorization = await requireContentAdmin();
   if (!authorization.success) return toFailure(authorization);
 
-  const parsed = generateQuerySchema.safeParse(input);
+  const parsed = generateSentenceSchema.safeParse(input);
   if (!parsed.success) return validationFailure(parsed.error.issues);
 
   try {
-    const response = await callBackend("/sentences/ai", {
+    const endpoint = parsed.data.sentenceType === "SHORT" ? "/sentences/short/ai" : "/sentences/ai";
+    const response = await callBackend(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: parsed.data }),
+      body: JSON.stringify({
+        query: parsed.data.query,
+        ...(parsed.data.sentenceType ? { sentenceType: parsed.data.sentenceType } : {}),
+      }),
     });
     if (!response.success) return toFailure(response);
     const sentence = normalizeSentence(response.data);
-    revalidatePath("/admin/sentences");
+    revalidateSentencePaths();
     return { success: true, data: sentence };
   } catch {
     return safeFailure();
@@ -167,6 +178,6 @@ export async function resyncSentenceWordsAction(idInput: unknown): Promise<Conte
     method: "POST",
   });
   if (!response.success) return toFailure(response);
-  revalidatePath(`/admin/sentences/${encodeURIComponent(id.data)}`);
+  revalidateSentencePaths(id.data);
   return { success: true, data: null };
 }

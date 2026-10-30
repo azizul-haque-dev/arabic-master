@@ -6,12 +6,13 @@ import { useRouter } from "next/navigation";
 import { ChevronRight, Pencil, XCircle, Sparkles, Type, MessagesSquare, GraduationCap } from "lucide-react";
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
 import { SentenceFormDialog } from "@/components/features/sentences/sentence-form-dialog";
+import { SentenceTypeBadge } from "@/components/features/sentences/sentence-type-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { resyncSentenceWordsAction, updateSentenceAction } from "@/actions/content/sentence-actions";
 import { buildSentenceUpdatePayload } from "@/lib/sentences/api";
 import type { Sentence, SentenceFormValues, Word } from "@/lib/types/content";
-import { DIFFICULTY_LABEL } from "@/lib/types/content";
+import { DIFFICULTY_LABEL, SENTENCE_TYPE_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
 import { EntityAudioPanel } from "@/components/features/audio/entity-audio-panel";
 import { checkAudioPermission } from "@/lib/audio/permissions";
@@ -59,11 +60,14 @@ export function SentenceDetailView({
         }
     }
 
+    const listHref = sentence.sentenceType === "SHORT" ? "/admin/short-sentences" : "/admin/sentences";
+    const listLabel = sentence.sentenceType === "SHORT" ? "Short Sentences" : "Sentences";
+
     return (
         <div className="flex flex-col gap-6">
             <nav className="flex items-center gap-1.5 text-xs text-text-muted" aria-label="Breadcrumb">
-                <Link href="/admin/sentences" className="hover:text-text">
-                    Sentences
+                <Link href={listHref} className="hover:text-text">
+                    {listLabel}
                 </Link>
                 <ChevronRight className="h-3 w-3" aria-hidden="true" />
                 <span className="text-text-secondary">{sentence.sentenceKey}</span>
@@ -77,6 +81,7 @@ export function SentenceDetailView({
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                         <span className="text-xs text-text-muted">Sentence · {sentence.sentenceKey}</span>
                         <ContentStatusBadge status={sentence.status} />
+                        <SentenceTypeBadge type={sentence.sentenceType} />
                         <Badge className="bg-neutral-bg text-neutral-text">
                             {DIFFICULTY_LABEL[sentence.difficulty]}
                         </Badge>
@@ -242,6 +247,10 @@ export function SentenceDetailView({
                     <section className="rounded-lg border border-border bg-white p-5 text-xs text-text-muted">
                         <h2 className="font-heading text-sm font-semibold text-text">Metadata</h2>
                         <dl className="mt-3 flex flex-col gap-2">
+                            <div className="flex justify-between">
+                                <dt>Type</dt>
+                                <dd className="text-text-secondary">{SENTENCE_TYPE_LABEL[sentence.sentenceType]}</dd>
+                            </div>
                             <div className="flex justify-between">
                                 <dt>Category</dt>
                                 <dd className="text-text-secondary">{sentence.category}</dd>

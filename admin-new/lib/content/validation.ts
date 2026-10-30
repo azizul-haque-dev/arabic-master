@@ -12,6 +12,7 @@ export const contentStatuses = [
 
 const wordTypes = ["NOUN", "VERB", "ADJECTIVE", "OTHER"] as const;
 const difficulties = ["BEGINNER", "ELEMENTARY", "INTERMEDIATE", "ADVANCED"] as const;
+export const sentenceTypes = ["SHORT", "LONG"] as const;
 const sentenceCategories = z.enum(SENTENCE_CATEGORIES);
 const wordCategory = sentenceCategories;
 const wordId = z.string().trim().min(1).max(200);
@@ -27,6 +28,7 @@ export const contentListQuerySchema = z.object({
   search: z.string().trim().max(500).optional(),
   category: sentenceCategories.optional(),
   status: z.enum(contentStatuses).optional(),
+  sentenceType: z.enum(sentenceTypes).optional(),
 }).strip();
 
 export const wordCreateSchema = z.object({
@@ -56,6 +58,7 @@ export const sentenceCreateSchema = z.object({
   feminineEn: requiredText,
   feminineBn: requiredText,
   category: sentenceCategories,
+  sentenceType: z.enum(sentenceTypes).optional().default("LONG"),
   difficulty: z.enum(difficulties).optional(),
   relatedWordId: wordId.optional(),
 }).strict();
@@ -97,6 +100,13 @@ export const arabicEntityStatusSchema = z.object({
 }).strict();
 
 export const generateQuerySchema = z.string().trim().min(1).max(500);
+export const generateSentenceSchema = z.union([
+  generateQuerySchema.transform((query) => ({ query, sentenceType: undefined })),
+  z.object({
+    query: generateQuerySchema,
+    sentenceType: z.enum(sentenceTypes).optional(),
+  }).strict(),
+]);
 export const generateWordListQuerySchema = z.array(generateQuerySchema).min(1).max(25);
 export const contentIdSchema = z.string().trim().min(1).max(200);
 

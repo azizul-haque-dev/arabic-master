@@ -1,10 +1,10 @@
-
 export const adminRoutes = {
     root: () => "/admin",
     arabicEntities: () => "/admin/arabic-entities",
     arabicEntity: (id: string) => `/admin/arabic-entities/${id}`,
     words: () => "/admin/words",
     word: (id: string) => `/admin/words/${id}`,
+    shortSentences: () => "/admin/short-sentences",
     sentences: () => "/admin/sentences",
     sentence: (id: string) => `/admin/sentences/${id}`,
     sections: () => "/admin/sections",

@@ -14,12 +14,14 @@ function buildQuery(query: ContentListQuery): string {
   if (query.search) params.set("search", query.search);
   if (query.category) params.set("category", query.category);
   if (query.status) params.set("status", query.status);
+  if (query.sentenceType) params.set("sentenceType", query.sentenceType);
   return params.toString();
 }
 
 export async function requestSentenceList(query: ContentListQuery): Promise<SentenceListResponse> {
   try {
-    const result = await readBackend(`/sentences?${buildQuery(query)}`);
+    const endpoint = query.sentenceType === "SHORT" ? "/sentences/short" : "/sentences";
+    const result = await readBackend(`${endpoint}?${buildQuery(query)}`);
     if (!result.ok) throw new Error("Unable to load sentences.");
     return normalizeSentenceList(result.data);
   } catch {
@@ -48,6 +50,12 @@ export async function getSentencesForAdmin(query: ContentListQuery): Promise<Sen
     throw new Error(authorization.error);
   }
   return requestSentenceList(query);
+}
+
+export async function getShortSentencesForAdmin(
+  query: Omit<ContentListQuery, "sentenceType">,
+): Promise<SentenceListResponse> {
+  return getSentencesForAdmin({ ...query, sentenceType: "SHORT" });
 }
 
 export async function getSentenceForAdmin(

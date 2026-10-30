@@ -111,6 +111,7 @@ export const WORD_TYPE_LABEL: Record<WordType, string> = {
  * safely or not; it is independent of the source entity's own usage count.
  */
 export type DifficultyLevel = "BEGINNER" | "ELEMENTARY" | "INTERMEDIATE" | "ADVANCED";
+export type SentenceType = "SHORT" | "LONG";
 
 export interface Sentence {
   id: string;
@@ -125,6 +126,7 @@ export interface Sentence {
   contextBangla?: string;
   feminineEnglish?: string;
   feminineBangla?: string;
+  sentenceType: SentenceType;
   difficulty: DifficultyLevel;
   category: string;
   relatedWordId?: string; // optional link to a Word that uses the same entity
@@ -146,6 +148,7 @@ export interface SentenceFormValues {
   contextBangla: string;
   feminineEnglish: string;
   feminineBangla: string;
+  sentenceType: SentenceType;
   difficulty: DifficultyLevel;
   category: string;
   arabicText: string;
@@ -157,6 +160,11 @@ export const DIFFICULTY_LABEL: Record<DifficultyLevel, string> = {
   ELEMENTARY: "Elementary",
   INTERMEDIATE: "Intermediate",
   ADVANCED: "Advanced",
+};
+
+export const SENTENCE_TYPE_LABEL: Record<SentenceType, string> = {
+  SHORT: "Short sentence",
+  LONG: "Long sentence",
 };
 
 /**

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { DifficultyLevel, Sentence, SentenceFormValues } from "@/lib/types/content";
+import type { DifficultyLevel, Sentence, SentenceFormValues, SentenceType } from "@/lib/types/content";
 
 const sentenceRecordSchema = z.object({
   id: z.string(),
@@ -13,6 +13,7 @@ const sentenceRecordSchema = z.object({
   whenToUseBn: z.string(),
   feminineEn: z.string(),
   feminineBn: z.string(),
+  sentenceType: z.enum(["SHORT", "LONG"]).optional().default("LONG"),
   difficulty: z.enum(["BEGINNER", "ELEMENTARY", "INTERMEDIATE", "ADVANCED"]),
   category: z.string(),
   relatedWordId: z.string().nullable(),
@@ -45,6 +46,7 @@ export interface SentenceCreatePayload {
   feminineEn: string;
   feminineBn: string;
   category: string;
+  sentenceType: SentenceType;
   difficulty: DifficultyLevel;
   relatedWordId?: string;
 }
@@ -74,6 +76,7 @@ export function normalizeSentence(value: unknown): Sentence {
     contextBangla: record.whenToUseBn,
     feminineEnglish: record.feminineEn,
     feminineBangla: record.feminineBn,
+    sentenceType: record.sentenceType,
     difficulty: record.difficulty,
     category: record.category,
     relatedWordId: record.relatedWordId ?? undefined,
@@ -119,6 +122,7 @@ export function buildSentenceCreatePayload(values: SentenceFormValues): Sentence
     feminineEn: values.feminineEnglish,
     feminineBn: values.feminineBangla,
     category: values.category,
+    sentenceType: values.sentenceType,
     difficulty: values.difficulty,
     relatedWordId: values.relatedWordId,
   };
@@ -135,6 +139,7 @@ export function buildSentenceUpdatePayload(values: SentenceFormValues): Sentence
     feminineEn: values.feminineEnglish,
     feminineBn: values.feminineBangla,
     category: values.category,
+    sentenceType: values.sentenceType,
     difficulty: values.difficulty,
     relatedWordId: values.relatedWordId ?? null,
   };
