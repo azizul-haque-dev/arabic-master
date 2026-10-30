@@ -1,7 +1,6 @@
 import { v7 as randomUUIDv7 } from 'uuid';
 import { DEFAULT_CATEGORY } from '../../common/constants/category.constant.js';
 import { ConflictError, NotFoundError } from '../../common/errors/app-error.js';
-import { logger } from '../../common/http/logger.js';
 import { paginated } from '../../common/http/response.js';
 import { isUniqueViolation } from '../../common/utils/db-error.util.js';
 import {
@@ -47,21 +46,6 @@ function replaceWords(sentenceId: string, words: WordLink[]) {
     await SentenceRepository.replaceWords(sentenceId, words, tx);
     return SentenceRepository.findById(sentenceId, tx);
   });
-}
-
-async function resolveArabicTextOrDefer(rawText: string): Promise<string> {
-  if (isArabicText(rawText)) {
-    return rawText;
-  }
-  try {
-    return await AiService.translateToArabic(rawText);
-  } catch (err) {
-    logger.warn(
-      { err, rawText },
-      'Inline Arabic translation timed out or failed; deferring translation to background worker.',
-    );
-    return rawText;
-  }
 }
 
 export const SentenceService = {
@@ -186,10 +170,12 @@ export const SentenceService = {
         ? { sentenceType: typeOrOptions }
         : typeOrOptions;
     const sentenceType = opts.sentenceType ?? SentenceType.LONG;
-    const linkWords = opts.linkWords ?? true;
+    const linkWords = opts.linkWords ?? false;
     const relatedWordId = opts.relatedWordId;
 
-    const text = await resolveArabicTextOrDefer(rawText);
+    const text = isArabicText(rawText)
+      ? rawText
+      : await AiService.translateToArabic(rawText);
     const normalizedText = normalizeArabicText(text);
 
     const queueSentenceJobIfNeeded = async (

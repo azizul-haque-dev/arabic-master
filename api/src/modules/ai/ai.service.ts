@@ -12,30 +12,53 @@ import {
 } from './schemas/ai-response.schema.js';
 
 export function createAiService() {
-  const model = new ChatGoogleGenerativeAI({
+  const contentModel = new ChatGoogleGenerativeAI({
     temperature: 0,
     model: env.AI_MODEL_NAME,
     apiKey: env.GOOGLE_API_KEY,
     maxRetries: AI_PROCESSING.MAX_INTERNAL_RETRIES,
   });
 
-  const contentGenerator = model.withStructuredOutput(AIResponseSchema);
-  const translator = model.withStructuredOutput(SaudiArabicTranslationSchema);
+  // Dedicated instance so fast inline translations never wait behind background worker queues
+  const translatorModel = new ChatGoogleGenerativeAI({
+    temperature: 0,
+    model: env.AI_MODEL_NAME,
+    apiKey: env.GOOGLE_API_KEY,
+    maxRetries: AI_PROCESSING.MAX_INTERNAL_RETRIES,
+  });
+
+  const contentGenerator = contentModel.withStructuredOutput(AIResponseSchema);
+  const translator = translatorModel.withStructuredOutput(
+    SaudiArabicTranslationSchema,
+  );
 
   return {
     async generateContent(query: string): Promise<AiResponse> {
       const result = await contentGenerator.invoke(
         createSaudiTeacherPrompt(query),
-        { timeout: AI_PROCESSING.REQUEST_TIMEOUT_MS },
       );
       return AIResponseSchema.parse(result); // AI-ও external source, তাই আবার validate
     },
     async translateToArabic(text: string): Promise<string> {
-      const result = await translator.invoke(
-        textToTranslateSaudiNativeArabic(text),
-        { timeout: AI_PROCESSING.TRANSLATE_TIMEOUT_MS },
-      );
-      return SaudiArabicTranslationSchema.parse(result).translatedText;
+      const prompt = textToTranslateSaudiNativeArabic(text);
+      try {
+        const result = await translator.invoke(prompt);
+        const parsed = SaudiArabicTranslationSchema.parse(result);
+        if (parsed.translatedText.trim()) {
+          return parsed.translatedText.trim();
+        }
+      } catch {
+        // Fallback to direct text invocation if structured output parsing/calling hiccups
+      }
+
+      const rawResponse = await translatorModel.invoke(prompt);
+      const rawContent =
+        typeof rawResponse.content === 'string'
+          ? rawResponse.content.trim()
+          : '';
+      return SaudiArabicTranslationSchema.parse({
+        translatedText: rawContent,
+      }).translatedText;
     },
   };
 }

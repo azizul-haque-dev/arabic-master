@@ -41,7 +41,7 @@ export function SentenceAiDialog({
     const resolvedDefaultType = fixedSentenceType ?? defaultSentenceType;
     const [query, setQuery] = useState("");
     const [sentenceType, setSentenceType] = useState<SentenceType>(resolvedDefaultType);
-    const [linkWords, setLinkWords] = useState(true);
+    const [linkWords, setLinkWords] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [generatingAction, setGeneratingAction] = useState<"single" | "list" | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -55,7 +55,7 @@ export function SentenceAiDialog({
     useEffect(() => {
         if (open) {
             setSentenceType(resolvedDefaultType);
-            setLinkWords(true);
+            setLinkWords(false);
             setError(null);
         }
     }, [open, resolvedDefaultType]);

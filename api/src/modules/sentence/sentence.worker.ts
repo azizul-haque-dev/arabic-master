@@ -153,7 +153,7 @@ export const SentenceProcessor = {
       updatedAt: new Date(),
     });
 
-    if (linkWords !== false) {
+    if (linkWords === true) {
       await replaceWords(
         sentenceId,
         await resolveWords(arabicText, createdById),

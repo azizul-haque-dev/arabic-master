@@ -67,7 +67,7 @@ export function EntityAiDialog({
   onQueued: (result: EntityAiQueuedResult) => void;
 }) {
   const [target, setTarget] = useState<EntityAiTargetType>("WORD");
-  const [linkWords, setLinkWords] = useState(true);
+  const [linkWords, setLinkWords] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
