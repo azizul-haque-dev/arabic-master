@@ -3,17 +3,24 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Pencil, XCircle, Layers, GraduationCap } from "lucide-react";
+import { ChevronRight, Pencil, XCircle, GraduationCap, Plus } from "lucide-react";
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
 import { ContentActionBar } from "@/components/shared/content-action-bar";
 import { RejectionDialog } from "@/components/shared/rejection-dialog";
 import { SectionFormDialog } from "@/components/features/sections/section-form-dialog";
+import { LessonMetaDialog } from "@/components/features/lessons/lesson-meta-dialog";
 import { Button } from "@/components/ui/button";
+import { createLessonAction } from "@/actions/content/lesson-actions";
 import {
   updateSectionAction,
   updateSectionStatusAction,
 } from "@/actions/content/section-actions";
-import type { ContentStatus, Section, SectionFormValues } from "@/lib/types/content";
+import type {
+  ContentStatus,
+  LessonMetaFormValues,
+  Section,
+  SectionFormValues,
+} from "@/lib/types/content";
 import type { CourseOption } from "@/lib/sections/api";
 import { useRole } from "@/lib/role-context";
 
@@ -28,6 +35,7 @@ export function SectionDetailView({
   const { role } = useRole();
   const [section, setSection] = useState<Section>(initialSection);
   const [editOpen, setEditOpen] = useState(false);
+  const [createLessonOpen, setCreateLessonOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
@@ -73,6 +81,24 @@ export function SectionDetailView({
     }
     setSection(res.data);
     router.refresh();
+  }
+
+  async function handleCreateLesson(values: LessonMetaFormValues) {
+    setActionError(null);
+    const res = await createLessonAction({
+      ...values,
+      sectionId: section.id,
+    });
+    if (!res.success) {
+      if (res.fieldErrors && Object.keys(res.fieldErrors).length > 0) {
+        const details = Object.entries(res.fieldErrors)
+          .map(([field, errs]) => `${field}: ${errs.join(", ")}`)
+          .join(" | ");
+        throw new Error(details);
+      }
+      throw new Error(res.error);
+    }
+    router.push(`/admin/lessons/${res.data.id}`);
   }
 
   return (
@@ -127,10 +153,16 @@ export function SectionDetailView({
             <ContentStatusBadge status={section.status} />
           </div>
         </div>
-        <Button variant="secondary" onClick={() => setEditOpen(true)}>
-          <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-          Edit
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button onClick={() => setCreateLessonOpen(true)}>
+            <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+            Add lesson
+          </Button>
+          <Button variant="secondary" onClick={() => setEditOpen(true)}>
+            <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+            Edit
+          </Button>
+        </div>
       </div>
 
       {section.status === "REJECTED" && section.rejectionReason ? (
@@ -147,17 +179,37 @@ export function SectionDetailView({
         <div className="flex flex-col gap-6 lg:col-span-2">
           <section className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-white p-5">
             <div className="flex items-center justify-between">
-              <h2 className="font-[var(--font-heading)] text-sm font-semibold text-[var(--color-text)]">
-                Lessons
-              </h2>
-              <span className="text-xs text-[var(--color-text-muted)]">
-                {lessons.length} {lessons.length === 1 ? "lesson" : "lessons"}
-              </span>
+              <div>
+                <h2 className="font-[var(--font-heading)] text-sm font-semibold text-[var(--color-text)]">
+                  Lessons
+                </h2>
+                <p className="text-xs text-[var(--color-text-muted)]">
+                  {lessons.length} {lessons.length === 1 ? "lesson" : "lessons"} in this section
+                </p>
+              </div>
+              <Button size="sm" onClick={() => setCreateLessonOpen(true)}>
+                <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+                Add lesson
+              </Button>
             </div>
             {lessons.length === 0 ? (
-              <p className="mt-3 text-sm text-[var(--color-text-muted)]">
-                No lessons in this section yet. Lessons will appear here once added to this section.
-              </p>
+              <div className="mt-4 rounded-[var(--radius-default)] border border-dashed border-[var(--color-border)] p-6 text-center">
+                <GraduationCap className="mx-auto h-8 w-8 text-[var(--color-text-muted)] opacity-60" />
+                <p className="mt-2 text-sm font-medium text-[var(--color-text)]">
+                  No lessons in this section yet
+                </p>
+                <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                  Add a lesson to start building the curriculum for this section.
+                </p>
+                <Button
+                  size="sm"
+                  className="mt-4"
+                  onClick={() => setCreateLessonOpen(true)}
+                >
+                  <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+                  Add lesson
+                </Button>
+              </div>
             ) : (
               <ul className="mt-3 flex flex-col gap-2">
                 {lessons.map((lesson) => (
@@ -254,6 +306,21 @@ export function SectionDetailView({
         initialSection={section}
         courseOptions={courseOptions}
         onSave={handleSave}
+      />
+
+      <LessonMetaDialog
+        open={createLessonOpen}
+        onOpenChange={setCreateLessonOpen}
+        fixedSectionId={section.id}
+        sectionOptions={[
+          {
+            id: section.id,
+            sectionKey: section.sectionKey,
+            title: section.title,
+            courseTitle,
+          },
+        ]}
+        onSave={handleCreateLesson}
       />
 
       <RejectionDialog

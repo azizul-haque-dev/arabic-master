@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { Lesson, LessonMetaFormValues } from "@/lib/types/content";
 import type { SectionOption } from "@/lib/lessons/api";
+import { cn } from "@/lib/utils";
 
 export const LESSON_TITLE_OPTIONS = [
   "Basics – Lesson 1",
@@ -28,23 +29,31 @@ export function LessonMetaDialog({
   onOpenChange,
   initialLesson,
   sectionOptions = [],
+  defaultSectionId,
+  fixedSectionId,
   onSave,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialLesson?: Lesson;
   sectionOptions?: SectionOption[];
+  defaultSectionId?: string;
+  fixedSectionId?: string;
   onSave: (values: LessonMetaFormValues) => Promise<void> | void;
 }) {
   const isEditing = Boolean(initialLesson);
 
-  const defaultSectionId =
-    initialLesson?.sectionId ?? sectionOptions[0]?.id ?? "";
+  const initialSection =
+    fixedSectionId ??
+    defaultSectionId ??
+    initialLesson?.sectionId ??
+    sectionOptions[0]?.id ??
+    "";
 
   const [values, setValues] = useState<LessonMetaFormValues>({
     title: initialLesson?.title ?? LESSON_TITLE_OPTIONS[0],
     description: initialLesson?.description ?? "",
-    sectionId: defaultSectionId,
+    sectionId: initialSection,
     maxItemsRecommended: initialLesson?.maxItemsRecommended ?? 10,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,13 +64,18 @@ export function LessonMetaDialog({
       setValues({
         title: initialLesson?.title ?? LESSON_TITLE_OPTIONS[0],
         description: initialLesson?.description ?? "",
-        sectionId: initialLesson?.sectionId ?? sectionOptions[0]?.id ?? "",
+        sectionId:
+          fixedSectionId ??
+          defaultSectionId ??
+          initialLesson?.sectionId ??
+          sectionOptions[0]?.id ??
+          "",
         maxItemsRecommended: initialLesson?.maxItemsRecommended ?? 10,
       });
       setFormError(null);
       setIsSubmitting(false);
     }
-  }, [open, initialLesson, sectionOptions]);
+  }, [open, initialLesson, sectionOptions, defaultSectionId, fixedSectionId]);
 
   function update<K extends keyof LessonMetaFormValues>(key: K, value: LessonMetaFormValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -118,24 +132,36 @@ export function LessonMetaDialog({
           ) : null}
 
           <div>
-            <Label htmlFor="l-title">Title</Label>
-            <select
+            <div className="mb-1 flex items-center justify-between">
+              <Label htmlFor="l-title" className="mb-0">Title</Label>
+              <span className="text-[11px] text-[var(--color-text-muted)]">Type or select a title</span>
+            </div>
+            <Input
               id="l-title"
               value={values.title}
               disabled={isSubmitting}
               onChange={(e) => update("title", e.target.value)}
-              className="h-11 w-full rounded-[var(--radius-default)] border border-[var(--color-border-strong)] bg-white px-3 text-sm disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:border-[var(--color-primary)] focus-visible:ring-4 focus-visible:ring-[var(--color-primary)]/10"
-            >
-              <option value="">Select a lesson title...</option>
+              placeholder="e.g. Lesson 1: Greetings or Basics – Lesson 1"
+              maxLength={200}
+            />
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
               {LESSON_TITLE_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>
+                <button
+                  key={opt}
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => update("title", opt)}
+                  className={cn(
+                    "rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors",
+                    values.title === opt
+                      ? "border-[var(--color-primary)] bg-[var(--color-primary-light)]/20 text-[var(--color-primary)]"
+                      : "border-[var(--color-border)] bg-[var(--color-neutral-bg)] text-[var(--color-text-muted)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text)]",
+                  )}
+                >
                   {opt}
-                </option>
+                </button>
               ))}
-              {values.title && !LESSON_TITLE_OPTIONS.includes(values.title as (typeof LESSON_TITLE_OPTIONS)[number]) ? (
-                <option value={values.title}>{values.title}</option>
-              ) : null}
-            </select>
+            </div>
           </div>
 
           <div>
@@ -156,7 +182,7 @@ export function LessonMetaDialog({
             <select
               id="l-section"
               value={values.sectionId}
-              disabled={isEditing || isSubmitting}
+              disabled={Boolean(fixedSectionId) || isEditing || isSubmitting}
               onChange={(e) => update("sectionId", e.target.value)}
               className="h-11 w-full rounded-[var(--radius-default)] border border-[var(--color-border-strong)] bg-white px-3 text-sm disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:border-[var(--color-primary)] focus-visible:ring-4 focus-visible:ring-[var(--color-primary)]/10"
             >
@@ -171,7 +197,11 @@ export function LessonMetaDialog({
                 ))
               )}
             </select>
-            {isEditing ? (
+            {fixedSectionId ? (
+              <p className="mt-1 text-[11px] text-[var(--color-text-muted)]">
+                Creating lesson directly in this section.
+              </p>
+            ) : isEditing ? (
               <p className="mt-1 text-[11px] text-[var(--color-text-muted)]">
                 Section cannot be changed once a lesson is created.
               </p>

@@ -5,6 +5,7 @@ import {
 } from '../../common/constants/category.constant.js';
 import { ConflictError } from '../../common/errors/app-error.js';
 import type { Logger } from '../../common/http/logger.js';
+import { logger as defaultLogger } from '../../common/http/logger.js';
 import { isUniqueViolation } from '../../common/utils/db-error.util.js';
 import {
   isArabicText,
@@ -13,7 +14,6 @@ import {
 import { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
 import { WordRepository } from '../words/word.repository.js';
 import { AiService } from './ai.service.js';
-import { logger as defaultLogger } from '../../common/http/logger.js';
 
 export function createAiWordService(dependencies: {
   ai: AiService;
@@ -68,33 +68,42 @@ export function createAiWordService(dependencies: {
       }
     }
 
-    try {
-      const wordKey = await words.generateNextWordKey();
-      return await words.insert({
-        id: randomUUIDv7(),
-        wordKey,
-        entityId: entity.id,
-        category,
-        meaningEn: result.meaningEn,
-        meaningBn: result.meaningBn,
-        whenToUseEn: result.whenToUseEn,
-        whenToUseBn: result.whenToUseBn,
-        pronunciationEn: result.pronunciationEn,
-        pronunciationBn: result.pronunciationBn,
-        feminineEn: result.feminineEn,
-        feminineBn: result.feminineBn,
-        noteEn: result.noteEn || null,
-        noteBn: result.noteBn || null,
-        createdById,
-      });
-    } catch (err) {
-      if (!isUniqueViolation(err)) throw err;
-      const raced = await lookup(normalized);
-      if (raced.word) return raced.word;
-      throw new ConflictError(
-        'This word was just created by another request. Please retry.',
-      );
+    let attempts = 0;
+    while (attempts < 5) {
+      try {
+        const wordKey = await words.generateNextWordKey(attempts);
+        return await words.insert({
+          id: randomUUIDv7(),
+          wordKey,
+          entityId: entity.id,
+          category,
+          meaningEn: result.meaningEn,
+          meaningBn: result.meaningBn,
+          whenToUseEn: result.whenToUseEn,
+          whenToUseBn: result.whenToUseBn,
+          pronunciationEn: result.pronunciationEn,
+          pronunciationBn: result.pronunciationBn,
+          feminineEn: result.feminineEn,
+          feminineBn: result.feminineBn,
+          noteEn: result.noteEn || null,
+          noteBn: result.noteBn || null,
+          createdById,
+        });
+      } catch (err) {
+        const pgErr = err as { code?: string; constraint?: string };
+        if (pgErr?.code === '23505' && pgErr?.constraint?.includes('wordKey')) {
+          attempts++;
+          continue;
+        }
+        if (!isUniqueViolation(err)) throw err;
+        const raced = await lookup(normalized);
+        if (raced.word) return raced.word;
+        throw new ConflictError(
+          'This word was just created by another request. Please retry.',
+        );
+      }
     }
+    throw new Error('Failed to generate unique wordKey after 5 attempts');
   }
 
   async function resolveWordWithAi(input: string, createdById?: string) {
@@ -108,7 +117,8 @@ export function createAiWordService(dependencies: {
       return { word, createdViaAi: false };
     }
 
-    const created = await createWordViaAi(input, createdById);
+    // Pass `text` (already translated to Arabic) so createWordViaAi does not translate a second time
+    const created = await createWordViaAi(text, createdById);
     return { word: created, createdViaAi: true };
   }
 

@@ -21,6 +21,7 @@ import {
 import type { RequestUser } from '../../auth/auth.types.js';
 import { AiWordService } from '../../ai/ai-word.service.js';
 import { WordRepository } from '../../words/word.repository.js';
+import { WordService } from '../../words/word.service.js';
 import { LessonRepository } from './lesson.repository.js';
 import type {
   AddLessonItemInput,
@@ -309,7 +310,7 @@ export const LessonService = {
       error?: string;
     }> = [];
 
-    for (const query of cleanQueries) {
+    const resolveSingleQuery = async (query: string) => {
       try {
         let word: { id: string; wordKey: string } | null = null;
         let createdViaAi = false;
@@ -323,25 +324,48 @@ export const LessonService = {
         }
 
         if (!word) {
-          const res = await AiWordService.resolveWordWithAi(
-            query,
-            actor.userId,
-          );
-          word = res.word;
-          createdViaAi = res.createdViaAi;
+          try {
+            const res = await AiWordService.resolveWordWithAi(
+              query,
+              actor.userId,
+            );
+            word = res.word;
+            createdViaAi = res.createdViaAi;
+          } catch {
+            // Fallback to queued WordService.generateWithAi so the word is still created & linked
+            word = await WordService.generateWithAi(query, actor.userId);
+            createdViaAi = true;
+          }
         }
 
         if (!word) {
           throw new Error('Unable to resolve or create word');
         }
 
-        resolvedList.push({ query, word, createdViaAi });
+        return { ok: true as const, item: { query, word, createdViaAi } };
       } catch (err) {
-        results.push({
-          query,
-          status: 'failed',
-          error: err instanceof Error ? err.message : String(err),
-        });
+        return {
+          ok: false as const,
+          failure: {
+            query,
+            status: 'failed' as const,
+            error: err instanceof Error ? err.message : String(err),
+          },
+        };
+      }
+    };
+
+    // Process in parallel batches of 3 to avoid sequential timeout on multiple words
+    const BATCH_SIZE = 3;
+    for (let i = 0; i < cleanQueries.length; i += BATCH_SIZE) {
+      const chunk = cleanQueries.slice(i, i + BATCH_SIZE);
+      const chunkResults = await Promise.all(chunk.map(resolveSingleQuery));
+      for (const res of chunkResults) {
+        if (res.ok) {
+          resolvedList.push(res.item);
+        } else {
+          results.push(res.failure);
+        }
       }
     }
 
