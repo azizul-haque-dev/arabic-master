@@ -111,8 +111,8 @@ export function LessonMetaDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent className="max-h-[92dvh] overflow-hidden p-0 sm:max-w-lg flex flex-col">
+        <DialogHeader className="px-5 pt-5 pb-2 sm:px-6 sm:pt-6 shrink-0 mb-0 pr-10">
           <DialogTitle>{isEditing ? "Edit lesson details" : "Create lesson"}</DialogTitle>
           <DialogDescription>
             {isEditing
@@ -121,7 +121,7 @@ export function LessonMetaDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3.5 px-5 py-2 sm:px-6 overflow-y-auto flex-1">
           {formError ? (
             <div
               role="alert"
@@ -173,7 +173,7 @@ export function LessonMetaDialog({
               onChange={(e) => update("description", e.target.value)}
               placeholder="Introductory words and phrases for shopping."
               maxLength={1000}
-              rows={3}
+              rows={2}
             />
           </div>
 
@@ -227,27 +227,27 @@ export function LessonMetaDialog({
               A guideline, not a hard limit — content creators can go over it.
             </p>
           </div>
+        </div>
 
-          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <Button
-              variant="ghost"
-              disabled={isSubmitting}
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!values.title.trim() || !values.sectionId || isSubmitting}
-              onClick={handleSubmit}
-            >
-              {isSubmitting
-                ? "Saving..."
-                : isEditing
-                ? "Save changes"
-                : "Create lesson"}
-            </Button>
-          </div>
+        <div className="flex flex-col-reverse gap-2 border-t border-[var(--color-border)] bg-[var(--color-neutral-bg)]/50 px-5 py-3.5 sm:px-6 sm:py-4 sm:flex-row sm:justify-end shrink-0">
+          <Button
+            variant="ghost"
+            disabled={isSubmitting}
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            disabled={!values.title.trim() || !values.sectionId || isSubmitting}
+            onClick={handleSubmit}
+          >
+            {isSubmitting
+              ? "Saving..."
+              : isEditing
+              ? "Save changes"
+              : "Create lesson"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
