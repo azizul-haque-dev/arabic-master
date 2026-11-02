@@ -17,11 +17,14 @@ import {
   ContentStatus,
   LessonContentType,
   Role,
+  SentenceType,
 } from '../../../database/drizzle/enums.js';
 import type { RequestUser } from '../../auth/auth.types.js';
 import { AiWordService } from '../../ai/ai-word.service.js';
 import { WordRepository } from '../../words/word.repository.js';
 import { WordService } from '../../words/word.service.js';
+import { SentenceRepository } from '../../sentence/sentence.repository.js';
+import { SentenceService } from '../../sentence/sentence.service.js';
 import { LessonRepository } from './lesson.repository.js';
 import type {
   AddLessonItemInput,
@@ -410,6 +413,160 @@ export const LessonService = {
               query: item.query,
               wordId: item.word.id,
               wordKey: item.word.wordKey,
+              status: 'added',
+              createdViaAi: item.createdViaAi,
+            });
+          }
+        }
+
+        await LessonRepository.update(lessonId, {}, tx);
+      });
+    }
+
+    const updated = await getById(lessonId);
+
+    return {
+      summary: {
+        total: cleanQueries.length,
+        added: results.filter((r) => r.status === 'added').length,
+        alreadyInLesson: results.filter((r) => r.status === 'already_in_lesson').length,
+        failed: results.filter((r) => r.status === 'failed').length,
+      },
+      results,
+      lesson: updated,
+    };
+  },
+
+  async addSentencesSmart(
+    lessonId: string,
+    sentences: string[],
+    actor: RequestUser,
+    sentenceType?: SentenceType,
+  ) {
+    const lesson = await findOrThrow(lessonId);
+    assertEditable(lesson.status, actor.role);
+
+    const cleanQueries = Array.from(
+      new Set(
+        sentences
+          .map((s) => (typeof s === 'string' ? s.trim() : ''))
+          .filter(Boolean),
+      ),
+    );
+
+    if (!cleanQueries.length) {
+      throw new BadRequestError('At least one sentence must be provided');
+    }
+
+    interface ResolvedSentenceItem {
+      query: string;
+      sentence: { id: string; sentenceKey: string };
+      createdViaAi: boolean;
+    }
+
+    const resolvedList: ResolvedSentenceItem[] = [];
+    const results: Array<{
+      query: string;
+      sentenceId?: string;
+      sentenceKey?: string;
+      status: 'added' | 'already_in_lesson' | 'failed';
+      createdViaAi?: boolean;
+      error?: string;
+    }> = [];
+
+    const resolveSingleSentence = async (query: string) => {
+      try {
+        let sentence: { id: string; sentenceKey: string } | null = null;
+        let createdViaAi = false;
+
+        if (/^[0-9a-fA-F-]{36}$/.test(query)) {
+          sentence = await SentenceRepository.findById(query);
+        }
+
+        if (!sentence && /^(snt|s|ss)-\d+$/i.test(query)) {
+          sentence = await SentenceRepository.findBySentenceKey(query);
+        }
+
+        if (!sentence) {
+          sentence = await SentenceService.generateWithAi(
+            query,
+            actor.userId,
+            { sentenceType, linkWords: true },
+          );
+          createdViaAi = true;
+        }
+
+        if (!sentence) {
+          throw new Error('Unable to resolve or create sentence');
+        }
+
+        return { ok: true as const, item: { query, sentence, createdViaAi } };
+      } catch (err) {
+        return {
+          ok: false as const,
+          failure: {
+            query,
+            status: 'failed' as const,
+            error: err instanceof Error ? err.message : String(err),
+          },
+        };
+      }
+    };
+
+    const BATCH_SIZE = 3;
+    for (let i = 0; i < cleanQueries.length; i += BATCH_SIZE) {
+      const chunk = cleanQueries.slice(i, i + BATCH_SIZE);
+      const chunkResults = await Promise.all(chunk.map(resolveSingleSentence));
+      for (const res of chunkResults) {
+        if (res.ok) {
+          resolvedList.push(res.item);
+        } else {
+          results.push(res.failure);
+        }
+      }
+    }
+
+    if (resolvedList.length > 0) {
+      await withTransaction(async (tx) => {
+        await lockLesson(tx, lessonId);
+        assertEditable(lesson.status, actor.role);
+
+        let maxOrder = await LessonRepository.maxItemOrder(lessonId, tx);
+
+        for (const item of resolvedList) {
+          const exists = await LessonRepository.hasItem(
+            lessonId,
+            LessonContentType.SENTENCE,
+            item.sentence.id,
+            tx,
+          );
+
+          if (exists) {
+            results.push({
+              query: item.query,
+              sentenceId: item.sentence.id,
+              sentenceKey: item.sentence.sentenceKey,
+              status: 'already_in_lesson',
+              createdViaAi: item.createdViaAi,
+            });
+          } else {
+            maxOrder += 1;
+            await LessonRepository.insertItem(
+              {
+                id: randomUUIDv7(),
+                lessonId,
+                contentType: LessonContentType.SENTENCE,
+                wordId: null,
+                sentenceId: item.sentence.id,
+                conversationId: null,
+                order: maxOrder,
+              },
+              tx,
+            );
+            results.push({
+              query: item.query,
+              sentenceId: item.sentence.id,
+              sentenceKey: item.sentence.sentenceKey,
               status: 'added',
               createdViaAi: item.createdViaAi,
             });

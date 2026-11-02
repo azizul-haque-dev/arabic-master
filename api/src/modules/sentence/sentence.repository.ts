@@ -132,6 +132,15 @@ export const SentenceRepository = {
     return row ?? null;
   },
 
+  async findBySentenceKey(sentenceKey: string, ex: Executor = db) {
+    const [row] = await ex
+      .select()
+      .from(schema.sentence)
+      .where(ilike(schema.sentence.sentenceKey, sentenceKey))
+      .limit(1);
+    return row ?? null;
+  },
+
   async generateNextSentenceKey(
     exOrOffset: Executor | number = db,
     maybeOffset = 0,

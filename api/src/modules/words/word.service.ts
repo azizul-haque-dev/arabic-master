@@ -206,24 +206,33 @@ export const WordService = {
 
   async generateManyWithAi(queries: string[], createdById: string) {
     const results: WordGenerationBatchResult[] = [];
-    for (const query of queries) {
+    const processQuery = async (
+      query: string,
+    ): Promise<WordGenerationBatchResult> => {
       try {
         const word = await WordService.generateWithAi(query, createdById);
         const job = await wordQueue.getJob(word.id);
-        results.push({
+        return {
           query,
           success: true as const,
           wordId: word.id,
           jobId: job?.id ?? null,
           queued: Boolean(job),
-        });
+        };
       } catch (error) {
-        results.push({
+        return {
           query,
           success: false as const,
           error: error instanceof Error ? error.message : String(error),
-        });
+        };
       }
+    };
+
+    const BATCH_SIZE = 3;
+    for (let i = 0; i < queries.length; i += BATCH_SIZE) {
+      const chunk = queries.slice(i, i + BATCH_SIZE);
+      const chunkResults = await Promise.all(chunk.map(processQuery));
+      results.push(...chunkResults);
     }
     return results;
   },

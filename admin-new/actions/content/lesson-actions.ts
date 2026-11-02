@@ -389,3 +389,72 @@ export async function smartAddWordsToLessonAction(
     return safeFailure();
   }
 }
+
+export async function smartAddSentencesToLessonAction(
+  lessonIdInput: unknown,
+  sentencesInput: unknown,
+  sentenceType?: "SHORT" | "LONG",
+): Promise<
+  ContentActionResult<{
+    summary: { total: number; added: number; alreadyInLesson: number; failed: number };
+    results: Array<{
+      query: string;
+      sentenceId?: string;
+      sentenceKey?: string;
+      status: "added" | "already_in_lesson" | "failed";
+      createdViaAi?: boolean;
+      error?: string;
+    }>;
+    lesson: Lesson;
+  }>
+> {
+  const authorization = await requireContentAdmin();
+  if (!authorization.success) return toFailure(authorization);
+
+  const id = contentIdSchema.safeParse(lessonIdInput);
+  if (!id.success) return validationFailure(id.error.issues);
+
+  const sentences = Array.isArray(sentencesInput)
+    ? sentencesInput.map(String).map((s) => s.trim()).filter(Boolean)
+    : typeof sentencesInput === "string"
+    ? sentencesInput
+        .split(/[\n]+/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
+
+  if (sentences.length === 0) {
+    return {
+      success: false,
+      code: "VALIDATION_ERROR",
+      error: "Please enter at least one sentence to add.",
+    };
+  }
+
+  try {
+    const response = await callBackend(
+      `/lessons/${encodeURIComponent(id.data)}/sentences`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sentences, sentenceType }),
+      },
+    );
+
+    if (!response.success) return toFailure(response);
+
+    const data = response.data as any;
+    const lesson = normalizeLesson(data.lesson);
+    revalidatePath(`/admin/lessons/${encodeURIComponent(id.data)}`);
+    return {
+      success: true,
+      data: {
+        summary: data.summary,
+        results: data.results,
+        lesson,
+      },
+    };
+  } catch {
+    return safeFailure();
+  }
+}

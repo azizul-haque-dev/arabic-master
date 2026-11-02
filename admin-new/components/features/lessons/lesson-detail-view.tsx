@@ -14,6 +14,7 @@ import { WordSelector } from "@/components/features/lessons/word-selector";
 import { SentenceSelector } from "@/components/features/conversations/sentence-selector";
 import { ConversationSelector } from "@/components/features/lessons/conversation-selector";
 import { SmartWordDialog } from "@/components/features/lessons/smart-word-dialog";
+import { SmartSentenceDialog } from "@/components/features/lessons/smart-sentence-dialog";
 import { Button } from "@/components/ui/button";
 import {
   addLessonItemAction,
@@ -45,6 +46,7 @@ export function LessonDetailView({
   const [editMetaOpen, setEditMetaOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [smartWordsOpen, setSmartWordsOpen] = useState(false);
+  const [smartSentencesOpen, setSmartSentencesOpen] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
@@ -332,6 +334,16 @@ export function LessonDetailView({
             onAdd={(id) => handleAddItem("SENTENCE", id)}
             onRemove={handleRemoveItem}
             onReorder={(reordered) => handleReorderType("SENTENCE", reordered)}
+            extraAction={
+              <button
+                type="button"
+                onClick={() => setSmartSentencesOpen(true)}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-[var(--radius-default)] border border-[var(--color-primary)]/30 bg-[var(--color-primary-light)]/10 px-3.5 py-2.5 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary-light)]/25"
+              >
+                <Sparkles className="h-4 w-4" />
+                Smart AI add sentences
+              </button>
+            }
           />
         </TabsContent>
 
@@ -451,6 +463,15 @@ export function LessonDetailView({
       <SmartWordDialog
         open={smartWordsOpen}
         onOpenChange={setSmartWordsOpen}
+        lessonId={lesson.id}
+        onSuccess={(updated) => {
+          setLesson(updated);
+          router.refresh();
+        }}
+      />
+      <SmartSentenceDialog
+        open={smartSentencesOpen}
+        onOpenChange={setSmartSentencesOpen}
         lessonId={lesson.id}
         onSuccess={(updated) => {
           setLesson(updated);

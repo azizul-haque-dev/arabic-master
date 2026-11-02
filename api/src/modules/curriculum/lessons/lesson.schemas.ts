@@ -63,4 +63,41 @@ export type ListLessonQuery = z.infer<typeof listLessonQuerySchema>;
 export type AddLessonItemInput = z.infer<typeof addLessonItemSchema>;
 export type AddLessonWordsBatchInput = z.infer<typeof addLessonWordsBatchSchema>;
 export type ItemParam = z.infer<typeof itemParamSchema>;
+export const addLessonSentencesBatchSchema = z
+  .union([
+    z.strictObject({
+      sentences: z.union([
+        z.array(z.string().trim().min(1)).min(1).max(50),
+        z.string().trim().min(1).transform((s) => [s]),
+      ]),
+      sentenceType: z.enum(['SHORT', 'LONG']).optional(),
+    }),
+    z.strictObject({
+      sentence: z.string().trim().min(1).transform((s) => [s]),
+      sentenceType: z.enum(['SHORT', 'LONG']).optional(),
+    }),
+    z
+      .array(z.string().trim().min(1))
+      .min(1)
+      .max(50)
+      .transform((arr) => ({ sentences: arr, sentenceType: undefined })),
+  ])
+  .transform((val) => {
+    if ('sentences' in val) {
+      return {
+        sentences: Array.isArray(val.sentences) ? val.sentences : [val.sentences],
+        sentenceType: val.sentenceType,
+      };
+    }
+    if ('sentence' in val) {
+      return {
+        sentences: val.sentence,
+        sentenceType: val.sentenceType,
+      };
+    }
+    return val;
+  });
+
+export type AddLessonSentencesBatchInput = z.infer<typeof addLessonSentencesBatchSchema>;
+
 

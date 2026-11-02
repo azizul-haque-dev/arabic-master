@@ -11,6 +11,7 @@ import { Role } from '../../../database/drizzle/enums.js';
 import { LessonController } from './lesson.controller.js';
 import {
   addLessonItemSchema,
+  addLessonSentencesBatchSchema,
   addLessonWordsBatchSchema,
   createLessonSchema,
   itemParamSchema,
@@ -48,6 +49,16 @@ lessonRoutes.post(
   '/:id/items',
   validate({ ...params, body: addLessonItemSchema }),
   LessonController.addItem,
+);
+lessonRoutes.post(
+  '/:id/sentences',
+  validate({ ...params, body: addLessonSentencesBatchSchema }),
+  LessonController.addSentencesSmart,
+);
+lessonRoutes.post(
+  '/:id/sentences/batch',
+  validate({ ...params, body: addLessonSentencesBatchSchema }),
+  LessonController.addSentencesSmart,
 );
 lessonRoutes.post(
   '/:id/words',
