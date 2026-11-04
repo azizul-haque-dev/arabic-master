@@ -22,48 +22,74 @@ export function ContentActionBar({
   onPublish?: () => void;
   onCancel?: () => void;
 }) {
-  const canSubmitForReview = status === "DRAFT" || status === "REJECTED";
-  const canApproveOrReject = role === "ADMIN" && status === "IN_REVIEW";
-  const canPublish = role === "ADMIN" && status === "APPROVED";
+  const isAdmin = role === "ADMIN";
+
+  // For Admin: all action buttons are accessible.
+  // For Content Manager: follows strict sequential workflow.
+  const canSaveDraft = isAdmin || status === "DRAFT";
+  const canSubmitForReview = isAdmin || status === "DRAFT" || status === "REJECTED";
+  const canReject = isAdmin;
+  const canApprove = isAdmin;
+  const canPublish = isAdmin;
 
   return (
-    <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
+    <div className="flex flex-wrap items-center gap-2 justify-stretch sm:justify-end">
       {onCancel ? (
-        <Button variant="ghost" onClick={onCancel}>
+        <Button
+          variant="ghost"
+          onClick={onCancel}
+          className="flex-1 min-w-[120px] sm:flex-initial sm:min-w-0"
+        >
           Cancel
         </Button>
       ) : null}
 
-      {onSaveDraft ? (
-        <Button variant="secondary" onClick={onSaveDraft}>
+      {onSaveDraft && canSaveDraft ? (
+        <Button
+          variant="secondary"
+          onClick={onSaveDraft}
+          className="flex-1 min-w-[120px] sm:flex-initial sm:min-w-0"
+        >
           Save draft
         </Button>
       ) : null}
 
       {onSubmitForReview && canSubmitForReview ? (
-        <Button variant="secondary" onClick={onSubmitForReview}>
+        <Button
+          variant="secondary"
+          onClick={onSubmitForReview}
+          className="flex-1 min-w-[140px] sm:flex-initial sm:min-w-0"
+        >
           Submit for review
         </Button>
       ) : null}
 
-      {onReject && canApproveOrReject ? (
+      {onReject && canReject ? (
         <Button
           variant="destructive"
-          className="border border-error/30"
+          className="flex-1 min-w-[100px] sm:flex-initial sm:min-w-0 border border-error/30"
           onClick={onReject}
         >
           Reject
         </Button>
       ) : null}
 
-      {onApprove && canApproveOrReject ? (
-        <Button variant="primary" onClick={onApprove}>
+      {onApprove && canApprove ? (
+        <Button
+          variant="primary"
+          onClick={onApprove}
+          className="flex-1 min-w-[100px] sm:flex-initial sm:min-w-0"
+        >
           Approve
         </Button>
       ) : null}
 
       {onPublish && canPublish ? (
-        <Button variant="primary" onClick={onPublish}>
+        <Button
+          variant="primary"
+          onClick={onPublish}
+          className="flex-1 min-w-[100px] sm:flex-initial sm:min-w-0"
+        >
           Publish
         </Button>
       ) : null}

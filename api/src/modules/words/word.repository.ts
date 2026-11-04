@@ -6,6 +6,7 @@ import {
   getTableColumns,
   ilike,
   or,
+  sql,
   type SQL,
 } from 'drizzle-orm';
 import { escapeLike } from '../../common/utils/escape-like.util.js';
@@ -24,6 +25,8 @@ export interface WordFilters {
 }
 
 export type WordInsert = typeof schema.word.$inferInsert;
+
+const createdBySql = sql<string>`COALESCE((SELECT "fullName" FROM "User" WHERE "User"."id" = "Word"."createdById"), 'Content Admin')`;
 
 const entityColumns = {
   entityKey: schema.arabicEntity.entityKey,
@@ -60,7 +63,7 @@ export const WordRepository = {
         .innerJoin(schema.arabicEntity, entityJoin)
         .where(where),
       ex
-        .select({ ...getTableColumns(schema.word), entity: entityColumns })
+        .select({ ...getTableColumns(schema.word), createdBy: createdBySql, entity: entityColumns })
         .from(schema.word)
         .innerJoin(schema.arabicEntity, entityJoin)
         .where(where)
@@ -75,6 +78,7 @@ export const WordRepository = {
     const [word] = await ex
       .select({
         ...getTableColumns(schema.word),
+        createdBy: createdBySql,
         arabicText: schema.arabicEntity.arabicText,
         entity: entityColumns,
       })
