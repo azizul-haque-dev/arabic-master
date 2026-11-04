@@ -100,6 +100,16 @@ export const arabicEntityUpdateSchema = z.object({
   rejectionReason: z.string().trim().nullable().optional(),
 }).strict();
 
+export const wordStatusSchema = z.object({
+  status: z.enum(contentStatuses),
+  rejectionReason: z.string().trim().optional(),
+}).strict();
+
+export const sentenceStatusSchema = z.object({
+  status: z.enum(contentStatuses),
+  rejectionReason: z.string().trim().optional(),
+}).strict();
+
 export const arabicEntityStatusSchema = z.object({
   status: z.enum(contentStatuses),
   rejectionReason: z.string().trim().optional(),
@@ -237,6 +247,8 @@ export type SentenceCreateInput = z.infer<typeof sentenceCreateSchema>;
 export type SentenceUpdateInput = z.infer<typeof sentenceUpdateSchema>;
 export type ArabicEntityCreateInput = z.infer<typeof arabicEntityCreateSchema>;
 export type ArabicEntityUpdateInput = z.infer<typeof arabicEntityUpdateSchema>;
+export type WordStatusInput = z.infer<typeof wordStatusSchema>;
+export type SentenceStatusInput = z.infer<typeof sentenceStatusSchema>;
 export type ArabicEntityStatusInput = z.infer<typeof arabicEntityStatusSchema>;
 export type SectionCreateInput = z.infer<typeof sectionCreateSchema>;
 export type SectionUpdateInput = z.infer<typeof sectionUpdateSchema>;

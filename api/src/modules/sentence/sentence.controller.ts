@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { ok } from '../../common/http/response.js';
 import { bodyOf, paramsOf, queryOf } from '../../common/middleware/validate.js';
-import type { IdParam } from '../../common/schemas.js';
+import type { IdParam, UpdateStatusInput } from '../../common/schemas.js';
 import { SentenceType } from '../../database/drizzle/enums.js';
 import type {
   CreateSentenceInput,
@@ -138,6 +138,15 @@ export const SentenceController = {
     ),
   resyncWords: async (req: Request, res: Response) =>
     ok(res, await SentenceService.resyncWords(id(req)), 202),
+  changeStatus: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await SentenceService.changeStatus(
+        id(req),
+        bodyOf<UpdateStatusInput>(req),
+        req.auth!,
+      ),
+    ),
   update: async (req: Request, res: Response) =>
     ok(
       res,

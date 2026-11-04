@@ -11,6 +11,10 @@ import { ContentStatus, WordType } from '../../database/drizzle/enums.js';
 import { AiService } from '../ai/ai.service.js';
 import { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
 import { wordQueue } from './word.queue.js';
+import { withTransaction } from '../../database/db.js';
+import { resolveStatusChange } from '../../common/utils/content-workflow.util.js';
+import type { UpdateStatusInput } from '../../common/schemas.js';
+import type { RequestUser } from '../auth/auth.types.js';
 import { WordRepository } from './word.repository.js';
 import type {
   CreateWordInput,
@@ -81,6 +85,21 @@ export const WordService = {
       }
     }
     throw new Error('Failed to generate unique wordKey after 5 attempts');
+  },
+
+  async changeStatus(id: string, dto: UpdateStatusInput, actor: RequestUser) {
+    return withTransaction(async (tx) => {
+      const word = await WordRepository.lockById(id, tx);
+      if (!word) throw new NotFoundError('Word not found');
+      const next = resolveStatusChange({
+        from: word.status,
+        to: dto.status,
+        role: actor.role,
+        rejectionReason: dto.rejectionReason,
+      });
+      await WordRepository.update(id, next, tx);
+      return WordRepository.findDetailedById(id, tx);
+    });
   },
 
   async update(id: string, input: UpdateWordInput) {

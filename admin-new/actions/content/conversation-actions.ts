@@ -1,8 +1,10 @@
 "use server";
 
 import type { ContentActionResult } from "@/lib/content/action-result";
-import { callBackend, requireContentAdmin } from "@/lib/content/server";
-import type { Conversation } from "@/lib/types/content";
+import { callBackend, requireContentAdmin, validationFailure } from "@/lib/content/server";
+import { revalidatePath } from "next/cache";
+import { contentIdSchema } from "@/lib/content/validation";
+import type { ContentStatus, Conversation } from "@/lib/types/content";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -50,6 +52,36 @@ export async function listConversationsAction(
       success: false,
       code: "SERVER_ERROR",
       error: "Unable to load conversations.",
+    };
+  }
+}
+
+export async function updateConversationStatusAction(
+  idInput: unknown,
+  status: ContentStatus,
+  rejectionReason?: string,
+): Promise<ContentActionResult<{ status: ContentStatus; rejectionReason?: string | null }>> {
+  const authorization = await requireContentAdmin();
+  if (!authorization.success) return authorization;
+
+  const id = contentIdSchema.safeParse(idInput);
+  if (!id.success) return validationFailure(id.error.issues);
+
+  try {
+    const response = await callBackend(`/conversations/${encodeURIComponent(id.data)}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status, rejectionReason }),
+    });
+    if (!response.success) return response;
+    revalidatePath("/admin/conversations");
+    revalidatePath(`/admin/conversations/${encodeURIComponent(id.data)}`);
+    return { success: true, data: response.data as { status: ContentStatus; rejectionReason?: string | null } };
+  } catch {
+    return {
+      success: false,
+      code: "SERVER_ERROR",
+      error: "Unable to update conversation status.",
     };
   }
 }

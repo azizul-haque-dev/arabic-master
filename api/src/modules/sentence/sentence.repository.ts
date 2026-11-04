@@ -123,6 +123,15 @@ export const SentenceRepository = {
     };
   },
 
+  async lockById(id: string, ex: Executor = db) {
+    const [sentence] = await ex
+      .select()
+      .from(schema.sentence)
+      .where(eq(schema.sentence.id, id))
+      .for('update');
+    return sentence ?? null;
+  },
+
   async findByEntityId(entityId: string, ex: Executor = db) {
     const [row] = await ex
       .select()

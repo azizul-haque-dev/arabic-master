@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight, Pencil, XCircle, Sparkles, MessagesSquare, GraduationCap } from "lucide-react";
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
+import { ContentActionBar } from "@/components/shared/content-action-bar";
+import { RejectionDialog } from "@/components/shared/rejection-dialog";
 import { SentenceFormDialog } from "@/components/features/sentences/sentence-form-dialog";
 import { SentenceTypeBadge } from "@/components/features/sentences/sentence-type-badge";
 import { SentenceWordLinker } from "@/components/features/sentences/sentence-word-linker";
@@ -14,9 +16,10 @@ import {
     getSentenceAction,
     regenerateSentenceAction,
     updateSentenceAction,
+    updateSentenceStatusAction,
 } from "@/actions/content/sentence-actions";
 import { buildSentenceUpdatePayload } from "@/lib/sentences/api";
-import type { Sentence, SentenceFormValues, Word } from "@/lib/types/content";
+import type { ContentStatus, Sentence, SentenceFormValues, Word } from "@/lib/types/content";
 import { DIFFICULTY_LABEL, SENTENCE_TYPE_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
 import { EntityAudioPanel } from "@/components/features/audio/entity-audio-panel";
@@ -33,6 +36,17 @@ export function SentenceDetailView({
     const { role } = useRole();
     const [sentence, setSentence] = useState(initialSentence);
     const [editOpen, setEditOpen] = useState(false);
+    const [rejectOpen, setRejectOpen] = useState(false);
+
+    async function setStatus(status: ContentStatus, rejectionReason?: string) {
+        const res = await updateSentenceStatusAction(sentence.id, status, rejectionReason);
+        if (res.success) {
+            setSentence(res.data);
+            router.refresh();
+        } else {
+            alert(res.error);
+        }
+    }
     const [isGenerating, setIsGenerating] = useState(false);
     const [generateMessage, setGenerateMessage] = useState<string | null>(null);
     const [generateError, setGenerateError] = useState<string | null>(null);
@@ -264,7 +278,12 @@ export function SentenceDetailView({
                         </div>
                     </section>
 
-                    <SentenceWordLinker
+                    <RejectionDialog
+                open={rejectOpen}
+                onOpenChange={setRejectOpen}
+                onSubmit={(reason) => void setStatus("REJECTED", reason)}
+            />
+            <SentenceWordLinker
                         sentence={sentence}
                         initialRelatedWord={initialRelatedWord}
                         onSentenceUpdated={setSentence}

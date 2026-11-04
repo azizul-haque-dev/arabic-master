@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { ChevronRight, Pencil, XCircle, Sparkles } from "lucide-react";
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
+import { ContentActionBar } from "@/components/shared/content-action-bar";
+import { RejectionDialog } from "@/components/shared/rejection-dialog";
 import { WordFormDialog } from "@/components/features/words/word-form-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,8 +13,9 @@ import {
   getWordAction,
   regenerateWordAction,
   updateWordAction,
+  updateWordStatusAction,
 } from "@/actions/content/word-actions";
-import type { ArabicEntity, Word, WordFormValues } from "@/lib/types/content";
+import type { ArabicEntity, ContentStatus, Word, WordFormValues } from "@/lib/types/content";
 import { WORD_TYPE_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
 import { buildWordUpdatePayload } from "@/lib/words/api";
@@ -25,6 +28,17 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
   const { role } = useRole();
   const [word, setWord] = useState(initialWord);
   const [editOpen, setEditOpen] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+
+  async function setStatus(status: ContentStatus, rejectionReason?: string) {
+    const res = await updateWordStatusAction(word.id, status, rejectionReason);
+    if (res.success) {
+      setWord(res.data);
+      router.refresh();
+    } else {
+      alert(res.error);
+    }
+  }
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateMessage, setGenerateMessage] = useState<string | null>(null);
   const [generateError, setGenerateError] = useState<string | null>(null);
@@ -267,6 +281,11 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
       </div>
 
       <WordFormDialog open={editOpen} onOpenChange={setEditOpen} initialWord={word} onSave={handleSave} />
+      <RejectionDialog
+        open={rejectOpen}
+        onOpenChange={setRejectOpen}
+        onSubmit={(reason) => void setStatus("REJECTED", reason)}
+      />
     </div>
   );
 }

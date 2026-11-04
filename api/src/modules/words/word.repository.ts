@@ -97,6 +97,15 @@ export const WordRepository = {
     return word ?? null;
   },
 
+  async lockById(id: string, ex: Executor = db) {
+    const [word] = await ex
+      .select()
+      .from(schema.word)
+      .where(eq(schema.word.id, id))
+      .for('update');
+    return word ?? null;
+  },
+
   async findByWordKey(wordKey: string, ex: Executor = db) {
     const [word] = await ex
       .select()
