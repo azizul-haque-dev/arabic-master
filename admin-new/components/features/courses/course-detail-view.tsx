@@ -294,11 +294,7 @@ export function CourseDetailView({ initialCourse }: { initialCourse: Course }) {
               <ContentActionBar
                 role={role}
                 status={course.status}
-                onSaveDraft={
-                  course.status === "DRAFT"
-                    ? () => handleSetStatus("DRAFT")
-                    : undefined
-                }
+                onSaveDraft={() => handleSetStatus("DRAFT")}
                 onSubmitForReview={() => handleSetStatus("IN_REVIEW")}
                 onApprove={() => handleSetStatus("APPROVED")}
                 onReject={() => setRejectOpen(true)}

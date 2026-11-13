@@ -15,6 +15,9 @@ import {
 } from '../../database/drizzle/enums.js';
 import { AiService } from '../ai/ai.service.js';
 import { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
+import { resolveStatusChange } from '../../common/utils/content-workflow.util.js';
+import type { UpdateStatusInput } from '../../common/schemas.js';
+import type { RequestUser } from '../auth/auth.types.js';
 import { sentenceQueue } from './sentence.queue.js';
 import { SentenceRepository } from './sentence.repository.js';
 import type {
@@ -139,6 +142,21 @@ export const SentenceService = {
 
   async createLong(dto: CreateSentenceInput, createdById: string) {
     return SentenceService.create(dto, createdById, SentenceType.LONG);
+  },
+
+  async changeStatus(id: string, dto: UpdateStatusInput, actor: RequestUser) {
+    return withTransaction(async (tx) => {
+      const sentence = await SentenceRepository.lockById(id, tx);
+      if (!sentence) throw new NotFoundError('Sentence not found');
+      const next = resolveStatusChange({
+        from: sentence.status,
+        to: dto.status,
+        role: actor.role,
+        rejectionReason: dto.rejectionReason,
+      });
+      await SentenceRepository.update(id, next, tx);
+      return SentenceRepository.findById(id, tx);
+    });
   },
 
   async update(id: string, dto: UpdateSentenceInput) {

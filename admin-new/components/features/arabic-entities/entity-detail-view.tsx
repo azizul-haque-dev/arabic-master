@@ -224,7 +224,7 @@ export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntit
               <ContentActionBar
                 role={role}
                 status={entity.status}
-                onSaveDraft={entity.status === "DRAFT" ? () => setStatus("DRAFT") : undefined}
+                onSaveDraft={() => setStatus("DRAFT")}
                 onSubmitForReview={() => setStatus("IN_REVIEW")}
                 onApprove={() => setStatus("APPROVED")}
                 onReject={() => setRejectOpen(true)}

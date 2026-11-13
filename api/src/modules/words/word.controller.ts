@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { ok } from '../../common/http/response.js';
 import { bodyOf, paramsOf, queryOf } from '../../common/middleware/validate.js';
-import type { IdParam } from '../../common/schemas.js';
+import type { IdParam, UpdateStatusInput } from '../../common/schemas.js';
 import type {
   GenerateContentInput,
   GenerateWordListInput,
@@ -43,6 +43,15 @@ export const WordController = {
     ok(res, await WordService.getAiJobStatus(id(req))),
   regenerate: async (req: Request, res: Response) =>
     ok(res, await WordService.regenerateWithAi(id(req)), 202),
+  changeStatus: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await WordService.changeStatus(
+        id(req),
+        bodyOf<UpdateStatusInput>(req),
+        req.auth!,
+      ),
+    ),
   update: async (req: Request, res: Response) =>
     ok(res, await WordService.update(id(req), bodyOf<UpdateWordInput>(req))),
   remove: async (req: Request, res: Response) => {

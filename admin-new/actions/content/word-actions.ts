@@ -10,11 +10,12 @@ import {
   generateWordListQuerySchema,
   queryFromUnknown,
   wordCreateSchema,
+  wordStatusSchema,
   wordUpdateSchema,
 } from "@/lib/content/validation";
 import { requestWordById, requestWordList } from "@/lib/words/data";
 import { normalizeWord, type WordListResponse } from "@/lib/words/api";
-import type { Word } from "@/lib/types/content";
+import type { ContentStatus, Word } from "@/lib/types/content";
 
 function toFailure<T>(
   result: Extract<ContentActionResult<unknown>, { success: false }>,
@@ -169,6 +170,36 @@ export async function updateWordAction(
 
   try {
     const response = await callBackend(`/words/${encodeURIComponent(id.data)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(parsed.data),
+    });
+    if (!response.success) return toFailure(response);
+    const word = normalizeWord(response.data);
+    revalidatePath("/admin/words");
+    revalidatePath(`/admin/words/${encodeURIComponent(id.data)}`);
+    return { success: true, data: word };
+  } catch {
+    return safeFailure();
+  }
+}
+
+export async function updateWordStatusAction(
+  idInput: unknown,
+  status: ContentStatus,
+  rejectionReason?: string,
+): Promise<ContentActionResult<Word>> {
+  const authorization = await requireContentAdmin();
+  if (!authorization.success) return toFailure(authorization);
+
+  const id = contentIdSchema.safeParse(idInput);
+  if (!id.success) return validationFailure(id.error.issues);
+
+  const parsed = wordStatusSchema.safeParse({ status, rejectionReason });
+  if (!parsed.success) return validationFailure(parsed.error.issues);
+
+  try {
+    const response = await callBackend(`/words/${encodeURIComponent(id.data)}/status`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(parsed.data),

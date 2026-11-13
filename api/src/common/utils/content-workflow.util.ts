@@ -27,7 +27,7 @@ export function resolveStatusChange(p: {
   role: Role;
   rejectionReason?: string;
 }): { status: ContentStatus; rejectionReason: string | null } {
-  if (!STATUS_TRANSITIONS[p.from].includes(p.to)) {
+  if (p.role !== Role.ADMIN && !STATUS_TRANSITIONS[p.from].includes(p.to)) {
     throw new ConflictError(`Cannot change status from ${p.from} to ${p.to}`);
   }
   if (

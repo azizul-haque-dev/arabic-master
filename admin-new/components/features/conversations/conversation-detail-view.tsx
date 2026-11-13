@@ -17,12 +17,15 @@ import type {
 import { ChevronRight, Eye, Pencil, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { updateConversationStatusAction } from "@/actions/content/conversation-actions";
 
 export function ConversationDetailView({
   initialConversation,
 }: {
   initialConversation: Conversation;
 }) {
+  const router = useRouter();
   const { role } = useRole();
   const [conversation, setConversation] = useState(initialConversation);
   const [editMetaOpen, setEditMetaOpen] = useState(false);
@@ -182,9 +185,9 @@ export function ConversationDetailView({
                     ? () => setStatus("IN_REVIEW")
                     : undefined
                 }
-                onApprove={() => setStatus("APPROVED")}
+                onApprove={() => void setStatus("APPROVED")}
                 onReject={() => setRejectOpen(true)}
-                onPublish={() => setStatus("PUBLISHED")}
+                onPublish={() => void setStatus("PUBLISHED")}
               />
               {conversation.turns.length === 0 ? (
                 <p className="mt-2 text-xs text-[var(--color-text-muted)]">
@@ -242,7 +245,7 @@ export function ConversationDetailView({
       <RejectionDialog
         open={rejectOpen}
         onOpenChange={setRejectOpen}
-        onSubmit={(reason) => setStatus("REJECTED", reason)}
+        onSubmit={(reason) => void setStatus("REJECTED", reason)}
       />
     </div>
   );

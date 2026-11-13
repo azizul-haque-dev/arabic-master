@@ -7,6 +7,7 @@ import {
   getTableColumns,
   ilike,
   or,
+  sql,
   type SQL,
 } from 'drizzle-orm';
 import { v7 as randomUUIDv7 } from 'uuid';
@@ -30,6 +31,8 @@ export interface SentenceFilters {
 }
 
 export type SentenceInsert = typeof schema.sentence.$inferInsert;
+
+const createdBySql = sql<string>`COALESCE((SELECT "fullName" FROM "User" WHERE "User"."id" = "Sentence"."createdById"), 'Content Admin')`;
 
 const entityColumns = {
   entityKey: schema.arabicEntity.entityKey,
@@ -86,6 +89,7 @@ export const SentenceRepository = {
     const [row] = await ex
       .select({
         ...getTableColumns(schema.sentence),
+        createdBy: createdBySql,
         entity: entityColumns,
       })
       .from(schema.sentence)
@@ -121,6 +125,15 @@ export const SentenceRepository = {
       ...row,
       words: linkedWords,
     };
+  },
+
+  async lockById(id: string, ex: Executor = db) {
+    const [sentence] = await ex
+      .select()
+      .from(schema.sentence)
+      .where(eq(schema.sentence.id, id))
+      .for('update');
+    return sentence ?? null;
   },
 
   async findByEntityId(entityId: string, ex: Executor = db) {

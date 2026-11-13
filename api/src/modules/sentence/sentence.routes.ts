@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authenticate } from '../../common/middleware/authenticate.js';
 import { authorize } from '../../common/middleware/authorize.js';
 import { validate } from '../../common/middleware/validate.js';
-import { idParamSchema } from '../../common/schemas.js';
+import { idParamSchema, updateStatusSchema } from '../../common/schemas.js';
 import { Role } from '../../database/drizzle/enums.js';
 import { SentenceController } from './sentence.controller.js';
 import {
@@ -139,6 +139,12 @@ sentenceRoutes.post(
   SentenceController.resyncWords,
 );
 sentenceRoutes.patch(
+  '/:id/status',
+  ...staff,
+  validate({ params: idParamSchema, body: updateStatusSchema }),
+  SentenceController.changeStatus,
+);
+sentenceRoutes.patch(
   '/:id',
   ...staff,
   validate({ params: idParamSchema, body: updateSentenceSchema }),
@@ -194,6 +200,12 @@ shortSentenceRoutes.post(
   ...staff,
   params,
   SentenceController.resyncWords,
+);
+shortSentenceRoutes.patch(
+  '/:id/status',
+  ...staff,
+  validate({ params: idParamSchema, body: updateStatusSchema }),
+  SentenceController.changeStatus,
 );
 shortSentenceRoutes.patch(
   '/:id',

@@ -1,3 +1,5 @@
+const isUuid = (str: unknown) => typeof str === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+
 import type { ContentStatus, Word, WordFormValues, WordType } from "@/lib/types/content";
 
 export interface WordListResponse {
@@ -91,7 +93,13 @@ export function normalizeWord(raw: unknown, arabicTextOverride?: string): Word {
     category: requiredString(raw, "category"),
     status: normalizeStatus(raw.status),
     rejectionReason: typeof rejectionReason === "string" ? rejectionReason : undefined,
-    createdBy: optionalString(raw.createdBy, createdById) ?? "Unknown",
+    createdBy: (() => {
+      const by = optionalString(raw.createdBy);
+      if (by && !isUuid(by)) return by;
+      const byId = optionalString(createdById);
+      if (byId && !isUuid(byId)) return byId;
+      return "Admin";
+    })(),
     createdAt: requiredString(raw, "createdAt"),
     updatedAt: requiredString(raw, "updatedAt"),
   };

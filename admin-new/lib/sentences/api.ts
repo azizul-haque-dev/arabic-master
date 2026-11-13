@@ -1,3 +1,5 @@
+const isUuid = (str: unknown) => typeof str === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+
 import { z } from "zod";
 import type { DifficultyLevel, Sentence, SentenceFormValues, SentenceType } from "@/lib/types/content";
 
@@ -30,6 +32,7 @@ const sentenceRecordSchema = z.object({
   status: z.enum(["DRAFT", "IN_REVIEW", "APPROVED", "PUBLISHED", "REJECTED", "ARCHIVED"]),
   rejectionReason: z.string().nullable(),
   createdById: z.string().nullable(),
+  createdBy: z.string().nullable().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
   entity: z.object({ arabicText: z.string() }).nullable().optional(),
@@ -102,7 +105,11 @@ export function normalizeSentence(value: unknown): Sentence {
     })),
     status: record.status,
     rejectionReason: record.rejectionReason ?? undefined,
-    createdBy: record.createdById ?? "Unknown",
+    createdBy: (() => {
+      if (record.createdBy && !isUuid(record.createdBy)) return record.createdBy;
+      if (record.createdById && !isUuid(record.createdById)) return record.createdById;
+      return "Admin";
+    })(),
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
   };

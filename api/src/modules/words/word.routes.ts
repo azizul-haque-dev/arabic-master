@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authenticate } from '../../common/middleware/authenticate.js';
 import { authorize } from '../../common/middleware/authorize.js';
 import { validate } from '../../common/middleware/validate.js';
-import { idParamSchema } from '../../common/schemas.js';
+import { idParamSchema, updateStatusSchema } from '../../common/schemas.js';
 import { Role } from '../../database/drizzle/enums.js';
 import {
   generateContentSchema,
@@ -58,6 +58,12 @@ wordRoutes.post(
   ...staff,
   params,
   WordController.regenerate,
+);
+wordRoutes.patch(
+  '/:id/status',
+  ...staff,
+  validate({ params: idParamSchema, body: updateStatusSchema }),
+  WordController.changeStatus,
 );
 wordRoutes.patch(
   '/:id',

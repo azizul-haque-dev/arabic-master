@@ -15,12 +15,16 @@ describe('resolveStatusChange', () => {
       }),
     ).toEqual({ status: 'IN_REVIEW', rejectionReason: null });
   });
-  it('অবৈধ transition → 409', () => {
-    expect(() =>
-      resolveStatusChange({ from: 'DRAFT', to: 'PUBLISHED', role: 'ADMIN' }),
-    ).toThrow(ConflictError);
+  it('Admin যেকোনো status-এ রূপান্তর করতে পারে (যেমন DRAFT → PUBLISHED)', () => {
+    expect(
+      resolveStatusChange({
+        from: 'DRAFT',
+        to: 'PUBLISHED',
+        role: 'ADMIN',
+      }),
+    ).toEqual({ status: 'PUBLISHED', rejectionReason: null });
   });
-  it('Content Manager approve করতে পারে না → 403', () => {
+  it('Content Manager অনুমোদনহীন target-এ নিতে পারে না → 403', () => {
     expect(() =>
       resolveStatusChange({
         from: 'IN_REVIEW',
@@ -28,6 +32,15 @@ describe('resolveStatusChange', () => {
         role: 'CONTENT_MANAGER',
       }),
     ).toThrow(ForbiddenError);
+  });
+  it('Content Manager অবৈধ transition করতে পারে না → 409', () => {
+    expect(() =>
+      resolveStatusChange({
+        from: 'DRAFT',
+        to: 'PUBLISHED',
+        role: 'CONTENT_MANAGER',
+      }),
+    ).toThrow(ConflictError);
   });
 });
 
