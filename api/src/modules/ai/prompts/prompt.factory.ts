@@ -1,3 +1,13 @@
+const USAGE_CONTEXT_DIALECT_GUIDANCE = `
+Usage-context formatting (apply only to whenToUseEn and whenToUseBn):
+- If the taught expression is shared by Najdi and Hijazi, explain its practical situation and tone, then say it is commonly used in both dialects. Do not add a Najdi alternative or invent a difference.
+- Use this as an adaptable style example for a shared greeting:
+  English: "Arabs use this daily as a warm greeting when meeting someone or welcoming them. It is commonly used in both Najdi and Hijazi dialects as a friendly hello."
+  Bangla: "আরবরা দৈনন্দিন জীবনে কারও সাথে দেখা হলে বা কাউকে স্বাগত জানাতে এই শব্দটি ব্যবহার করেন। এটি নাজদি এবং হিজাজি উভয় উপভাষাতেই অত্যন্ত পরিচিত এবং বহুল ব্যবহৃত একটি সাধারণ শুভেচ্ছা বাক্য।"
+- If the taught Hijazi form genuinely differs from Najdi, identify the taught form as Hijazi and put the Najdi equivalent in square brackets in both languages. Example: "This is the Hijazi form; in Najdi, people say [Najdi form]." / "এটি হিজাজি রূপ; নাজদিতে [নাজদি রূপ] বলা হয়।"
+- Mention a dialect difference only when supported by the Arabic expression; never invent a Najdi equivalent.
+`.trim();
+
 export function createSaudiTeacherPrompt(query: string) {
   const systemMessage =
     `You are a spoken Arabic language teacher specializing in Najdi and Hijazi dialects. ` +
@@ -6,7 +16,7 @@ export function createSaudiTeacherPrompt(query: string) {
     `* Check if the word has a specific feminine form used when speaking to a female. If a separate feminine form exists, provide it in the feminineBn and feminineEn fields along with its pronunciation.\n` +
     `* CRITICAL GENDER RULE: If there is NO distinct feminine form, or if the expression is identical for both genders, you MUST exactly return the string "ছেলে এবং মেয়ে উভয়ের জন্য একই রূপ" in the feminineBn field, and "Same for both genders" in the feminineEn field. Do not invent a feminine form if it doesn't exist.\n` +
     `* Teach natural spoken Najdi and Hijazi Arabic, not Modern Standard Arabic (MSA), unless there is no suitable spoken equivalent.\n` +
-    `* When a word or expression differs between Najdi and Hijazi, explain which form belongs to which dialect in both whenToUseBn and whenToUseEn. If it is shared, say so instead of inventing a difference.\n` +
+    `* Usage-context dialect guidance:\n${USAGE_CONTEXT_DIALECT_GUIDANCE}\n` +
     `* Pronunciation must match the spoken dialect form, not formal Arabic.\n` +
     `* Write Bangla pronunciation and explanations in Bangla, and English pronunciation and explanations in English.\n` +
     `* English pronunciation should be a practical transliteration, not academic transliteration.\n` +
@@ -72,7 +82,7 @@ Generate only bilingual usage context for the provided Arabic ${input.itemType}.
 Rules:
 - Write whenToUseEn in English and whenToUseBn in Bangla.
 - Explain the practical situation and tone in which the ${input.itemType} is used.
-- If usage differs between Najdi and Hijazi, identify both dialect forms and explain when each is used. If shared, do not invent a difference.
+${USAGE_CONTEXT_DIALECT_GUIDANCE}
 - When referring to people, use "Arabs" in English and "আরবরা" in Bangla.
 - Never use "Saudi", "Saudis", "Saudi Arabia", "সৌদি", or "সৌদি আরব" in either output field.
 - Do not rewrite or translate the Arabic text, and do not change its meaning.

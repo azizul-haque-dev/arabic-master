@@ -43,4 +43,33 @@ describe('AI dialect prompts', () => {
     expect(userMessage.content).toContain('Meaning in English: Hello');
     expect(userMessage.content).toContain('Meaning in Bangla: হ্যালো');
   });
+
+  it('uses the same shared and Hijazi-to-Najdi guidance in both generation paths', () => {
+    const prompts = [
+      createSaudiTeacherPrompt('مرحبا')[0].content,
+      createUsageContextPrompt({
+        itemType: 'word',
+        arabicText: 'مرحبا',
+        meaningEn: 'Hello',
+        meaningBn: 'হ্যালো',
+      })[0].content,
+    ];
+
+    for (const prompt of prompts) {
+      expect(prompt).toContain(
+        'If the taught expression is shared by Najdi and Hijazi',
+      );
+      expect(prompt).toContain(
+        'Arabs use this daily as a warm greeting when meeting someone or welcoming them.',
+      );
+      expect(prompt).toContain(
+        'If the taught Hijazi form genuinely differs from Najdi',
+      );
+      expect(prompt).toContain('[Najdi form]');
+      expect(prompt).toContain('[নাজদি রূপ]');
+      expect(prompt).toContain(
+        'never invent a Najdi equivalent',
+      );
+    }
+  });
 });
