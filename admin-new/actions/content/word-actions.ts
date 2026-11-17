@@ -6,6 +6,8 @@ import { callBackend, requireContentAdmin, validationFailure } from "@/lib/conte
 import {
   contentIdSchema,
   contentListQuerySchema,
+  aiJobQueueResponseSchema,
+  aiJobStatusSchema,
   generateQuerySchema,
   generateWordListQuerySchema,
   queryFromUnknown,
@@ -253,4 +255,45 @@ export async function regenerateWordAction(
   } catch {
     return safeFailure();
   }
+}
+
+export async function regenerateWordUsageAction(
+  idInput: unknown,
+): Promise<ContentActionResult<{ jobId: string; queued: boolean }>> {
+  const authorization = await requireContentAdmin();
+  if (!authorization.success) return toFailure(authorization);
+
+  const id = contentIdSchema.safeParse(idInput);
+  if (!id.success) return validationFailure(id.error.issues);
+
+  const response = await callBackend(
+    `/words/${encodeURIComponent(id.data)}/regenerate-usage`,
+    { method: "POST" },
+  );
+  if (!response.success) return toFailure(response);
+
+  const queued = aiJobQueueResponseSchema.safeParse(response.data);
+  if (!queued.success) return safeFailure();
+
+  revalidatePath(`/admin/words/${encodeURIComponent(id.data)}`);
+  return { success: true, data: queued.data };
+}
+
+export async function getWordAiJobStatusAction(
+  idInput: unknown,
+): Promise<ContentActionResult<{ state: string; failedReason: string | null }>> {
+  const authorization = await requireContentAdmin();
+  if (!authorization.success) return toFailure(authorization);
+
+  const id = contentIdSchema.safeParse(idInput);
+  if (!id.success) return validationFailure(id.error.issues);
+
+  const response = await callBackend(
+    `/words/ai/jobs/${encodeURIComponent(id.data)}`,
+  );
+  if (!response.success) return toFailure(response);
+
+  const status = aiJobStatusSchema.safeParse(response.data);
+  if (!status.success) return safeFailure();
+  return { success: true, data: status.data };
 }

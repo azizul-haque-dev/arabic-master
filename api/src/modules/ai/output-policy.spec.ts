@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_CATEGORY } from '../../common/constants/category.constant.js';
 import type { AiResponse } from './schemas/ai-response.schema.js';
-import { assertAiOutputLabelsAllowed } from './output-policy.js';
+import {
+  assertAiOutputLabelsAllowed,
+  assertUsageContextLabelsAllowed,
+} from './output-policy.js';
 
 const validResponse: AiResponse = {
   text: 'مرحبا',
@@ -46,5 +49,21 @@ describe('assertAiOutputLabelsAllowed', () => {
         meaningBn: 'সৌদি শব্দের অর্থ',
       }),
     ).toThrow(/meaningBn/);
+  });
+
+  it('rejects Saudi-related labels in focused usage-context results', () => {
+    expect(() =>
+      assertUsageContextLabelsAllowed({
+        whenToUseEn: 'Saudi speakers use it in this setting.',
+        whenToUseBn: 'আরবরা এই পরিস্থিতিতে এটি ব্যবহার করেন।',
+      }),
+    ).toThrow(/whenToUseEn/);
+
+    expect(() =>
+      assertUsageContextLabelsAllowed({
+        whenToUseEn: 'Arabs use it in this setting.',
+        whenToUseBn: 'সৌদি আরবের মানুষ এটি ব্যবহার করেন।',
+      }),
+    ).toThrow(/whenToUseBn/);
   });
 });

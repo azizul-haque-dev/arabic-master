@@ -43,6 +43,20 @@ export const AIResponseSchema = z.object({
 });
 export type AiResponse = z.infer<typeof AIResponseSchema>;
 
+export const AIUsageContextSchema = z.object({
+  whenToUseBn: z
+    .string()
+    .describe(
+      'Concise usage context written in Bangla. If Najdi and Hijazi usage differs, identify both dialect forms. Use আরবরা, not country or nationality labels.',
+    ),
+  whenToUseEn: z
+    .string()
+    .describe(
+      'Concise usage context written in English. If Najdi and Hijazi usage differs, identify both dialect forms. Use Arabs, not country or nationality labels.',
+    ),
+});
+export type AiUsageContext = z.infer<typeof AIUsageContextSchema>;
+
 export const SaudiArabicTranslationSchema = z.object({
   translatedText: z.string().min(1),
 });

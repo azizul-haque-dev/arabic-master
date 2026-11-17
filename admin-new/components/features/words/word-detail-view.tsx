@@ -2,16 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronRight, Pencil, XCircle, Sparkles } from "lucide-react";
+import { ChevronRight, Pencil, XCircle, Sparkles, Loader2 } from "lucide-react";
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
-import { ContentActionBar } from "@/components/shared/content-action-bar";
 import { RejectionDialog } from "@/components/shared/rejection-dialog";
 import { WordFormDialog } from "@/components/features/words/word-form-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   getWordAction,
+  getWordAiJobStatusAction,
   regenerateWordAction,
+  regenerateWordUsageAction,
   updateWordAction,
   updateWordStatusAction,
 } from "@/actions/content/word-actions";
@@ -22,6 +23,7 @@ import { buildWordUpdatePayload } from "@/lib/words/api";
 import { useRouter } from "next/navigation";
 import { EntityAudioPanel } from "@/components/features/audio/entity-audio-panel";
 import { checkAudioPermission } from "@/lib/audio/permissions";
+import { containsSaudiLabel } from "@/lib/content/saudi-label";
 
 export function WordDetailView({ initialWord }: { initialWord: Word }) {
   const router = useRouter();
@@ -66,6 +68,9 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateMessage, setGenerateMessage] = useState<string | null>(null);
   const [generateError, setGenerateError] = useState<string | null>(null);
+  const [isRegeneratingUsage, setIsRegeneratingUsage] = useState(false);
+  const [usageMessage, setUsageMessage] = useState<string | null>(null);
+  const [usageError, setUsageError] = useState<string | null>(null);
 
   async function handleSave(entity: ArabicEntity, values: WordFormValues) {
     const result = await updateWordAction(word.id, buildWordUpdatePayload(values));
@@ -131,6 +136,62 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
     }
   }
 
+  async function handleRegenerateUsage() {
+    if (isRegeneratingUsage || isGenerating) return;
+    setIsRegeneratingUsage(true);
+    setUsageMessage("Usage regeneration queued. Waiting for the updated content…");
+    setUsageError(null);
+
+    try {
+      const queued = await regenerateWordUsageAction(word.id);
+      if (!queued.success) {
+        setUsageMessage(null);
+        setUsageError(queued.error);
+        return;
+      }
+
+      for (let attempt = 0; attempt < 30; attempt += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        const status = await getWordAiJobStatusAction(queued.data.jobId);
+        if (!status.success) {
+          setUsageMessage(null);
+          setUsageError(status.error);
+          return;
+        }
+        if (status.data.state === "failed") {
+          setUsageMessage(null);
+          setUsageError(
+            status.data.failedReason || "AI could not regenerate this usage text.",
+          );
+          return;
+        }
+        if (status.data.state === "completed") {
+          const fresh = await getWordAction(word.id);
+          if (!fresh.success) {
+            setUsageMessage(null);
+            setUsageError(fresh.error);
+            return;
+          }
+          setWord(fresh.data);
+          setUsageMessage("When-to-use text regenerated successfully.");
+          router.refresh();
+          return;
+        }
+      }
+
+      setUsageMessage(
+        "Regeneration is still running in the background. Refresh this page shortly.",
+      );
+    } catch (cause) {
+      setUsageMessage(null);
+      setUsageError(
+        cause instanceof Error ? cause.message : "Unable to regenerate usage text.",
+      );
+    } finally {
+      setIsRegeneratingUsage(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <nav className="flex items-center gap-1.5 text-xs text-text-muted" aria-label="Breadcrumb">
@@ -157,7 +218,7 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
         <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
-            disabled={isGenerating}
+            disabled={isGenerating || isRegeneratingUsage}
             onClick={() => void handleRegenerate()}
           >
             <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
@@ -223,7 +284,35 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
           </section>
 
           <section className="rounded-lg border border-border bg-white p-5">
-            <h2 className="font-heading text-sm font-semibold text-text">When to use</h2>
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="font-heading text-sm font-semibold text-text">When to use</h2>
+              {containsSaudiLabel(word.whenToUseEnglish, word.whenToUseBangla) ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isGenerating || isRegeneratingUsage}
+                  onClick={() => void handleRegenerateUsage()}
+                >
+                  {isRegeneratingUsage ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                  ) : (
+                    <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                  )}
+                  {isRegeneratingUsage ? "Regenerating…" : "Regenerate"}
+                </Button>
+              ) : null}
+            </div>
+            {usageMessage ? (
+              <p role="status" className="mt-2 text-xs text-text-secondary">
+                {usageMessage}
+              </p>
+            ) : null}
+            {usageError ? (
+              <p role="alert" className="mt-2 text-xs text-error-text">
+                {usageError}
+              </p>
+            ) : null}
             <p className="mt-2 text-sm text-text">{word.whenToUseEnglish || "—"}</p>
             <p className="mt-1 font-bengali text-sm text-text-secondary">
               {word.whenToUseBangla || "—"}

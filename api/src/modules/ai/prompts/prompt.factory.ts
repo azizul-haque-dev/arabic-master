@@ -56,3 +56,37 @@ ${query}
     { role: 'user', content: userMessage },
   ];
 }
+
+export interface UsageContextPromptInput {
+  itemType: 'word' | 'sentence';
+  arabicText: string;
+  meaningEn: string;
+  meaningBn: string;
+}
+
+export function createUsageContextPrompt(input: UsageContextPromptInput) {
+  const systemMessage = `
+You are an Arabic language teacher specializing in spoken Najdi and Hijazi dialects.
+Generate only bilingual usage context for the provided Arabic ${input.itemType}.
+
+Rules:
+- Write whenToUseEn in English and whenToUseBn in Bangla.
+- Explain the practical situation and tone in which the ${input.itemType} is used.
+- If usage differs between Najdi and Hijazi, identify both dialect forms and explain when each is used. If shared, do not invent a difference.
+- When referring to people, use "Arabs" in English and "আরবরা" in Bangla.
+- Never use "Saudi", "Saudis", "Saudi Arabia", "সৌদি", or "সৌদি আরব" in either output field.
+- Do not rewrite or translate the Arabic text, and do not change its meaning.
+- Return only the requested usage-context fields.
+`.trim();
+
+  const userMessage = `
+Arabic ${input.itemType}: ${input.arabicText}
+Meaning in English: ${input.meaningEn}
+Meaning in Bangla: ${input.meaningBn}
+`.trim();
+
+  return [
+    { role: 'system', content: systemMessage },
+    { role: 'user', content: userMessage },
+  ];
+}

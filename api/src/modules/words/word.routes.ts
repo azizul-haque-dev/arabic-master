@@ -54,6 +54,12 @@ wordRoutes.post(
   WordController.regenerate,
 );
 wordRoutes.post(
+  '/:id/regenerate-usage',
+  ...staff,
+  params,
+  WordController.regenerateUsageContext,
+);
+wordRoutes.post(
   '/:id/ai',
   ...staff,
   params,

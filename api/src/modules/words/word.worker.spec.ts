@@ -1,0 +1,55 @@
+import { describe, expect, it, vi } from 'vitest';
+import type { Job } from 'bullmq';
+import { AiService } from '../ai/ai.service.js';
+import type { WordRepository } from './word.repository.js';
+import { WordProcessor, type WordJobData } from './word.worker.js';
+
+describe('WordProcessor targeted usage regeneration', () => {
+  it('updates only the bilingual usage fields', async () => {
+    const word = {
+      id: 'word-1',
+      arabicText: 'أنا',
+      entity: { arabicText: 'أنا' },
+      meaningEn: 'I',
+      meaningBn: 'আমি',
+    } as unknown as NonNullable<
+      Awaited<ReturnType<typeof WordRepository.findDetailedById>>
+    >;
+    const update = vi.fn();
+    const words = {
+      findDetailedById: vi.fn().mockResolvedValue(word),
+      update,
+    } as unknown as WordRepository;
+    const ai = {
+      generateUsageContext: vi.fn().mockResolvedValue({
+        whenToUseEn: 'Use it when referring to yourself.',
+        whenToUseBn: 'নিজের কথা বলার সময় এটি ব্যবহার করুন।',
+      }),
+    } as unknown as AiService;
+    const job = {
+      name: 'regenerate-word-usage',
+      data: { wordId: 'word-1', arabicText: 'ignored' },
+    } as Job<WordJobData>;
+
+    await WordProcessor.process(job, { words, ai });
+
+    expect(ai.generateUsageContext).toHaveBeenCalledWith({
+      itemType: 'word',
+      arabicText: 'أنا',
+      meaningEn: 'I',
+      meaningBn: 'আমি',
+    });
+    expect(update).toHaveBeenCalledOnce();
+    expect(update).toHaveBeenCalledWith(
+      'word-1',
+      expect.objectContaining({
+        whenToUseEn: 'Use it when referring to yourself.',
+        whenToUseBn: 'নিজের কথা বলার সময় এটি ব্যবহার করুন।',
+      }),
+    );
+    const updatedFields = Object.keys(update.mock.calls[0][1]);
+    expect(updatedFields.sort()).toEqual(
+      ['updatedAt', 'whenToUseBn', 'whenToUseEn'].sort(),
+    );
+  });
+});

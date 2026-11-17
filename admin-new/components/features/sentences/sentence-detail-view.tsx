@@ -3,9 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Pencil, XCircle, Sparkles, MessagesSquare, GraduationCap } from "lucide-react";
+import { ChevronRight, Pencil, XCircle, Sparkles, MessagesSquare, GraduationCap, Loader2 } from "lucide-react";
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
-import { ContentActionBar } from "@/components/shared/content-action-bar";
 import { RejectionDialog } from "@/components/shared/rejection-dialog";
 import { SentenceFormDialog } from "@/components/features/sentences/sentence-form-dialog";
 import { SentenceTypeBadge } from "@/components/features/sentences/sentence-type-badge";
@@ -14,7 +13,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     getSentenceAction,
+    getSentenceAiJobStatusAction,
     regenerateSentenceAction,
+    regenerateSentenceContextAction,
     updateSentenceAction,
     updateSentenceStatusAction,
 } from "@/actions/content/sentence-actions";
@@ -24,6 +25,7 @@ import { DIFFICULTY_LABEL, SENTENCE_TYPE_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
 import { EntityAudioPanel } from "@/components/features/audio/entity-audio-panel";
 import { checkAudioPermission } from "@/lib/audio/permissions";
+import { containsSaudiLabel } from "@/lib/content/saudi-label";
 
 export function SentenceDetailView({
     initialSentence,
@@ -74,6 +76,9 @@ export function SentenceDetailView({
     const [isGenerating, setIsGenerating] = useState(false);
     const [generateMessage, setGenerateMessage] = useState<string | null>(null);
     const [generateError, setGenerateError] = useState<string | null>(null);
+    const [isRegeneratingContext, setIsRegeneratingContext] = useState(false);
+    const [contextMessage, setContextMessage] = useState<string | null>(null);
+    const [contextError, setContextError] = useState<string | null>(null);
 
     async function handleSave(values: SentenceFormValues): Promise<Sentence> {
         const result = await updateSentenceAction(sentence.id, buildSentenceUpdatePayload(values));
@@ -142,6 +147,65 @@ export function SentenceDetailView({
         }
     }
 
+    async function handleRegenerateContext() {
+        if (isRegeneratingContext || isGenerating) return;
+        setIsRegeneratingContext(true);
+        setContextMessage("Context regeneration queued. Waiting for the updated content…");
+        setContextError(null);
+
+        try {
+            const queued = await regenerateSentenceContextAction(sentence.id);
+            if (!queued.success) {
+                setContextMessage(null);
+                setContextError(queued.error);
+                return;
+            }
+
+            for (let attempt = 0; attempt < 30; attempt += 1) {
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+                const status = await getSentenceAiJobStatusAction(queued.data.jobId);
+                if (!status.success) {
+                    setContextMessage(null);
+                    setContextError(status.error);
+                    return;
+                }
+                if (status.data.state === "failed") {
+                    setContextMessage(null);
+                    setContextError(
+                        status.data.failedReason || "AI could not regenerate this context.",
+                    );
+                    return;
+                }
+                if (status.data.state === "completed") {
+                    const fresh = await getSentenceAction(sentence.id);
+                    if (!fresh.success) {
+                        setContextMessage(null);
+                        setContextError(fresh.error);
+                        return;
+                    }
+                    setSentence((prev) => ({
+                        ...fresh.data,
+                        arabicText: fresh.data.arabicText || prev.arabicText,
+                    }));
+                    setContextMessage("Context regenerated successfully.");
+                    router.refresh();
+                    return;
+                }
+            }
+
+            setContextMessage(
+                "Regeneration is still running in the background. Refresh this page shortly.",
+            );
+        } catch (cause) {
+            setContextMessage(null);
+            setContextError(
+                cause instanceof Error ? cause.message : "Unable to regenerate context.",
+            );
+        } finally {
+            setIsRegeneratingContext(false);
+        }
+    }
+
     const listHref = sentence.sentenceType === "SHORT" ? "/admin/short-sentences" : "/admin/sentences";
     const listLabel = sentence.sentenceType === "SHORT" ? "Short Sentences" : "Sentences";
 
@@ -172,7 +236,7 @@ export function SentenceDetailView({
                 <div className="flex flex-wrap items-center gap-2">
                     <Button
                         variant="outline"
-                        disabled={isGenerating}
+                        disabled={isGenerating || isRegeneratingContext}
                         onClick={() => void handleRegenerate()}
                     >
                         <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
@@ -238,7 +302,35 @@ export function SentenceDetailView({
                     </section>
 
                     <section className="rounded-lg border border-border bg-white p-5">
-                        <h2 className="font-heading text-sm font-semibold text-text">Context</h2>
+                        <div className="flex items-center justify-between gap-2">
+                            <h2 className="font-heading text-sm font-semibold text-text">Context</h2>
+                            {containsSaudiLabel(sentence.context, sentence.contextBangla) ? (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={isGenerating || isRegeneratingContext}
+                                    onClick={() => void handleRegenerateContext()}
+                                >
+                                    {isRegeneratingContext ? (
+                                        <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                                    ) : (
+                                        <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                                    )}
+                                    {isRegeneratingContext ? "Regenerating…" : "Regenerate"}
+                                </Button>
+                            ) : null}
+                        </div>
+                        {contextMessage ? (
+                            <p role="status" className="mt-2 text-xs text-text-secondary">
+                                {contextMessage}
+                            </p>
+                        ) : null}
+                        {contextError ? (
+                            <p role="alert" className="mt-2 text-xs text-error-text">
+                                {contextError}
+                            </p>
+                        ) : null}
                         <dl className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div>
                                 <dt className="text-xs text-text-muted">English</dt>

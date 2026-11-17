@@ -31,7 +31,14 @@ export interface SentenceResyncData {
   arabicText: string;
 }
 
-export type SentenceJobData = SentenceProcessData | SentenceResyncData;
+export interface SentenceContextData extends SentenceResyncData {
+  createdById?: string;
+}
+
+export type SentenceJobData =
+  | SentenceProcessData
+  | SentenceResyncData
+  | SentenceContextData;
 export type WordLink = { wordId: string; position: number };
 
 export interface SentenceProcessorDependencies {
@@ -57,6 +64,38 @@ export const SentenceProcessor = {
 
     const replaceWords = (sentenceId: string, words: WordLink[]) =>
       withTransaction((tx) => sentences.replaceWords(sentenceId, words, tx));
+
+    if (job.name === 'regenerate-sentence-context') {
+      const { sentenceId } = job.data as SentenceContextData;
+      const sentence = await sentences.findById(sentenceId);
+      if (!sentence) {
+        log.warn(
+          `Sentence ${sentenceId} was deleted before context regeneration ran — skipping.`,
+        );
+        return;
+      }
+
+      const entity = await entities.findById(sentence.entityId);
+      if (!entity?.arabicText) {
+        throw new Error(
+          `Sentence ${sentenceId} does not have associated Arabic text.`,
+        );
+      }
+
+      const usage = await ai.generateUsageContext({
+        itemType: 'sentence',
+        arabicText: entity.arabicText,
+        meaningEn: sentence.meaningEn,
+        meaningBn: sentence.meaningBn,
+      });
+
+      await sentences.update(sentenceId, {
+        whenToUseEn: usage.whenToUseEn,
+        whenToUseBn: usage.whenToUseBn,
+        updatedAt: new Date(),
+      });
+      return;
+    }
 
     /** SentenceWord-এ (sentenceId, wordId) unique, তাই repeat হলে শুধু প্রথম position থাকে */
     async function resolveWords(

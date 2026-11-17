@@ -117,6 +117,14 @@ export const arabicEntityStatusSchema = z.object({
 
 export const generateQuerySchema = z.string().trim().min(1).max(500);
 export const generateWordListQuerySchema = z.array(generateQuerySchema).min(1).max(25);
+export const aiJobQueueResponseSchema = z.object({
+  jobId: z.string(),
+  queued: z.boolean(),
+});
+export const aiJobStatusSchema = z.object({
+  state: z.string(),
+  failedReason: z.string().nullable(),
+});
 export const generateSentenceSchema = z.union([
   generateQuerySchema.transform((query) => ({
     query,
