@@ -7,6 +7,8 @@ export type AiUsageContextOutput = Pick<
 
 const FORBIDDEN_LABEL_PATTERN =
   /\bsaudi(?:\s*[-–—]?\s*(?:arabia|arabian))?s?\b|সৌদি(?:\s*[-–—]?\s*আরব)?/iu;
+const FORBIDDEN_DIALECT_REFERENCE_PATTERN =
+  /\b(?:dialects?|najdi|hijazi|najd|hijaz|gulf|egyptian|levantine|maghrebi|msa)\b|নাজদি|নাজদী|হিজাজি|হিজাজী|نجدي|حجازي|نجد|حجاز|لهجة|لهجات|উপভাষা/iu;
 
 const LEARNER_FACING_FIELDS = [
   'text',
@@ -31,6 +33,7 @@ export function assertAiOutputLabelsAllowed(response: AiResponse): void {
       );
     }
   }
+  assertUsageContextDialectReferencesOmitted(response);
 }
 
 export function assertUsageContextLabelsAllowed(
@@ -40,6 +43,19 @@ export function assertUsageContextLabelsAllowed(
     if (FORBIDDEN_LABEL_PATTERN.test(response[field])) {
       throw new Error(
         `AI output field "${field}" contains a prohibited country or nationality label.`,
+      );
+    }
+  }
+  assertUsageContextDialectReferencesOmitted(response);
+}
+
+function assertUsageContextDialectReferencesOmitted(
+  response: AiUsageContextOutput,
+): void {
+  for (const field of ['whenToUseBn', 'whenToUseEn'] as const) {
+    if (FORBIDDEN_DIALECT_REFERENCE_PATTERN.test(response[field])) {
+      throw new Error(
+        `AI output field "${field}" contains a prohibited dialect or regional reference.`,
       );
     }
   }

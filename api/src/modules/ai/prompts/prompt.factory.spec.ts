@@ -44,7 +44,7 @@ describe('AI dialect prompts', () => {
     expect(userMessage.content).toContain('Meaning in Bangla: হ্যালো');
   });
 
-  it('uses natural shared-form and Hijazi-to-Najdi guidance in both generation paths', () => {
+  it('keeps usage explanations simple without dialect comparisons', () => {
     const prompts = [
       createSaudiTeacherPrompt('مرحبا')[0].content,
       createUsageContextPrompt({
@@ -57,28 +57,20 @@ describe('AI dialect prompts', () => {
 
     for (const prompt of prompts) {
       expect(prompt).toContain(
-        'Arabs use this daily as a warm greeting when meeting someone or welcoming them.',
+        'Give a simple, natural explanation of when and why the expression is used.',
       );
-      expect(prompt).not.toContain(
-        'It is commonly used in both Najdi and Hijazi dialects as a friendly hello.',
+      expect(prompt).toContain(
+        'Do not mention dialects, dialect names, regions, or compare varieties.',
+      );
+      expect(prompt).toContain(
+        'Arabs use this daily as a warm greeting when meeting someone or welcoming them.',
       );
       expect(prompt).toContain(
         'আরবরা দৈনন্দিন জীবনে কারও সাথে দেখা হলে বা কাউকে স্বাগত জানাতে এই শব্দটি ব্যবহার করেন।',
       );
-      expect(prompt).not.toContain(
-        'এটি নাজদি এবং হিজাজি উভয় উপভাষাতেই অত্যন্ত পরিচিত',
-      );
-      expect(prompt).toContain(
-        'When the expression is shared, describe how it is used without naming the dialects',
-      );
-      expect(prompt).toContain(
-        'When the taught pronunciation is Hijazi and the form genuinely differs in Najdi',
-      );
-      expect(prompt).toContain('[Najdi form]');
-      expect(prompt).toContain('[নাজদি রূপ]');
-      expect(prompt).toContain(
-        'never invent one',
-      );
+      expect(prompt).not.toContain('This is the Hijazi form');
+      expect(prompt).not.toContain('[Najdi form]');
+      expect(prompt).not.toContain('[নাজদি রূপ]');
     }
   });
 });

@@ -9,7 +9,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Volume2 } from "lucide-react";
 import { EntitySelector } from "@/components/features/arabic-entities/entity-selector";
@@ -241,8 +241,9 @@ export function WordFormDialog({
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <Label htmlFor="w-meaning-en">Meaning (English)</Label>
-                  <Input
+                  <Textarea
                     id="w-meaning-en"
+                    rows={3}
                     value={values.meaningEnglish}
                     onChange={(e) => update("meaningEnglish", e.target.value)}
                     placeholder="Cheap"
@@ -250,8 +251,9 @@ export function WordFormDialog({
                 </div>
                 <div>
                   <Label htmlFor="w-meaning-bn">Meaning (Bangla)</Label>
-                  <Input
+                  <Textarea
                     id="w-meaning-bn"
+                    rows={3}
                     value={values.meaningBangla}
                     onChange={(e) => update("meaningBangla", e.target.value)}
                     placeholder="সস্তা"
@@ -260,8 +262,9 @@ export function WordFormDialog({
                 </div>
                 <div>
                   <Label htmlFor="w-pron-en">Pronunciation (English)</Label>
-                  <Input
+                  <Textarea
                     id="w-pron-en"
+                    rows={2}
                     value={values.pronunciationEnglish}
                     onChange={(e) => update("pronunciationEnglish", e.target.value)}
                     placeholder="Rakhees"
@@ -269,8 +272,9 @@ export function WordFormDialog({
                 </div>
                 <div>
                   <Label htmlFor="w-pron-bn">Pronunciation (Bangla)</Label>
-                  <Input
+                  <Textarea
                     id="w-pron-bn"
+                    rows={2}
                     value={values.pronunciationBangla}
                     onChange={(e) => update("pronunciationBangla", e.target.value)}
                     placeholder="রাখিস"
@@ -281,8 +285,9 @@ export function WordFormDialog({
 
               <div>
                 <Label htmlFor="w-when-en">When to use (English)</Label>
-                <Input
+                <Textarea
                   id="w-when-en"
+                  rows={4}
                   value={values.whenToUseEnglish}
                   onChange={(e) => update("whenToUseEnglish", e.target.value)}
                   placeholder="To describe a low price, typically while shopping"
@@ -290,8 +295,9 @@ export function WordFormDialog({
               </div>
               <div>
                 <Label htmlFor="w-when-bn">When to use (Bangla)</Label>
-                <Input
+                <Textarea
                   id="w-when-bn"
+                  rows={4}
                   value={values.whenToUseBangla}
                   onChange={(e) => update("whenToUseBangla", e.target.value)}
                   placeholder="দাম কম বোঝাতে, সাধারণত shopping-এর সময়"
@@ -320,8 +326,9 @@ export function WordFormDialog({
                 </div>
                 <div>
                   <Label htmlFor="w-category">Category</Label>
-                  <Input
+                  <Textarea
                     id="w-category"
+                    rows={2}
                     value={values.category}
                     onChange={(e) => update("category", e.target.value)}
                     placeholder="Shopping"

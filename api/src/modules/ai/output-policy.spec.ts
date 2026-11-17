@@ -14,15 +14,15 @@ const validResponse: AiResponse = {
   pronunciationEn: 'Marhaba',
   feminineBn: 'ছেলে এবং মেয়ে উভয়ের জন্য একই রূপ',
   feminineEn: 'Same for both genders',
-  whenToUseBn: 'আরবরা নাজদি ও হিজাজি—দুই উপভাষাতেই এটি ব্যবহার করেন।',
-  whenToUseEn: 'Arabs use this in both Najdi and Hijazi dialects.',
+  whenToUseBn: 'আরবরা দৈনন্দিন জীবনে শুভেচ্ছা জানাতে এটি ব্যবহার করেন।',
+  whenToUseEn: 'Arabs use this as a friendly everyday greeting.',
   category: DEFAULT_CATEGORY,
-  noteEn: 'Usage is shared across both dialects.',
-  noteBn: 'দুই উপভাষাতেই ব্যবহারটি প্রচলিত।',
+  noteEn: 'A warm and friendly expression.',
+  noteBn: 'একটি আন্তরিক ও বন্ধুত্বপূর্ণ অভিব্যক্তি।',
 };
 
 describe('assertAiOutputLabelsAllowed', () => {
-  it('accepts generic Arab wording and Najdi/Hijazi usage notes', () => {
+  it('accepts a simple, natural usage explanation', () => {
     expect(() => assertAiOutputLabelsAllowed(validResponse)).not.toThrow();
   });
 
@@ -49,6 +49,22 @@ describe('assertAiOutputLabelsAllowed', () => {
         meaningBn: 'সৌদি শব্দের অর্থ',
       }),
     ).toThrow(/meaningBn/);
+  });
+
+  it('rejects dialect and regional references in usage context', () => {
+    expect(() =>
+      assertAiOutputLabelsAllowed({
+        ...validResponse,
+        whenToUseEn: 'Arabs use it as a Hijazi greeting.',
+      }),
+    ).toThrow(/whenToUseEn/);
+
+    expect(() =>
+      assertUsageContextLabelsAllowed({
+        whenToUseEn: 'Arabs use this as a warm greeting.',
+        whenToUseBn: 'নাজদিতে আরবরা এটি ব্যবহার করেন।',
+      }),
+    ).toThrow(/whenToUseBn/);
   });
 
   it('rejects Saudi-related labels in focused usage-context results', () => {
