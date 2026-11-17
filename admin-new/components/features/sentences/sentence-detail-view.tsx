@@ -25,7 +25,6 @@ import { DIFFICULTY_LABEL, SENTENCE_TYPE_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
 import { EntityAudioPanel } from "@/components/features/audio/entity-audio-panel";
 import { checkAudioPermission } from "@/lib/audio/permissions";
-import { containsSaudiLabel } from "@/lib/content/saudi-label";
 
 export function SentenceDetailView({
     initialSentence,
@@ -304,22 +303,20 @@ export function SentenceDetailView({
                     <section className="rounded-lg border border-border bg-white p-5">
                         <div className="flex items-center justify-between gap-2">
                             <h2 className="font-heading text-sm font-semibold text-text">Context</h2>
-                            {containsSaudiLabel(sentence.context, sentence.contextBangla) ? (
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    disabled={isGenerating || isRegeneratingContext}
-                                    onClick={() => void handleRegenerateContext()}
-                                >
-                                    {isRegeneratingContext ? (
-                                        <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-                                    ) : (
-                                        <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                                    )}
-                                    {isRegeneratingContext ? "Regenerating…" : "Regenerate"}
-                                </Button>
-                            ) : null}
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                disabled={isGenerating || isRegeneratingContext}
+                                onClick={() => void handleRegenerateContext()}
+                            >
+                                {isRegeneratingContext ? (
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                                ) : (
+                                    <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                                )}
+                                {isRegeneratingContext ? "Regenerating…" : "Regenerate"}
+                            </Button>
                         </div>
                         {contextMessage ? (
                             <p role="status" className="mt-2 text-xs text-text-secondary">

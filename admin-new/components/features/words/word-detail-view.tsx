@@ -23,7 +23,6 @@ import { buildWordUpdatePayload } from "@/lib/words/api";
 import { useRouter } from "next/navigation";
 import { EntityAudioPanel } from "@/components/features/audio/entity-audio-panel";
 import { checkAudioPermission } from "@/lib/audio/permissions";
-import { containsSaudiLabel } from "@/lib/content/saudi-label";
 
 export function WordDetailView({ initialWord }: { initialWord: Word }) {
   const router = useRouter();
@@ -286,22 +285,20 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
           <section className="rounded-lg border border-border bg-white p-5">
             <div className="flex items-center justify-between gap-2">
               <h2 className="font-heading text-sm font-semibold text-text">When to use</h2>
-              {containsSaudiLabel(word.whenToUseEnglish, word.whenToUseBangla) ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={isGenerating || isRegeneratingUsage}
-                  onClick={() => void handleRegenerateUsage()}
-                >
-                  {isRegeneratingUsage ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-                  ) : (
-                    <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                  )}
-                  {isRegeneratingUsage ? "Regenerating…" : "Regenerate"}
-                </Button>
-              ) : null}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={isGenerating || isRegeneratingUsage}
+                onClick={() => void handleRegenerateUsage()}
+              >
+                {isRegeneratingUsage ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                )}
+                {isRegeneratingUsage ? "Regenerating…" : "Regenerate"}
+              </Button>
             </div>
             {usageMessage ? (
               <p role="status" className="mt-2 text-xs text-text-secondary">
