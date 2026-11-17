@@ -60,6 +60,12 @@ describe('AI dialect prompts', () => {
         'Give a simple, natural explanation of when and why the expression is used.',
       );
       expect(prompt).toContain(
+        'If it is commonly used as a reply to a particular word, phrase, or question, explain what it responds to',
+      );
+      expect(prompt).toContain(
+        'do not invent a trigger',
+      );
+      expect(prompt).toContain(
         'Do not mention dialects, dialect names, regions, or compare varieties.',
       );
       expect(prompt).toContain(

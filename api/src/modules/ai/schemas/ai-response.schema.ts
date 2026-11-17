@@ -28,12 +28,12 @@ export const AIResponseSchema = z.object({
   whenToUseBn: z
     .string()
     .describe(
-      'Detailed context in Bangla describing simply and naturally when and why the expression is used. Do not mention or compare dialects, regions, countries, or nationalities. Refer to people as আরবরা.',
+      'Detailed context in Bangla describing simply and naturally when and why the expression is used. If it is commonly a reply to a word, phrase, or question, explain what it responds to; do not invent a trigger. Do not mention or compare dialects, regions, countries, or nationalities. Refer to people as আরবরা.',
     ),
   whenToUseEn: z
     .string()
     .describe(
-      'Detailed context in English describing simply and naturally when and why the expression is used. Do not mention or compare dialects, regions, countries, or nationalities. Refer to people as Arabs.',
+      'Detailed context in English describing simply and naturally when and why the expression is used. If it is commonly a reply to a word, phrase, or question, explain what it responds to; do not invent a trigger. Do not mention or compare dialects, regions, countries, or nationalities. Refer to people as Arabs.',
     ),
   category: z
     .enum(ALLOWED_CATEGORIES)
@@ -47,12 +47,12 @@ export const AIUsageContextSchema = z.object({
   whenToUseBn: z
     .string()
     .describe(
-      'Concise Bangla usage context explaining simply and naturally when and why the expression is used. Do not mention or compare dialects, regions, countries, or nationalities. Use আরবরা.',
+      'Concise Bangla usage context explaining simply and naturally when and why the expression is used. If it commonly replies to a word, phrase, or question, explain what it responds to; do not invent a trigger. Do not mention or compare dialects, regions, countries, or nationalities. Use আরবরা.',
     ),
   whenToUseEn: z
     .string()
     .describe(
-      'Concise English usage context explaining simply and naturally when and why the expression is used. Do not mention or compare dialects, regions, countries, or nationalities. Use Arabs.',
+      'Concise English usage context explaining simply and naturally when and why the expression is used. If it commonly replies to a word, phrase, or question, explain what it responds to; do not invent a trigger. Do not mention or compare dialects, regions, countries, or nationalities. Use Arabs.',
     ),
 });
 export type AiUsageContext = z.infer<typeof AIUsageContextSchema>;

@@ -1,6 +1,7 @@
 const USAGE_CONTEXT_GUIDANCE = `
 Usage-context formatting (apply only to whenToUseEn and whenToUseBn):
 - Give a simple, natural explanation of when and why the expression is used.
+- If it is commonly used as a reply to a particular word, phrase, or question, explain what it responds to and when someone would say it. Include this only when clear from the expression and meaning; do not invent a trigger.
 - Do not mention dialects, dialect names, regions, or compare varieties.
 - Use this as an adaptable style example for a shared greeting:
   English: "Arabs use this daily as a warm greeting when meeting someone or welcoming them."
