@@ -54,6 +54,7 @@ describe('R2StorageService', () => {
         body: Buffer.from([0x49, 0x44, 0x33, 0x00]),
         mimeType: 'audio/mpeg',
         sizeBytes: 4,
+        downloadFileName: 'ana.mp3',
       });
 
       expect(mockS3Send).toHaveBeenCalledTimes(1);
@@ -61,6 +62,9 @@ describe('R2StorageService', () => {
       expect(commandArg).toBeInstanceOf(PutObjectCommand);
       expect(commandArg.input.ContentType).toBe('audio/mpeg');
       expect(commandArg.input.ContentLength).toBe(4);
+      expect(commandArg.input.ContentDisposition).toBe(
+        'inline; filename="ana.mp3"',
+      );
       expect(commandArg.input.Metadata).toEqual({
         'entity-id': 'entity-1',
         variant: 'DEFAULT',

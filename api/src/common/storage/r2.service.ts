@@ -145,6 +145,9 @@ export class R2StorageService implements StorageService {
         Body: payloadBody,
         ContentType: options.mimeType,
         ContentLength: options.sizeBytes,
+        ContentDisposition: options.downloadFileName
+          ? `inline; filename="${options.downloadFileName}"`
+          : undefined,
         Metadata: {
           'entity-id': options.entityId,
           variant: options.variant,

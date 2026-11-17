@@ -11,8 +11,10 @@ export const AIResponseSchema = z.object({
     .describe('Natural and conversational meaning in English'),
   pronunciationBn: z
     .string()
-    .describe('Practical pronunciation spelling for Bangla speakers'),
-  pronunciationEn: z.string().describe('Practical English transliteration'),
+    .describe('Practical pronunciation spelling in Bangla for Bangla speakers'),
+  pronunciationEn: z
+    .string()
+    .describe('Practical English pronunciation transliteration written in English'),
   feminineBn: z
     .string()
     .describe(
@@ -26,12 +28,12 @@ export const AIResponseSchema = z.object({
   whenToUseBn: z
     .string()
     .describe(
-      'Detailed context of when Saudis use this in daily life in Bangla',
+      'Detailed context written in Bangla for when Arabs use this in daily life. If Najdi and Hijazi usage differs, explain and label both dialect forms. Refer to people as আরবরা, not by country or nationality.',
     ),
   whenToUseEn: z
     .string()
     .describe(
-      'Detailed context of when Saudis use this in daily life in English',
+      'Detailed context written in English for when Arabs use this in daily life. If Najdi and Hijazi usage differs, explain and label both dialect forms. Refer to people as Arabs, not by country or nationality.',
     ),
   category: z
     .enum(ALLOWED_CATEGORIES)

@@ -7,6 +7,7 @@ import { ForbiddenError, NotFoundError } from '../../common/errors/app-error.js'
 import { logger } from '../../common/http/logger.js';
 import { paginated } from '../../common/http/response.js';
 import { r2StorageService } from '../../common/storage/r2.service.js';
+import { buildAudioDownloadFilename } from '../../common/utils/audio-filename.util.js';
 import { withTransaction } from '../../database/db.js';
 import { ContentStatus, Role } from '../../database/drizzle/enums.js';
 import type { RequestUser } from '../auth/auth.types.js';
@@ -138,6 +139,12 @@ export const ArabicEntityService = {
         variant,
         uploadedAudio.extension,
       );
+      const downloadFileName = buildAudioDownloadFilename(
+        entity.pronunciationEnglish,
+        entity.id,
+        variant,
+        uploadedAudio.extension,
+      );
 
       // 1. Upload to Cloudflare R2
       const fileBuffer = await fs.promises.readFile(uploadedAudio.tempFilePath);
@@ -150,6 +157,7 @@ export const ArabicEntityService = {
         body: fileBuffer,
         mimeType: uploadedAudio.canonicalMime,
         sizeBytes: uploadedAudio.fileSizeBytes,
+        downloadFileName,
       });
 
       // 2. Persist metadata in database with safe replacement

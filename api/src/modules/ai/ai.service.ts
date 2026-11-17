@@ -10,6 +10,7 @@ import {
   SaudiArabicTranslationSchema,
   type AiResponse,
 } from './schemas/ai-response.schema.js';
+import { assertAiOutputLabelsAllowed } from './output-policy.js';
 
 const FALLBACK_MODELS = [
   'gemini-3.6-flash',
@@ -62,7 +63,9 @@ export function createAiService() {
           const generator =
             createChatModel(modelName).withStructuredOutput(AIResponseSchema);
           const result = await generator.invoke(prompt);
-          return AIResponseSchema.parse(result);
+          const parsed = AIResponseSchema.parse(result);
+          assertAiOutputLabelsAllowed(parsed);
+          return parsed;
         } catch (err) {
           lastError = err;
           logger.warn(

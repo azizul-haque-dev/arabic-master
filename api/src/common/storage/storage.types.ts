@@ -5,6 +5,7 @@ export interface UploadOptions {
   entityId: string;
   variant: string;
   extension: string;
+  downloadFileName?: string;
   body: Buffer | Readable;
   mimeType: string;
   sizeBytes: number;
