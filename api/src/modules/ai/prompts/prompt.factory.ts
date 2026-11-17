@@ -1,11 +1,11 @@
 const USAGE_CONTEXT_DIALECT_GUIDANCE = `
 Usage-context formatting (apply only to whenToUseEn and whenToUseBn):
-- If the taught expression is shared by Najdi and Hijazi, explain its practical situation and tone, then say it is commonly used in both dialects. Do not add a Najdi alternative or invent a difference.
+- Explain the practical situation and tone naturally. When the expression is shared, describe how it is used without naming the dialects or adding a statement that it is used in both.
 - Use this as an adaptable style example for a shared greeting:
-  English: "Arabs use this daily as a warm greeting when meeting someone or welcoming them. It is commonly used in both Najdi and Hijazi dialects as a friendly hello."
-  Bangla: "আরবরা দৈনন্দিন জীবনে কারও সাথে দেখা হলে বা কাউকে স্বাগত জানাতে এই শব্দটি ব্যবহার করেন। এটি নাজদি এবং হিজাজি উভয় উপভাষাতেই অত্যন্ত পরিচিত এবং বহুল ব্যবহৃত একটি সাধারণ শুভেচ্ছা বাক্য।"
-- If the taught Hijazi form genuinely differs from Najdi, identify the taught form as Hijazi and put the Najdi equivalent in square brackets in both languages. Example: "This is the Hijazi form; in Najdi, people say [Najdi form]." / "এটি হিজাজি রূপ; নাজদিতে [নাজদি রূপ] বলা হয়।"
-- Mention a dialect difference only when supported by the Arabic expression; never invent a Najdi equivalent.
+  English: "Arabs use this daily as a warm greeting when meeting someone or welcoming them."
+  Bangla: "আরবরা দৈনন্দিন জীবনে কারও সাথে দেখা হলে বা কাউকে স্বাগত জানাতে এই শব্দটি ব্যবহার করেন।"
+- When the taught pronunciation is Hijazi and the form genuinely differs in Najdi, explain what Najdi speakers use and put the Najdi equivalent in square brackets in both languages. Example: "This is the Hijazi form; in Najdi, people say [Najdi form]." / "এটি হিজাজি উচ্চারণ; নাজদিতে [নাজদি রূপ] ব্যবহার করা হয়।"
+- Mention a Najdi alternative only when supported by the Arabic expression; never invent one.
 `.trim();
 
 export function createSaudiTeacherPrompt(query: string) {

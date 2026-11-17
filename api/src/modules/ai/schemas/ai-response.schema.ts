@@ -28,12 +28,12 @@ export const AIResponseSchema = z.object({
   whenToUseBn: z
     .string()
     .describe(
-      'Detailed context in Bangla describing practical use. If shared, say it is commonly used in both Najdi and Hijazi without inventing differences. If the taught form is Hijazi and Najdi differs, identify it as Hijazi and put the Najdi equivalent in square brackets. Refer to people as আরবরা, not by country or nationality.',
+      'Detailed context in Bangla describing practical use naturally. If shared, explain the situation without naming dialects or stating it is used in both. If the taught pronunciation is Hijazi and differs in Najdi, explain what Najdi speakers use and put that equivalent in square brackets. Refer to people as আরবরা, not by country or nationality.',
     ),
   whenToUseEn: z
     .string()
     .describe(
-      'Detailed context in English describing practical use. If shared, say it is commonly used in both Najdi and Hijazi without inventing differences. If the taught form is Hijazi and Najdi differs, identify it as Hijazi and put the Najdi equivalent in square brackets. Refer to people as Arabs, not by country or nationality.',
+      'Detailed context in English describing practical use naturally. If shared, explain the situation without naming dialects or stating it is used in both. If the taught pronunciation is Hijazi and differs in Najdi, explain what Najdi speakers use and put that equivalent in square brackets. Refer to people as Arabs, not by country or nationality.',
     ),
   category: z
     .enum(ALLOWED_CATEGORIES)
@@ -47,12 +47,12 @@ export const AIUsageContextSchema = z.object({
   whenToUseBn: z
     .string()
     .describe(
-      'Concise Bangla usage context. If shared, say it is commonly used in both Najdi and Hijazi. If the taught form is Hijazi and Najdi differs, identify the Hijazi form and put the Najdi equivalent in square brackets. Use আরবরা, not country or nationality labels.',
+      'Concise Bangla usage context. For shared expressions, describe the situation naturally without naming dialects or saying it is used in both. If the taught pronunciation is Hijazi and differs in Najdi, explain what Najdi speakers use and put the Najdi equivalent in square brackets. Use আরবরা, not country or nationality labels.',
     ),
   whenToUseEn: z
     .string()
     .describe(
-      'Concise English usage context. If shared, say it is commonly used in both Najdi and Hijazi. If the taught form is Hijazi and Najdi differs, identify the Hijazi form and put the Najdi equivalent in square brackets. Use Arabs, not country or nationality labels.',
+      'Concise English usage context. For shared expressions, describe the situation naturally without naming dialects or saying it is used in both. If the taught pronunciation is Hijazi and differs in Najdi, explain what Najdi speakers use and put the Najdi equivalent in square brackets. Use Arabs, not country or nationality labels.',
     ),
 });
 export type AiUsageContext = z.infer<typeof AIUsageContextSchema>;
