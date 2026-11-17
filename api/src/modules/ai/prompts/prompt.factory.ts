@@ -2,6 +2,7 @@ const USAGE_CONTEXT_GUIDANCE = `
 Usage-context formatting (apply only to whenToUseEn and whenToUseBn):
 - Give a simple, natural explanation of when and why the expression is used.
 - If it is commonly used as a reply to a particular word, phrase, or question, explain what it responds to and when someone would say it. Include this only when clear from the expression and meaning; do not invent a trigger.
+- If the reply is specifically to an Arabic word, phrase, or question, include that exact Arabic trigger and its pronunciation in the usage explanation. Use Latin-letter pronunciation in English and Bangla-script pronunciation in Bangla, for example: "شكرًا (shukran)" / "شكرًا (শুকরান)". Do not guess the trigger or its pronunciation.
 - Do not mention dialects, dialect names, regions, or compare varieties.
 - Use this as an adaptable style example for a shared greeting:
   English: "Arabs use this daily as a warm greeting when meeting someone or welcoming them."

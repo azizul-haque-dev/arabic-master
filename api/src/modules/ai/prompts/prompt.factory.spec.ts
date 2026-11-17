@@ -66,6 +66,10 @@ describe('AI dialect prompts', () => {
         'do not invent a trigger',
       );
       expect(prompt).toContain(
+        'include that exact Arabic trigger and its pronunciation in the usage explanation',
+      );
+      expect(prompt).toContain('"شكرًا (shukran)" / "شكرًا (শুকরান)"');
+      expect(prompt).toContain(
         'Do not mention dialects, dialect names, regions, or compare varieties.',
       );
       expect(prompt).toContain(
