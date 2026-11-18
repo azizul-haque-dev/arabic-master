@@ -1,0 +1,3090 @@
+{
+  "language": "Saudi/Gulf Arabic",
+  "total_entries": 521,
+  "entries_per_day": 10,
+  "study_order": [
+    {
+      "category": "Greetings & courtesy",
+      "days": "1-7",
+      "entries": 64
+    },
+    {
+      "category": "Introductions & people",
+      "days": "8-9",
+      "entries": 20
+    },
+    {
+      "category": "Questions & conversation",
+      "days": "10-17",
+      "entries": 76
+    },
+    {
+      "category": "Feelings & personal state",
+      "days": "18-22",
+      "entries": 42
+    },
+    {
+      "category": "Actions & instructions",
+      "days": "23-27",
+      "entries": 42
+    },
+    {
+      "category": "Directions & places",
+      "days": "28-29",
+      "entries": 20
+    },
+    {
+      "category": "Transportation",
+      "days": "30-33",
+      "entries": 35
+    },
+    {
+      "category": "Food & dining",
+      "days": "34-36",
+      "entries": 30
+    },
+    {
+      "category": "Shopping & money",
+      "days": "37-40",
+      "entries": 31
+    },
+    {
+      "category": "Work & communication",
+      "days": "41-44",
+      "entries": 32
+    },
+    {
+      "category": "Home & technology",
+      "days": "45-45",
+      "entries": 10
+    },
+    {
+      "category": "Time & plans",
+      "days": "46-47",
+      "entries": 18
+    },
+    {
+      "category": "Health & emergencies",
+      "days": "48-51",
+      "entries": 31
+    },
+    {
+      "category": "Everyday expressions & replies",
+      "days": "52-58",
+      "entries": 70
+    }
+  ],
+  "days": [
+    {
+      "day": 1,
+      "category": "Greetings & courtesy",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Welcome",
+          "pro": "Hayyaak Allaah",
+          "ar": "حياك الله"
+        },
+        {
+          "en": "Stay safe",
+          "pro": "Taslam",
+          "ar": "تسلم"
+        },
+        {
+          "en": "Thank you",
+          "pro": "Mashkoor",
+          "ar": "مشكور"
+        },
+        {
+          "en": "May God protect you",
+          "pro": "Allaah yahfadhak",
+          "ar": "الله يحفظك"
+        },
+        {
+          "en": "You are very kind",
+          "pro": "Feek al-khair",
+          "ar": "فيك الخير"
+        },
+        {
+          "en": "You are welcome",
+          "pro": "W'an-na'am",
+          "ar": "والنعم"
+        },
+        {
+          "en": "Goodbye",
+          "pro": "Fee amaani-llah",
+          "ar": "في أمان الله"
+        },
+        {
+          "en": "With pleasure",
+          "pro": "Abshir",
+          "ar": "أبشر"
+        },
+        {
+          "en": "You haven't fallen short",
+          "pro": "Maa tagsir",
+          "ar": "ما تقصر"
+        },
+        {
+          "en": "With your permission",
+          "pro": "'An iznik",
+          "ar": "عن إذنك"
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "category": "Greetings & courtesy",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "You did your best",
+          "pro": "Ma qassart",
+          "ar": "ما قصرت"
+        },
+        {
+          "en": "May you stay safe",
+          "pro": "Taslam yaduk",
+          "ar": "تسلم يدك"
+        },
+        {
+          "en": "Welcome",
+          "pro": "Hayyak Allah",
+          "ar": "حياك الله"
+        },
+        {
+          "en": "With pleasure",
+          "pro": "Falak at-tayyib",
+          "ar": "فالك الطيب"
+        },
+        {
+          "en": "God protect you",
+          "pro": "Allah yahfadhak",
+          "ar": "الله يحفظك"
+        },
+        {
+          "en": "Get well soon",
+          "pro": "Ma'joor wa mu'afa",
+          "ar": "مأجور ومعافى"
+        },
+        {
+          "en": "Long time no see!",
+          "pro": "'Āsha man shāfak",
+          "ar": "عاش من شافك"
+        },
+        {
+          "en": "Goodbye",
+          "pro": "Fī amān Allāh",
+          "ar": "في أمان الله"
+        },
+        {
+          "en": "Bless your hands!",
+          "pro": "Taslam īdik",
+          "ar": "تسلم إيدك"
+        },
+        {
+          "en": "My dear",
+          "pro": "Ḥabībī",
+          "ar": "حبيبي"
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "category": "Greetings & courtesy",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Welcome!",
+          "pro": "Hala wallah",
+          "ar": "هلا والله"
+        },
+        {
+          "en": "With pleasure",
+          "pro": "Min ayouni",
+          "ar": "من عيوني"
+        },
+        {
+          "en": "Goodbye",
+          "pro": "Ma'a as-salama",
+          "ar": "مع السلامة"
+        },
+        {
+          "en": "My dear",
+          "pro": "Ya ghali",
+          "ar": "يا غالي"
+        },
+        {
+          "en": "May you be safe",
+          "pro": "Taslam",
+          "ar": "تسلم"
+        },
+        {
+          "en": "See you soon",
+          "pro": "Nshofak ala khair",
+          "ar": "نشوفك على خير"
+        },
+        {
+          "en": "Excuse me",
+          "pro": "An iznak",
+          "ar": "عن إذنك"
+        },
+        {
+          "en": "Sorry",
+          "pro": "Asef",
+          "ar": "آسف"
+        },
+        {
+          "en": "Wrong / Mistake",
+          "pro": "ghalāt",
+          "ar": "غلط"
+        },
+        {
+          "en": "With pleasure",
+          "pro": "Absher",
+          "ar": "أبشر"
+        }
+      ]
+    },
+    {
+      "day": 4,
+      "category": "Greetings & courtesy",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Hey friend",
+          "pro": "Yā habīb",
+          "ar": "يا حبيب"
+        },
+        {
+          "en": "God bless you",
+          "pro": "Allah yis'idak",
+          "ar": "الله يسعدك"
+        },
+        {
+          "en": "Goodbye",
+          "pro": "Ma'a ssalamah",
+          "ar": "مع السلامة"
+        },
+        {
+          "en": "In God's protection",
+          "pro": "Fi amanillah",
+          "ar": "في أمان الله"
+        },
+        {
+          "en": "May God protect you",
+          "pro": "Allah yahfadhak",
+          "ar": "الله يحفظك"
+        },
+        {
+          "en": "Welcome",
+          "pro": "hayyaak allah",
+          "ar": "حياك الله"
+        },
+        {
+          "en": "Congratulations",
+          "pro": "mabrook",
+          "ar": "مبروك"
+        },
+        {
+          "en": "May God protect you",
+          "pro": "sallamak allah",
+          "ar": "سلمك الله"
+        },
+        {
+          "en": "Please speak in simple Arabic.",
+          "pro": "Takallam 'arabi baseet",
+          "ar": "تكلم عربي بسيط"
+        },
+        {
+          "en": "Hello there",
+          "pro": "Ahlan",
+          "ar": "أهلاً"
+        }
+      ]
+    },
+    {
+      "day": 5,
+      "category": "Greetings & courtesy",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Good morning",
+          "pro": "Sabah al-khair",
+          "ar": "صباح الخير"
+        },
+        {
+          "en": "Good evening",
+          "pro": "Masa al-khair",
+          "ar": "مساء الخير"
+        },
+        {
+          "en": "Welcome back",
+          "pro": "Hamadillah 'ala salama",
+          "ar": "الحمد لله على السلامة"
+        },
+        {
+          "en": "Please say your name slowly",
+          "pro": "Law samaht, gul ismak shway shway",
+          "ar": "لو سمحت، قول اسمك شوي شوي"
+        },
+        {
+          "en": "Let's keep in touch",
+          "pro": "Khallina 'ala tawasul",
+          "ar": "خلنا على تواصل"
+        },
+        {
+          "en": "Please",
+          "pro": "Law samaht",
+          "ar": "لو سمحت"
+        },
+        {
+          "en": "Thank you very much",
+          "pro": "Shukran jazeelan",
+          "ar": "شكراً جزيلاً"
+        },
+        {
+          "en": "You're very welcome",
+          "pro": "Al'afw",
+          "ar": "العفو"
+        },
+        {
+          "en": "I appreciate your help",
+          "pro": "Aqaddir musa'adatak",
+          "ar": "أقدر مساعدتك"
+        },
+        {
+          "en": "Excuse me, may I pass?",
+          "pro": "Law samaht, mumkin amurr?",
+          "ar": "لو سمحت، ممكن أمر؟"
+        }
+      ]
+    },
+    {
+      "day": 6,
+      "category": "Greetings & courtesy",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "After you",
+          "pro": "Tafaddal inta",
+          "ar": "تفضل أنت"
+        },
+        {
+          "en": "Could you do me a favor?",
+          "pro": "Mumkin tsawwi li khidma?",
+          "ar": "ممكن تسوي لي خدمة؟"
+        },
+        {
+          "en": "I owe you one",
+          "pro": "Lak 'alayya waHda",
+          "ar": "لك علي وحدة"
+        },
+        {
+          "en": "It was my mistake",
+          "pro": "Alghalat minni",
+          "ar": "الغلط مني"
+        },
+        {
+          "en": "It wasn't intentional",
+          "pro": "Ma kan qasdi",
+          "ar": "ما كان قصدي"
+        },
+        {
+          "en": "I apologize for that",
+          "pro": "A'tathir 'an kitha",
+          "ar": "أعتذر عن كذا"
+        },
+        {
+          "en": "I forgive you",
+          "pro": "Samahtek",
+          "ar": "سامحتك"
+        },
+        {
+          "en": "It's all right",
+          "pro": "'Adi",
+          "ar": "عادي"
+        },
+        {
+          "en": "No worries",
+          "pro": "Al-umoor tayyiba",
+          "ar": "الأمور طيبة"
+        },
+        {
+          "en": "That's very generous of you",
+          "pro": "Hatha karam minnak",
+          "ar": "هذا كرم منك"
+        }
+      ]
+    },
+    {
+      "day": 7,
+      "category": "Greetings & courtesy",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "May God reward you",
+          "pro": "Allah yijzeek khair",
+          "ar": "الله يجزاك خير"
+        },
+        {
+          "en": "Please turn on the meter",
+          "pro": "Shaghghil al-'addad law samaht",
+          "ar": "شغل العداد لو سمحت"
+        },
+        {
+          "en": "Please stop here",
+          "pro": "Waqif hna law samaht",
+          "ar": "وقف هنا لو سمحت"
+        },
+        {
+          "en": "Fill it up, please",
+          "pro": "Falliha law samaht",
+          "ar": "فلها لو سمحت"
+        }
+      ]
+    },
+    {
+      "day": 8,
+      "category": "Introductions & people",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "My brother",
+          "pro": "Akhoy",
+          "ar": "أخوي"
+        },
+        {
+          "en": "My sister",
+          "pro": "Ukhti",
+          "ar": "أختي"
+        },
+        {
+          "en": "My Father",
+          "pro": "Aboy",
+          "ar": "أبوي"
+        },
+        {
+          "en": "My mother",
+          "pro": "Ummi",
+          "ar": "أمي"
+        },
+        {
+          "en": "My son",
+          "pro": "Waladi",
+          "ar": "ولدي"
+        },
+        {
+          "en": "My daughter",
+          "pro": "Binti",
+          "ar": "بنتي"
+        },
+        {
+          "en": "Where are you from?",
+          "pro": "Min weyn jaay?",
+          "ar": "من وين جاي؟"
+        },
+        {
+          "en": "Who are you?",
+          "pro": "Meen int?",
+          "ar": "مين أنت؟"
+        },
+        {
+          "en": "Where are you from?",
+          "pro": "Min wayn inta?",
+          "ar": "من وين أنت؟"
+        },
+        {
+          "en": "My name is…",
+          "pro": "Ismi…",
+          "ar": "اسمي…"
+        }
+      ]
+    },
+    {
+      "day": 9,
+      "category": "Introductions & people",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "What should I call you?",
+          "pro": "Shu anadeek?",
+          "ar": "وش أناديك؟"
+        },
+        {
+          "en": "I live in…",
+          "pro": "Ana sakin fi…",
+          "ar": "أنا ساكن في…"
+        },
+        {
+          "en": "This is my first visit",
+          "pro": "Hathi awal ziyara li",
+          "ar": "هذي أول زيارة لي"
+        },
+        {
+          "en": "I came with my family",
+          "pro": "Jeet ma'a ahli",
+          "ar": "جيت مع أهلي"
+        },
+        {
+          "en": "Do you speak English?",
+          "pro": "Titkallam inglizi?",
+          "ar": "تتكلم إنجليزي؟"
+        },
+        {
+          "en": "I am learning Arabic",
+          "pro": "Ana ata'allam arabi",
+          "ar": "أنا أتعلم عربي"
+        },
+        {
+          "en": "Call me…",
+          "pro": "Nadini…",
+          "ar": "نادني…"
+        },
+        {
+          "en": "This is my friend",
+          "pro": "Hatha sahbi",
+          "ar": "هذا صاحبي"
+        },
+        {
+          "en": "Who are you waiting for?",
+          "pro": "Meen tintathir?",
+          "ar": "مين تنتظر؟"
+        },
+        {
+          "en": "I need to contact my family",
+          "pro": "Ahtaj atwasal ma'a ahli",
+          "ar": "أحتاج أتواصل مع أهلي"
+        }
+      ]
+    },
+    {
+      "day": 10,
+      "category": "Questions & conversation",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "May it be refreshing!",
+          "pro": "Na'iman",
+          "ar": "نعيماً"
+        },
+        {
+          "en": "What's the news?",
+          "pro": "Sho al-akhbar",
+          "ar": "شو الأخبار"
+        },
+        {
+          "en": "What's up?",
+          "pro": "Sho al-uloom",
+          "ar": "شو العلوم"
+        },
+        {
+          "en": "What's your opinion?",
+          "pro": "Wash rayak?",
+          "ar": "وش رايك؟"
+        },
+        {
+          "en": "Where is the place?",
+          "pro": "Wein al-makan?",
+          "ar": "وين المكان؟"
+        },
+        {
+          "en": "When will you finish?",
+          "pro": "Mata takhlas?",
+          "ar": "متى تخلص؟"
+        },
+        {
+          "en": "What's your occupation?",
+          "pro": "Wash tashtaghil?",
+          "ar": "وش تشتغل؟"
+        },
+        {
+          "en": "Where do you live?",
+          "pro": "Wein saakin?",
+          "ar": "وين ساكن؟"
+        },
+        {
+          "en": "What do you prefer?",
+          "pro": "Wash tfaddil?",
+          "ar": "وش تفضل؟"
+        },
+        {
+          "en": "Where are you going?",
+          "pro": "Wein tarooh?",
+          "ar": "وين تروح؟"
+        }
+      ]
+    },
+    {
+      "day": 11,
+      "category": "Questions & conversation",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "When will you arrive?",
+          "pro": "Mata toosal?",
+          "ar": "متى توصل؟"
+        },
+        {
+          "en": "What are you doing?",
+          "pro": "Wash tasawwi?",
+          "ar": "وش تسوي؟"
+        },
+        {
+          "en": "What's wrong?",
+          "pro": "Wash feek?",
+          "ar": "وش فيك؟"
+        },
+        {
+          "en": "Where are you?",
+          "pro": "Weinak?",
+          "ar": "وينك؟"
+        },
+        {
+          "en": "Where is he?",
+          "pro": "Weinah?",
+          "ar": "وينه؟"
+        },
+        {
+          "en": "What's the matter?",
+          "pro": "Wash as-salfah?",
+          "ar": "وش السالفة؟"
+        },
+        {
+          "en": "Where from?",
+          "pro": "Min wein?",
+          "ar": "من وين؟"
+        },
+        {
+          "en": "When are you coming?",
+          "pro": "Mata taji?",
+          "ar": "متى تجي؟"
+        },
+        {
+          "en": "What do you want?",
+          "pro": "Wash tabi minnee?",
+          "ar": "وش تبي مني؟"
+        },
+        {
+          "en": "What's the matter?",
+          "pro": "Wesh is-salfa?",
+          "ar": "وش السالفة؟"
+        }
+      ]
+    },
+    {
+      "day": 12,
+      "category": "Questions & conversation",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "For real?",
+          "pro": "Min jaddak?",
+          "ar": "من جدك؟"
+        },
+        {
+          "en": "What is this?",
+          "pro": "Shuno hatha",
+          "ar": "شنو هذا"
+        },
+        {
+          "en": "What is this?",
+          "pro": "Wish Hatha",
+          "ar": "وش هذا"
+        },
+        {
+          "en": "What are you doing?",
+          "pro": "Wish Tsawwi",
+          "ar": "وش تسوي"
+        },
+        {
+          "en": "What do you want?",
+          "pro": "Wish Tabi",
+          "ar": "وش تبي"
+        },
+        {
+          "en": "What happened?",
+          "pro": "Wish Saar",
+          "ar": "وش صار"
+        },
+        {
+          "en": "What did you say?",
+          "pro": "Wish Gult",
+          "ar": "وش قلت"
+        },
+        {
+          "en": "What is your matter?",
+          "pro": "Wish Alayk",
+          "ar": "وش عليك"
+        },
+        {
+          "en": "Where did you go?",
+          "pro": "Wayn roht",
+          "ar": "وين رحت"
+        },
+        {
+          "en": "What is your name?",
+          "pro": "Shu ismak",
+          "ar": "شو اسمك"
+        }
+      ]
+    },
+    {
+      "day": 13,
+      "category": "Questions & conversation",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Where are you?",
+          "pro": "Waynak",
+          "ar": "وينك"
+        },
+        {
+          "en": "Why did you go?",
+          "pro": "Laysh roht",
+          "ar": "ليش رحت"
+        },
+        {
+          "en": "Who is this speaking?",
+          "pro": "Meen ma'ai",
+          "ar": "مين معي"
+        },
+        {
+          "en": "When did you go?",
+          "pro": "Metha ruhth?",
+          "ar": "متى رحت؟"
+        },
+        {
+          "en": "When did you come?",
+          "pro": "Metha jeeth?",
+          "ar": "متى جيت؟"
+        },
+        {
+          "en": "What is wrong?",
+          "pro": "Lesh za'lan?",
+          "ar": "ليش زعلان؟"
+        },
+        {
+          "en": "Where are you going?",
+          "pro": "Weyn rayih?",
+          "ar": "وين رايح؟"
+        },
+        {
+          "en": "Where are you now?",
+          "pro": "Weynak alheen?",
+          "ar": "وينك الحين؟"
+        },
+        {
+          "en": "Can I get leave?",
+          "pro": "mumkin ijaza",
+          "ar": "ممكن إجازة"
+        },
+        {
+          "en": "Can I go?",
+          "pro": "mumkin arooh",
+          "ar": "ممكن أروح"
+        }
+      ]
+    },
+    {
+      "day": 14,
+      "category": "Questions & conversation",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Can I come?",
+          "pro": "mumkin aje",
+          "ar": "ممكن أجي"
+        },
+        {
+          "en": "Can I step out?",
+          "pro": "mumkin atla",
+          "ar": "ممكن أطلع"
+        },
+        {
+          "en": "Can I take a break?",
+          "pro": "mumkin asthareeh",
+          "ar": "ممكن أستريح"
+        },
+        {
+          "en": "How much?",
+          "pro": "Bikam",
+          "ar": "بكم"
+        },
+        {
+          "en": "How much is this?",
+          "pro": "Bikam hādha",
+          "ar": "بكم هذا"
+        },
+        {
+          "en": "I didn't understand.",
+          "pro": "Ma fahimt",
+          "ar": "ما فهمت"
+        },
+        {
+          "en": "Could you explain that?",
+          "pro": "Ishrah lee",
+          "ar": "اشرح لي"
+        },
+        {
+          "en": "Can you help me?",
+          "pro": "Mumkin tisa'idni",
+          "ar": "ممكن تساعدني"
+        },
+        {
+          "en": "How is the duty?",
+          "pro": "Kayf addawaam",
+          "ar": "كيف الدوام"
+        },
+        {
+          "en": "How is the situation?",
+          "pro": "Kayf al wad'",
+          "ar": "كيف الوضع"
+        }
+      ]
+    },
+    {
+      "day": 15,
+      "category": "Questions & conversation",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "How's the vibe?",
+          "pro": "Kayf al jaww ma'ak",
+          "ar": "كيف الجو معاك"
+        },
+        {
+          "en": "When is the vacation?",
+          "pro": "Methal ijazah?",
+          "ar": "متى الإجازة؟"
+        },
+        {
+          "en": "Why did you go?",
+          "pro": "Lesh ruht?",
+          "ar": "ليش رحت؟"
+        },
+        {
+          "en": "Where are you going?",
+          "pro": "Wayn rayih?",
+          "ar": "وين رايح؟"
+        },
+        {
+          "en": "Are you from here?",
+          "pro": "Int min hni?",
+          "ar": "أنت من هني؟"
+        },
+        {
+          "en": "Can you write it down?",
+          "pro": "Mumkin taktibha?",
+          "ar": "ممكن تكتبها؟"
+        },
+        {
+          "en": "May I ask you a question?",
+          "pro": "Mumkin as'alak su'al?",
+          "ar": "ممكن أسألك سؤال؟"
+        },
+        {
+          "en": "Could you wait for me?",
+          "pro": "Mumkin tintathirni?",
+          "ar": "ممكن تنتظرني؟"
+        },
+        {
+          "en": "May I come in?",
+          "pro": "Mumkin adkhul?",
+          "ar": "ممكن أدخل؟"
+        },
+        {
+          "en": "May I sit here?",
+          "pro": "Mumkin ajlis hna?",
+          "ar": "ممكن أجلس هنا؟"
+        }
+      ]
+    },
+    {
+      "day": 16,
+      "category": "Questions & conversation",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Where are you headed?",
+          "pro": "Wain wijhatak?",
+          "ar": "وين وجهتك؟"
+        },
+        {
+          "en": "Which one do you like?",
+          "pro": "Ayy wahid yi'jibak?",
+          "ar": "أي واحد يعجبك؟"
+        },
+        {
+          "en": "What do you think about it?",
+          "pro": "Shu rayak feeha?",
+          "ar": "وش رأيك فيها؟"
+        },
+        {
+          "en": "Which city are you from?",
+          "pro": "Min ayy madeena inta?",
+          "ar": "من أي مدينة أنت؟"
+        },
+        {
+          "en": "Are you coming alone?",
+          "pro": "Jay lahalak?",
+          "ar": "جاي لحالك؟"
+        },
+        {
+          "en": "Is this your first time here?",
+          "pro": "Hathi awal marra tiji hna?",
+          "ar": "هذي أول مرة تجي هنا؟"
+        },
+        {
+          "en": "Do you know this area?",
+          "pro": "Ta'rif hal-mintaqa?",
+          "ar": "تعرف هالمنطقة؟"
+        },
+        {
+          "en": "Have you seen this before?",
+          "pro": "Qad shift hatha min qabl?",
+          "ar": "قد شفت هذا من قبل؟"
+        },
+        {
+          "en": "Which way is the exit?",
+          "pro": "Wain tareeq al-khuruj?",
+          "ar": "وين طريق الخروج؟"
+        },
+        {
+          "en": "How far is it on foot?",
+          "pro": "Kam yab'id mashy?",
+          "ar": "كم يبعد مشي؟"
+        }
+      ]
+    },
+    {
+      "day": 17,
+      "category": "Questions & conversation",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Could you take me to this address?",
+          "pro": "Mumkin twassilni lihathā al-'unwan?",
+          "ar": "ممكن توصلني لهذا العنوان؟"
+        },
+        {
+          "en": "What do you recommend?",
+          "pro": "Shu tansahni?",
+          "ar": "وش تنصحني؟"
+        },
+        {
+          "en": "Can I have another one?",
+          "pro": "Mumkin wahda thaniya?",
+          "ar": "ممكن وحدة ثانية؟"
+        },
+        {
+          "en": "Can you explain it again?",
+          "pro": "Mumkin tsharحha marra thaniya?",
+          "ar": "ممكن تشرحها مرة ثانية؟"
+        },
+        {
+          "en": "I need your opinion",
+          "pro": "Abi rayak",
+          "ar": "أبي رأيك"
+        },
+        {
+          "en": "I understand",
+          "pro": "Afham",
+          "ar": "أفهم"
+        }
+      ]
+    },
+    {
+      "day": 18,
+      "category": "Feelings & personal state",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "On my head",
+          "pro": "'Ala ra'si",
+          "ar": "على راسي"
+        },
+        {
+          "en": "How are you?",
+          "pro": "Shlonak",
+          "ar": "شلونك؟"
+        },
+        {
+          "en": "Not hungry",
+          "pro": "Moo jaw'an",
+          "ar": "مو جوعان"
+        },
+        {
+          "en": "Not thirsty",
+          "pro": "Moo atshan",
+          "ar": "مو عطشان"
+        },
+        {
+          "en": "Not angry",
+          "pro": "Moo za'lan",
+          "ar": "مو زعلان"
+        },
+        {
+          "en": "Not happy",
+          "pro": "Moo farhan",
+          "ar": "مو فرحان"
+        },
+        {
+          "en": "Not lazy",
+          "pro": "Moo kaslan",
+          "ar": "مو كسلان"
+        },
+        {
+          "en": "Not sleepy",
+          "pro": "Moo na'san",
+          "ar": "مو نعسان"
+        },
+        {
+          "en": "Very good",
+          "pro": "Wājid zain",
+          "ar": "واحد زين"
+        },
+        {
+          "en": "This is better",
+          "pro": "Hādhā afḍa",
+          "ar": "هذا أفضل"
+        }
+      ]
+    },
+    {
+      "day": 19,
+      "category": "Feelings & personal state",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "How are you?",
+          "pro": "Wish loonak",
+          "ar": "وشلونك"
+        },
+        {
+          "en": "Oh my heart",
+          "pro": "Ya galbi",
+          "ar": "يا قلبي"
+        },
+        {
+          "en": "Oh my love",
+          "pro": "Ya habibti",
+          "ar": "يا حبيبتي"
+        },
+        {
+          "en": "Oh my eyes",
+          "pro": "Ya oyooni",
+          "ar": "يا عيوني"
+        },
+        {
+          "en": "Oh my soul",
+          "pro": "Ya roohi",
+          "ar": "يا روحي"
+        },
+        {
+          "en": "Oh my life",
+          "pro": "Ya hayati",
+          "ar": "يا حياتي"
+        },
+        {
+          "en": "Oh my life",
+          "pro": "Ya omri",
+          "ar": "يا عمري"
+        },
+        {
+          "en": "Beyond my heart!",
+          "pro": "Ya ba'ad",
+          "ar": "يا بعد قلبي"
+        },
+        {
+          "en": "Fine",
+          "pro": "Zeen",
+          "ar": "زين"
+        },
+        {
+          "en": "How are you?",
+          "pro": "Kayf halak",
+          "ar": "كيف حالك"
+        }
+      ]
+    },
+    {
+      "day": 20,
+      "category": "Feelings & personal state",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "All good",
+          "pro": "Kul shay tamam",
+          "ar": "كل شي تمام"
+        },
+        {
+          "en": "How are you?",
+          "pro": "Esh haalak",
+          "ar": "ايش حالك"
+        },
+        {
+          "en": "All good",
+          "pro": "thamaam",
+          "ar": "تمام"
+        },
+        {
+          "en": "Hope you're well",
+          "pro": "'Asaak tayyib",
+          "ar": "عساك طيب"
+        },
+        {
+          "en": "Everything is fine",
+          "pro": "Kull shay tamam",
+          "ar": "كل شي تمام"
+        },
+        {
+          "en": "I am in a hurry",
+          "pro": "Ana msta'jil",
+          "ar": "أنا مستعجل"
+        },
+        {
+          "en": "I am upset / sad",
+          "pro": "Ana za'lan",
+          "ar": "أنا زعلان"
+        },
+        {
+          "en": "I am happy",
+          "pro": "Ana farhan",
+          "ar": "أنا فرحان"
+        },
+        {
+          "en": "How have you been?",
+          "pro": "Shlonak min zaman?",
+          "ar": "شلونك من زمان؟"
+        },
+        {
+          "en": "Are you free now?",
+          "pro": "Fadhi alheen?",
+          "ar": "فاضي الحين؟"
+        }
+      ]
+    },
+    {
+      "day": 21,
+      "category": "Feelings & personal state",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "How was your day?",
+          "pro": "Keif kan yawmak?",
+          "ar": "كيف كان يومك؟"
+        },
+        {
+          "en": "Did you sleep well?",
+          "pro": "Nimt zain?",
+          "ar": "نمت زين؟"
+        },
+        {
+          "en": "How long have you been here?",
+          "pro": "Min mata wa inta hna?",
+          "ar": "من متى وأنت هنا؟"
+        },
+        {
+          "en": "How long will you stay?",
+          "pro": "Kam bitga'ad?",
+          "ar": "كم بتقعد؟"
+        },
+        {
+          "en": "What do you do for fun?",
+          "pro": "Shu tsawwi fi waqt faraghak?",
+          "ar": "وش تسوي بوقت فراغك؟"
+        },
+        {
+          "en": "Do you like coffee?",
+          "pro": "Tihibb al-qahwa?",
+          "ar": "تحب القهوة؟"
+        },
+        {
+          "en": "What kind of music do you like?",
+          "pro": "Ayy naw' mooseeqa tihibb?",
+          "ar": "أي نوع موسيقى تحب؟"
+        },
+        {
+          "en": "Are things going well for you?",
+          "pro": "Umورak tamam?",
+          "ar": "أمورك تمام؟"
+        },
+        {
+          "en": "Would you like to join us?",
+          "pro": "Widdak tiji ma'ana?",
+          "ar": "ودك تجي معنا؟"
+        },
+        {
+          "en": "I don't feel well",
+          "pro": "Ma ahiss inni bikhair",
+          "ar": "ما أحس إني بخير"
+        }
+      ]
+    },
+    {
+      "day": 22,
+      "category": "Feelings & personal state",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "I feel better now",
+          "pro": "Ahiss inni ahsan alheen",
+          "ar": "أحس إني أحسن الحين"
+        },
+        {
+          "en": "I'm ready to leave",
+          "pro": "Jahiz atla'",
+          "ar": "جاهز أطلع"
+        }
+      ]
+    },
+    {
+      "day": 23,
+      "category": "Actions & instructions",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Come here",
+          "pro": "Ta'al",
+          "ar": "تعال"
+        },
+        {
+          "en": "Come here",
+          "pro": "Ta'al huna",
+          "ar": "تعال هنا"
+        },
+        {
+          "en": "Go there",
+          "pro": "Ruh hunak",
+          "ar": "روح هناك"
+        },
+        {
+          "en": "Wait a little bit",
+          "pro": "Intadhir shway",
+          "ar": "انتظر شوي"
+        },
+        {
+          "en": "Sit here",
+          "pro": "Ijlis huna",
+          "ar": "اجلس هنا"
+        },
+        {
+          "en": "Look at this",
+          "pro": "Shuf hadha",
+          "ar": "شوف هذا"
+        },
+        {
+          "en": "Listen to me a sec",
+          "pro": "Isma'ni shway",
+          "ar": "اسمعني شوي"
+        },
+        {
+          "en": "Give me this",
+          "pro": "A'tni hadha",
+          "ar": "عطني هذا"
+        },
+        {
+          "en": "Pick this up",
+          "pro": "Sheel hadha",
+          "ar": "شيل هذا"
+        },
+        {
+          "en": "Speak to me now",
+          "pro": "Kallimni al-heen",
+          "ar": "كلمني الحين"
+        }
+      ]
+    },
+    {
+      "day": 24,
+      "category": "Actions & instructions",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Go outside",
+          "pro": "Itla' barrah",
+          "ar": "اطلع بره"
+        },
+        {
+          "en": "Don't be afraid",
+          "pro": "La takhaf",
+          "ar": "لا تخاف"
+        },
+        {
+          "en": "Don't forget",
+          "pro": "La tansa",
+          "ar": "لا تنسى"
+        },
+        {
+          "en": "Let me help you",
+          "pro": "Khallinee usa'idak",
+          "ar": "خليني أساعدك"
+        },
+        {
+          "en": "Take your time",
+          "pro": "Khudh rahtak",
+          "ar": "خذ راحتك"
+        },
+        {
+          "en": "Don't rush",
+          "pro": "La tasta'jil",
+          "ar": "لا تستعجل"
+        },
+        {
+          "en": "Stay here",
+          "pro": "Khallik hina",
+          "ar": "خلك هنا"
+        },
+        {
+          "en": "Come with me",
+          "pro": "Ta'al ma'ee",
+          "ar": "تعال معي"
+        },
+        {
+          "en": "Come here",
+          "pro": "Ta'al hīna",
+          "ar": "تعال هنا"
+        },
+        {
+          "en": "Do it like this.",
+          "pro": "Sawwi kidhā",
+          "ar": "سوي كذا"
+        }
+      ]
+    },
+    {
+      "day": 25,
+      "category": "Actions & instructions",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Take your time",
+          "pro": "'Ala rahatk",
+          "ar": "على راحتك"
+        },
+        {
+          "en": "Take this",
+          "pro": "Khud hādhā",
+          "ar": "خذ هذا"
+        },
+        {
+          "en": "Bring this here",
+          "pro": "Hāt hādhā",
+          "ar": "هات هذا"
+        },
+        {
+          "en": "Leave this",
+          "pro": "Khalli hādhā",
+          "ar": "خل هذا"
+        },
+        {
+          "en": "Bring this",
+          "pro": "Jib hādhā",
+          "ar": "جب هذا"
+        },
+        {
+          "en": "Look at this",
+          "pro": "Shūf hādhā",
+          "ar": "شوف هذا"
+        },
+        {
+          "en": "Go there",
+          "pro": "Rūh hunāk",
+          "ar": "روح هناك"
+        },
+        {
+          "en": "Sit here",
+          "pro": "Ig'ud hunā",
+          "ar": "اقعد هنا"
+        },
+        {
+          "en": "Take this",
+          "pro": "Khudh hatha",
+          "ar": "خذ هذا"
+        },
+        {
+          "en": "Leave this",
+          "pro": "Khalli hatha",
+          "ar": "خلي هذا"
+        }
+      ]
+    },
+    {
+      "day": 26,
+      "category": "Actions & instructions",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Look at this",
+          "pro": "Shoof hatha",
+          "ar": "شوف هذا"
+        },
+        {
+          "en": "Go there",
+          "pro": "Rooh hunaak",
+          "ar": "روح هناك"
+        },
+        {
+          "en": "Sit here",
+          "pro": "Iq'ud huna",
+          "ar": "اقعد هنا"
+        },
+        {
+          "en": "Let it go",
+          "pro": "Khalih walli",
+          "ar": "خليه ولي"
+        },
+        {
+          "en": "Think well",
+          "pro": "Fakkir zeen",
+          "ar": "فكر زين"
+        },
+        {
+          "en": "Talk sense",
+          "pro": "Sowilf adal",
+          "ar": "سولف عدل"
+        },
+        {
+          "en": "Look here",
+          "pro": "Shoof hni",
+          "ar": "شوف هني"
+        },
+        {
+          "en": "Take your time",
+          "pro": "khud rahathak",
+          "ar": "خذ راحتك"
+        },
+        {
+          "en": "Wait a little",
+          "pro": "Istanna shuwai",
+          "ar": "استنى شوي"
+        },
+        {
+          "en": "No, you go ahead",
+          "pro": "La, tafaddal inta",
+          "ar": "لا، تفضل أنت"
+        }
+      ]
+    },
+    {
+      "day": 27,
+      "category": "Actions & instructions",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Let me know if you need anything",
+          "pro": "Itha ihtajt shay 'allimni",
+          "ar": "إذا احتجت شي علمني"
+        },
+        {
+          "en": "Wait for me",
+          "pro": "Istanna 'alayya",
+          "ar": "استنى علي"
+        }
+      ]
+    },
+    {
+      "day": 28,
+      "category": "Directions & places",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "I am at the entrance",
+          "pro": "Ana 'ind al-madkhal",
+          "ar": "أنا عند المدخل"
+        },
+        {
+          "en": "I am in front of you",
+          "pro": "Ana giddāmak",
+          "ar": "أنا قدامك"
+        },
+        {
+          "en": "I am behind you",
+          "pro": "Ana warāk",
+          "ar": "أنا وراك"
+        },
+        {
+          "en": "Where is the nearest…?",
+          "pro": "Wain aqrab…?",
+          "ar": "وين أقرب…؟"
+        },
+        {
+          "en": "Is it far from here?",
+          "pro": "Ba'eed min hna?",
+          "ar": "بعيد من هنا؟"
+        },
+        {
+          "en": "Is it close by?",
+          "pro": "Qareeb min hna?",
+          "ar": "قريب من هنا؟"
+        },
+        {
+          "en": "Go straight ahead",
+          "pro": "Imshi seedah",
+          "ar": "امشِ سيدا"
+        },
+        {
+          "en": "Turn right",
+          "pro": "Liff yameen",
+          "ar": "لف يمين"
+        },
+        {
+          "en": "Turn left",
+          "pro": "Liff yasar",
+          "ar": "لف يسار"
+        },
+        {
+          "en": "Take the next street",
+          "pro": "Khudh ash-shari' al-jay",
+          "ar": "خذ الشارع الجاي"
+        }
+      ]
+    },
+    {
+      "day": 29,
+      "category": "Directions & places",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Cross the street",
+          "pro": "Iqta' ash-shari'",
+          "ar": "اقطع الشارع"
+        },
+        {
+          "en": "It's across from the bank",
+          "pro": "Muqabil al-bank",
+          "ar": "مقابل البنك"
+        },
+        {
+          "en": "It's next to the mosque",
+          "pro": "Janb al-masjid",
+          "ar": "جنب المسجد"
+        },
+        {
+          "en": "It's behind the building",
+          "pro": "Wara al-mabna",
+          "ar": "ورا المبنى"
+        },
+        {
+          "en": "It's in front of the hotel",
+          "pro": "Quddām al-funduq",
+          "ar": "قدام الفندق"
+        },
+        {
+          "en": "I am lost",
+          "pro": "Ana daye'",
+          "ar": "أنا ضايع"
+        },
+        {
+          "en": "Can you show me on the map?",
+          "pro": "Mumkin twarrini 'ala al-khareeta?",
+          "ar": "ممكن توريني على الخريطة؟"
+        },
+        {
+          "en": "Where is the entrance?",
+          "pro": "Wain al-madkhal?",
+          "ar": "وين المدخل؟"
+        },
+        {
+          "en": "I need directions",
+          "pro": "Ahtaj wasf at-tareeq",
+          "ar": "أحتاج وصف الطريق"
+        },
+        {
+          "en": "I lost my passport",
+          "pro": "Da'a jawazi",
+          "ar": "ضاع جوازي"
+        }
+      ]
+    },
+    {
+      "day": 30,
+      "category": "Transportation",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Take care",
+          "pro": "Ala khair",
+          "ar": "على خير"
+        },
+        {
+          "en": "Get in the car",
+          "pro": "Irkab as-sayyarah",
+          "ar": "اركب السيارة"
+        },
+        {
+          "en": "Not tired",
+          "pro": "Moo ta'ban",
+          "ar": "مو تعبان"
+        },
+        {
+          "en": "You look tired",
+          "pro": "Shiklak ta'bān",
+          "ar": "شكلك تعبان"
+        },
+        {
+          "en": "I am busy",
+          "pro": "Ana mashghool",
+          "ar": "أنا مشغول"
+        },
+        {
+          "en": "I am tired",
+          "pro": "Ana ta'ban",
+          "ar": "أنا تعبان"
+        },
+        {
+          "en": "I will take care of it",
+          "pro": "Ana atk affal bil-mawdoo'",
+          "ar": "أنا أتكفل بالموضوع"
+        },
+        {
+          "en": "How do I get to the airport?",
+          "pro": "Keif awsal lil-matar?",
+          "ar": "كيف أوصل للمطار؟"
+        },
+        {
+          "en": "Where is the bus stop?",
+          "pro": "Wain mawqif al-baas?",
+          "ar": "وين موقف الباص؟"
+        },
+        {
+          "en": "Where can I get a taxi?",
+          "pro": "Min wain akhudh taxi?",
+          "ar": "من وين آخذ تاكسي؟"
+        }
+      ]
+    },
+    {
+      "day": 31,
+      "category": "Transportation",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "How many minutes by car?",
+          "pro": "Kam daqeeqa bis-sayyara?",
+          "ar": "كم دقيقة بالسيارة؟"
+        },
+        {
+          "en": "Please drop me here",
+          "pro": "Nazzilni hna law samaht",
+          "ar": "نزلني هنا لو سمحت"
+        },
+        {
+          "en": "Is this seat taken?",
+          "pro": "Al-maq'ad hatha mahjoz?",
+          "ar": "المقعد هذا محجوز؟"
+        },
+        {
+          "en": "Where can I buy a ticket?",
+          "pro": "Min wain ashtari tadhkira?",
+          "ar": "من وين أشتري تذكرة؟"
+        },
+        {
+          "en": "One ticket to Riyadh, please",
+          "pro": "Tadhkira lil-Riyadh law samaht",
+          "ar": "تذكرة للرياض لو سمحت"
+        },
+        {
+          "en": "Round-trip ticket",
+          "pro": "Tadhkira thahab wa 'awda",
+          "ar": "تذكرة ذهاب وعودة"
+        },
+        {
+          "en": "What time does the bus leave?",
+          "pro": "Mata yitla' al-baas?",
+          "ar": "متى يطلع الباص؟"
+        },
+        {
+          "en": "What time does the train arrive?",
+          "pro": "Mata yuwsal al-qitar?",
+          "ar": "متى يوصل القطار؟"
+        },
+        {
+          "en": "Has the bus left?",
+          "pro": "Rāḥ al-baas?",
+          "ar": "راح الباص؟"
+        },
+        {
+          "en": "I missed the bus",
+          "pro": "Fātni al-baas",
+          "ar": "فاتني الباص"
+        }
+      ]
+    },
+    {
+      "day": 32,
+      "category": "Transportation",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "The taxi is waiting",
+          "pro": "At-taxi yintathir",
+          "ar": "التاكسي ينتظر"
+        },
+        {
+          "en": "Please drive slowly",
+          "pro": "Sūq bihudū' law samaht",
+          "ar": "سوق بهدوء لو سمحت"
+        },
+        {
+          "en": "I need a ride",
+          "pro": "Ahtaj mashwār",
+          "ar": "أحتاج مشوار"
+        },
+        {
+          "en": "My car broke down",
+          "pro": "Khirbat sayyarati",
+          "ar": "خربت سيارتي"
+        },
+        {
+          "en": "I have a flat tire",
+          "pro": "'Indi banشر",
+          "ar": "عندي بنشر"
+        },
+        {
+          "en": "Where is the gas station?",
+          "pro": "Wain maḥaṭṭat al-benzeen?",
+          "ar": "وين محطة البنزين؟"
+        },
+        {
+          "en": "Can I park here?",
+          "pro": "Aqdar awqif hna?",
+          "ar": "أقدر أوقف هنا؟"
+        },
+        {
+          "en": "Is parking free?",
+          "pro": "Al-mawaqif majjaniyya?",
+          "ar": "المواقف مجانية؟"
+        },
+        {
+          "en": "I need a rental car",
+          "pro": "Ahtaj sayyara ijar",
+          "ar": "أحتاج سيارة إيجار"
+        },
+        {
+          "en": "I booked a car",
+          "pro": "Hajazt sayyara",
+          "ar": "حجزت سيارة"
+        }
+      ]
+    },
+    {
+      "day": 33,
+      "category": "Transportation",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Where do I return the car?",
+          "pro": "Wain asallim as-sayyara?",
+          "ar": "وين أسلم السيارة؟"
+        },
+        {
+          "en": "The road is crowded",
+          "pro": "Ash-shari' zahma",
+          "ar": "الشارع زحمة"
+        },
+        {
+          "en": "Take the highway",
+          "pro": "Khudh at-tareeq as-saree'",
+          "ar": "خذ الطريق السريع"
+        },
+        {
+          "en": "Sparkling water, please",
+          "pro": "Mooya ghaziyya law samaht",
+          "ar": "موية غازية لو سمحت"
+        },
+        {
+          "en": "Do you accept cards?",
+          "pro": "Taqbalun bitāqat?",
+          "ar": "تقبلون بطاقات؟"
+        }
+      ]
+    },
+    {
+      "day": 34,
+      "category": "Food & dining",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Enjoy your meal",
+          "pro": "Bil-'āfiyah",
+          "ar": "بالعافية"
+        },
+        {
+          "en": "At your service",
+          "pro": "Ala aini",
+          "ar": "على عيني"
+        },
+        {
+          "en": "Nice to meet you",
+          "pro": "Forsa sa'eeda",
+          "ar": "فرصة سعيدة"
+        },
+        {
+          "en": "You've been great",
+          "pro": "Ma qassartt",
+          "ar": "ما قصرت"
+        },
+        {
+          "en": "Bring the water",
+          "pro": "Jebi al-may",
+          "ar": "جيب الماي"
+        },
+        {
+          "en": "No food",
+          "pro": "Ma fi akl",
+          "ar": "ما في أكل"
+        },
+        {
+          "en": "No water",
+          "pro": "Ma fi moyah",
+          "ar": "ما في موية"
+        },
+        {
+          "en": "Can you repeat that once?",
+          "pro": "Mumkin tu'eed",
+          "ar": "ممكن تعيد"
+        },
+        {
+          "en": "Nice to see you",
+          "pro": "Sa'eed bshoofatak",
+          "ar": "سعيد بشوفتك"
+        },
+        {
+          "en": "A table for two, please",
+          "pro": "Tawila lishakhsain law samaht",
+          "ar": "طاولة لشخصين لو سمحت"
+        }
+      ]
+    },
+    {
+      "day": 35,
+      "category": "Food & dining",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Do you have a menu?",
+          "pro": "'Indkum qa'imat at-ta'am?",
+          "ar": "عندكم قائمة الطعام؟"
+        },
+        {
+          "en": "Can I see the menu?",
+          "pro": "Mumkin ashuf al-menu?",
+          "ar": "ممكن أشوف المنيو؟"
+        },
+        {
+          "en": "I would like this dish",
+          "pro": "Abi hatha at-tabq",
+          "ar": "أبي هذا الطبق"
+        },
+        {
+          "en": "No onions, please",
+          "pro": "Bidun basal law samaht",
+          "ar": "بدون بصل لو سمحت"
+        },
+        {
+          "en": "No spicy food, please",
+          "pro": "Bidun har law samaht",
+          "ar": "بدون حار لو سمحت"
+        },
+        {
+          "en": "Make it less spicy",
+          "pro": "Khallih akhaff har",
+          "ar": "خله أخف حار"
+        },
+        {
+          "en": "I am vegetarian",
+          "pro": "Ana nabati",
+          "ar": "أنا نباتي"
+        },
+        {
+          "en": "I don't eat meat",
+          "pro": "Ma akul lahm",
+          "ar": "ما آكل لحم"
+        },
+        {
+          "en": "Is this halal?",
+          "pro": "Hatha halal?",
+          "ar": "هذا حلال؟"
+        },
+        {
+          "en": "Can I have some water?",
+          "pro": "Mumkin mooya?",
+          "ar": "ممكن موية؟"
+        }
+      ]
+    },
+    {
+      "day": 36,
+      "category": "Food & dining",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Still water, please",
+          "pro": "Mooya bidun ghaz law samaht",
+          "ar": "موية بدون غاز لو سمحت"
+        },
+        {
+          "en": "No ice, please",
+          "pro": "Bidun thalj law samaht",
+          "ar": "بدون ثلج لو سمحت"
+        },
+        {
+          "en": "The food is delicious",
+          "pro": "Al-akil latheeth",
+          "ar": "الأكل لذيذ"
+        },
+        {
+          "en": "This is too salty",
+          "pro": "Hatha malih ziyada",
+          "ar": "هذا مالح زيادة"
+        },
+        {
+          "en": "Could you heat this up?",
+          "pro": "Mumkin tsakhkhin hatha?",
+          "ar": "ممكن تسخن هذا؟"
+        },
+        {
+          "en": "Can we get the bill?",
+          "pro": "Mumkin al-hساب?",
+          "ar": "ممكن الحساب؟"
+        },
+        {
+          "en": "Separate bills, please",
+          "pro": "Kull wahid hisabah law samaht",
+          "ar": "كل واحد حسابه لو سمحت"
+        },
+        {
+          "en": "Can I take this to go?",
+          "pro": "Mumkin akhuthah safari?",
+          "ar": "ممكن أخذه سفري؟"
+        },
+        {
+          "en": "I have a reservation",
+          "pro": "'Indi hajz",
+          "ar": "عندي حجز"
+        },
+        {
+          "en": "Can you lower the price?",
+          "pro": "Mumkin tinazzil as-si'r?",
+          "ar": "ممكن تنزل السعر؟"
+        }
+      ]
+    },
+    {
+      "day": 37,
+      "category": "Shopping & money",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Slowly / Take it easy",
+          "pro": "'Ala mahlak",
+          "ar": "على مهلك"
+        },
+        {
+          "en": "Give the money",
+          "pro": "Hathi al-fuloos",
+          "ar": "هات الفلوس"
+        },
+        {
+          "en": "Bring money",
+          "pro": "Jeeb floos",
+          "ar": "جيب فلوس"
+        },
+        {
+          "en": "No money",
+          "pro": "Ma fi fulus",
+          "ar": "ما في فلوس"
+        },
+        {
+          "en": "Can I get my salary?",
+          "pro": "mumkin ratib",
+          "ar": "ممكن راتب"
+        },
+        {
+          "en": "This is expensive.",
+          "pro": "Hādha ghāli",
+          "ar": "هذا غالي"
+        },
+        {
+          "en": "Do you have cheaper?",
+          "pro": "'Indak arkhas",
+          "ar": "عندك أرخص"
+        },
+        {
+          "en": "How much is the total?",
+          "pro": "Kam al-majmū'",
+          "ar": "كم المجموع"
+        },
+        {
+          "en": "This is a small gift",
+          "pro": "Hathi hadiyya baseeta",
+          "ar": "هذي هدية بسيطة"
+        },
+        {
+          "en": "What are you looking for?",
+          "pro": "Shu tidawwar?",
+          "ar": "وش تدور؟"
+        }
+      ]
+    },
+    {
+      "day": 38,
+      "category": "Shopping & money",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Keep the change",
+          "pro": "Al-baqi lak",
+          "ar": "الباقي لك"
+        },
+        {
+          "en": "I'm just looking",
+          "pro": "Bas atfarraj",
+          "ar": "بس أتفرج"
+        },
+        {
+          "en": "Do you have another size?",
+          "pro": "'Indak maqas thani?",
+          "ar": "عندك مقاس ثاني؟"
+        },
+        {
+          "en": "Do you have this in black?",
+          "pro": "'Indak minnu aswad?",
+          "ar": "عندك منه أسود؟"
+        },
+        {
+          "en": "Do you have this in a larger size?",
+          "pro": "'Indak maqas akbar?",
+          "ar": "عندك مقاس أكبر؟"
+        },
+        {
+          "en": "Do you have this in a smaller size?",
+          "pro": "'Indak maqas asghar?",
+          "ar": "عندك مقاس أصغر؟"
+        },
+        {
+          "en": "Can I try it on?",
+          "pro": "Mumkin ajarribah?",
+          "ar": "ممكن أجربه؟"
+        },
+        {
+          "en": "Where is the fitting room?",
+          "pro": "Wain ghurfat al-qiyas?",
+          "ar": "وين غرفة القياس؟"
+        },
+        {
+          "en": "Can you give me a discount?",
+          "pro": "Mumkin tsawwi li khasm?",
+          "ar": "ممكن تسوي لي خصم؟"
+        },
+        {
+          "en": "That's too expensive",
+          "pro": "Ghāli marra",
+          "ar": "غالي مرة"
+        }
+      ]
+    },
+    {
+      "day": 39,
+      "category": "Shopping & money",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "I'll take it",
+          "pro": "Bākhuthah",
+          "ar": "باخذه"
+        },
+        {
+          "en": "Can I pay in cash?",
+          "pro": "Aqdar adfa' cash?",
+          "ar": "أقدر أدفع كاش؟"
+        },
+        {
+          "en": "I don't have cash",
+          "pro": "Ma ma'i cash",
+          "ar": "ما معي كاش"
+        },
+        {
+          "en": "Do you have change?",
+          "pro": "'Indak fikka?",
+          "ar": "عندك فكة؟"
+        },
+        {
+          "en": "I need a receipt",
+          "pro": "Ahtaj فاتورة",
+          "ar": "أحتاج فاتورة"
+        },
+        {
+          "en": "Can I exchange this?",
+          "pro": "Mumkin abdil hatha?",
+          "ar": "ممكن أبدل هذا؟"
+        },
+        {
+          "en": "Can I return this?",
+          "pro": "Mumkin arja' hatha?",
+          "ar": "ممكن أرجع هذا؟"
+        },
+        {
+          "en": "This is damaged",
+          "pro": "Hatha kharbān",
+          "ar": "هذا خربان"
+        },
+        {
+          "en": "Can you wrap it as a gift?",
+          "pro": "Mumkin tighallifah hadiyya?",
+          "ar": "ممكن تغلفه هدية؟"
+        },
+        {
+          "en": "Where is the supermarket?",
+          "pro": "Wain as-supermarket?",
+          "ar": "وين السوبرماركت؟"
+        }
+      ]
+    },
+    {
+      "day": 40,
+      "category": "Shopping & money",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "How often should I take it?",
+          "pro": "Kam marra akhuthah?",
+          "ar": "كم مرة آخذه؟"
+        }
+      ]
+    },
+    {
+      "day": 41,
+      "category": "Work & communication",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "See you later",
+          "pro": "Nshoofak ba'deen",
+          "ar": "نشوفك بعدين"
+        },
+        {
+          "en": "How is work?",
+          "pro": "Kayf ash-shughl?",
+          "ar": "كيف الشغل؟"
+        },
+        {
+          "en": "No work",
+          "pro": "Ma fi shughl",
+          "ar": "ما في شغل"
+        },
+        {
+          "en": "Can I be late?",
+          "pro": "mumkin ath-akhar",
+          "ar": "ممكن أتأخر"
+        },
+        {
+          "en": "How is work?",
+          "pro": "Kayf asshughl",
+          "ar": "كيف الشغل"
+        },
+        {
+          "en": "Where is the work?",
+          "pro": "Wayn ash-shughl?",
+          "ar": "وين الشغل؟"
+        },
+        {
+          "en": "How is the work?",
+          "pro": "Keif ash-shoghal?",
+          "ar": "كيف الشغل؟"
+        },
+        {
+          "en": "I work in…",
+          "pro": "Ashtaghil fi…",
+          "ar": "أشتغل في…"
+        },
+        {
+          "en": "This is my colleague",
+          "pro": "Hatha zmeeli",
+          "ar": "هذا زميلي"
+        },
+        {
+          "en": "Sorry for being late",
+          "pro": "Aasif 'ala at-ta'kheer",
+          "ar": "آسف على التأخير"
+        }
+      ]
+    },
+    {
+      "day": 42,
+      "category": "Work & communication",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "What time do you finish work?",
+          "pro": "Mata tikhlas dawaamak?",
+          "ar": "متى تخلص دوامك؟"
+        },
+        {
+          "en": "Do you work tomorrow?",
+          "pro": "Tidaawim bukra?",
+          "ar": "تداوم بكرة؟"
+        },
+        {
+          "en": "I have a meeting",
+          "pro": "'Indi ijtima'",
+          "ar": "عندي اجتماع"
+        },
+        {
+          "en": "The meeting starts at nine",
+          "pro": "Al-ijtima' yabda as-sa'a tis'a",
+          "ar": "الاجتماع يبدأ الساعة تسعة"
+        },
+        {
+          "en": "I am running late",
+          "pro": "Batأخر shway",
+          "ar": "بتأخر شوي"
+        },
+        {
+          "en": "I finished my work",
+          "pro": "Khallaṣt shugli",
+          "ar": "خلصت شغلي"
+        },
+        {
+          "en": "I will send it to you",
+          "pro": "Barsilh lak",
+          "ar": "برسله لك"
+        },
+        {
+          "en": "Did you receive my message?",
+          "pro": "Wṣalatak risalati?",
+          "ar": "وصلتك رسالتي؟"
+        },
+        {
+          "en": "Please check your email",
+          "pro": "Shayik 'ala emailak law samaht",
+          "ar": "شيك على إيميلك لو سمحت"
+        },
+        {
+          "en": "Let's discuss this later",
+          "pro": "Khallina nitkallam 'anha ba'dain",
+          "ar": "خلنا نتكلم عنها بعدين"
+        }
+      ]
+    },
+    {
+      "day": 43,
+      "category": "Work & communication",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "I agree with you",
+          "pro": "Ana mutafiq ma'ak",
+          "ar": "أنا متفق معك"
+        },
+        {
+          "en": "I don't agree",
+          "pro": "Ma atفق",
+          "ar": "ما أتفق"
+        },
+        {
+          "en": "Please be on time",
+          "pro": "Law samaht, ta'al bil-waqt",
+          "ar": "لو سمحت، تعال بالوقت"
+        },
+        {
+          "en": "I am taking a day off",
+          "pro": "Bakhudh ijaza yawm",
+          "ar": "باخذ إجازة يوم"
+        },
+        {
+          "en": "My shift starts at seven",
+          "pro": "Dawami yabda as-sa'a sab'a",
+          "ar": "دوامي يبدأ الساعة سبعة"
+        },
+        {
+          "en": "My shift is over",
+          "pro": "Khalaṣ dawami",
+          "ar": "خلص دوامي"
+        },
+        {
+          "en": "Who is in charge?",
+          "pro": "Meen al-mas'ool?",
+          "ar": "مين المسؤول؟"
+        },
+        {
+          "en": "Where should I sign?",
+          "pro": "Wain awaqi'?",
+          "ar": "وين أوقع؟"
+        },
+        {
+          "en": "I need a copy",
+          "pro": "Ahtaj nuskha",
+          "ar": "أحتاج نسخة"
+        },
+        {
+          "en": "Could you print this?",
+          "pro": "Mumkin titba' hatha?",
+          "ar": "ممكن تطبع هذا؟"
+        }
+      ]
+    },
+    {
+      "day": 44,
+      "category": "Work & communication",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Maybe later",
+          "pro": "Yimkin ba'dain",
+          "ar": "يمكن بعدين"
+        },
+        {
+          "en": "The internet is not working",
+          "pro": "Al-internet ma yishtaghil",
+          "ar": "الإنترنت ما يشتغل"
+        }
+      ]
+    },
+    {
+      "day": 45,
+      "category": "Home & technology",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Open the door",
+          "pro": "Iftah al-bab",
+          "ar": "افتح الباب"
+        },
+        {
+          "en": "Can I sit by the window?",
+          "pro": "Mumkin ajlis janb ash-shubbak?",
+          "ar": "ممكن أجلس جنب الشباك؟"
+        },
+        {
+          "en": "I need to charge my phone",
+          "pro": "Ahtaj ashحن jawwali",
+          "ar": "أحتاج أشحن جوالي"
+        },
+        {
+          "en": "My phone battery is dead",
+          "pro": "Khalas shحن jawwali",
+          "ar": "خلص شحن جوالي"
+        },
+        {
+          "en": "What's the Wi-Fi password?",
+          "pro": "Shu kalimat murور al-wi-fi?",
+          "ar": "وش كلمة مرور الواي فاي؟"
+        },
+        {
+          "en": "Can I use your phone?",
+          "pro": "Mumkin astakhdim jawalak?",
+          "ar": "ممكن أستخدم جوالك؟"
+        },
+        {
+          "en": "Turn on the light",
+          "pro": "Shaghghil an-noor",
+          "ar": "شغل النور"
+        },
+        {
+          "en": "Turn off the light",
+          "pro": "Taffi an-noor",
+          "ar": "طفي النور"
+        },
+        {
+          "en": "Close the window",
+          "pro": "Sakkir ash-shubbak",
+          "ar": "سكر الشباك"
+        },
+        {
+          "en": "Open the window",
+          "pro": "Iftah ash-shubbak",
+          "ar": "افتح الشباك"
+        }
+      ]
+    },
+    {
+      "day": 46,
+      "category": "Time & plans",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "What are you up to today?",
+          "pro": "Shu 'indak al-yawm?",
+          "ar": "وش عندك اليوم؟"
+        },
+        {
+          "en": "What did you do yesterday?",
+          "pro": "Shu sawwait ams?",
+          "ar": "وش سويت أمس؟"
+        },
+        {
+          "en": "Do you have plans this weekend?",
+          "pro": "'Indak khitat hal-weekend?",
+          "ar": "عندك خطط هالويكند؟"
+        },
+        {
+          "en": "I'll see you tomorrow",
+          "pro": "Ashufak bukra",
+          "ar": "أشوفك بكرة"
+        },
+        {
+          "en": "I will do it today",
+          "pro": "Basawwih al-yawm",
+          "ar": "بسويه اليوم"
+        },
+        {
+          "en": "What time is it?",
+          "pro": "Kam as-sa'a?",
+          "ar": "كم الساعة؟"
+        },
+        {
+          "en": "It's almost noon",
+          "pro": "Qarrab adh-dhuhr",
+          "ar": "قرب الظهر"
+        },
+        {
+          "en": "It's half past eight",
+          "pro": "As-sa'a thamaniya wa nuss",
+          "ar": "الساعة ثمانية ونص"
+        },
+        {
+          "en": "See you tonight",
+          "pro": "Ashufak al-layla",
+          "ar": "أشوفك الليلة"
+        },
+        {
+          "en": "See you next week",
+          "pro": "Ashufak al-usboo' al-jay",
+          "ar": "أشوفك الأسبوع الجاي"
+        }
+      ]
+    },
+    {
+      "day": 47,
+      "category": "Time & plans",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "What day is it today?",
+          "pro": "Ayy yawm al-yawm?",
+          "ar": "أي يوم اليوم؟"
+        },
+        {
+          "en": "Today is Thursday",
+          "pro": "Al-yawm yawm al-khamees",
+          "ar": "اليوم يوم الخميس"
+        },
+        {
+          "en": "I will come tomorrow",
+          "pro": "Baji bukra",
+          "ar": "بجي بكرة"
+        },
+        {
+          "en": "I came yesterday",
+          "pro": "Jeet ams",
+          "ar": "جيت أمس"
+        },
+        {
+          "en": "Not yet",
+          "pro": "Lissa la",
+          "ar": "لسه لا"
+        },
+        {
+          "en": "I already ate",
+          "pro": "Ana akalt khalas",
+          "ar": "أنا أكلت خلاص"
+        },
+        {
+          "en": "I forgot",
+          "pro": "Naseet",
+          "ar": "نسيت"
+        },
+        {
+          "en": "I remember",
+          "pro": "Atathakkar",
+          "ar": "أتذكر"
+        }
+      ]
+    },
+    {
+      "day": 48,
+      "category": "Health & emergencies",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "May God grant you health",
+          "pro": "Allaah yu'aafeek",
+          "ar": "الله يعافيك"
+        },
+        {
+          "en": "May God give you health",
+          "pro": "Yu'teek al-'aafiya",
+          "ar": "يعطيك العافية"
+        },
+        {
+          "en": "How is your health?",
+          "pro": "Kayf sihathak",
+          "ar": "كيف صحتك"
+        },
+        {
+          "en": "I have a fever",
+          "pro": "Feeni harara",
+          "ar": "فيني حرارة"
+        },
+        {
+          "en": "I have a headache",
+          "pro": "Feeni suda'",
+          "ar": "فيني صداع"
+        },
+        {
+          "en": "I have a cough",
+          "pro": "Feeni kahha",
+          "ar": "فيني كحة"
+        },
+        {
+          "en": "I have a cold",
+          "pro": "Feeni zukam",
+          "ar": "فيني زكام"
+        },
+        {
+          "en": "I feel dizzy",
+          "pro": "Feeni dokha",
+          "ar": "فيني دوخة"
+        },
+        {
+          "en": "I feel like vomiting",
+          "pro": "Feeni istifragh",
+          "ar": "فيني استفراغ"
+        },
+        {
+          "en": "I have pain",
+          "pro": "Feeni alam",
+          "ar": "فيني ألم"
+        }
+      ]
+    },
+    {
+      "day": 49,
+      "category": "Health & emergencies",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "I am allergic to nuts",
+          "pro": "'Indi hasasiyya min al-mukassarat",
+          "ar": "عندي حساسية من المكسرات"
+        },
+        {
+          "en": "This is cold",
+          "pro": "Hatha bارد",
+          "ar": "هذا بارد"
+        },
+        {
+          "en": "Is there a pharmacy nearby?",
+          "pro": "Fee saydaliyya qareeba?",
+          "ar": "في صيدلية قريبة؟"
+        },
+        {
+          "en": "I need a doctor",
+          "pro": "Ahtaj doctor",
+          "ar": "أحتاج دكتور"
+        },
+        {
+          "en": "Call an ambulance",
+          "pro": "Ittasil bil-is'af",
+          "ar": "اتصل بالإسعاف"
+        },
+        {
+          "en": "Call the police",
+          "pro": "Ittasil bish-shurta",
+          "ar": "اتصل بالشرطة"
+        },
+        {
+          "en": "It's an emergency",
+          "pro": "Hathi hala tari'a",
+          "ar": "هذي حالة طارئة"
+        },
+        {
+          "en": "I have stomach pain",
+          "pro": "Batni tiwajja'ni",
+          "ar": "بطني توجعني"
+        },
+        {
+          "en": "My back hurts",
+          "pro": "Thahri yuwajja'ni",
+          "ar": "ظهري يوجعني"
+        },
+        {
+          "en": "My tooth hurts",
+          "pro": "Dhirsi yuwajja'ni",
+          "ar": "ضرسي يوجعني"
+        }
+      ]
+    },
+    {
+      "day": 50,
+      "category": "Health & emergencies",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "My throat hurts",
+          "pro": "Halqi yuwajja'ni",
+          "ar": "حلقي يوجعني"
+        },
+        {
+          "en": "I can't breathe",
+          "pro": "Ma aqdar atnaffas",
+          "ar": "ما أقدر أتنفس"
+        },
+        {
+          "en": "I feel weak",
+          "pro": "Ahiss bidu'f",
+          "ar": "أحس بضعف"
+        },
+        {
+          "en": "I need medicine",
+          "pro": "Ahtaj dawa",
+          "ar": "أحتاج دواء"
+        },
+        {
+          "en": "Where is the nearest hospital?",
+          "pro": "Wain aqrab mustashfa?",
+          "ar": "وين أقرب مستشفى؟"
+        },
+        {
+          "en": "Where is the clinic?",
+          "pro": "Wain al-'iyada?",
+          "ar": "وين العيادة؟"
+        },
+        {
+          "en": "I need a dentist",
+          "pro": "Ahtaj tabib asnan",
+          "ar": "أحتاج طبيب أسنان"
+        },
+        {
+          "en": "I have an appointment",
+          "pro": "'Indi maw'id",
+          "ar": "عندي موعد"
+        },
+        {
+          "en": "I take this medicine every day",
+          "pro": "Akhudh hatha ad-dawa kull yawm",
+          "ar": "آخذ هذا الدواء كل يوم"
+        },
+        {
+          "en": "What is the dosage?",
+          "pro": "Kam al-jur'a?",
+          "ar": "كم الجرعة؟"
+        }
+      ]
+    },
+    {
+      "day": 51,
+      "category": "Health & emergencies",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "I am allergic to penicillin",
+          "pro": "'Indi hasasiyya min al-binsileen",
+          "ar": "عندي حساسية من البنسلين"
+        }
+      ]
+    },
+    {
+      "day": 52,
+      "category": "Everyday expressions & replies",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "My friend",
+          "pro": "Sadeegi",
+          "ar": "صديقي"
+        },
+        {
+          "en": "Here you go",
+          "pro": "Tafaddal",
+          "ar": "تفضل"
+        },
+        {
+          "en": "Don't worry",
+          "pro": "Wala yahummak",
+          "ar": "ولا يهمك"
+        },
+        {
+          "en": "No problem",
+          "pro": "Mā fi mushkilah",
+          "ar": "ما في مشكلة"
+        },
+        {
+          "en": "No problem",
+          "pro": "Ma ykhalif",
+          "ar": "ما يخالف"
+        },
+        {
+          "en": "Consider it done",
+          "pro": "Wala yhemak",
+          "ar": "ولا يهمك"
+        },
+        {
+          "en": "Let's go",
+          "pro": "Yalla",
+          "ar": "يلا"
+        },
+        {
+          "en": "Never mind",
+          "pro": "Ma'lesh",
+          "ar": "معلش"
+        },
+        {
+          "en": "I am going",
+          "pro": "Barooh",
+          "ar": "بروح"
+        },
+        {
+          "en": "I don't know",
+          "pro": "mā adrī",
+          "ar": "ما أدري"
+        }
+      ]
+    },
+    {
+      "day": 53,
+      "category": "Everyday expressions & replies",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "I can't",
+          "pro": "mā agdar",
+          "ar": "ما أقدر"
+        },
+        {
+          "en": "I don't know",
+          "pro": "mā a'rif",
+          "ar": "ما أعرف"
+        },
+        {
+          "en": "Problem",
+          "pro": "mushkilah",
+          "ar": "مشكلة"
+        },
+        {
+          "en": "Impossible",
+          "pro": "mustahīl",
+          "ar": "مستحيل"
+        },
+        {
+          "en": "Nothing",
+          "pro": "walā shay",
+          "ar": "ولا شيء"
+        },
+        {
+          "en": "Shut the door",
+          "pro": "Sakkir al-bab",
+          "ar": "سكر الباب"
+        },
+        {
+          "en": "Get off here",
+          "pro": "Inzil hini",
+          "ar": "انزل هني"
+        },
+        {
+          "en": "Leave it to me",
+          "pro": "Khallaha 'alayya",
+          "ar": "خلها علي"
+        },
+        {
+          "en": "Don't worry",
+          "pro": "La tasheel ham",
+          "ar": "لا تشيل هم"
+        },
+        {
+          "en": "I don't know",
+          "pro": "Ma adree",
+          "ar": "ما أدري"
+        }
+      ]
+    },
+    {
+      "day": 54,
+      "category": "Everyday expressions & replies",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "No problem.",
+          "pro": "Mā fī mushkila",
+          "ar": "ما في مشكلة"
+        },
+        {
+          "en": "I just found out",
+          "pro": "Tawwi adri",
+          "ar": "توي أدري"
+        },
+        {
+          "en": "Consider it done",
+          "pro": "Khalliha 'alayy",
+          "ar": "خلها علي"
+        },
+        {
+          "en": "Oh man",
+          "pro": "Ya rayyaal",
+          "ar": "يا ريال"
+        },
+        {
+          "en": "I don't know",
+          "pro": "Ma adri",
+          "ar": "ما أدري"
+        },
+        {
+          "en": "Good night",
+          "pro": "Tisbah 'ala khair",
+          "ar": "تصبح على خير"
+        },
+        {
+          "en": "No way",
+          "pro": "Maa fee majal",
+          "ar": "ما في مجال"
+        },
+        {
+          "en": "No difference",
+          "pro": "Maa fee farq",
+          "ar": "ما فيه فرق"
+        },
+        {
+          "en": "No need",
+          "pro": "Maa fee da'i",
+          "ar": "ما فيه داعي"
+        },
+        {
+          "en": "No chance",
+          "pro": "Maa feee amal",
+          "ar": "ما فيه أمل"
+        }
+      ]
+    },
+    {
+      "day": 55,
+      "category": "Everyday expressions & replies",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "No problem",
+          "pro": "Maa fee mushkilah",
+          "ar": "ما فيه مشكلة"
+        },
+        {
+          "en": "No one is around",
+          "pro": "Maa fee ahad",
+          "ar": "ما فيه أحد"
+        },
+        {
+          "en": "No sound",
+          "pro": "Maa fee saut",
+          "ar": "ما فيه صوت"
+        },
+        {
+          "en": "No problem",
+          "pro": "Ma fi mushkilah",
+          "ar": "ما في مشكلة"
+        },
+        {
+          "en": "No time",
+          "pro": "Ma fi wagth",
+          "ar": "ما في وقت"
+        },
+        {
+          "en": "No space",
+          "pro": "Ma fi makan",
+          "ar": "ما في مكان"
+        },
+        {
+          "en": "I am here",
+          "pro": "Ana hinā",
+          "ar": "أنا هنا"
+        },
+        {
+          "en": "I am there",
+          "pro": "Ana hunāk",
+          "ar": "أنا هناك"
+        },
+        {
+          "en": "I am at the door",
+          "pro": "Ana 'ind al-bāb",
+          "ar": "أنا عند الباب"
+        },
+        {
+          "en": "I am outside",
+          "pro": "Ana barrā",
+          "ar": "أنا برا"
+        }
+      ]
+    },
+    {
+      "day": 56,
+      "category": "Everyday expressions & replies",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "I want this.",
+          "pro": "Abī hādha",
+          "ar": "أبي هذا"
+        },
+        {
+          "en": "I don't want this.",
+          "pro": "Mā abī hādha",
+          "ar": "ما أبي هذا"
+        },
+        {
+          "en": "I don't know much Arabic.",
+          "pro": "Ma a'rif 'arabi katheer",
+          "ar": "ما أعرف عربي كثير"
+        },
+        {
+          "en": "I understood a little.",
+          "pro": "Fahimt shway",
+          "ar": "فهمت شوي"
+        },
+        {
+          "en": "I am ready",
+          "pro": "Ana jahiz",
+          "ar": "أنا جاهز"
+        },
+        {
+          "en": "I am free",
+          "pro": "Ana fadhi",
+          "ar": "أنا فاضي"
+        },
+        {
+          "en": "Up to you",
+          "pro": "Ala kaifak",
+          "ar": "على كيفك"
+        },
+        {
+          "en": "Not necessary",
+          "pro": "Ma yahtaj",
+          "ar": "ما يحتاج"
+        },
+        {
+          "en": "Never mind",
+          "pro": "Ma alaih",
+          "ar": "ما عليه"
+        },
+        {
+          "en": "Just a minute",
+          "pro": "Dageega bas",
+          "ar": "دقيقة بس"
+        }
+      ]
+    },
+    {
+      "day": 57,
+      "category": "Everyday expressions & replies",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "Don't worry about it",
+          "pro": "Wala yahummak",
+          "ar": "ولا يهمك"
+        },
+        {
+          "en": "At your convenience",
+          "pro": "Birahtak",
+          "ar": "براحتك"
+        },
+        {
+          "en": "I am from…",
+          "pro": "Ana min…",
+          "ar": "أنا من…"
+        },
+        {
+          "en": "I speak a little Arabic",
+          "pro": "Atkallam arabi shway",
+          "ar": "أتكلم عربي شوي"
+        },
+        {
+          "en": "I didn't catch your name",
+          "pro": "Ma simi't ismak",
+          "ar": "ما سمعت اسمك"
+        },
+        {
+          "en": "You made my day",
+          "pro": "Farrahtni",
+          "ar": "فرحتني"
+        },
+        {
+          "en": "It's on your right",
+          "pro": "'Ala yameenak",
+          "ar": "على يمينك"
+        },
+        {
+          "en": "It's on your left",
+          "pro": "'Ala yasarik",
+          "ar": "على يسارك"
+        },
+        {
+          "en": "Stop at the next corner",
+          "pro": "Waqif 'ind az-zawiya al-jaya",
+          "ar": "وقف عند الزاوية الجاية"
+        },
+        {
+          "en": "It fits me",
+          "pro": "Hatha maqasi",
+          "ar": "هذا مقاسي"
+        }
+      ]
+    },
+    {
+      "day": 58,
+      "category": "Everyday expressions & replies",
+      "focus": "Learn this set and review the previous day's phrases",
+      "entries": [
+        {
+          "en": "It's too small",
+          "pro": "Saghir marra",
+          "ar": "صغير مرة"
+        },
+        {
+          "en": "It's too big",
+          "pro": "Kabeer marra",
+          "ar": "كبير مرة"
+        },
+        {
+          "en": "I'll think about it",
+          "pro": "Bafakkir feeha",
+          "ar": "بفكر فيها"
+        },
+        {
+          "en": "I will be there soon",
+          "pro": "Bawसल ba'd shway",
+          "ar": "بوصل بعد شوي"
+        },
+        {
+          "en": "I am on my way",
+          "pro": "Ana fit-tareeq",
+          "ar": "أنا في الطريق"
+        },
+        {
+          "en": "I need more time",
+          "pro": "Ahtaj waqt ziyada",
+          "ar": "أحتاج وقت زيادة"
+        },
+        {
+          "en": "That sounds good",
+          "pro": "Yibān zain",
+          "ar": "يبان زين"
+        },
+        {
+          "en": "I have a question",
+          "pro": "'Indi istifsar",
+          "ar": "عندي استفسار"
+        },
+        {
+          "en": "I need help",
+          "pro": "Ahtaj musa'ada",
+          "ar": "أحتاج مساعدة"
+        },
+        {
+          "en": "My wallet was stolen",
+          "pro": "Inسرقت mahfazati",
+          "ar": "انسرقت محفظتي"
+        }
+      ]
+    }
+  ]
+}

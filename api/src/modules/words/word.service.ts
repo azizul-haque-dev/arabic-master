@@ -272,6 +272,49 @@ export const WordService = {
     };
   },
 
+  async regenerateUsageContext(id: string) {
+    const word = await WordRepository.findDetailedById(id);
+    if (!word) throw new NotFoundError('Word not found');
+
+    const arabicText = word.arabicText || word.entity?.arabicText;
+    if (!arabicText) {
+      throw new ConflictError('Word does not have associated Arabic text');
+    }
+
+    const existingJob = await wordQueue.getJob(word.id);
+    if (existingJob) {
+      const state = await existingJob.getState();
+      if (state === 'active' || state === 'waiting' || state === 'delayed') {
+        if (existingJob.name === 'regenerate-word-usage') {
+          return {
+            wordId: word.id,
+            jobId: word.id,
+            queued: true,
+            message: 'Usage-context regeneration is already in progress',
+          };
+        }
+        throw new ConflictError(
+          'Full AI generation is already in progress for this word',
+        );
+      }
+
+      await existingJob.remove();
+    }
+
+    await wordQueue.add(
+      'regenerate-word-usage',
+      { wordId: word.id, arabicText },
+      { jobId: word.id },
+    );
+
+    return {
+      wordId: word.id,
+      jobId: word.id,
+      queued: true,
+      message: 'Usage-context regeneration queued successfully',
+    };
+  },
+
   async regenerateWithAi(id: string) {
     const word = await WordRepository.findDetailedById(id);
     if (!word) throw new NotFoundError('Word not found');
@@ -285,6 +328,11 @@ export const WordService = {
     if (existingJob) {
       const state = await existingJob.getState();
       if (state === 'active') {
+        if (existingJob.name !== 'process-word') {
+          throw new ConflictError(
+            'Usage-context regeneration is already in progress for this word',
+          );
+        }
         return {
           wordId: word.id,
           jobId: word.id,
@@ -293,6 +341,11 @@ export const WordService = {
         };
       }
       if (state === 'waiting' || state === 'delayed') {
+        if (existingJob.name !== 'process-word') {
+          throw new ConflictError(
+            'Usage-context regeneration is already queued for this word',
+          );
+        }
         return {
           wordId: word.id,
           jobId: word.id,

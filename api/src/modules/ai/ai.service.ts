@@ -3,13 +3,21 @@ import { logger } from '../../common/http/logger.js';
 import { env } from '../../config/env.js';
 import {
   createSaudiTeacherPrompt,
+  createUsageContextPrompt,
   textToTranslateSaudiNativeArabic,
+  type UsageContextPromptInput,
 } from './prompts/prompt.factory.js';
 import {
+  AIUsageContextSchema,
   AIResponseSchema,
   SaudiArabicTranslationSchema,
+  type AiUsageContext,
   type AiResponse,
 } from './schemas/ai-response.schema.js';
+import {
+  assertAiOutputLabelsAllowed,
+  assertUsageContextLabelsAllowed,
+} from './output-policy.js';
 
 const FALLBACK_MODELS = [
   'gemini-3.6-flash',
@@ -62,7 +70,9 @@ export function createAiService() {
           const generator =
             createChatModel(modelName).withStructuredOutput(AIResponseSchema);
           const result = await generator.invoke(prompt);
-          return AIResponseSchema.parse(result);
+          const parsed = AIResponseSchema.parse(result);
+          assertAiOutputLabelsAllowed(parsed);
+          return parsed;
         } catch (err) {
           lastError = err;
           logger.warn(
@@ -75,6 +85,36 @@ export function createAiService() {
       throw lastError instanceof Error
         ? lastError
         : new Error('AI content generation failed across all candidate models');
+    },
+
+    async generateUsageContext(
+      input: UsageContextPromptInput,
+    ): Promise<AiUsageContext> {
+      const prompt = createUsageContextPrompt(input);
+      let lastError: unknown;
+
+      for (const modelName of modelNames) {
+        try {
+          const generator =
+            createChatModel(modelName).withStructuredOutput(AIUsageContextSchema);
+          const result = await generator.invoke(prompt);
+          const parsed = AIUsageContextSchema.parse(result);
+          assertUsageContextLabelsAllowed(parsed);
+          return parsed;
+        } catch (err) {
+          lastError = err;
+          logger.warn(
+            { err, modelName, itemType: input.itemType },
+            'AI usage-context generation failed on model; trying next candidate if available.',
+          );
+        }
+      }
+
+      throw lastError instanceof Error
+        ? lastError
+        : new Error(
+            'AI usage-context generation failed across all candidate models',
+          );
     },
 
     async translateToArabic(text: string): Promise<string> {
@@ -141,6 +181,9 @@ function getAiService() {
 export const AiService = {
   generateContent: (query: string): Promise<AiResponse> =>
     getAiService().generateContent(query),
+  generateUsageContext: (
+    input: UsageContextPromptInput,
+  ): Promise<AiUsageContext> => getAiService().generateUsageContext(input),
   translateToArabic: (text: string): Promise<string> =>
     getAiService().translateToArabic(text),
 };

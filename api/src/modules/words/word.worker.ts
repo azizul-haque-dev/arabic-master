@@ -38,6 +38,35 @@ export const WordProcessor = {
 
     const { wordId, arabicText: rawText } = job.data;
 
+    if (job.name === 'regenerate-word-usage') {
+      const word = await words.findDetailedById(wordId);
+      if (!word) {
+        log.warn(
+          `Word ${wordId} was deleted before usage-context regeneration ran — skipping.`,
+        );
+        return;
+      }
+
+      const arabicText = word.arabicText || word.entity?.arabicText;
+      if (!arabicText) {
+        throw new Error(`Word ${wordId} does not have associated Arabic text.`);
+      }
+
+      const usage = await ai.generateUsageContext({
+        itemType: 'word',
+        arabicText,
+        meaningEn: word.meaningEn,
+        meaningBn: word.meaningBn,
+      });
+
+      await words.update(wordId, {
+        whenToUseEn: usage.whenToUseEn,
+        whenToUseBn: usage.whenToUseBn,
+        updatedAt: new Date(),
+      });
+      return;
+    }
+
     const word = await words.findById(wordId);
     if (!word) {
       log.warn(`Word ${wordId} was deleted before the AI job ran — skipping.`);

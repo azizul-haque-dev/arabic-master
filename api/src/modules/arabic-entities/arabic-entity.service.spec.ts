@@ -135,6 +135,9 @@ describe('ArabicEntityService', () => {
       expect(ArabicEntityRepository.findById).toHaveBeenCalledWith('ae-uuid-1');
       expect(r2StorageService.uploadAudio).toHaveBeenCalledTimes(1);
       expect(ArabicEntityAudioRepository.upsert).toHaveBeenCalledTimes(1);
+      expect(r2StorageService.uploadAudio).toHaveBeenCalledWith(
+        expect.objectContaining({ downloadFileName: 'kitab.mp3' }),
+      );
       expect(ArabicEntityAudioRepository.updateEntityAudioUrl).toHaveBeenCalledWith(
         'ae-uuid-1',
         'https://cdn.example.com/audio.mp3',
@@ -204,6 +207,20 @@ describe('ArabicEntityService', () => {
       expect(result.id).toBe('audio-record-1');
       expect(r2StorageService.uploadAudio).toHaveBeenCalledTimes(1);
       expect(cleanupSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('uses the entity ID when pronunciation is blank and adds the variant to the filename', async () => {
+      vi.spyOn(ArabicEntityRepository, 'findById').mockResolvedValueOnce({
+        ...mockEntity,
+        pronunciationEnglish: '',
+      } as any);
+      mockUploadedAudio.variant = 'SLOW';
+
+      await ArabicEntityService.uploadAudio('ae-uuid-1', mockUploadedAudio, mockUser);
+
+      expect(r2StorageService.uploadAudio).toHaveBeenCalledWith(
+        expect.objectContaining({ downloadFileName: 'ae_uuid_1_slow.mp3' }),
+      );
     });
 
     it('rolls back R2 upload by deleting new object if database transaction fails', async () => {

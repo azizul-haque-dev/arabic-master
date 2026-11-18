@@ -127,6 +127,12 @@ sentenceRoutes.post(
   SentenceController.regenerate,
 );
 sentenceRoutes.post(
+  '/:id/regenerate-context',
+  ...staff,
+  params,
+  SentenceController.regenerateContext,
+);
+sentenceRoutes.post(
   '/:id/ai',
   ...staff,
   params,
@@ -188,6 +194,12 @@ shortSentenceRoutes.post(
   ...staff,
   params,
   SentenceController.regenerate,
+);
+shortSentenceRoutes.post(
+  '/:id/regenerate-context',
+  ...staff,
+  params,
+  SentenceController.regenerateContext,
 );
 shortSentenceRoutes.post(
   '/:id/ai',

@@ -136,6 +136,12 @@ export const SentenceController = {
       await SentenceService.regenerateWithAi(id(req), req.auth?.userId),
       202,
     ),
+  regenerateContext: async (req: Request, res: Response) =>
+    ok(
+      res,
+      await SentenceService.regenerateContext(id(req), req.auth?.userId),
+      202,
+    ),
   resyncWords: async (req: Request, res: Response) =>
     ok(res, await SentenceService.resyncWords(id(req)), 202),
   changeStatus: async (req: Request, res: Response) =>

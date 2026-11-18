@@ -43,6 +43,8 @@ export const WordController = {
     ok(res, await WordService.getAiJobStatus(id(req))),
   regenerate: async (req: Request, res: Response) =>
     ok(res, await WordService.regenerateWithAi(id(req)), 202),
+  regenerateUsageContext: async (req: Request, res: Response) =>
+    ok(res, await WordService.regenerateUsageContext(id(req)), 202),
   changeStatus: async (req: Request, res: Response) =>
     ok(
       res,
