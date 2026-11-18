@@ -1,22 +1,24 @@
 import "server-only";
 
 import { redirect } from "next/navigation";
-import type { ContentListQuery } from "@/lib/content/validation";
+import type { WordListQuery } from "@/lib/content/validation";
 import { readBackend, requireContentAdmin } from "@/lib/content/server";
 import { normalizeWord, normalizeWordList, type WordListResponse } from "./api";
 import type { Word } from "@/lib/types/content";
 
-function buildQuery(query: ContentListQuery): string {
+function buildQuery(query: WordListQuery): string {
   const params = new URLSearchParams();
   params.set("page", String(query.page));
   params.set("limit", String(query.limit));
+  params.set("sort", query.sort);
   if (query.search) params.set("search", query.search);
   if (query.category) params.set("category", query.category);
   if (query.status) params.set("status", query.status);
+  if (query.audio) params.set("audio", query.audio);
   return params.toString();
 }
 
-export async function requestWordList(query: ContentListQuery): Promise<WordListResponse> {
+export async function requestWordList(query: WordListQuery): Promise<WordListResponse> {
   try {
     const result = await readBackend(`/words?${buildQuery(query)}`);
     if (!result.ok) {
@@ -43,7 +45,7 @@ export async function requestWordById(id: string): Promise<Word | null> {
   }
 }
 
-export async function getWordsForAdmin(query: ContentListQuery): Promise<WordListResponse> {
+export async function getWordsForAdmin(query: WordListQuery): Promise<WordListResponse> {
   const authorization = await requireContentAdmin();
   if (!authorization.success) {
     if (authorization.code === "UNAUTHORIZED") redirect("/login");

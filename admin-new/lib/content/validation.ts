@@ -35,6 +35,16 @@ export const contentListQuerySchema = z.object({
   sentenceType: z.enum(sentenceTypes).optional(),
 }).strip();
 
+export const wordListQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).max(1_000_000).catch(1),
+  limit: z.coerce.number().int().min(1).max(100).catch(20),
+  search: z.string().trim().max(500).optional().catch(undefined),
+  category: wordCategory.optional().catch(undefined),
+  status: z.enum(contentStatuses).optional().catch(undefined),
+  sort: z.enum(["asc", "desc"]).catch("desc"),
+  audio: z.enum(["with", "without"]).optional().catch(undefined),
+}).strip();
+
 export const wordCreateSchema = z.object({
   text: requiredText,
   meaningEn: requiredText,
@@ -249,6 +259,7 @@ export const lessonReorderInSectionSchema = z.object({
 }).strict();
 
 export type ContentListQuery = z.infer<typeof contentListQuerySchema>;
+export type WordListQuery = z.infer<typeof wordListQuerySchema>;
 export type WordCreateInput = z.infer<typeof wordCreateSchema>;
 export type WordUpdateInput = z.infer<typeof wordUpdateSchema>;
 export type SentenceCreateInput = z.infer<typeof sentenceCreateSchema>;

@@ -32,6 +32,8 @@ export const listWordQuerySchema = z.strictObject({
   category: category.optional(),
   search: z.string().optional(),
   status: z.enum(contentStatusEnum.enumValues).optional(),
+  sort: z.enum(['asc', 'desc']).default('desc'),
+  audio: z.enum(['with', 'without']).optional(),
 });
 
 export type CreateWordInput = z.infer<typeof createWordSchema>;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, BookX, Trash2, Sparkles } from "lucide-react";
 import { ContentPageHeader } from "@/components/shared/content-page-header";
 import { ContentSearch } from "@/components/shared/content-search";
@@ -36,6 +36,21 @@ import { buildWordPayload } from "@/lib/words/api";
 import { cn } from "@/lib/utils";
 
 const PAGE_LIMIT = 20;
+const CONTENT_STATUSES: ContentStatus[] = ["DRAFT", "IN_REVIEW", "APPROVED", "PUBLISHED", "REJECTED", "ARCHIVED"];
+
+function replaceWordListUrl(updates: Partial<Record<"page" | "search" | "status" | "sort" | "audio", string | undefined>>, resetPage = true) {
+  const params = new URLSearchParams(window.location.search);
+  if (resetPage) params.delete("page");
+  for (const [key, value] of Object.entries(updates)) {
+    if (value) params.set(key, value);
+    else params.delete(key);
+  }
+  const query = params.toString();
+  const nextUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+  if (nextUrl !== `${window.location.pathname}${window.location.search}${window.location.hash}`) {
+    window.history.replaceState(null, "", nextUrl);
+  }
+}
 
 export function WordListView({
   initialWords = [],
@@ -45,16 +60,23 @@ export function WordListView({
   initialMeta?: { page: number; limit: number; total: number; totalPages: number };
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { role } = useRole();
 
   const [words, setWords] = useState<Word[]>(initialWords);
-  const [page, setPage] = useState(initialMeta.page);
+  const rawPage = Number(searchParams.get("page"));
+  const page = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1;
   const [total, setTotal] = useState(initialMeta.total);
   const [totalPages, setTotalPages] = useState(initialMeta.totalPages);
   const [refreshToken, setRefreshToken] = useState(0);
 
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<Set<ContentStatus>>(new Set());
+  const search = searchParams.get("search") ?? "";
+  const status = CONTENT_STATUSES.find((value) => value === searchParams.get("status"));
+  const statusFilter = new Set<ContentStatus>(status ? [status] : []);
+  const sort = searchParams.get("sort") === "asc" ? "asc" : "desc";
+  const audioValue = searchParams.get("audio");
+  const audio = audioValue === "with" || audioValue === "without" ? audioValue : undefined;
+  const searchParamsString = searchParams.toString();
   const [createOpen, setCreateOpen] = useState(false);
   const [generateOpen, setGenerateOpen] = useState(false);
 
@@ -90,7 +112,9 @@ export function WordListView({
       page,
       limit: PAGE_LIMIT,
       search: search.trim() || undefined,
-      status: statusFilter.values().next().value,
+      status,
+      sort,
+      audio,
     })
       .then((result) => {
         if (!active) return;
@@ -98,8 +122,8 @@ export function WordListView({
           setWords(result.data.items);
           setTotal(result.data.meta.total);
           setTotalPages(result.data.meta.totalPages);
-          if (page > result.data.meta.totalPages && result.data.meta.totalPages > 0) {
-            setPage(result.data.meta.totalPages);
+          if (page > Math.max(1, result.data.meta.totalPages)) {
+            replaceWordListUrl({ page: result.data.meta.totalPages > 1 ? String(result.data.meta.totalPages) : undefined }, false);
           }
         } else {
           setError(result.error);
@@ -122,7 +146,7 @@ export function WordListView({
     return () => {
       active = false;
     };
-  }, [page, search, statusFilter, refreshToken]);
+  }, [page, search, status, sort, audio, searchParamsString, refreshToken]);
 
   useEffect(() => {
     if (!generationPendingId) return;
@@ -374,22 +398,29 @@ export function WordListView({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
           <ContentSearch
+            key={search}
             value={search}
             onChange={(value) => {
-              setSearch(value);
-              setPage(1);
+              if (value !== search) replaceWordListUrl({ search: value.trim() ? value : undefined });
             }}
             placeholder="Search Arabic, English, Bangla, category..."
           />
           <ContentStatusFilter
             selected={statusFilter}
             onChange={(value) => {
-              setStatusFilter(value);
-              setPage(1);
+              replaceWordListUrl({ status: value.values().next().value });
             }}
-            options={["DRAFT", "IN_REVIEW", "APPROVED", "PUBLISHED", "REJECTED", "ARCHIVED"]}
+            options={CONTENT_STATUSES}
             singleSelection
           />
+          <label className="sr-only" htmlFor="word-sort-filter">Sort words by created date</label>
+          <select id="word-sort-filter" aria-label="Sort words by created date" className="h-9 rounded-default border border-border-strong bg-white px-3 text-sm text-text" value={sort} onChange={(event) => replaceWordListUrl({ sort: event.target.value === "desc" ? undefined : event.target.value })}>
+            <option value="desc">Newest first (DESC)</option><option value="asc">Oldest first (ASC)</option>
+          </select>
+          <label className="sr-only" htmlFor="word-audio-filter">Filter words by audio</label>
+          <select id="word-audio-filter" aria-label="Filter words by audio" className="h-9 rounded-default border border-border-strong bg-white px-3 text-sm text-text" value={audio ?? "all"} onChange={(event) => replaceWordListUrl({ audio: event.target.value === "all" ? undefined : event.target.value })}>
+            <option value="all">All audio</option><option value="with">With audio</option><option value="without">Without audio</option>
+          </select>
         </div>
         <p className="text-xs text-text-muted">
           {total} {total === 1 ? "word" : "words"}
@@ -445,7 +476,7 @@ export function WordListView({
           isLoading={isLoading}
           onPageChange={(newPage) => {
             if (newPage !== page) {
-              setPage(newPage);
+              replaceWordListUrl({ page: newPage > 1 ? String(newPage) : undefined }, false);
             }
           }}
         />

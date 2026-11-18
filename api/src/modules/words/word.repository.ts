@@ -1,5 +1,6 @@
 import {
   and,
+  asc,
   count,
   desc,
   eq,
@@ -19,9 +20,11 @@ import * as schema from '../../database/drizzle/schema.js';
 export interface WordFilters {
   page: number;
   limit: number;
+  sort: 'asc' | 'desc';
   category?: string;
   status?: ContentStatus;
   search?: string;
+  audio?: 'with' | 'without';
 }
 
 export type WordInsert = typeof schema.word.$inferInsert;
@@ -41,6 +44,14 @@ export const WordRepository = {
     if (filters.category)
       conditions.push(eq(schema.word.category, filters.category));
     if (filters.status) conditions.push(eq(schema.word.status, filters.status));
+    if (filters.audio) {
+      const hasAudio = sql<boolean>`(
+        EXISTS (SELECT 1 FROM ${schema.arabicEntityAudio}
+          WHERE ${schema.arabicEntityAudio.entityId} = ${schema.arabicEntity.id})
+        OR (${schema.arabicEntity.audioUrl} IS NOT NULL AND ${schema.arabicEntity.audioUrl} <> '')
+      )`;
+      conditions.push(filters.audio === 'with' ? hasAudio : sql<boolean>`NOT (${hasAudio})`);
+    }
     if (filters.search) {
       const search = `%${escapeLike(filters.search)}%`;
       const normalizedSearch = `%${escapeLike(normalizeArabicText(filters.search))}%`;
@@ -67,7 +78,10 @@ export const WordRepository = {
         .from(schema.word)
         .innerJoin(schema.arabicEntity, entityJoin)
         .where(where)
-        .orderBy(desc(schema.word.createdAt), desc(schema.word.id))
+        .orderBy(
+          filters.sort === 'asc' ? asc(schema.word.createdAt) : desc(schema.word.createdAt),
+          filters.sort === 'asc' ? asc(schema.word.id) : desc(schema.word.id),
+        )
         .offset((filters.page - 1) * filters.limit)
         .limit(filters.limit),
     ]);

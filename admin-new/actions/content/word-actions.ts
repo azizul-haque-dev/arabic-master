@@ -5,7 +5,7 @@ import type { ContentActionResult } from "@/lib/content/action-result";
 import { callBackend, requireContentAdmin, validationFailure } from "@/lib/content/server";
 import {
   contentIdSchema,
-  contentListQuerySchema,
+  wordListQuerySchema,
   aiJobQueueResponseSchema,
   aiJobStatusSchema,
   generateQuerySchema,
@@ -37,7 +37,7 @@ export async function listWordsAction(input: unknown): Promise<ContentActionResu
   const authorization = await requireContentAdmin();
   if (!authorization.success) return toFailure(authorization);
 
-  const parsed = contentListQuerySchema.safeParse(queryFromUnknown(input));
+  const parsed = wordListQuerySchema.safeParse(queryFromUnknown(input));
   if (!parsed.success) return validationFailure(parsed.error.issues);
 
   try {
