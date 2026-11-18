@@ -69,6 +69,14 @@ export type ExampleSentenceFixture = {
   meaningBn?: string;
 };
 
+export type ReplyOptionFixture = {
+  arabicText: string;
+  pronunciationBn: string;
+  pronunciationEn: string;
+  meaningBn: string;
+  meaningEn: string;
+};
+
 export type LearningContentItemFixture = {
   id: string;
   kind: LearningItemKind;
@@ -86,6 +94,7 @@ export type LearningContentItemFixture = {
   feminineBn?: string;
   noteEn?: string;
   noteBn?: string;
+  replyOptions?: ReplyOptionFixture[];
   imageUrl?: string;
   grammaticalVariants?: GrammaticalVariantFixture[];
   exampleSentences?: ExampleSentenceFixture[];
@@ -536,6 +545,22 @@ export const learningContentItems: LearningContentItemFixture[] = [
     whenToUseBn: "দৈনন্দিন জীবনে কোনো উপকার, সেবা বা উপহারের জন্য আন্তরিক কৃতজ্ঞতা জানাতে ব্যবহৃত হয়।",
     feminineEn: "Common courteous response: 'ʿafwan' (عَفْوًا) meaning 'You are welcome'.",
     feminineBn: "কৃতজ্ঞতার জবাবে বিনম্রভাবে বলা হয় 'আফওয়ান' (عَفْوًا) যার অর্থ 'আপনাকেও স্বাগতম' বা 'কিছু না'。",
+    replyOptions: [
+      {
+        arabicText: "العفو",
+        pronunciationBn: "আল-আফও",
+        pronunciationEn: "al-ʿafw",
+        meaningBn: "আপনাকে স্বাগতম / কিছু না",
+        meaningEn: "You're welcome",
+      },
+      {
+        arabicText: "حياك الله",
+        pronunciationBn: "হাইয়্যাকাল্লাহ",
+        pronunciationEn: "ḥayyāk Allāh",
+        meaningBn: "আল্লাহ আপনাকে সম্মানিত করুন",
+        meaningEn: "May God welcome you",
+      },
+    ],
     grammaticalVariants: [
       {
         form: "EMPHATIC",

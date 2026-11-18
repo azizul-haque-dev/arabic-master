@@ -14,6 +14,8 @@ export function createSaudiTeacherPrompt(query: string) {
     `* English pronunciation should be a practical transliteration, not academic transliteration.\n` +
     `* Meanings must be natural and conversational.\n` +
     `* Explain when native Saudis actually use the word in daily conversation.\n` +
+    `* Always provide a replyOptions array. When the input is something people say to another person, include up to 3 natural, context-appropriate replies in order of commonness. Each reply must include Arabic text, Bangla and English pronunciations, and Bangla and English meanings. Use an empty array only when no natural conversational reply applies.\n` +
+    `* Keep replies context-specific: for example, "تسلم" can naturally be answered with "الله يسلمك"; "شكراً" commonly takes a reply such as "العفو" or "حياك الله"; and "مع السلامة" should receive a natural farewell reply such as "في أمان الله". Do not reuse one reply for unrelated expressions unless it is genuinely natural.\n` +
     `* If the word is old-fashioned, very formal, or rarely used in Saudi daily speech, mention that and provide the common Saudi alternative.\n` +
     `* Never invent meanings.`;
 

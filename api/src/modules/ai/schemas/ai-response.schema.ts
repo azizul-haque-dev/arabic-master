@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ALLOWED_CATEGORIES } from '../../../common/constants/category.constant.js';
+import { replyOptionSchema } from './reply-option.schema.js';
 
 export const AIResponseSchema = z.object({
   text: z.string().describe('The exact Arabic word or expression'),
@@ -32,6 +33,12 @@ export const AIResponseSchema = z.object({
     .string()
     .describe(
       'Detailed context of when Saudis use this in daily life in English',
+    ),
+  replyOptions: z
+    .array(replyOptionSchema)
+    .max(3)
+    .describe(
+      'Up to three natural Saudi Arabic replies to this expression when relevant; use an empty array when no natural conversational reply applies',
     ),
   category: z
     .enum(ALLOWED_CATEGORIES)

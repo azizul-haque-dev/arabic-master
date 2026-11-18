@@ -97,6 +97,7 @@ export const ConversationRepository = {
           sentenceKey: schema.sentence.sentenceKey,
           meaningEn: schema.sentence.meaningEn,
           meaningBn: schema.sentence.meaningBn,
+          replyOptions: schema.sentence.replyOptions,
           status: schema.sentence.status,
         },
         arabicText: schema.arabicEntity.arabicText,

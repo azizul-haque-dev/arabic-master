@@ -26,6 +26,7 @@ import { Volume2 } from "lucide-react";
 import { AudioUploadDialog } from "@/components/features/audio/audio-upload-dialog";
 import { checkAudioPermission } from "@/lib/audio/permissions";
 import { useRole } from "@/lib/role-context";
+import { ReplyOptionsEditor } from "@/components/shared/reply-options";
 
 function valuesFor(sentence?: Sentence, defaultType: SentenceType = "LONG"): SentenceFormValues {
     return {
@@ -36,6 +37,7 @@ function valuesFor(sentence?: Sentence, defaultType: SentenceType = "LONG"): Sen
         pronunciationEnglish: sentence?.pronunciationEnglish ?? "",
         context: sentence?.context ?? "",
         contextBangla: sentence?.contextBangla ?? "",
+        replyOptions: sentence?.replyOptions ?? [],
         feminineEnglish: sentence?.feminineEnglish ?? "",
         feminineBangla: sentence?.feminineBangla ?? "",
         sentenceType: sentence?.sentenceType ?? defaultType,
@@ -145,6 +147,9 @@ export function SentenceFormDialog({
         values.pronunciationBangla.trim() &&
         values.context.trim() &&
         values.contextBangla.trim() &&
+        !values.replyOptions.some((reply) =>
+            Object.values(reply).some((field) => !field.trim()),
+        ) &&
         values.feminineEnglish.trim() &&
         values.feminineBangla.trim() &&
         values.category;
@@ -244,6 +249,11 @@ export function SentenceFormDialog({
                                 <Input id="s-feminine-bn" value={values.feminineBangla} onChange={(event) => update("feminineBangla", event.target.value)} className="font-bengali" />
                             </div>
                         </div>
+
+                        <ReplyOptionsEditor
+                            value={values.replyOptions}
+                            onChange={(replyOptions) => update("replyOptions", replyOptions)}
+                        />
 
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                             <div>

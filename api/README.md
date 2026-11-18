@@ -35,6 +35,8 @@ Layer-এর নিয়ম: **route → controller → service → repository*
 
 `POST /api/v1/words/ai`-তে আগের `{ "query": "..." }` body দিয়ে একক শব্দ তৈরি হয়। একাধিক শব্দ queue করতে আলাদা `POST /api/v1/words/ai/word/list` endpoint-এ `{ "query": ["...", "..."] }` পাঠান (সর্বোচ্চ ২৫টি); response-এ প্রতি শব্দের `wordId`, `jobId` এবং enqueue সফলতার তথ্য থাকবে। job-এর অবস্থা/চূড়ান্ত ব্যর্থতা দেখতে staff token দিয়ে `GET /api/v1/words/ai/jobs/:id` কল করুন। `state: "failed"` হলে `failedReason`, `arabicText`, `attemptsMade`, এবং `maxAttempts` পাওয়া যাবে; worker log-এও সংশ্লিষ্ট শব্দের তথ্য থাকবে।
 
+AI-generated word এবং sentence-এ `replyOptions` field থাকে: প্রাসঙ্গিক কথোপকথনের জন্য সর্বোচ্চ তিনটি Arabic reply (pronunciation ও Bangla/English meaning-সহ), অথবা প্রযোজ্য reply না থাকলে খালি array। Conversation detail-এর প্রতিটি embedded sentence-এও একই field থাকে। এগুলো draft হিসেবে থাকে এবং review/publish workflow অপরিবর্তিত।
+
 ## পুরনো কোড থেকে আচরণের পার্থক্য (জেনে রাখুন)
 
 | বিষয়                  | আগে                                                  | এখন                                                            |

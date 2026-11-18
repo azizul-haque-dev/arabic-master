@@ -15,6 +15,13 @@
       "when": 1792420000000,
       "tag": "0001_create_arabic_entity_audio",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794984428470,
+      "tag": "0002_add_reply_options",
+      "breakpoints": true
     }
   ]
 }

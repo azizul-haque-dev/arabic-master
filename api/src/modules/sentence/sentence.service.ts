@@ -300,6 +300,7 @@ export const SentenceService = {
           meaningBn: blank,
           whenToUseEn: blank,
           whenToUseBn: blank,
+          replyOptions: [],
           pronunciationEn: blank,
           pronunciationBn: blank,
           feminineEn: blank,
