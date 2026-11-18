@@ -1,23 +1,12 @@
 import type { Job } from 'bullmq';
 import { describe, expect, it, vi } from 'vitest';
 import type { AiService } from '../ai/ai.service.js';
-import type { ReplyOption } from '../ai/schemas/reply-option.schema.js';
 import type { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
 import type { SentenceRepository } from './sentence.repository.js';
 import { SentenceProcessor, type SentenceJobData } from './sentence.worker.js';
 
-const replyOptions: ReplyOption[] = [
-  {
-    arabicText: 'العفو',
-    pronunciationBn: 'আল-আফও',
-    pronunciationEn: 'al-afw',
-    meaningBn: 'আপনাকে স্বাগতম',
-    meaningEn: "You're welcome",
-  },
-];
-
 describe('SentenceProcessor', () => {
-  it('persists generated reply options', async () => {
+  it('persists reply usage in the bilingual when-to-use text', async () => {
     const sentences = {
       findById: vi.fn().mockResolvedValue({ entityId: 'entity-1' }),
       update: vi.fn().mockResolvedValue(undefined),
@@ -33,9 +22,8 @@ describe('SentenceProcessor', () => {
         pronunciationBn: 'শুকরান',
         feminineEn: 'Same for both genders',
         feminineBn: 'ছেলে এবং মেয়ে উভয়ের জন্য একই রূপ',
-        whenToUseEn: 'To express gratitude.',
-        whenToUseBn: 'কৃতজ্ঞতা জানাতে।',
-        replyOptions,
+        whenToUseEn: 'Say this in reply to شكراً (shukran).',
+        whenToUseBn: 'شكراً (শুকরান) বললে জবাবে এটি বলা হয়।',
         category: 'Greetings & Introductions',
       }),
     } as unknown as AiService;
@@ -48,7 +36,10 @@ describe('SentenceProcessor', () => {
 
     expect(sentences.update).toHaveBeenCalledWith(
       'sentence-1',
-      expect.objectContaining({ replyOptions }),
+      expect.objectContaining({
+        whenToUseEn: 'Say this in reply to شكراً (shukran).',
+        whenToUseBn: 'شكراً (শুকরান) বললে জবাবে এটি বলা হয়।',
+      }),
     );
   });
 

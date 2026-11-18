@@ -1,7 +1,7 @@
 const USAGE_CONTEXT_GUIDANCE = `
 Usage-context formatting (apply only to whenToUseEn and whenToUseBn):
 - Give a simple, natural explanation of when and why the expression is used.
-- If it is commonly used as a reply to a particular word, phrase, or question, explain what it responds to and when someone would say it. Include this only when clear from the expression and meaning; do not invent a trigger.
+- If the expression is commonly used as a reply, explicitly say so in both whenToUse fields and name the common word, phrase, or question it responds to. Include multiple common triggers when supported by the expression and meaning; do not invent uncertain triggers.
 - If the reply is specifically to an Arabic word, phrase, or question, include that exact Arabic trigger and its pronunciation in the usage explanation. Use Latin-letter pronunciation in English and Bangla-script pronunciation in Bangla, for example: "شكرًا (shukran)" / "شكرًا (শুকরান)". Do not guess the trigger or its pronunciation.
 - Do not mention dialects, dialect names, regions, or compare varieties.
 - Use this as an adaptable style example for a shared greeting:
@@ -25,8 +25,6 @@ export function createSaudiTeacherPrompt(query: string) {
     `* Meanings must be natural and conversational.\n` +
     `* When referring to people in English, use "Arabs"; in Bangla, use "আরবরা". Do not describe usage by country or nationality.\n` +
     `* Never use "Saudi", "Saudis", "Saudi Arabia", "সৌদি", or "সৌদি আরব" in any learner-facing response field.\n` +
-    `* Always provide a replyOptions array. When the input is something people say to another person, include up to 3 natural, context-appropriate replies in order of commonness. Each reply must include Arabic text, Bangla and English pronunciations, and Bangla and English meanings. Use an empty array only when no natural conversational reply applies.\n` +
-    `* Keep replies context-specific: for example, "تسلم" can naturally be answered with "الله يسلمك"; "شكراً" commonly takes a reply such as "العفو" or "حياك الله"; and "مع السلامة" should receive a natural farewell reply such as "في أمان الله". Do not reuse one reply for unrelated expressions unless it is genuinely natural.\n` +
     `* If the word is old-fashioned, very formal, or rarely used in these dialects, mention that and provide a common spoken alternative.\n` +
     `* Never invent meanings.`;
 

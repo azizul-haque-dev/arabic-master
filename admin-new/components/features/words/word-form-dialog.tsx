@@ -22,7 +22,6 @@ import { normalizeArabic } from "@/lib/normalize-arabic";
 import { AudioUploadDialog } from "@/components/features/audio/audio-upload-dialog";
 import { checkAudioPermission } from "@/lib/audio/permissions";
 import { useRole } from "@/lib/role-context";
-import { ReplyOptionsEditor } from "@/components/shared/reply-options";
 
 const emptyValues: WordFormValues = {
   meaningBangla: "",
@@ -31,7 +30,6 @@ const emptyValues: WordFormValues = {
   pronunciationEnglish: "",
   whenToUseBangla: "",
   whenToUseEnglish: "",
-  replyOptions: [],
   wordType: "OTHER",
   category: "",
 };
@@ -87,7 +85,6 @@ export function WordFormDialog({
           pronunciationEnglish: initialWord.pronunciationEnglish,
           whenToUseBangla: initialWord.whenToUseBangla,
           whenToUseEnglish: initialWord.whenToUseEnglish,
-          replyOptions: initialWord.replyOptions,
           wordType: initialWord.wordType,
           category: initialWord.category,
         }
@@ -110,7 +107,6 @@ export function WordFormDialog({
             pronunciationEnglish: initialWord.pronunciationEnglish,
             whenToUseBangla: initialWord.whenToUseBangla,
             whenToUseEnglish: initialWord.whenToUseEnglish,
-            replyOptions: initialWord.replyOptions,
             wordType: initialWord.wordType,
             category: initialWord.category,
           }
@@ -309,11 +305,6 @@ export function WordFormDialog({
                 />
               </div>
 
-              <ReplyOptionsEditor
-                value={values.replyOptions}
-                onChange={(replyOptions) => update("replyOptions", replyOptions)}
-              />
-
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <Label htmlFor="w-type">Word type</Label>
@@ -362,9 +353,6 @@ export function WordFormDialog({
                     !values.pronunciationBangla.trim() ||
                     !values.whenToUseEnglish.trim() ||
                     !values.whenToUseBangla.trim() ||
-                    values.replyOptions.some((reply) =>
-                      Object.values(reply).some((field) => !field.trim()),
-                    ) ||
                     !values.category.trim()
                   }
                   onClick={() => void handleSave()}

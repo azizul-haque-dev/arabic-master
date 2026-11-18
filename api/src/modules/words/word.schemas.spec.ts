@@ -14,37 +14,13 @@ const word = {
   category: 'Greetings & Introductions',
 };
 
-const reply = {
-  arabicText: 'الله يسلمك',
-  pronunciationBn: 'আল্লাহ ইয়াসাল্লিমাক',
-  pronunciationEn: 'allah yisallimak',
-  meaningBn: 'আল্লাহ আপনাকে নিরাপদে রাখুন',
-  meaningEn: 'May God keep you safe',
-};
-
-describe('createWordSchema reply options', () => {
-  it('defaults legacy/manual word creation to no replies', () => {
-    expect(createWordSchema.parse(word).replyOptions).toEqual([]);
-  });
-
-  it('does not clear replies when a partial update omits them', () => {
-    expect(updateWordSchema.parse({ meaningEn: 'Thanks' })).not.toHaveProperty(
-      'replyOptions',
-    );
-  });
-
-  it('accepts up to three complete replies and rejects more', () => {
+describe('word schemas', () => {
+  it('does not accept a separate reply-options field', () => {
     expect(
-      createWordSchema.parse({
-        ...word,
-        replyOptions: [reply, reply, reply],
-      }).replyOptions,
-    ).toHaveLength(3);
-    expect(
-      createWordSchema.safeParse({
-        ...word,
-        replyOptions: [reply, reply, reply, reply],
-      }).success,
+      createWordSchema.safeParse({ ...word, replyOptions: [] }).success,
     ).toBe(false);
+    expect(updateWordSchema.safeParse({ replyOptions: [] }).success).toBe(
+      false,
+    );
   });
 });

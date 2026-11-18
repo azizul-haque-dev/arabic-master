@@ -5,7 +5,6 @@ import {
   contentStatusEnum,
   wordTypeEnum,
 } from '../../database/drizzle/enums.js';
-import { replyOptionSchema } from '../ai/schemas/reply-option.schema.js';
 
 const text = z.string().min(1);
 const category = z.enum(ALLOWED_CATEGORIES);
@@ -17,7 +16,6 @@ export const createWordSchema = z.strictObject({
   meaningBn: text,
   whenToUseEn: text,
   whenToUseBn: text,
-  replyOptions: z.array(replyOptionSchema).max(3).default([]),
   pronunciationEn: text,
   pronunciationBn: text,
   feminineEn: text,
@@ -27,9 +25,7 @@ export const createWordSchema = z.strictObject({
   noteEn: z.string().optional(),
   noteBn: z.string().optional(),
 });
-export const updateWordSchema = createWordSchema
-  .partial()
-  .extend({ replyOptions: z.array(replyOptionSchema).max(3).optional() });
+export const updateWordSchema = createWordSchema.partial();
 
 export const listWordQuerySchema = z.strictObject({
   ...paginationShape,

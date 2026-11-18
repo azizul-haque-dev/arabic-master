@@ -23,7 +23,6 @@ import { buildWordUpdatePayload } from "@/lib/words/api";
 import { useRouter } from "next/navigation";
 import { EntityAudioPanel } from "@/components/features/audio/entity-audio-panel";
 import { checkAudioPermission } from "@/lib/audio/permissions";
-import { ReplyOptionsView } from "@/components/shared/reply-options";
 
 export function WordDetailView({ initialWord }: { initialWord: Word }) {
   const router = useRouter();
@@ -316,8 +315,6 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
               {word.whenToUseBangla || "—"}
             </p>
           </section>
-
-          <ReplyOptionsView options={word.replyOptions} />
 
                     <section className="rounded-lg border border-border bg-white p-5">
             <div className="flex flex-wrap items-center justify-between gap-2 pb-1">

@@ -1,7 +1,6 @@
 import {
   index,
   integer,
-  jsonb,
   pgTable,
   primaryKey,
   text,
@@ -16,7 +15,6 @@ import {
   tenseEnum,
   wordTypeEnum,
 } from '../enums.js';
-import type { ReplyOption } from '../../../modules/ai/schemas/reply-option.schema.js';
 
 export const arabicEntity = pgTable(
   'ArabicEntity',
@@ -76,7 +74,6 @@ export const word = pgTable(
     pronunciationEn: text('pronunciationEn').notNull(),
     whenToUseEn: text('whenToUseEn').notNull(),
     whenToUseBn: text('whenToUseBn').notNull(),
-    replyOptions: jsonb('replyOptions').$type<ReplyOption[]>().default([]).notNull(),
     feminineBn: text('feminineBn').notNull(),
     feminineEn: text('feminineEn').notNull(),
     wordType: wordTypeEnum('wordType').default('UNKNOWN').notNull(),
@@ -146,7 +143,6 @@ export const sentence = pgTable(
     pronunciationEn: text('pronunciationEn').notNull(),
     whenToUseEn: text('whenToUseEn').notNull(),
     whenToUseBn: text('whenToUseBn').notNull(),
-    replyOptions: jsonb('replyOptions').$type<ReplyOption[]>().default([]).notNull(),
     feminineBn: text('feminineBn').notNull(),
     feminineEn: text('feminineEn').notNull(),
     sentenceType: sentenceTypeEnum('sentenceType').default('LONG').notNull(),

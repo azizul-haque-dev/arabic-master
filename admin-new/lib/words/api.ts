@@ -1,6 +1,6 @@
 const isUuid = (str: unknown) => typeof str === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
 
-import type { ContentStatus, ReplyOption, Word, WordFormValues, WordType } from "@/lib/types/content";
+import type { ContentStatus, Word, WordFormValues, WordType } from "@/lib/types/content";
 
 export interface WordListResponse {
   items: Word[];
@@ -20,7 +20,6 @@ export interface WordCreatePayload {
   pronunciationBn: string;
   whenToUseEn: string;
   whenToUseBn: string;
-  replyOptions: ReplyOption[];
   wordType: WordType;
   category: string;
   feminineEn: string;
@@ -43,32 +42,6 @@ function requiredString(record: Record<string, unknown>, key: string): string {
 
 function optionalString(...values: unknown[]): string | undefined {
   return values.find((value): value is string => typeof value === "string");
-}
-
-function normalizeReplyOptions(value: unknown): ReplyOption[] {
-  if (value === undefined || value === null) return [];
-  if (!Array.isArray(value)) {
-    throw new Error("The service returned invalid reply options.");
-  }
-  if (value.length > 3) {
-    throw new Error("The service returned too many reply options.");
-  }
-  return value.map((option) => {
-    if (!isRecord(option)) {
-      throw new Error("The service returned invalid reply options.");
-    }
-    const reply = {
-      arabicText: requiredString(option, "arabicText"),
-      pronunciationBn: requiredString(option, "pronunciationBn"),
-      pronunciationEn: requiredString(option, "pronunciationEn"),
-      meaningBn: requiredString(option, "meaningBn"),
-      meaningEn: requiredString(option, "meaningEn"),
-    };
-    if (Object.values(reply).some((field) => !field.trim())) {
-      throw new Error("The service returned invalid reply options.");
-    }
-    return reply;
-  });
 }
 
 function normalizeWordType(value: unknown): WordType {
@@ -116,7 +89,6 @@ export function normalizeWord(raw: unknown, arabicTextOverride?: string): Word {
     pronunciationEnglish: optionalString(raw.pronunciationEn, raw.pronunciationEnglish) ?? requiredString(raw, "pronunciationEn"),
     whenToUseBangla: optionalString(raw.whenToUseBn, raw.whenToUseBangla) ?? requiredString(raw, "whenToUseBn"),
     whenToUseEnglish: optionalString(raw.whenToUseEn, raw.whenToUseEnglish) ?? requiredString(raw, "whenToUseEn"),
-    replyOptions: normalizeReplyOptions(raw.replyOptions),
     wordType: normalizeWordType(raw.wordType),
     category: requiredString(raw, "category"),
     status: normalizeStatus(raw.status),
@@ -164,7 +136,6 @@ export function buildWordPayload(
     pronunciationBn: values.pronunciationBangla,
     whenToUseEn: values.whenToUseEnglish,
     whenToUseBn: values.whenToUseBangla,
-    replyOptions: values.replyOptions,
     wordType: values.wordType,
     category: values.category,
     feminineEn: values.meaningEnglish,
@@ -180,7 +151,6 @@ export function buildWordUpdatePayload(values: WordFormValues): WordUpdatePayloa
     pronunciationBn: values.pronunciationBangla,
     whenToUseEn: values.whenToUseEnglish,
     whenToUseBn: values.whenToUseBangla,
-    replyOptions: values.replyOptions,
     wordType: values.wordType,
     category: values.category,
     feminineEn: values.meaningEnglish,

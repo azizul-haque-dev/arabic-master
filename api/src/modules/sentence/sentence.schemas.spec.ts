@@ -17,37 +17,16 @@ const sentence = {
   category: 'Greetings & Introductions',
 };
 
-const reply = {
-  arabicText: 'العفو',
-  pronunciationBn: 'আল-আফও',
-  pronunciationEn: 'al-afw',
-  meaningBn: 'আপনাকে স্বাগতম',
-  meaningEn: "You're welcome",
-};
-
-describe('createSentenceSchema reply options', () => {
-  it('defaults legacy/manual sentence creation to no replies', () => {
-    expect(createSentenceSchema.parse(sentence).replyOptions).toEqual([]);
-  });
-
-  it('does not clear replies when a partial update omits them', () => {
-    expect(
-      updateSentenceSchema.parse({ meaningEn: 'Thanks' }),
-    ).not.toHaveProperty('replyOptions');
-  });
-
-  it('accepts up to three complete replies and rejects more', () => {
-    expect(
-      createSentenceSchema.parse({
-        ...sentence,
-        replyOptions: [reply, reply, reply],
-      }).replyOptions,
-    ).toHaveLength(3);
+describe('sentence schemas', () => {
+  it('does not accept a separate reply-options field', () => {
     expect(
       createSentenceSchema.safeParse({
         ...sentence,
-        replyOptions: [reply, reply, reply, reply],
+        replyOptions: [],
       }).success,
     ).toBe(false);
+    expect(updateSentenceSchema.safeParse({ replyOptions: [] }).success).toBe(
+      false,
+    );
   });
 });

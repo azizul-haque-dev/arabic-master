@@ -194,7 +194,6 @@ export const WordService = {
           meaningBn: empty,
           whenToUseEn: empty,
           whenToUseBn: empty,
-          replyOptions: [],
           pronunciationEn: empty,
           pronunciationBn: empty,
           feminineEn: empty,

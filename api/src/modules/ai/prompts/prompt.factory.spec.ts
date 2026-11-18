@@ -60,15 +60,18 @@ describe('AI dialect prompts', () => {
         'Give a simple, natural explanation of when and why the expression is used.',
       );
       expect(prompt).toContain(
-        'If it is commonly used as a reply to a particular word, phrase, or question, explain what it responds to',
+        'If the expression is commonly used as a reply, explicitly say so in both whenToUse fields',
       );
       expect(prompt).toContain(
-        'do not invent a trigger',
+        'do not invent uncertain triggers',
       );
       expect(prompt).toContain(
         'include that exact Arabic trigger and its pronunciation in the usage explanation',
       );
       expect(prompt).toContain('"شكرًا (shukran)" / "شكرًا (শুকরান)"');
+      expect(prompt).toContain(
+        'Include multiple common triggers when supported by the expression and meaning',
+      );
       expect(prompt).toContain(
         'Do not mention dialects, dialect names, regions, or compare varieties.',
       );

@@ -1729,34 +1729,6 @@ function WordSentenceExperience({
                   ) : null}
                 </View>
               ) : null}
-              {item.replyOptions?.length ? (
-                <View className="mt-4 gap-2 rounded-2xl border border-primary/15 bg-white/80 p-4">
-                  <Text className="font-label-sm text-xs font-bold uppercase tracking-wider text-primary-strong">
-                    {isEn ? "Common replies" : "প্রচলিত জবাব"}
-                  </Text>
-                  {item.replyOptions.map((reply, index) => (
-                    <View
-                      key={`${reply.arabicText}-${index}`}
-                      className="rounded-xl bg-surface-container-low/70 p-3"
-                    >
-                      <Text
-                        className="text-right font-arabic-display text-xl font-bold text-on-surface"
-                        style={{ writingDirection: "rtl" }}
-                      >
-                        {reply.arabicText}
-                      </Text>
-                      <Text className="mt-1 font-label-sm text-xs text-primary-strong">
-                        {isEn
-                          ? reply.pronunciationEn
-                          : reply.pronunciationBn}
-                      </Text>
-                      <Text className="mt-1 font-body-sm text-sm text-on-surface">
-                        {isEn ? reply.meaningEn : reply.meaningBn}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              ) : null}
             </LinearGradient>
           </View>
 

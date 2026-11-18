@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { ALLOWED_CATEGORIES } from '../../../common/constants/category.constant.js';
-import { replyOptionSchema } from './reply-option.schema.js';
 
 export const AIResponseSchema = z.object({
   text: z.string().describe('The exact Arabic word or expression'),
@@ -29,18 +28,12 @@ export const AIResponseSchema = z.object({
   whenToUseBn: z
     .string()
     .describe(
-      'Detailed context in Bangla describing simply and naturally when and why the expression is used. If it replies to a specific Arabic word, phrase, or question, include that exact Arabic trigger and its Bangla-script pronunciation; do not guess. Do not mention or compare dialects, regions, countries, or nationalities. Refer to people as আরবরা.',
+      'Detailed context in Bangla describing simply and naturally when and why the expression is used. If the expression is commonly used as a reply, say so and name its common Arabic trigger word, phrase, or question with Bangla-script pronunciation; do not invent uncertain triggers. Do not mention or compare dialects, regions, countries, or nationalities. Refer to people as আরবরা.',
     ),
   whenToUseEn: z
     .string()
     .describe(
-      'Detailed context in English describing simply and naturally when and why the expression is used. If it replies to a specific Arabic word, phrase, or question, include that exact Arabic trigger and its Latin-letter pronunciation; do not guess. Do not mention or compare dialects, regions, countries, or nationalities. Refer to people as Arabs.',
-    ),
-  replyOptions: z
-    .array(replyOptionSchema)
-    .max(3)
-    .describe(
-      'Up to three natural spoken Arabic replies to this expression when relevant; use an empty array when no natural conversational reply applies',
+      'Detailed context in English describing simply and naturally when and why the expression is used. If the expression is commonly used as a reply, say so and name its common Arabic trigger word, phrase, or question with Latin-letter pronunciation; do not invent uncertain triggers. Do not mention or compare dialects, regions, countries, or nationalities. Refer to people as Arabs.',
     ),
   category: z
     .enum(ALLOWED_CATEGORIES)
@@ -54,12 +47,12 @@ export const AIUsageContextSchema = z.object({
   whenToUseBn: z
     .string()
     .describe(
-      'Concise Bangla usage context explaining simply and naturally when and why the expression is used. If it replies to a specific Arabic word, phrase, or question, include that exact Arabic trigger and its Bangla-script pronunciation; do not guess. Do not mention or compare dialects, regions, countries, or nationalities. Use আরবরা.',
+      'Concise Bangla usage context explaining simply and naturally when and why the expression is used. If the expression is commonly used as a reply, say so and name its common Arabic trigger word, phrase, or question with Bangla-script pronunciation; do not invent uncertain triggers. Do not mention or compare dialects, regions, countries, or nationalities. Use আরবরা.',
     ),
   whenToUseEn: z
     .string()
     .describe(
-      'Concise English usage context explaining simply and naturally when and why the expression is used. If it replies to a specific Arabic word, phrase, or question, include that exact Arabic trigger and its Latin-letter pronunciation; do not guess. Do not mention or compare dialects, regions, countries, or nationalities. Use Arabs.',
+      'Concise English usage context explaining simply and naturally when and why the expression is used. If the expression is commonly used as a reply, say so and name its common Arabic trigger word, phrase, or question with Latin-letter pronunciation; do not invent uncertain triggers. Do not mention or compare dialects, regions, countries, or nationalities. Use Arabs.',
     ),
 });
 export type AiUsageContext = z.infer<typeof AIUsageContextSchema>;

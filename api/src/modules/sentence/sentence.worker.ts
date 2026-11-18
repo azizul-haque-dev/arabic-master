@@ -182,7 +182,6 @@ export const SentenceProcessor = {
       meaningBn: result.meaningBn,
       whenToUseEn: result.whenToUseEn,
       whenToUseBn: result.whenToUseBn,
-      replyOptions: result.replyOptions,
       pronunciationEn: result.pronunciationEn,
       pronunciationBn: result.pronunciationBn,
       feminineEn: result.feminineEn,

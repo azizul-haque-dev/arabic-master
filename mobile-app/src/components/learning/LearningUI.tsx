@@ -9,7 +9,6 @@ import type { ReactNode } from "react";
 import { Pressable, Text, View } from "react-native";
 
 import { ProgressBar } from "@/components/learning/primitives";
-import type { ReplyOptionFixture } from "@/features/learning/data";
 
 export type LearningAccess = "free" | "mixed" | "premium";
 export type LearningVisualStatus = "completed" | "in-progress" | "locked";
@@ -226,7 +225,6 @@ export function LearningContentCard({
   category,
   speaker,
   audioAvailable,
-  replyOptions = [],
 }: {
   arabic: string;
   transliteration: string;
@@ -235,7 +233,6 @@ export function LearningContentCard({
   category?: string;
   speaker?: string;
   audioAvailable?: boolean;
-  replyOptions?: ReplyOptionFixture[];
 }) {
   const accessibilityLabel = [
     speaker,
@@ -287,35 +284,6 @@ export function LearningContentCard({
         <Text className="mt-1 font-body-sm text-xs leading-4 text-on-surface-variant">
           {meaningEn}
         </Text>
-      ) : null}
-      {replyOptions.length ? (
-        <View className="mt-3 gap-2 border-t border-outline-variant/50 pt-3">
-          <Text className="font-label-sm text-xs font-bold text-primary-strong">
-            Common replies
-          </Text>
-          {replyOptions.map((reply, index) => (
-            <View
-              key={`${reply.arabicText}-${index}`}
-              className="rounded-xl bg-surface-container-low/70 p-3"
-            >
-              <Text
-                className="text-right font-arabic-display text-lg font-bold text-on-surface"
-                style={{ writingDirection: "rtl" }}
-              >
-                {reply.arabicText}
-              </Text>
-              <Text className="mt-1 font-label-sm text-xs text-primary-strong">
-                {reply.pronunciationBn} · {reply.pronunciationEn}
-              </Text>
-              <Text className="mt-1 font-body-sm text-xs text-on-surface">
-                {reply.meaningBn}
-              </Text>
-              <Text className="mt-0.5 font-body-sm text-[11px] text-on-surface-variant">
-                {reply.meaningEn}
-              </Text>
-            </View>
-          ))}
-        </View>
       ) : null}
       {audioAvailable ? (
         <View className="mt-3 flex-row items-center gap-1.5">

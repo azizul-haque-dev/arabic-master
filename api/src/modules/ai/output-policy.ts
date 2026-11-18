@@ -33,21 +33,6 @@ export function assertAiOutputLabelsAllowed(response: AiResponse): void {
       );
     }
   }
-  for (const [index, reply] of response.replyOptions.entries()) {
-    for (const field of [
-      'arabicText',
-      'pronunciationBn',
-      'pronunciationEn',
-      'meaningBn',
-      'meaningEn',
-    ] as const) {
-      if (FORBIDDEN_LABEL_PATTERN.test(reply[field])) {
-        throw new Error(
-          `AI output field "replyOptions[${index}].${field}" contains a prohibited country or nationality label.`,
-        );
-      }
-    }
-  }
   assertUsageContextDialectReferencesOmitted(response);
 }
 

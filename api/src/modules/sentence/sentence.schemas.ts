@@ -6,7 +6,6 @@ import {
   difficultyLevelEnum,
   sentenceTypeEnum,
 } from '../../database/drizzle/enums.js';
-import { replyOptionSchema } from '../ai/schemas/reply-option.schema.js';
 
 const text = z.string().min(1);
 const category = z.enum(ALLOWED_CATEGORIES);
@@ -24,7 +23,6 @@ export const createSentenceSchema = z.strictObject({
   meaningBn: text,
   whenToUseEn: text,
   whenToUseBn: text,
-  replyOptions: z.array(replyOptionSchema).max(3).default([]),
   pronunciationEn: text,
   pronunciationBn: text,
   feminineEn: text,
@@ -41,9 +39,7 @@ export const createSentenceSchema = z.strictObject({
 });
 export const updateSentenceSchema = createSentenceSchema.extend({
   relatedWordId: z.string().nullable().optional(),
-}).partial().extend({
-  replyOptions: z.array(replyOptionSchema).max(3).optional(),
-});
+}).partial();
 
 export const listSentenceQuerySchema = z.strictObject({
   ...paginationShape,

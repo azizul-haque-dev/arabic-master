@@ -1,23 +1,12 @@
 import type { Job } from 'bullmq';
 import { describe, expect, it, vi } from 'vitest';
 import type { AiService } from '../ai/ai.service.js';
-import type { ReplyOption } from '../ai/schemas/reply-option.schema.js';
 import type { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
 import type { WordRepository } from './word.repository.js';
 import { WordProcessor, type WordJobData } from './word.worker.js';
 
-const replyOptions: ReplyOption[] = [
-  {
-    arabicText: 'الله يسلمك',
-    pronunciationBn: 'আল্লাহ ইয়াসাল্লিমাক',
-    pronunciationEn: 'allah yisallimak',
-    meaningBn: 'আল্লাহ আপনাকে নিরাপদে রাখুন',
-    meaningEn: 'May God keep you safe',
-  },
-];
-
 describe('WordProcessor', () => {
-  it('persists generated reply options', async () => {
+  it('persists reply usage in the bilingual when-to-use text', async () => {
     const words = {
       findById: vi.fn().mockResolvedValue({ entityId: 'entity-1' }),
       update: vi.fn().mockResolvedValue(undefined),
@@ -33,9 +22,8 @@ describe('WordProcessor', () => {
         pronunciationBn: 'তিসলাম',
         feminineEn: 'Same for both genders',
         feminineBn: 'ছেলে এবং মেয়ে উভয়ের জন্য একই রূপ',
-        whenToUseEn: 'To thank someone.',
-        whenToUseBn: 'কাউকে ধন্যবাদ জানাতে।',
-        replyOptions,
+        whenToUseEn: 'Say this in reply to تسلم (tislam).',
+        whenToUseBn: 'تسلم (তিসলাম) বললে জবাবে এটি বলা হয়।',
         category: 'Greetings & Introductions',
       }),
     } as unknown as AiService;
@@ -48,7 +36,10 @@ describe('WordProcessor', () => {
 
     expect(words.update).toHaveBeenCalledWith(
       'word-1',
-      expect.objectContaining({ replyOptions }),
+      expect.objectContaining({
+        whenToUseEn: 'Say this in reply to تسلم (tislam).',
+        whenToUseBn: 'تسلم (তিসলাম) বললে জবাবে এটি বলা হয়।',
+      }),
     );
   });
 

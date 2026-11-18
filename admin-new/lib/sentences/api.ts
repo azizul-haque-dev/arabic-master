@@ -2,16 +2,6 @@ const isUuid = (str: unknown) => typeof str === "string" && /^[0-9a-f]{8}-[0-9a-
 
 import { z } from "zod";
 import type { DifficultyLevel, Sentence, SentenceFormValues, SentenceType } from "@/lib/types/content";
-import type { ReplyOption } from "@/lib/types/content";
-
-const replyOptionSchema = z.object({
-  arabicText: z.string().trim().min(1),
-  pronunciationBn: z.string().trim().min(1),
-  pronunciationEn: z.string().trim().min(1),
-  meaningBn: z.string().trim().min(1),
-  meaningEn: z.string().trim().min(1),
-});
-
 const sentenceLinkedWordSchema = z.object({
   id: z.string(),
   wordId: z.string(),
@@ -32,7 +22,6 @@ const sentenceRecordSchema = z.object({
   pronunciationEn: z.string(),
   whenToUseEn: z.string(),
   whenToUseBn: z.string(),
-  replyOptions: z.array(replyOptionSchema).max(3).optional().default([]),
   feminineEn: z.string(),
   feminineBn: z.string(),
   sentenceType: z.enum(["SHORT", "LONG"]).optional().default("LONG"),
@@ -65,7 +54,6 @@ export interface SentenceCreatePayload {
   meaningBn: string;
   whenToUseEn: string;
   whenToUseBn: string;
-  replyOptions: ReplyOption[];
   pronunciationEn: string;
   pronunciationBn: string;
   feminineEn: string;
@@ -99,7 +87,6 @@ export function normalizeSentence(value: unknown): Sentence {
     pronunciationEnglish: record.pronunciationEn,
     context: record.whenToUseEn,
     contextBangla: record.whenToUseBn,
-    replyOptions: record.replyOptions,
     feminineEnglish: record.feminineEn,
     feminineBangla: record.feminineBn,
     sentenceType: record.sentenceType,
@@ -156,7 +143,6 @@ export function buildSentenceCreatePayload(values: SentenceFormValues): Sentence
     meaningBn: values.meaningBangla,
     whenToUseEn: values.context,
     whenToUseBn: values.contextBangla,
-    replyOptions: values.replyOptions,
     pronunciationEn: values.pronunciationEnglish,
     pronunciationBn: values.pronunciationBangla,
     feminineEn: values.feminineEnglish,
@@ -174,7 +160,6 @@ export function buildSentenceUpdatePayload(values: SentenceFormValues): Sentence
     meaningBn: values.meaningBangla,
     whenToUseEn: values.context,
     whenToUseBn: values.contextBangla,
-    replyOptions: values.replyOptions,
     pronunciationEn: values.pronunciationEnglish,
     pronunciationBn: values.pronunciationBangla,
     feminineEn: values.feminineEnglish,

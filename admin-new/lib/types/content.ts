@@ -65,14 +65,6 @@ export interface EntityFormValues {
  */
 export type WordType = "NOUN" | "VERB" | "ADJECTIVE" | "OTHER";
 
-export interface ReplyOption {
-  arabicText: string;
-  pronunciationBn: string;
-  pronunciationEn: string;
-  meaningBn: string;
-  meaningEn: string;
-}
-
 export interface Word {
   id: string;
   wordKey: string; // e.g. "W-2048"
@@ -84,7 +76,6 @@ export interface Word {
   pronunciationEnglish: string;
   whenToUseBangla: string;
   whenToUseEnglish: string;
-  replyOptions: ReplyOption[];
   wordType: WordType;
   category: string;
   lessonName?: string; // denormalized; lesson assignment UI is Phase 2 scope
@@ -102,7 +93,6 @@ export interface WordFormValues {
   pronunciationEnglish: string;
   whenToUseBangla: string;
   whenToUseEnglish: string;
-  replyOptions: ReplyOption[];
   wordType: WordType;
   category: string;
 }
@@ -144,7 +134,6 @@ export interface Sentence {
   pronunciationEnglish: string;
   context: string; // when/how this sentence is typically used
   contextBangla?: string;
-  replyOptions: ReplyOption[];
   feminineEnglish?: string;
   feminineBangla?: string;
   sentenceType: SentenceType;
@@ -168,7 +157,6 @@ export interface SentenceFormValues {
   pronunciationEnglish: string;
   context: string;
   contextBangla: string;
-  replyOptions: ReplyOption[];
   feminineEnglish: string;
   feminineBangla: string;
   sentenceType: SentenceType;

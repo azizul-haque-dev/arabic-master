@@ -25,7 +25,6 @@ import { DIFFICULTY_LABEL, SENTENCE_TYPE_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
 import { EntityAudioPanel } from "@/components/features/audio/entity-audio-panel";
 import { checkAudioPermission } from "@/lib/audio/permissions";
-import { ReplyOptionsView } from "@/components/shared/reply-options";
 
 export function SentenceDetailView({
     initialSentence,
@@ -345,8 +344,6 @@ export function SentenceDetailView({
                             <p className="font-bengali text-sm text-text">{sentence.feminineBangla || "—"}</p>
                         </div>
                     </section>
-
-                    <ReplyOptionsView options={sentence.replyOptions} />
 
                                         <section className="rounded-lg border border-border bg-white p-5">
                         <div className="flex flex-wrap items-center justify-between gap-2 pb-1">

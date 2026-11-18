@@ -17,7 +17,6 @@ const validResponse: AiResponse = {
   whenToUseBn: 'আরবরা দৈনন্দিন জীবনে শুভেচ্ছা জানাতে এটি ব্যবহার করেন।',
   whenToUseEn: 'Arabs use this as a friendly everyday greeting.',
   category: DEFAULT_CATEGORY,
-  replyOptions: [],
   noteEn: 'A warm and friendly expression.',
   noteBn: 'একটি আন্তরিক ও বন্ধুত্বপূর্ণ অভিব্যক্তি।',
 };
@@ -50,23 +49,6 @@ describe('assertAiOutputLabelsAllowed', () => {
         meaningBn: 'সৌদি শব্দের অর্থ',
       }),
     ).toThrow(/meaningBn/);
-  });
-
-  it('checks learner-facing fields on generated reply options', () => {
-    expect(() =>
-      assertAiOutputLabelsAllowed({
-        ...validResponse,
-        replyOptions: [
-          {
-            arabicText: 'أهلاً',
-            pronunciationBn: 'আহলান',
-            pronunciationEn: 'ahlan',
-            meaningBn: 'সৌদি অভিবাদন',
-            meaningEn: 'A warm welcome',
-          },
-        ],
-      }),
-    ).toThrow(/replyOptions\[0\]\.meaningBn/);
   });
 
   it('rejects dialect and regional references in usage context', () => {

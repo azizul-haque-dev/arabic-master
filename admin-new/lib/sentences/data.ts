@@ -22,9 +22,12 @@ export async function requestSentenceList(query: ContentListQuery): Promise<Sent
   try {
     const endpoint = query.sentenceType === "SHORT" ? "/sentences/short" : "/sentences";
     const result = await readBackend(`${endpoint}?${buildQuery(query)}`);
-    if (!result.ok) throw new Error("Unable to load sentences.");
+    if (!result.ok) {
+      throw new Error(`GET ${endpoint} failed with HTTP ${result.status}.`);
+    }
     return normalizeSentenceList(result.data);
-  } catch {
+  } catch (error) {
+    console.error("[requestSentenceList] Failed to load sentences:", error);
     throw new Error("Unable to load sentences. Please try again.");
   }
 }
@@ -34,10 +37,11 @@ export async function requestSentenceById(id: string): Promise<Sentence | null> 
     const result = await readBackend(`/sentences/${encodeURIComponent(id)}`);
     if (!result.ok) {
       if (result.status === 404) return null;
-      throw new Error("Unable to load sentence.");
+      throw new Error(`GET /sentences/:id failed with HTTP ${result.status}.`);
     }
     return normalizeSentence(result.data);
-  } catch {
+  } catch (error) {
+    console.error("[requestSentenceById] Failed to load sentence:", error);
     throw new Error("Unable to load sentence. Please try again.");
   }
 }

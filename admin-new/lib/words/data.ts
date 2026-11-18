@@ -19,9 +19,12 @@ function buildQuery(query: ContentListQuery): string {
 export async function requestWordList(query: ContentListQuery): Promise<WordListResponse> {
   try {
     const result = await readBackend(`/words?${buildQuery(query)}`);
-    if (!result.ok) throw new Error("Unable to load words.");
+    if (!result.ok) {
+      throw new Error(`GET /words failed with HTTP ${result.status}.`);
+    }
     return normalizeWordList(result.data);
-  } catch {
+  } catch (error) {
+    console.error("[requestWordList] Failed to load words:", error);
     throw new Error("Unable to load words. Please try again.");
   }
 }
@@ -31,10 +34,11 @@ export async function requestWordById(id: string): Promise<Word | null> {
     const result = await readBackend(`/words/${encodeURIComponent(id)}`);
     if (!result.ok) {
       if (result.status === 404) return null;
-      throw new Error("Unable to load word.");
+      throw new Error(`GET /words/:id failed with HTTP ${result.status}.`);
     }
     return normalizeWord(result.data);
-  } catch {
+  } catch (error) {
+    console.error("[requestWordById] Failed to load word:", error);
     throw new Error("Unable to load word. Please try again.");
   }
 }

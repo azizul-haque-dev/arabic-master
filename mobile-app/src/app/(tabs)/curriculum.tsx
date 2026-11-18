@@ -292,7 +292,6 @@ function CurriculumDayPreview({
             meaningBn={sampleItem.meaningBn}
             meaningEn={sampleItem.meaningEn}
             category="Local sample"
-            replyOptions={sampleItem.replyOptions}
           />
           <Text className="font-body-sm text-xs leading-4 text-on-surface-variant">
             Content is for layout preview only. Exercises, assessment, and
