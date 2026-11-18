@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight, Pencil, XCircle, Sparkles, MessagesSquare, GraduationCap, Loader2 } from "lucide-react";
@@ -25,6 +25,7 @@ import { DIFFICULTY_LABEL, SENTENCE_TYPE_LABEL } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
 import { EntityAudioPanel } from "@/components/features/audio/entity-audio-panel";
 import { checkAudioPermission } from "@/lib/audio/permissions";
+import { containsRegionalUsageKeyword } from "@/lib/content/regional-usage-keywords";
 
 export function SentenceDetailView({
     initialSentence,
@@ -78,6 +79,7 @@ export function SentenceDetailView({
     const [isRegeneratingContext, setIsRegeneratingContext] = useState(false);
     const [contextMessage, setContextMessage] = useState<string | null>(null);
     const [contextError, setContextError] = useState<string | null>(null);
+    const autoRegenerateContextStarted = useRef(false);
 
     async function handleSave(values: SentenceFormValues): Promise<Sentence> {
         const result = await updateSentenceAction(sentence.id, buildSentenceUpdatePayload(values));
@@ -146,7 +148,7 @@ export function SentenceDetailView({
         }
     }
 
-    async function handleRegenerateContext() {
+    const handleRegenerateContext = useCallback(async () => {
         if (isRegeneratingContext || isGenerating) return;
         setIsRegeneratingContext(true);
         setContextMessage("Context regeneration queued. Waiting for the updated content…");
@@ -203,7 +205,26 @@ export function SentenceDetailView({
         } finally {
             setIsRegeneratingContext(false);
         }
-    }
+    }, [isGenerating, isRegeneratingContext, router, sentence.id]);
+
+    useEffect(() => {
+        if (
+            autoRegenerateContextStarted.current ||
+            !containsRegionalUsageKeyword(
+                initialSentence.context,
+                initialSentence.contextBangla,
+            )
+        ) {
+            return;
+        }
+
+        autoRegenerateContextStarted.current = true;
+        void handleRegenerateContext();
+    }, [
+        handleRegenerateContext,
+        initialSentence.context,
+        initialSentence.contextBangla,
+    ]);
 
     const listHref = sentence.sentenceType === "SHORT" ? "/admin/short-sentences" : "/admin/sentences";
     const listLabel = sentence.sentenceType === "SHORT" ? "Short Sentences" : "Sentences";

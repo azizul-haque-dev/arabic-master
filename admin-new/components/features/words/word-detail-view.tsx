@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronRight, Pencil, XCircle, Sparkles, Loader2 } from "lucide-react";
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
@@ -23,6 +23,7 @@ import { buildWordUpdatePayload } from "@/lib/words/api";
 import { useRouter } from "next/navigation";
 import { EntityAudioPanel } from "@/components/features/audio/entity-audio-panel";
 import { checkAudioPermission } from "@/lib/audio/permissions";
+import { containsRegionalUsageKeyword } from "@/lib/content/regional-usage-keywords";
 
 export function WordDetailView({ initialWord }: { initialWord: Word }) {
   const router = useRouter();
@@ -70,6 +71,7 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
   const [isRegeneratingUsage, setIsRegeneratingUsage] = useState(false);
   const [usageMessage, setUsageMessage] = useState<string | null>(null);
   const [usageError, setUsageError] = useState<string | null>(null);
+  const autoRegenerateUsageStarted = useRef(false);
 
   async function handleSave(entity: ArabicEntity, values: WordFormValues) {
     const result = await updateWordAction(word.id, buildWordUpdatePayload(values));
@@ -135,7 +137,7 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
     }
   }
 
-  async function handleRegenerateUsage() {
+  const handleRegenerateUsage = useCallback(async () => {
     if (isRegeneratingUsage || isGenerating) return;
     setIsRegeneratingUsage(true);
     setUsageMessage("Usage regeneration queued. Waiting for the updated content…");
@@ -189,7 +191,26 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
     } finally {
       setIsRegeneratingUsage(false);
     }
-  }
+  }, [isGenerating, isRegeneratingUsage, router, word.id]);
+
+  useEffect(() => {
+    if (
+      autoRegenerateUsageStarted.current ||
+      !containsRegionalUsageKeyword(
+        initialWord.whenToUseEnglish,
+        initialWord.whenToUseBangla,
+      )
+    ) {
+      return;
+    }
+
+    autoRegenerateUsageStarted.current = true;
+    void handleRegenerateUsage();
+  }, [
+    handleRegenerateUsage,
+    initialWord.whenToUseBangla,
+    initialWord.whenToUseEnglish,
+  ]);
 
   return (
     <div className="flex flex-col gap-6">
