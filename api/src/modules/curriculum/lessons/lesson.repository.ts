@@ -24,6 +24,12 @@ import type { ListLessonQuery } from './lesson.schemas.js';
 
 type ItemCounts = { words: number; sentences: number; conversations: number };
 
+const hasEntityAudio = sql<boolean>`(
+  EXISTS (SELECT 1 FROM ${schema.arabicEntityAudio}
+    WHERE ${schema.arabicEntityAudio.entityId} = ${schema.arabicEntity.id})
+  OR (${schema.arabicEntity.audioUrl} IS NOT NULL AND ${schema.arabicEntity.audioUrl} <> '')
+)`;
+
 const itemColumn = (type: LessonContentType) =>
   type === LessonContentType.WORD
     ? schema.lessonContentItem.wordId
@@ -266,6 +272,7 @@ export const LessonRepository = {
         meaningBn: schema.word.meaningBn,
         status: schema.word.status,
         arabicText: schema.arabicEntity.arabicText,
+        hasAudio: hasEntityAudio,
       })
       .from(schema.word)
       .leftJoin(
@@ -285,6 +292,7 @@ export const LessonRepository = {
         meaningBn: schema.sentence.meaningBn,
         status: schema.sentence.status,
         arabicText: schema.arabicEntity.arabicText,
+        hasAudio: hasEntityAudio,
       })
       .from(schema.sentence)
       .leftJoin(

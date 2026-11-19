@@ -266,7 +266,7 @@ export function LessonDetailView({
               <WordSelector onSelect={(w) => onPick(w.id)} />
             )}
             renderPreview={(contentId, item) => {
-              const preview = item?.preview as any;
+              const preview = item.preview;
               return (
                 <Link
                   href={`/admin/words/${contentId}`}
@@ -288,6 +288,7 @@ export function LessonDetailView({
             onAdd={(id) => handleAddItem("WORD", id)}
             onRemove={handleRemoveItem}
             onReorder={(reordered) => handleReorderType("WORD", reordered)}
+            reviewFilters
             extraAction={
               <button
                 type="button"
@@ -312,7 +313,7 @@ export function LessonDetailView({
               <SentenceSelector onSelect={(s) => onPick(s.id)} />
             )}
             renderPreview={(contentId, item) => {
-              const preview = item?.preview as any;
+              const preview = item.preview;
               return (
                 <Link
                   href={`/admin/sentences/${contentId}`}
@@ -334,6 +335,7 @@ export function LessonDetailView({
             onAdd={(id) => handleAddItem("SENTENCE", id)}
             onRemove={handleRemoveItem}
             onReorder={(reordered) => handleReorderType("SENTENCE", reordered)}
+            reviewFilters
             extraAction={
               <button
                 type="button"
@@ -358,7 +360,7 @@ export function LessonDetailView({
               <ConversationSelector onSelect={(c) => onPick(c.id)} />
             )}
             renderPreview={(contentId, item) => {
-              const preview = item?.preview as any;
+              const preview = item.preview;
               return (
                 <Link
                   href={`/admin/conversations/${contentId}`}

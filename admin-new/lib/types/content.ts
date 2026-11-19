@@ -224,12 +224,23 @@ export interface ConversationMetaFormValues {
  */
 export type LessonContentType = "WORD" | "SENTENCE" | "CONVERSATION";
 
+export interface LessonContentPreview {
+  id?: string;
+  key?: string;
+  title?: string;
+  arabicText?: string;
+  meaningEn?: string;
+  meaningBn?: string;
+  status?: ContentStatus;
+  hasAudio?: boolean;
+}
+
 export interface LessonContentItem {
   id: string;
   order: number;
   contentType: LessonContentType;
   contentId: string; // id of a Word, Sentence, or Conversation
-  preview?: unknown;
+  preview?: LessonContentPreview | null;
 }
 
 export interface LessonSectionSummary {

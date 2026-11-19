@@ -2,6 +2,7 @@ import type {
   ContentStatus,
   Lesson,
   LessonContentItem,
+  LessonContentPreview,
   LessonContentType,
   LessonMetaFormValues,
   LessonSectionSummary,
@@ -95,8 +96,27 @@ export function normalizeLessonItem(raw: unknown): LessonContentItem {
     order: typeof raw.order === "number" ? raw.order : 1,
     contentType: normalizeContentType(raw.contentType),
     contentId: optionalString(raw.contentId, raw.wordId, raw.sentenceId, raw.conversationId) ?? "",
-    preview: raw.preview,
+    preview: normalizeLessonContentPreview(raw.preview),
   };
+}
+
+function normalizeLessonContentPreview(value: unknown): LessonContentPreview | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (!isRecord(value)) throw new Error("The service returned an invalid lesson item preview.");
+
+  const preview: LessonContentPreview = {};
+  for (const key of ["id", "key", "title", "arabicText", "meaningEn", "meaningBn"] as const) {
+    if (typeof value[key] === "string") preview[key] = value[key];
+  }
+  if (value.status !== undefined) preview.status = normalizeStatus(value.status);
+  if (value.hasAudio !== undefined) {
+    if (typeof value.hasAudio !== "boolean") {
+      throw new Error("The service returned invalid lesson item audio metadata.");
+    }
+    preview.hasAudio = value.hasAudio;
+  }
+  return preview;
 }
 
 export function normalizeLessonSection(raw: unknown): LessonSectionSummary | null {

@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Plus, Trash2, ChevronUp, ChevronDown } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import type { LessonContentItem } from "@/lib/types/content";
+
+type StatusFilter = "all" | "approved" | "not-approved";
+type AudioFilter = "all" | "with" | "without";
 
 export function LessonContentPanel({
     items,
@@ -17,6 +20,7 @@ export function LessonContentPanel({
     onRemove,
     onReorder,
     extraAction,
+    reviewFilters = false,
 }: {
     /** Already filtered to a single content type and sorted by `order`. */
     items: LessonContentItem[];
@@ -30,12 +34,28 @@ export function LessonContentPanel({
     onRemove: (itemId: string) => void;
     onReorder: (reordered: LessonContentItem[]) => void;
     extraAction?: React.ReactNode;
+    reviewFilters?: boolean;
 }) {
     const [addOpen, setAddOpen] = useState(false);
+    const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+    const [audioFilter, setAudioFilter] = useState<AudioFilter>("all");
+
+    const visibleItems = useMemo(
+        () =>
+            items.filter((item) => {
+                if (statusFilter === "approved" && item.preview?.status !== "APPROVED") return false;
+                if (statusFilter === "not-approved" && item.preview?.status === "APPROVED") return false;
+                if (audioFilter === "with" && item.preview?.hasAudio !== true) return false;
+                if (audioFilter === "without" && item.preview?.hasAudio === true) return false;
+                return true;
+            }),
+        [items, statusFilter, audioFilter],
+    );
+    const filtersActive = statusFilter !== "all" || audioFilter !== "all";
 
     function moveItem(index: number, direction: -1 | 1) {
         const target = index + direction;
-        if (target < 0 || target >= items.length) return;
+        if (filtersActive || target < 0 || target >= items.length) return;
         const next = [...items];
         [next[index], next[target]] = [next[target], next[index]];
         onReorder(next.map((it, i) => ({ ...it, order: i + 1 })));
@@ -55,14 +75,50 @@ export function LessonContentPanel({
                     </span>
                 ) : null}
             </div>
+            {filtersActive ? (
+                <p className="text-xs text-[var(--color-text-muted)]">
+                    Showing {visibleItems.length} of {items.length} items
+                </p>
+            ) : null}
 
-            {items.length === 0 ? (
+            {reviewFilters ? (
+                <div className="flex flex-col gap-2 sm:flex-row">
+                    <label className="flex flex-col gap-1 text-xs text-[var(--color-text-muted)]">
+                        Approval
+                        <select
+                            aria-label="Filter by approval status"
+                            value={statusFilter}
+                            onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
+                            className="h-9 rounded-default border border-border-strong bg-white px-3 text-sm text-text"
+                        >
+                            <option value="all">All statuses</option>
+                            <option value="approved">Approved</option>
+                            <option value="not-approved">Not approved</option>
+                        </select>
+                    </label>
+                    <label className="flex flex-col gap-1 text-xs text-[var(--color-text-muted)]">
+                        Audio
+                        <select
+                            aria-label="Filter by audio"
+                            value={audioFilter}
+                            onChange={(event) => setAudioFilter(event.target.value as AudioFilter)}
+                            className="h-9 rounded-default border border-border-strong bg-white px-3 text-sm text-text"
+                        >
+                            <option value="all">All audio</option>
+                            <option value="with">With audio</option>
+                            <option value="without">Without audio</option>
+                        </select>
+                    </label>
+                </div>
+            ) : null}
+
+            {visibleItems.length === 0 ? (
                 <div className="rounded-[var(--radius-default)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-neutral-bg)] px-4 py-8 text-center text-sm text-[var(--color-text-muted)]">
-                    Nothing added yet.
+                    {items.length === 0 ? "Nothing added yet." : "No items match these filters."}
                 </div>
             ) : (
                 <ol className="flex flex-col gap-2">
-                    {items.map((item, index) => (
+                    {visibleItems.map((item, index) => (
                         <li
                             key={item.id}
                             className="flex items-center gap-3 rounded-[var(--radius-default)] border border-[var(--color-border)] bg-white p-3"
@@ -72,24 +128,28 @@ export function LessonContentPanel({
                             </span>
                             <div className="flex-1">{renderPreview(item.contentId, item)}</div>
                             <div className="flex flex-shrink-0 gap-1">
-                                <button
-                                    type="button"
-                                    onClick={() => moveItem(index, -1)}
-                                    disabled={index === 0}
-                                    aria-label="Move up"
-                                    className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--color-text-muted)] hover:bg-[var(--color-neutral-bg)] disabled:opacity-30"
-                                >
-                                    <ChevronUp className="h-4 w-4" />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => moveItem(index, 1)}
-                                    disabled={index === items.length - 1}
-                                    aria-label="Move down"
-                                    className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--color-text-muted)] hover:bg-[var(--color-neutral-bg)] disabled:opacity-30"
-                                >
-                                    <ChevronDown className="h-4 w-4" />
-                                </button>
+                                {!filtersActive ? (
+                                    <>
+                                        <button
+                                            type="button"
+                                            onClick={() => moveItem(index, -1)}
+                                            disabled={index === 0}
+                                            aria-label="Move up"
+                                            className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--color-text-muted)] hover:bg-[var(--color-neutral-bg)] disabled:opacity-30"
+                                        >
+                                            <ChevronUp className="h-4 w-4" />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => moveItem(index, 1)}
+                                            disabled={index === items.length - 1}
+                                            aria-label="Move down"
+                                            className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--color-text-muted)] hover:bg-[var(--color-neutral-bg)] disabled:opacity-30"
+                                        >
+                                            <ChevronDown className="h-4 w-4" />
+                                        </button>
+                                    </>
+                                ) : null}
                                 <button
                                     type="button"
                                     onClick={() => onRemove(item.id)}
