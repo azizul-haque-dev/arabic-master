@@ -1,9 +1,16 @@
 import type { Request, Response } from 'express';
 import { ok } from '../../common/http/response.js';
 import { bodyOf } from '../../common/middleware/validate.js';
-import { clearAuthCookies, setAuthCookies } from './auth.cookies.js';
+import {
+  clearAuthCookies,
+  clearGoogleOAuthStateCookie,
+  GOOGLE_OAUTH_STATE_COOKIE_NAME,
+  setAuthCookies,
+  setGoogleOAuthStateCookie,
+} from './auth.cookies.js';
 import type {
   ForgotPasswordInput,
+  GoogleExchangeInput,
   GoogleAuthInput,
   LoginInput,
   RegisterInput,
@@ -14,6 +21,8 @@ import type { RequestMeta } from './auth.types.js';
 import { UserService } from '../users/user.service.js';
 import { env } from '../../config/env.js';
 import { GoogleAuthService } from './google-auth.service.js';
+import { GoogleOAuthFlowService } from './google-oauth-flow.service.js';
+import { UnauthorizedError } from '../../common/errors/app-error.js';
 
 const meta = (req: Request): RequestMeta => ({
   requestId: String(req.id),
@@ -92,12 +101,23 @@ export const AuthController = {
     );
     ok(res, result);
   },
+  exchangeGoogleCode: async (req: Request, res: Response) => {
+    const { code } = bodyOf<GoogleExchangeInput>(req);
+    const result = await GoogleOAuthFlowService.consumeExchange(code);
+    if (!result) {
+      throw new UnauthorizedError('Invalid or expired Google exchange code');
+    }
+    ok(res, result);
+  },
   googleRedirect: async (req: Request, res: Response) => {
     const returnTo =
       typeof req.query.returnTo === 'string' ? req.query.returnTo : undefined;
-    const state = returnTo
-      ? Buffer.from(JSON.stringify({ returnTo })).toString('base64url')
-      : undefined;
+    const safeReturnTo =
+      returnTo?.startsWith('/') && !returnTo.startsWith('//')
+        ? returnTo
+        : undefined;
+    const state = await GoogleOAuthFlowService.createState(safeReturnTo);
+    setGoogleOAuthStateCookie(res, state);
 
     const authUrl = GoogleAuthService.getAuthorizationUrl(
       env.GOOGLE_CALLBACK_URL,
@@ -112,24 +132,30 @@ export const AuthController = {
     );
     const { code, error, state } = req.query;
 
-    let targetPath = '/oauth/callback';
-    if (typeof state === 'string') {
-      try {
-        const decoded = JSON.parse(
-          Buffer.from(state, 'base64url').toString('utf8'),
-        );
-        if (
-          decoded.returnTo &&
-          typeof decoded.returnTo === 'string' &&
-          decoded.returnTo.startsWith('/') &&
-          !decoded.returnTo.startsWith('//')
-        ) {
-          targetPath = decoded.returnTo;
-        }
-      } catch {
-        // ignore malformed state
-      }
+    const stateCookie = req.cookies?.[GOOGLE_OAUTH_STATE_COOKIE_NAME];
+    clearGoogleOAuthStateCookie(res);
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    res.setHeader('Cache-Control', 'no-store');
+    if (
+      typeof state !== 'string' ||
+      typeof stateCookie !== 'string' ||
+      state !== stateCookie
+    ) {
+      return res.redirect(
+        `${frontendBase}/login?error=google_authentication_failed`,
+      );
     }
+
+    const returnTo = await GoogleOAuthFlowService.consumeState(state);
+    if (returnTo === null) {
+      return res.redirect(
+        `${frontendBase}/login?error=google_authentication_failed`,
+      );
+    }
+    const targetPath =
+      returnTo?.startsWith('/') && !returnTo.startsWith('//')
+        ? returnTo
+        : '/oauth/callback';
 
     if (error || !code || typeof code !== 'string') {
       const errorMsg =
@@ -148,13 +174,19 @@ export const AuthController = {
         meta(req),
       );
 
+      const exchangeCode = await GoogleOAuthFlowService.createExchange({
+        user: result.user,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      });
       const targetUrl = new URL('/oauth/callback', frontendBase);
-      targetUrl.searchParams.set('accessToken', result.accessToken);
-      targetUrl.searchParams.set('refreshToken', result.refreshToken);
+      targetUrl.searchParams.set('code', exchangeCode);
       if (targetPath !== '/oauth/callback') {
         targetUrl.searchParams.set('returnTo', targetPath);
       }
 
+      res.setHeader('Referrer-Policy', 'no-referrer');
+      res.setHeader('Cache-Control', 'no-store');
       return res.redirect(targetUrl.toString());
     } catch (err: unknown) {
       const errorMsg =

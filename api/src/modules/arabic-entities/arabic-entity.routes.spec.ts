@@ -5,8 +5,9 @@ import { createApp } from '../../app.js';
 import { ServiceUnavailableError } from '../../common/errors/app-error.js';
 import { r2StorageService } from '../../common/storage/r2.service.js';
 import * as dbModule from '../../database/db.js';
-import { ContentStatus, Role } from '../../database/drizzle/enums.js';
+import { ContentStatus, Role, UserStatus } from '../../database/drizzle/enums.js';
 import { TokenService } from '../auth/token.service.js';
+import { SessionRepository } from '../auth/session.repository.js';
 import { UserService } from '../users/user.service.js';
 import { ArabicEntityAudioRepository } from './arabic-entity-audio.repository.js';
 import { ArabicEntityRepository } from './arabic-entity.repository.js';
@@ -63,15 +64,34 @@ describe('Arabic Entity Audio Routes Integration', () => {
 
     vi.spyOn(UserService, 'findById').mockImplementation(async (id: string) => {
       if (id === 'cm-user-1') {
-        return { id: 'cm-user-1', role: Role.CONTENT_MANAGER } as any;
+        return { id: 'cm-user-1', role: Role.CONTENT_MANAGER, status: UserStatus.ACTIVE } as any;
       }
       if (id === 'admin-user-1') {
-        return { id: 'admin-user-1', role: Role.ADMIN } as any;
+        return { id: 'admin-user-1', role: Role.ADMIN, status: UserStatus.ACTIVE } as any;
       }
       if (id === 'regular-user-1') {
-        return { id: 'regular-user-1', role: Role.USER } as any;
+        return { id: 'regular-user-1', role: Role.USER, status: UserStatus.ACTIVE } as any;
       }
       return null;
+    });
+
+    vi.spyOn(SessionRepository, 'findById').mockImplementation(async (id: string) => {
+      const userId = {
+        'session-1': 'cm-user-1',
+        'session-2': 'admin-user-1',
+        'session-3': 'regular-user-1',
+      }[id];
+      return {
+        id,
+        userId: userId ?? 'regular-user-1',
+        deviceId: 'test-device',
+        userAgent: null,
+        ipAddress: null,
+        isActive: true,
+        createdAt: new Date(),
+        expiresAt: new Date(Date.now() + 60_000),
+        revokedAt: null,
+      };
     });
 
     vi.spyOn(ArabicEntityRepository, 'findById').mockResolvedValue(mockEntity as any);

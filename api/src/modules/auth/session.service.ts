@@ -1,5 +1,8 @@
 import { v7 as randomUUIDv7 } from 'uuid';
-import { UnauthorizedError } from '../../common/errors/app-error.js';
+import {
+  ServiceUnavailableError,
+  UnauthorizedError,
+} from '../../common/errors/app-error.js';
 import { logger } from '../../common/http/logger.js';
 
 import { withTransaction } from '../../database/db.js';
@@ -121,7 +124,14 @@ async function rotateRefreshToken(p: {
   if (!existing || existing.sessionId !== sessionId) throw invalid();
 
   const session = await SessionRepository.findById(sessionId);
-  if (!session || session.revokedAt || existing.expiresAt < new Date())
+  if (
+    !session ||
+    session.userId !== userId ||
+    !session.isActive ||
+    session.revokedAt ||
+    session.expiresAt <= new Date() ||
+    existing.expiresAt <= new Date()
+  )
     throw invalid();
 
   // Verify token hash authenticity
@@ -180,6 +190,9 @@ async function rotateRefreshToken(p: {
           { err, sessionId },
           'Failed to insert replacement refresh token during grace period',
         );
+        throw new ServiceUnavailableError(
+          'Refresh is temporarily unavailable; retry the request',
+        );
       }
 
       const graceResult = { accessToken, refreshToken, refreshTokenExpiresAt };
@@ -190,7 +203,12 @@ async function rotateRefreshToken(p: {
           'EX',
           60,
         );
-      } catch {}
+      } catch (err) {
+        logger.warn(
+          { err, jwtId },
+          'Failed to cache refresh result during grace period',
+        );
+      }
 
       return graceResult;
     }
@@ -256,10 +274,16 @@ async function rotateRefreshToken(p: {
             refreshTokenExpiresAt: new Date(parsed.refreshTokenExpiresAt),
           };
         }
-      } catch {}
+      } catch (err) {
+        logger.warn(
+          { err, jwtId },
+          'Failed to read concurrent refresh result',
+        );
+      }
     }
-    // Fallback: return the generated valid tokens
-    return { accessToken, refreshToken, refreshTokenExpiresAt };
+    throw new ServiceUnavailableError(
+      'Refresh is temporarily unavailable; retry the request',
+    );
   }
 
   const result = { accessToken, refreshToken, refreshTokenExpiresAt };

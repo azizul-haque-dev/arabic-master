@@ -2,6 +2,12 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+## Authentication
+
+Set `EXPO_PUBLIC_API_URL` to the backend API base URL ending in `/api/v1` before starting the app. For example, use the machine's LAN address for a physical device; `localhost` on a phone points to the phone itself.
+
+The mobile app stores only its rotating refresh token in Expo SecureStore. Access tokens stay in memory and are refreshed when needed. Sign-in is supported in native iOS and Android builds; secure token storage is not provided for the web build.
+
 ## Get started
 
 1. Install dependencies

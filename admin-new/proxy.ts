@@ -124,6 +124,19 @@ export async function proxy(request: NextRequest) {
         { status: 401 }
       );
     }
+    if (refreshed && newAccessToken) {
+      request.cookies.set(SESSION_COOKIE_NAME, newAccessToken);
+      if (newRefreshToken) {
+        request.cookies.set(REFRESH_COOKIE_NAME, newRefreshToken);
+      }
+      const requestHeaders = new Headers(request.headers);
+      requestHeaders.set("cookie", request.cookies.toString());
+      const response = NextResponse.next({
+        request: { headers: requestHeaders },
+      });
+      applySessionCookies(response, newAccessToken, newRefreshToken);
+      return response;
+    }
     return NextResponse.next();
   }
 

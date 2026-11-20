@@ -1,6 +1,5 @@
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { getAuthSession } from "./session";
+import { serverApiFetch } from "./server-api";
 
 export type AdminRole = "ADMIN" | "CONTENT_MANAGER";
 
@@ -9,20 +8,27 @@ export interface CurrentAdminUser {
   role: AdminRole;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 export async function getCurrentUser(): Promise<CurrentAdminUser> {
-  const headersList = await headers();
-  const roleHeader = headersList.get("x-user-role") as AdminRole | null;
-  const userIdHeader = headersList.get("x-user-id");
+  const response = await serverApiFetch("/auth/me", { method: "GET" });
+  if (response.status === 401) {
+    redirect("/login");
+  }
+  if (!response.ok) redirect("/403");
 
-  if (roleHeader && userIdHeader) {
-    return { userId: userIdHeader, role: roleHeader };
+  const body: unknown = await response.json();
+  const data = isRecord(body) && "data" in body ? body.data : body;
+  const user = isRecord(data) && "user" in data ? data.user : data;
+  if (
+    !isRecord(user) ||
+    typeof user.id !== "string" ||
+    (user.role !== "ADMIN" && user.role !== "CONTENT_MANAGER")
+  ) {
+    redirect("/403");
   }
 
-  const { user } = await getAuthSession();
-  if (user && user.id) {
-    const role = (user.role as AdminRole) || "ADMIN";
-    return { userId: String(user.id), role };
-  }
-
-  redirect("/login");
+  return { userId: user.id, role: user.role };
 }

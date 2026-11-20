@@ -27,9 +27,13 @@ export const googleAuthSchema = z
   .refine((data) => data.idToken || data.code, {
     message: 'Either idToken or code must be provided',
   });
+export const googleExchangeSchema = z.strictObject({
+  code: z.string().min(1).max(128),
+});
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type GoogleAuthInput = z.infer<typeof googleAuthSchema>;
+export type GoogleExchangeInput = z.infer<typeof googleExchangeSchema>;

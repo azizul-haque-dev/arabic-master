@@ -56,7 +56,6 @@ export async function POST() {
     return NextResponse.json(
       {
         success: true,
-        accessToken: newAccessToken,
         user: user ?? null,
       },
       { headers: { "Cache-Control": "no-store" } }

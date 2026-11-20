@@ -101,6 +101,11 @@ export const AuthService = {
   },
 
   async refresh(payload: ValidatedRefreshToken, meta: RequestMeta) {
+    const user = await UserService.findById(payload.sub);
+    if (!user || user.status !== UserStatus.ACTIVE) {
+      throw new UnauthorizedError('Account unavailable');
+    }
+
     const result = await SessionService.rotateRefreshToken({
       rawToken: payload.rawToken,
       userId: payload.sub,

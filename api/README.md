@@ -33,6 +33,12 @@ Layer-এর নিয়ম: **route → controller → service → repository*
 `/api/v1` এর অধীনে: `auth`, `words`, `sentences`, `conversations`, `courses`, `sections`, `lessons`, `health`।
 অতিরিক্ত nested route: `PATCH /courses/:id/sections/reorder`, `PATCH /sections/:id/lessons/reorder`, `POST|PATCH|DELETE /lessons/:id/items...`।
 
+## Auth session behavior
+
+Access token-এর default lifetime ১৫ মিনিট এবং refresh token-এর ৩০ দিন। Web client-এ Next.js HttpOnly cookie ধরে রাখে; browser response-এ token ফেরত দেওয়া হয় না। Google web callback browser URL-এ token না পাঠিয়ে ৬০ সেকেন্ডের single-use exchange code ব্যবহার করে; OAuth state browser-bound এবং Redis-এ একবারই consume করা হয়। Native client `x-client-type: mobile` পাঠিয়ে response body-তে token পায় এবং refresh token secure device storage-এ রাখে।
+
+সফল নতুন login আগের session revoke করে—বর্তমান policy একবারে এক device। Logout বা user suspension-এ API access token পরবর্তী request থেকেই session/user status দিয়ে যাচাই হয়।
+
 `POST /api/v1/words/ai`-তে আগের `{ "query": "..." }` body দিয়ে একক শব্দ তৈরি হয়। একাধিক শব্দ queue করতে আলাদা `POST /api/v1/words/ai/word/list` endpoint-এ `{ "query": ["...", "..."] }` পাঠান (সর্বোচ্চ ২৫টি); response-এ প্রতি শব্দের `wordId`, `jobId` এবং enqueue সফলতার তথ্য থাকবে। job-এর অবস্থা/চূড়ান্ত ব্যর্থতা দেখতে staff token দিয়ে `GET /api/v1/words/ai/jobs/:id` কল করুন। `state: "failed"` হলে `failedReason`, `arabicText`, `attemptsMade`, এবং `maxAttempts` পাওয়া যাবে; worker log-এও সংশ্লিষ্ট শব্দের তথ্য থাকবে।
 
 AI-generated word এবং sentence-এ `replyOptions` field থাকে: প্রাসঙ্গিক কথোপকথনের জন্য সর্বোচ্চ তিনটি Arabic reply (pronunciation ও Bangla/English meaning-সহ), অথবা প্রযোজ্য reply না থাকলে খালি array। Conversation detail-এর প্রতিটি embedded sentence-এও একই field থাকে। এগুলো draft হিসেবে থাকে এবং review/publish workflow অপরিবর্তিত।
@@ -53,7 +59,6 @@ AI-generated word এবং sentence-এ `replyOptions` field থাকে: প�
 ## আগের মতোই রাখা ঝুঁকি (সিদ্ধান্ত আপনার)
 
 - `GET /sentences`, `GET /sentences/:id`, `GET /words/:id` **public**, DRAFT content বাইরে যাচ্ছে।
-- Google callback token **URL query-তে** পাঠায় (history/log-এ leak)। one-time code exchange ভালো।
 - `createSession` সব পুরনো session বাতিল করে (single-device login)।
 - Worker একই process-এ চলে, `concurrency: 1`। প্রতি sentence-এ প্রতি শব্দে একটা LLM call হয়। prod-এ আলাদা process ও rate-limit ভাবুন।
 - Rate limit memory store; একাধিক instance হলে `rate-limit-redis` লাগবে।
@@ -62,5 +67,5 @@ AI-generated word এবং sentence-এ `replyOptions` field থাকে: প�
 ## বাকি
 
 - Swagger/OpenAPI বাদ (পরে `@asteasolutions/zod-to-openapi`)।
-- Test: শুধু `content-workflow` util-এর ছোট spec আছে। auth/session-এর test নতুন করে লিখতে হবে (function-based হওয়ায় mock করা সহজ: factory-তে সাধারণ object পাস করলেই হয়)।
+- Auth/session behavior-এর focused Vitest specs আছে; আরও integration coverage যোগ করা যেতে পারে।
 - Error class (`AppError` ও সন্তান) `class` রাখা হয়েছে, কারণ `Error` extend করে `instanceof` কাজ করানোর এটাই প্রচলিত উপায়।

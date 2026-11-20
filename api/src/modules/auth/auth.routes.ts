@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller.js';
 import {
   forgotPasswordSchema,
   googleAuthSchema,
+  googleExchangeSchema,
   loginSchema,
   registerSchema,
   resetPasswordSchema,
@@ -25,6 +26,12 @@ authRoutes.post(
   limit(10),
   validate({ body: googleAuthSchema }),
   AuthController.google,
+);
+authRoutes.post(
+  '/google/exchange',
+  limit(10),
+  validate({ body: googleExchangeSchema }),
+  AuthController.exchangeGoogleCode,
 );
 authRoutes.post('/refresh', limit(20), csrfGuard, refreshGuard, AuthController.refresh);
 authRoutes.post('/logout', authenticate, AuthController.logout);

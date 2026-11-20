@@ -6,6 +6,8 @@ import { UnauthorizedError } from "../errors/app-error.js";
 import { asyncHandler } from "../http/async-handler.js";
 import { TokenService } from "../../modules/auth/token.service.js";
 import { UserService } from "../../modules/users/user.service.js";
+import { SessionRepository } from "../../modules/auth/session.repository.js";
+import { UserStatus } from "../../database/drizzle/enums.js";
 
 export const authenticate = asyncHandler(
   async (req: Request, _res: Response, next: NextFunction) => {
@@ -35,9 +37,22 @@ export const authenticate = asyncHandler(
         throw new UnauthorizedError("Invalid token type");
       }
 
-      const user = await UserService.findById(payload.sub);
-      if (!user) {
-        throw new UnauthorizedError("User no longer exists");
+      const [user, session] = await Promise.all([
+        UserService.findById(payload.sub),
+        SessionRepository.findById(payload.sessionId),
+      ]);
+      if (!user || user.status !== UserStatus.ACTIVE) {
+        throw new UnauthorizedError("Account is unavailable");
+      }
+
+      if (
+        !session ||
+        session.userId !== user.id ||
+        !session.isActive ||
+        session.revokedAt ||
+        session.expiresAt <= new Date()
+      ) {
+        throw new UnauthorizedError("Session is invalid or expired");
       }
 
       // Mutate the request interface context for downstream controllers and middleware

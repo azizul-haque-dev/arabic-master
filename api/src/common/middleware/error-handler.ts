@@ -4,12 +4,13 @@ import { isProd } from '../../config/env.js';
 import type { Logger } from '../http/logger.js';
 
 export const notFound: RequestHandler = (req, res) => {
+  const path = req.originalUrl.split('?')[0];
   res.status(404).json({
     success: false,
     statusCode: 404,
-    message: `Cannot ${req.method} ${req.originalUrl}`,
+    message: `Cannot ${req.method} ${path}`,
     timestamp: new Date().toISOString(),
-    path: req.originalUrl,
+    path,
     requestId: String(req.id),
   });
 };
@@ -19,6 +20,7 @@ export const createErrorHandler =
   (err, req, res, _next) => {
     let statusCode = 500;
     let message: string | string[] = 'Internal server error';
+    const path = req.originalUrl.split('?')[0];
 
     if (err instanceof AppError) {
       statusCode = err.statusCode;
@@ -33,7 +35,7 @@ export const createErrorHandler =
 
     logger[statusCode >= 500 ? 'error' : 'warn'](
       { err, requestId: req.id },
-      `${req.method} ${req.originalUrl} -> ${statusCode}`,
+      `${req.method} ${path} -> ${statusCode}`,
     );
 
     res.status(statusCode).json({
@@ -41,7 +43,7 @@ export const createErrorHandler =
       statusCode,
       message,
       timestamp: new Date().toISOString(),
-      path: req.originalUrl,
+      path,
       requestId: String(req.id),
     });
   };

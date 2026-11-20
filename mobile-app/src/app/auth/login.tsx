@@ -29,9 +29,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 
 import { AuthPageHeader } from "@/components/auth/AuthPageHeader";
+import { useAuth } from "@/features/auth/auth-context";
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { signIn } = useAuth();
 
   // Form State
   const [email, setEmail] = useState("");
@@ -63,7 +65,7 @@ export default function LoginScreen() {
     }
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
     setErrorMessage(null);
 
@@ -86,21 +88,19 @@ export default function LoginScreen() {
       return;
     }
 
-    // Simulate authentication
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      await signIn(trimmedEmail, password);
       setIsLoading(false);
-      Alert.alert(
-        "Sign-in preview",
-        "Authentication is not connected in this UI demo. Continue to the sample Home screen?",
-        [
-          {
-            text: "Open sample Home",
-            onPress: () => router.replace("/home"),
-          },
-        ],
+      router.replace("/home");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Unable to sign in. Please try again.",
       );
-    }, 1100);
+      setIsLoading(false);
+    }
   };
 
   const handleSocialAuth = (provider: "Google" | "Apple") => {

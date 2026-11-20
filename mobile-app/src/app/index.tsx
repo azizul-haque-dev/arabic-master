@@ -1,15 +1,38 @@
 import * as Haptics from "expo-haptics";
 import { BookOpen, ChevronRight, Globe, User, Zap } from "lucide-react-native";
 import { useRouter } from "expo-router";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useEffect } from "react";
 
 import { BrandMark } from "@/components/onboarding/BrandMark";
 import { useOnboardingStore } from "@/features/onboarding/store";
+import { useAuth } from "@/features/auth/auth-context";
 
 export default function WelcomeScreen() {
   const router = useRouter();
   const reset = useOnboardingStore((state) => state.reset);
+  const { user, isLoading, restoreError } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      router.replace("/home");
+    }
+  }, [isLoading, router, user]);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView
+        className="flex-1 items-center justify-center bg-background"
+        edges={["top", "bottom"]}
+      >
+        <ActivityIndicator size="large" color="#15803d" />
+        <Text className="mt-3 font-body-sm text-sm text-on-surface-variant">
+          Restoring your session...
+        </Text>
+      </SafeAreaView>
+    );
+  }
 
   const handleStartOnboarding = () => {
     try {
@@ -242,6 +265,14 @@ export default function WelcomeScreen() {
             <Text className="text-center font-body-sm text-[11.5px] text-on-surface-variant">
               No subscription or credit card required to start
             </Text>
+            {restoreError ? (
+              <Text
+                accessibilityRole="alert"
+                className="text-center font-body-sm text-xs text-red-700"
+              >
+                {restoreError}
+              </Text>
+            ) : null}
           </View>
         </View>
       </ScrollView>

@@ -3,6 +3,7 @@ import { v7 as randomUUIDv7 } from 'uuid';
 import { env } from '../../config/env.js';
 
 const cookiePath = () => `/${env.API_PREFIX}/v1/auth`;
+export const GOOGLE_OAUTH_STATE_COOKIE_NAME = 'google_oauth_state';
 
 export function setAuthCookies(
   res: Response,
@@ -26,4 +27,18 @@ export function setAuthCookies(
 export function clearAuthCookies(res: Response) {
   res.clearCookie(env.AUTH_COOKIE_NAME, { path: cookiePath() });
   res.clearCookie('csrf_token', { path: cookiePath() });
+}
+
+export function setGoogleOAuthStateCookie(res: Response, state: string) {
+  res.cookie(GOOGLE_OAUTH_STATE_COOKIE_NAME, state, {
+    secure: env.AUTH_COOKIE_SECURE,
+    httpOnly: true,
+    sameSite: 'lax',
+    maxAge: 10 * 60 * 1000,
+    path: cookiePath(),
+  });
+}
+
+export function clearGoogleOAuthStateCookie(res: Response) {
+  res.clearCookie(GOOGLE_OAUTH_STATE_COOKIE_NAME, { path: cookiePath() });
 }

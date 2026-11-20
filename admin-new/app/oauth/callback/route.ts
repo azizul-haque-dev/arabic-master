@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { serverApiFetch } from "@/lib/auth/server-api";
+import { getBackendApiUrl } from "@/lib/auth/backend-url";
 import {
-  setAuthSession,
   SESSION_COOKIE_NAME,
   REFRESH_COOKIE_NAME,
   USER_COOKIE_NAME,
@@ -12,22 +11,29 @@ import { getPostLoginRedirect } from "@/lib/auth/redirect";
 function getLoginRedirect(request: NextRequest, reason: string) {
   const url = new URL("/login", request.url);
   url.searchParams.set("error", reason);
-  return NextResponse.redirect(url);
+  const response = NextResponse.redirect(url);
+  response.headers.set("Cache-Control", "no-store");
+  response.headers.set("Referrer-Policy", "no-referrer");
+  return response;
 }
 
 export async function GET(request: NextRequest) {
-  const accessToken = request.nextUrl.searchParams.get("accessToken");
-  const refreshToken = request.nextUrl.searchParams.get("refreshToken");
+  const code = request.nextUrl.searchParams.get("code");
 
-  if (!accessToken) {
+  if (!code) {
     return getLoginRedirect(request, "google_authentication_failed");
   }
 
   try {
-    const response = await serverApiFetch("/auth/me", {
+    const backendUrl = getBackendApiUrl();
+    const response = await fetch(`${backendUrl}/auth/google/exchange`, {
+      method: "POST",
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        "x-client-type": "nextjs",
       },
+      body: JSON.stringify({ code }),
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -35,13 +41,18 @@ export async function GET(request: NextRequest) {
     }
 
     const body = await response.json();
-    const user = (body?.data?.user ?? body?.data ?? body?.user ?? body) as SafeUser;
-
-    if (!user?.id || !user.email) {
+    const data = body?.data ?? body;
+    const user = data?.user as SafeUser | undefined;
+    const accessToken = data?.accessToken;
+    const refreshToken = data?.refreshToken;
+    if (
+      !user?.id ||
+      !user.email ||
+      typeof accessToken !== "string" ||
+      typeof refreshToken !== "string"
+    ) {
       return getLoginRedirect(request, "google_user_unavailable");
     }
-
-    await setAuthSession({ accessToken, refreshToken: refreshToken ?? undefined, user });
 
     const returnTo = request.nextUrl.searchParams.get("returnTo");
     const redirectPath =
@@ -49,9 +60,9 @@ export async function GET(request: NextRequest) {
         ? returnTo
         : getPostLoginRedirect(user.role);
 
-    const redirectResponse = NextResponse.redirect(
-      new URL(redirectPath, request.url),
-    );
+    const redirectResponse = NextResponse.redirect(new URL(redirectPath, request.url));
+    redirectResponse.headers.set("Cache-Control", "no-store");
+    redirectResponse.headers.set("Referrer-Policy", "no-referrer");
 
     const isProd = process.env.NODE_ENV === "production";
     const THIRTY_DAYS = 30 * 24 * 60 * 60;

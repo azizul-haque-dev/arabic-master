@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { UnauthorizedError } from '../../common/errors/app-error.js';
+import {
+  ServiceUnavailableError,
+  UnauthorizedError,
+} from '../../common/errors/app-error.js';
 import { SessionRepository } from './session.repository.js';
 import { SessionService } from './session.service.js';
 import { TokenService } from './token.service.js';
@@ -160,5 +163,79 @@ describe('SessionService.rotateRefreshToken', () => {
         ...meta,
       }),
     ).rejects.toThrow(UnauthorizedError);
+  });
+
+  it('returns a retryable error instead of an unpersisted token after a rotation race', async () => {
+    vi.spyOn(SessionRepository, 'findRefreshByJwtId').mockResolvedValue({
+      id: 'ref-id-1',
+      sessionId,
+      jwtId,
+      tokenHash: hashedToken,
+      expiresAt: new Date(Date.now() + 1000 * 3600),
+      revokedAt: null,
+      replacedByTokenId: null,
+      createdAt: new Date(),
+    });
+    vi.spyOn(SessionRepository, 'findById').mockResolvedValue({
+      id: sessionId,
+      userId,
+      deviceId: 'dev-1',
+      userAgent: 'agent',
+      ipAddress: '127.0.0.1',
+      isActive: true,
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + 1000 * 3600),
+      revokedAt: null,
+    });
+    vi.spyOn(SessionRepository, 'claimRefresh').mockResolvedValue([]);
+    vi.spyOn(RedisService.client, 'get').mockResolvedValue(null);
+
+    await expect(
+      SessionService.rotateRefreshToken({
+        rawToken,
+        userId,
+        sessionId,
+        jwtId,
+        ...meta,
+      }),
+    ).rejects.toThrow(ServiceUnavailableError);
+  });
+
+  it('does not return an unpersisted token when grace-period persistence fails', async () => {
+    vi.spyOn(SessionRepository, 'findRefreshByJwtId').mockResolvedValue({
+      id: 'ref-id-1',
+      sessionId,
+      jwtId,
+      tokenHash: hashedToken,
+      expiresAt: new Date(Date.now() + 1000 * 3600),
+      revokedAt: new Date(Date.now() - 10_000),
+      replacedByTokenId: 'ref-id-replacement',
+      createdAt: new Date(),
+    });
+    vi.spyOn(SessionRepository, 'findById').mockResolvedValue({
+      id: sessionId,
+      userId,
+      deviceId: 'dev-1',
+      userAgent: 'agent',
+      ipAddress: '127.0.0.1',
+      isActive: true,
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + 1000 * 3600),
+      revokedAt: null,
+    });
+    vi.spyOn(RedisService.client, 'get').mockResolvedValue(null);
+    vi.spyOn(SessionRepository, 'insertRefresh').mockRejectedValue(
+      new Error('database unavailable'),
+    );
+
+    await expect(
+      SessionService.rotateRefreshToken({
+        rawToken,
+        userId,
+        sessionId,
+        jwtId,
+        ...meta,
+      }),
+    ).rejects.toThrow(ServiceUnavailableError);
   });
 });

@@ -1,23 +1,51 @@
-import { Text, View, Pressable } from "react-native";
-import { User, Flame, Star, Heart, Settings, Shield, ChevronRight, LogOut } from "lucide-react-native";
+import { useState } from "react";
+import { Alert, Text, View, Pressable, ActivityIndicator } from "react-native";
+import { useRouter } from "expo-router";
+import { Flame, Star, Heart, Settings, Shield, ChevronRight, LogOut } from "lucide-react-native";
 import { TabScreen, tapFeedback, SectionHeader } from "@/components/learning/primitives";
 import { learner } from "@/features/learning/data";
+import { useAuth } from "@/features/auth/auth-context";
 
 export default function ProfileScreen() {
+  const router = useRouter();
+  const { user, signOut } = useAuth();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    setIsSigningOut(true);
+    try {
+      await signOut();
+      router.replace("/");
+    } catch {
+      router.replace("/");
+      Alert.alert(
+        "Signed out on this device",
+        "The server could not be reached to revoke the session. Sign in again when you are online.",
+      );
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
+
   return (
     <TabScreen>
       {/* Profile Header */}
       <View className="items-center gap-2 pt-2">
         <View className="h-20 w-20 items-center justify-center rounded-full bg-primary shadow-sm">
           <Text className="font-headline-sm text-2xl font-bold text-white">
-            {learner.initials}
+            {(user?.fullName ?? learner.fullName)
+              .split(/\s+/)
+              .map((part) => part[0])
+              .join("")
+              .slice(0, 2)
+              .toUpperCase()}
           </Text>
         </View>
         <Text className="font-headline-sm text-xl font-bold text-on-surface">
-          {learner.fullName}
+          {user?.fullName ?? learner.fullName}
         </Text>
         <Text className="font-body-sm text-xs text-on-surface-variant">
-          {learner.email}
+          {user?.email ?? learner.email}
         </Text>
       </View>
 
@@ -83,6 +111,28 @@ export default function ProfileScreen() {
             </View>
             <ChevronRight size={18} color="#9ca3af" />
           </Pressable>
+
+          {user ? (
+            <Pressable
+              onPress={handleSignOut}
+              disabled={isSigningOut}
+              accessibilityRole="button"
+              accessibilityLabel="Sign out"
+              className="flex-row items-center justify-between p-4 active:bg-surface-container-low"
+            >
+              <View className="flex-row items-center gap-3">
+                <LogOut size={18} color="#b91c1c" />
+                <Text className="font-label-md text-sm font-semibold text-red-700">
+                  Sign out
+                </Text>
+              </View>
+              {isSigningOut ? (
+                <ActivityIndicator size="small" color="#b91c1c" />
+              ) : (
+                <ChevronRight size={18} color="#9ca3af" />
+              )}
+            </Pressable>
+          ) : null}
         </View>
       </View>
     </TabScreen>

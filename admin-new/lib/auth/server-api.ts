@@ -38,81 +38,56 @@ export function mapHttpError(
   };
 }
 
-let refreshPromise: Promise<string | null> | null = null;
-let cachedServerAccessToken: string | null = null;
-
 async function refreshAccessToken(): Promise<string | null> {
-  if (refreshPromise) {
-    return refreshPromise;
-  }
-
-  refreshPromise = (async () => {
-    try {
-      const { refreshToken, user } = await getAuthSession();
-      if (!refreshToken) {
-        cachedServerAccessToken = null;
-        await clearAuthSession();
-        return null;
-      }
-
-      const backendUrl = getBackendApiUrl();
-      const response = await fetch(`${backendUrl}/auth/refresh`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-client-type": "nextjs",
-        },
-        body: JSON.stringify({ refreshToken }),
-        cache: "no-store",
-      });
-
-      if (!response.ok) {
-        cachedServerAccessToken = null;
-        if (response.status === 401 || response.status === 403) {
-          try {
-            await clearAuthSession();
-          } catch {}
-        }
-        return null;
-      }
-
-      const body = await response.json();
-      const data = body?.data ?? body;
-      const newAccessToken = data?.accessToken;
-      const newRefreshToken = data?.refreshToken || refreshToken;
-
-      if (!newAccessToken) {
-        cachedServerAccessToken = null;
-        try {
-          await clearAuthSession();
-        } catch {
-          // ignore cookie deletion failure in read-only contexts
-        }
-        return null;
-      }
-
-      cachedServerAccessToken = newAccessToken;
-
-      try {
-        await setAuthSession({
-          accessToken: newAccessToken,
-          refreshToken: newRefreshToken,
-          user,
-        });
-      } catch {
-        // In Next.js Server Components, cookies cannot be modified during rendering.
-        // We still return newAccessToken so the current in-flight request succeeds.
-      }
-
-      return newAccessToken;
-    } catch {
+  try {
+    const { refreshToken, user } = await getAuthSession();
+    if (!refreshToken) {
+      await clearAuthSession();
       return null;
-    } finally {
-      refreshPromise = null;
     }
-  })();
 
-  return refreshPromise;
+    const backendUrl = getBackendApiUrl();
+    const response = await fetch(`${backendUrl}/auth/refresh`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-client-type": "nextjs",
+      },
+      body: JSON.stringify({ refreshToken }),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        await clearAuthSession();
+      }
+      return null;
+    }
+
+    const body = await response.json();
+    const data = body?.data ?? body;
+    const newAccessToken = data?.accessToken;
+    const newRefreshToken = data?.refreshToken || refreshToken;
+
+    if (!newAccessToken) {
+      await clearAuthSession();
+      return null;
+    }
+
+    try {
+      await setAuthSession({
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+        user,
+      });
+    } catch {
+      // Server Components cannot persist cookies during rendering.
+    }
+
+    return newAccessToken;
+  } catch {
+    return null;
+  }
 }
 
 export async function serverApiFetch(
@@ -124,7 +99,7 @@ export async function serverApiFetch(
   const url = `${backendUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
   const { accessToken } = await getAuthSession();
-  const token = cachedServerAccessToken || accessToken;
+  const token = accessToken;
 
   const headers = new Headers(options.headers || {});
   if (!headers.has("Content-Type") && options.body) {
@@ -144,7 +119,6 @@ export async function serverApiFetch(
     });
 
     if (response.status === 401 && retryOn401 && !endpoint.includes("/auth/login") && !endpoint.includes("/auth/register")) {
-      cachedServerAccessToken = null;
       const newAccessToken = await refreshAccessToken();
       if (newAccessToken) {
         headers.set("Authorization", `Bearer ${newAccessToken}`);
