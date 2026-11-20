@@ -51,7 +51,7 @@ export function GET(request: NextRequest) {
   <body>
     <main>
       <h1>We couldn&apos;t verify your session</h1>
-      <p>The service is temporarily unavailable. Your saved session has not been removed. Please try again.</p>
+      <p>The authentication service did not complete verification. This may be temporary; your session cookies have not been removed. Please try again.</p>
       <nav>
         <a class="primary" href="${returnTo}">Try again</a>
         <a href="/login">Sign in</a>

@@ -6,7 +6,7 @@ import { getBackendApiUrl } from "./lib/auth/backend-url";
 const SESSION_COOKIE_NAME = "session_token";
 const REFRESH_COOKIE_NAME = "refresh_token";
 const USER_COOKIE_NAME = "user";
-const REFRESH_TIMEOUT_MS = 1_500;
+const REFRESH_TIMEOUT_MS = 4_000;
 
 const ADMIN_PREFIX = "/admin";
 const FORBIDDEN_PATH = "/403";

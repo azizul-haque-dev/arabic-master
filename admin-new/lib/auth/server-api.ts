@@ -4,7 +4,7 @@ import { ActionFailure, AuthActionErrorCode } from "@/lib/types/auth";
 
 const API_REQUEST_TIMEOUT_MS = 4_000;
 const AUTH_REQUEST_TIMEOUT_MS = 2_000;
-const REFRESH_TIMEOUT_MS = 1_500;
+const REFRESH_TIMEOUT_MS = 4_000;
 
 type RefreshResult =
   | { kind: "refreshed"; accessToken: string }

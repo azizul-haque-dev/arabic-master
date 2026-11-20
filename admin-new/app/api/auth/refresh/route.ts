@@ -2,7 +2,7 @@ import { getAuthSession, setAuthSession, clearAuthSession } from "@/lib/auth/ses
 import { getBackendApiUrl } from "@/lib/auth/backend-url";
 import { NextResponse } from "next/server";
 
-const REFRESH_TIMEOUT_MS = 1_500;
+const REFRESH_TIMEOUT_MS = 4_000;
 
 export async function POST() {
   try {
