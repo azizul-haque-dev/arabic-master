@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { serverApiFetch } from "./server-api";
 
 export type AdminRole = "ADMIN" | "CONTENT_MANAGER";
@@ -16,6 +17,12 @@ export async function getCurrentUser(): Promise<CurrentAdminUser> {
   const response = await serverApiFetch("/auth/me", { method: "GET" });
   if (response.status === 401) {
     redirect("/login");
+  }
+  if (response.status === 503) {
+    const requestHeaders = await headers();
+    const returnTo =
+      requestHeaders.get("x-app-path") || "/admin/arabic-entities";
+    redirect(`/session-unavailable?returnTo=${encodeURIComponent(returnTo)}`);
   }
   if (!response.ok) redirect("/403");
 

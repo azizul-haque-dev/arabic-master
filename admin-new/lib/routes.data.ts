@@ -8,6 +8,7 @@ export const PUBLIC_ROUTES = [
     '/forgot-password',
     '/reset-password',
     '/oauth/callback',
+    '/session-unavailable',
 
 
 ]

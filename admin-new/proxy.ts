@@ -6,10 +6,12 @@ import { getBackendApiUrl } from "./lib/auth/backend-url";
 const SESSION_COOKIE_NAME = "session_token";
 const REFRESH_COOKIE_NAME = "refresh_token";
 const USER_COOKIE_NAME = "user";
+const REFRESH_TIMEOUT_MS = 1_500;
 
 const ADMIN_PREFIX = "/admin";
 const FORBIDDEN_PATH = "/403";
 const ADMIN_ROLES = ["ADMIN", "CONTENT_MANAGER"] as const;
+const AUTH_ENTRY_ROUTES = [LOGIN, "/register"];
 
 function decodeJwtPayload(token: string): { exp?: number; role?: string; id?: string } | null {
   try {
@@ -59,6 +61,40 @@ function applySessionCookies(
   }
 }
 
+function clearSessionCookies(response: NextResponse) {
+  response.cookies.delete(SESSION_COOKIE_NAME);
+  response.cookies.delete(REFRESH_COOKIE_NAME);
+  response.cookies.delete(USER_COOKIE_NAME);
+}
+
+function temporaryRefreshFailure(request: NextRequest) {
+  if (request.nextUrl.pathname.startsWith("/api/")) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Unable to verify your session right now. Please try again.",
+      },
+      {
+        status: 503,
+        headers: {
+          "Cache-Control": "no-store",
+          "Retry-After": "2",
+        },
+      },
+    );
+  }
+
+  const destination = new URL("/session-unavailable", request.nextUrl);
+  destination.searchParams.set(
+    "returnTo",
+    `${request.nextUrl.pathname}${request.nextUrl.search}`,
+  );
+  const response = NextResponse.rewrite(destination, { status: 503 });
+  response.headers.set("Cache-Control", "no-store");
+  response.headers.set("Retry-After", "2");
+  return response;
+}
+
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
@@ -74,14 +110,20 @@ export async function proxy(request: NextRequest) {
   const isPublicRoute =
     PUBLIC_ROUTES.some((route) => pathname.startsWith(route)) ||
     pathname === ROOT;
+  const isAuthEntryRoute = AUTH_ENTRY_ROUTES.includes(pathname);
 
   let refreshed = false;
   let newAccessToken: string | null = null;
   let newRefreshToken: string | null = null;
   let refreshTokenRejected = false;
+  let refreshUnavailable = false;
 
-  // Auto-refresh expired access token if a valid refresh token exists
-  if ((!token || isTokenExpired(token)) && refreshToken) {
+  // Public pages should not wait for an auth service they do not need.
+  if (
+    (!isPublicRoute || isAuthEntryRoute) &&
+    (!token || isTokenExpired(token)) &&
+    refreshToken
+  ) {
     try {
       const backendUrl = getBackendApiUrl();
       const refreshRes = await fetch(`${backendUrl}/auth/refresh`, {
@@ -92,6 +134,7 @@ export async function proxy(request: NextRequest) {
         },
         body: JSON.stringify({ refreshToken }),
         cache: "no-store",
+        signal: AbortSignal.timeout(REFRESH_TIMEOUT_MS),
       });
 
       if (refreshRes.ok) {
@@ -102,15 +145,24 @@ export async function proxy(request: NextRequest) {
           newAccessToken = data.accessToken;
           newRefreshToken = data.refreshToken || refreshToken;
           refreshed = true;
+        } else {
+          console.error("[Proxy] Refresh response did not contain an access token");
+          refreshUnavailable = true;
         }
       } else if (refreshRes.status === 401 || refreshRes.status === 403) {
         // Backend explicitly rejected the refresh token as invalid or expired
         refreshTokenRejected = true;
       } else {
         console.warn(`[Proxy] Refresh returned HTTP status ${refreshRes.status}`);
+        refreshUnavailable = true;
       }
     } catch (error) {
-      console.error("[Proxy] Token refresh network error:", error);
+      refreshUnavailable = true;
+      if (error instanceof Error && error.name === "TimeoutError") {
+        console.warn(`[Proxy] Token refresh timed out after ${REFRESH_TIMEOUT_MS}ms`);
+      } else {
+        console.error("[Proxy] Token refresh network error:", error);
+      }
     }
   }
 
@@ -119,10 +171,18 @@ export async function proxy(request: NextRequest) {
   // Protected API routes: return JSON 401 rather than HTML redirect to login
   if (pathname.startsWith("/api/")) {
     if (!hasValidToken) {
-      return NextResponse.json(
+      if (refreshUnavailable) {
+        return temporaryRefreshFailure(request);
+      }
+
+      const response = NextResponse.json(
         { success: false, error: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
       );
+      if (refreshTokenRejected || !refreshToken) {
+        clearSessionCookies(response);
+      }
+      return response;
     }
     if (refreshed && newAccessToken) {
       request.cookies.set(SESSION_COOKIE_NAME, newAccessToken);
@@ -142,13 +202,15 @@ export async function proxy(request: NextRequest) {
 
   // Redirect unauthenticated requests away from protected pages
   if (!hasValidToken && !isPublicRoute) {
+    if (refreshUnavailable) {
+      return temporaryRefreshFailure(request);
+    }
+
     const redirectRes = NextResponse.redirect(new URL(LOGIN, request.nextUrl), request);
     // Only delete cookies if refreshToken is missing or was explicitly rejected by backend (401/403).
     // Never delete on transient network failures or backend restarts.
     if (!refreshToken || refreshTokenRejected) {
-      redirectRes.cookies.delete(SESSION_COOKIE_NAME);
-      redirectRes.cookies.delete(REFRESH_COOKIE_NAME);
-      redirectRes.cookies.delete(USER_COOKIE_NAME);
+      clearSessionCookies(redirectRes);
     }
     return redirectRes;
   }
@@ -205,6 +267,10 @@ export async function proxy(request: NextRequest) {
   }
 
   const requestHeaders = new Headers(request.headers);
+  requestHeaders.set(
+    "x-app-path",
+    `${request.nextUrl.pathname}${request.nextUrl.search}`,
+  );
   if (userId) requestHeaders.set("x-user-id", userId);
   if (userRole) requestHeaders.set("x-user-role", userRole);
 
@@ -225,6 +291,9 @@ export async function proxy(request: NextRequest) {
 
   if (refreshed && newAccessToken) {
     applySessionCookies(response, newAccessToken, newRefreshToken);
+  }
+  if (refreshTokenRejected) {
+    clearSessionCookies(response);
   }
 
   return response;
