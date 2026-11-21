@@ -56,6 +56,20 @@ export function GET(request: NextRequest) {
         <a class="primary" href="${returnTo}">Try again</a>
         <a href="/login">Sign in</a>
       </nav>
+      <script>
+        (function() {
+          var key = 'session_retry_count';
+          var count = parseInt(sessionStorage.getItem(key) || '0', 10);
+          if (count < 3) {
+            sessionStorage.setItem(key, String(count + 1));
+            setTimeout(function() {
+              window.location.href = "${returnTo}";
+            }, 2500);
+          } else {
+            sessionStorage.removeItem(key);
+          }
+        })();
+      </script>
     </main>
   </body>
 </html>`;

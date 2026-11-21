@@ -1,10 +1,15 @@
-import { getAuthSession, setAuthSession, clearAuthSession } from "./session";
+import {
+  getAuthSession,
+  setAuthSession,
+  clearAuthSession,
+  isAccessTokenExpiredOrNearExpiry,
+} from "./session";
 import { getBackendApiUrl } from "./backend-url";
 import { ActionFailure, AuthActionErrorCode } from "@/lib/types/auth";
 
-const API_REQUEST_TIMEOUT_MS = 4_000;
-const AUTH_REQUEST_TIMEOUT_MS = 2_000;
-const REFRESH_TIMEOUT_MS = 4_000;
+const API_REQUEST_TIMEOUT_MS = 8_000;
+const AUTH_REQUEST_TIMEOUT_MS = 6_000;
+const REFRESH_TIMEOUT_MS = 8_000;
 
 type RefreshResult =
   | { kind: "refreshed"; accessToken: string }
@@ -154,8 +159,36 @@ export async function serverApiFetch(
   const backendUrl = getBackendApiUrl();
   const url = `${backendUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
-  const { accessToken } = await getAuthSession();
-  const token = accessToken;
+  const { accessToken, refreshToken } = await getAuthSession();
+  let token = accessToken;
+
+  const isAuthEndpoint =
+    endpoint.includes("/auth/login") ||
+    endpoint.includes("/auth/register") ||
+    endpoint.includes("/auth/refresh");
+
+  // Proactive refresh: If token is missing or expired/near-expiry, refresh before making the request
+  if (!isAuthEndpoint && refreshToken && (!token || isAccessTokenExpiredOrNearExpiry(token))) {
+    const refreshResult = await refreshAccessToken();
+    if (refreshResult.kind === "refreshed") {
+      token = refreshResult.accessToken;
+    } else if (refreshResult.kind === "unavailable" && (endpoint === "/auth/me" || !retryOn401)) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Unable to verify your session right now. Please try again.",
+        }),
+        {
+          status: 503,
+          headers: {
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json",
+            "Retry-After": "2",
+          },
+        },
+      );
+    }
+  }
 
   const headers = new Headers(options.headers || {});
   if (!headers.has("Content-Type") && options.body) {

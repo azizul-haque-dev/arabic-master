@@ -14,7 +14,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 export async function getCurrentUser(): Promise<CurrentAdminUser> {
-  const response = await serverApiFetch("/auth/me", { method: "GET" });
+  let response: Response;
+  try {
+    response = await serverApiFetch("/auth/me", { method: "GET" });
+  } catch (error) {
+    const requestHeaders = await headers();
+    const returnTo =
+      requestHeaders.get("x-app-path") || "/admin/arabic-entities";
+    redirect(`/session-unavailable?returnTo=${encodeURIComponent(returnTo)}`);
+  }
+
   if (response.status === 401) {
     redirect("/login");
   }

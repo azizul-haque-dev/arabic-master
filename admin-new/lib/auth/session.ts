@@ -5,6 +5,23 @@ export const SESSION_COOKIE_NAME = "session_token";
 export const REFRESH_COOKIE_NAME = "refresh_token";
 export const USER_COOKIE_NAME = "user";
 
+export function isAccessTokenExpiredOrNearExpiry(
+  accessToken: string,
+  bufferSeconds = 60
+): boolean {
+  try {
+    const parts = accessToken.split(".");
+    if (parts.length !== 3) return true;
+    const payload = JSON.parse(
+      Buffer.from(parts[1], "base64url").toString("utf-8")
+    );
+    if (typeof payload.exp !== "number") return true;
+    return payload.exp - bufferSeconds < Math.floor(Date.now() / 1000);
+  } catch {
+    return true;
+  }
+}
+
 export async function setAuthSession({
   accessToken,
   refreshToken,
