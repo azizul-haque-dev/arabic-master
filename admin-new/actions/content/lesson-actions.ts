@@ -418,7 +418,7 @@ export async function smartAddSentencesToLessonAction(
     ? sentencesInput.map(String).map((s) => s.trim()).filter(Boolean)
     : typeof sentencesInput === "string"
     ? sentencesInput
-        .split(/[\n]+/)
+        .split(/[\n,]+/)
         .map((s) => s.trim())
         .filter(Boolean)
     : [];

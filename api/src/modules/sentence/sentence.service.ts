@@ -339,6 +339,29 @@ export const SentenceService = {
     return (await SentenceRepository.findById(sentence.id)) ?? sentence;
   },
 
+  async resolveWithAi(
+    rawText: string,
+    createdById: string,
+    options: SentenceAiOptions = {},
+  ) {
+    const text = isArabicText(rawText)
+      ? rawText
+      : await AiService.translateToArabic(rawText);
+    const entity = await ArabicEntityRepository.findByNormalizedText(
+      normalizeArabicText(text),
+    );
+    const existing = entity
+      ? await SentenceRepository.findByEntityId(entity.id)
+      : null;
+    const sentence = await SentenceService.generateWithAi(
+      text,
+      createdById,
+      options,
+    );
+
+    return { sentence, createdViaAi: !existing };
+  },
+
   async generateShortWithAi(
     rawText: string,
     createdById: string,

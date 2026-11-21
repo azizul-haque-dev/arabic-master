@@ -488,12 +488,13 @@ export const LessonService = {
         }
 
         if (!sentence) {
-          sentence = await SentenceService.generateWithAi(
+          const resolved = await SentenceService.resolveWithAi(
             query,
             actor.userId,
             { sentenceType, linkWords: true },
           );
-          createdViaAi = true;
+          sentence = resolved.sentence;
+          createdViaAi = resolved.createdViaAi;
         }
 
         if (!sentence) {

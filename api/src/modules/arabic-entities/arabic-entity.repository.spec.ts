@@ -6,6 +6,7 @@ import type { Executor } from '../../database/db.js';
 describe('ArabicEntityRepository.create', () => {
   it('throws ConflictError if an entity with the same normalizedText already exists', async () => {
     const mockExecutor = {
+      execute: vi.fn().mockResolvedValue({ rows: [] }),
       select: vi.fn().mockReturnValue({
         from: vi.fn().mockReturnValue({
           where: vi.fn().mockReturnValue({
@@ -30,6 +31,36 @@ describe('ArabicEntityRepository.create', () => {
         mockExecutor,
       ),
     ).rejects.toThrow(ConflictError);
+  });
+
+  it('serializes generated entity keys before inserting', async () => {
+    const calls: string[] = [];
+    const mockExecutor = {
+      execute: vi.fn().mockImplementation(async () => {
+        calls.push('execute');
+        return { rows: [] };
+      }),
+      select: vi.fn().mockReturnValue({
+        from: vi.fn().mockReturnValue({
+          where: vi.fn().mockReturnValue({
+            limit: vi.fn().mockResolvedValue([]),
+          }),
+        }),
+      }),
+      insert: vi.fn().mockReturnValue({
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockImplementation(async () => {
+            calls.push('insert');
+            return [{ id: 'entity-1', entityKey: 'AE-1001' }];
+          }),
+        }),
+      }),
+    } as unknown as Executor;
+
+    await ArabicEntityRepository.create({ arabicText: 'مرحبا' }, mockExecutor);
+
+    expect(calls[0]).toBe('execute');
+    expect(calls[calls.length - 1]).toBe('insert');
   });
 
   it('throws ConflictError if database throws unique violation on normalizedText', async () => {

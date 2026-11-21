@@ -93,7 +93,7 @@ export function SmartSentenceDialog({
             <DialogTitle>Smart Add Sentences with AI</DialogTitle>
           </div>
           <DialogDescription>
-            Enter multiple sentences (one per line). If the sentence exists in the database, it will be linked instantly. If not, AI will automatically translate, generate, and save it!
+            Enter multiple sentences (separated by commas or newlines). If a sentence already exists in the database, it will be linked instantly. If not, AI will automatically generate and save it!
           </DialogDescription>
         </DialogHeader>
 
@@ -149,19 +149,19 @@ export function SmartSentenceDialog({
               htmlFor="smart-sentences-input"
               className="text-xs font-medium text-[var(--color-text)]"
             >
-              Sentences (one per line)
+              Sentences / Queries
             </label>
             <Textarea
               id="smart-sentences-input"
               value={text}
               disabled={isLoading}
               onChange={(e) => setText(e.target.value)}
-              placeholder={"e.g.\nHow much does this cost?\nأنا أحب تعلم اللغة العربية\nSNT-1002"}
+              placeholder={"e.g. How are you?, أنا أحب تعلم اللغة العربية\nSNT-1002"}
               rows={4}
               className="mt-1.5"
             />
             <p className="mt-1 text-[11px] text-[var(--color-text-muted)]">
-              Accepts English, Bengali, or Arabic text, or Sentence Keys (e.g. SNT-1002).
+              Accepts Arabic sentences, English/Bengali queries, or Sentence Keys (e.g. SNT-1002).
             </p>
           </div>
 
