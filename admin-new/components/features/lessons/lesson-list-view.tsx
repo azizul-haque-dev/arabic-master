@@ -291,6 +291,7 @@ export function LessonListView({
             columns={columns}
             rows={lessons}
             rowKey={(l) => l.id}
+            getRowHref={(l) => `/admin/lessons/${l.id}`}
             onRowClick={(l) => router.push(`/admin/lessons/${l.id}`)}
             renderMobileCard={(l) => {
               const counts = l.counts ?? { words: 0, sentences: 0, conversations: 0 };

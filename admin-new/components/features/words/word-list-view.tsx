@@ -444,6 +444,7 @@ export function WordListView({
           columns={columns}
           rows={words}
           rowKey={(w) => w.id}
+          getRowHref={(w) => `/admin/words/${w.id}`}
           onRowClick={(w) => router.push(`/admin/words/${w.id}`)}
           renderMobileCard={(w) => (
             <div className="flex flex-col gap-2">

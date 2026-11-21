@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 export interface DataTableColumn<T> {
@@ -14,6 +15,7 @@ export function ContentDataTable<T>({
   rows,
   rowKey,
   onRowClick,
+  getRowHref,
   selectable,
   selectedIds,
   onToggleSelect,
@@ -24,6 +26,7 @@ export function ContentDataTable<T>({
   rows: T[];
   rowKey: (row: T) => string;
   onRowClick?: (row: T) => void;
+  getRowHref?: (row: T) => string;
   selectable?: boolean;
   selectedIds?: Set<string>;
   onToggleSelect?: (id: string) => void;
@@ -66,6 +69,7 @@ export function ContentDataTable<T>({
           <tbody>
             {rows.map((row) => {
               const id = rowKey(row);
+              const href = getRowHref?.(row);
               return (
                 <tr
                   key={id}
@@ -86,9 +90,13 @@ export function ContentDataTable<T>({
                       />
                     </td>
                   ) : null}
-                  {columns.map((col) => (
+                  {columns.map((col, index) => (
                     <td key={col.key} className={cn("px-4 py-3 align-middle", col.className)}>
-                      {col.cell(row)}
+                      {index === 0 && href ? (
+                        <Link href={href} className="block" onClick={(event) => event.stopPropagation()}>
+                          {col.cell(row)}
+                        </Link>
+                      ) : col.cell(row)}
                     </td>
                   ))}
                 </tr>
@@ -100,15 +108,22 @@ export function ContentDataTable<T>({
 
       {/* Mobile cards */}
       <ul className="flex flex-col gap-3 md:hidden">
-        {rows.map((row) => (
-          <li
-            key={rowKey(row)}
-            onClick={() => onRowClick?.(row)}
-            className="rounded-lg border border-border bg-white p-4"
-          >
-            {renderMobileCard(row)}
-          </li>
-        ))}
+        {rows.map((row) => {
+          const href = getRowHref?.(row);
+          return (
+            <li
+              key={rowKey(row)}
+              onClick={() => onRowClick?.(row)}
+              className="rounded-lg border border-border bg-white p-4"
+            >
+              {href ? (
+                <Link href={href} className="block" onClick={(event) => event.stopPropagation()}>
+                  {renderMobileCard(row)}
+                </Link>
+              ) : renderMobileCard(row)}
+            </li>
+          );
+        })}
       </ul>
     </>
   );

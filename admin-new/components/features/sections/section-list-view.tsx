@@ -314,6 +314,7 @@ export function SectionListView({
             columns={columns}
             rows={sections}
             rowKey={(s) => s.id}
+            getRowHref={(s) => `/admin/sections/${s.id}`}
             onRowClick={(s) => router.push(`/admin/sections/${s.id}`)}
             renderMobileCard={(s) => (
               <div className="flex flex-col gap-2">

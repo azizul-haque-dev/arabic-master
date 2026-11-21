@@ -405,6 +405,7 @@ export function SentenceListView({
                     columns={columns}
                     rows={sentences}
                     rowKey={(sentence) => sentence.id}
+                    getRowHref={(sentence) => `/admin/sentences/${encodeURIComponent(sentence.id)}`}
                     onRowClick={(sentence) =>
                         router.push(`/admin/sentences/${encodeURIComponent(sentence.id)}`)
                     }
