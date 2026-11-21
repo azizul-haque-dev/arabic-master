@@ -60,7 +60,46 @@ describe('ArabicEntityRepository.create', () => {
     await ArabicEntityRepository.create({ arabicText: 'مرحبا' }, mockExecutor);
 
     expect(calls[0]).toBe('execute');
-    expect(calls[calls.length - 1]).toBe('insert');
+    expect(calls.indexOf('insert')).toBeGreaterThan(0);
+    expect(calls.indexOf('insert')).toBeLessThan(calls.lastIndexOf('execute'));
+  });
+
+  it('retries generated keys after a concurrent unique-key collision', async () => {
+    let insertAttempts = 0;
+    const mockExecutor = {
+      execute: vi.fn().mockImplementation(async (query) => {
+        const text = query?.queryChunks ? query.queryChunks.join('') : '';
+        return text.includes('MAX(')
+          ? { rows: [{ max_num: 1000 }] }
+          : { rows: [] };
+      }),
+      select: vi.fn().mockReturnValue({
+        from: vi.fn().mockReturnValue({
+          where: vi.fn().mockReturnValue({
+            limit: vi.fn().mockResolvedValue([]),
+          }),
+        }),
+      }),
+      insert: vi.fn().mockReturnValue({
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockImplementation(async () => {
+            insertAttempts += 1;
+            if (insertAttempts === 1) {
+              throw {
+                code: '23505',
+                constraint: 'ArabicEntity_entityKey_unique',
+              };
+            }
+            return [{ id: 'entity-1', entityKey: 'AE-1002' }];
+          }),
+        }),
+      }),
+    } as unknown as Executor;
+
+    await expect(
+      ArabicEntityRepository.create({ arabicText: 'مرحبا' }, mockExecutor),
+    ).resolves.toMatchObject({ entityKey: 'AE-1002' });
+    expect(insertAttempts).toBe(2);
   });
 
   it('throws ConflictError if database throws unique violation on normalizedText', async () => {

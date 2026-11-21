@@ -167,40 +167,65 @@ export const ArabicEntityRepository = {
       );
     }
 
-    const entityKey = d.entityKey ?? (await this.generateNextEntityKey(ex));
-    try {
-      const [row] = await ex
-        .insert(schema.arabicEntity)
-        .values({
-          id: randomUUIDv7(),
-          entityKey,
-          arabicText: d.arabicText,
-          normalizedText,
-          meaningBangla: d.meaningBangla,
-          meaningEnglish: d.meaningEnglish,
-          audioUrl: d.audioUrl,
-          pronunciationBangla: d.pronunciationBangla ?? '',
-          pronunciationEnglish: d.pronunciationEnglish ?? '',
-          status: d.status ?? 'DRAFT',
-          rejectionReason: d.rejectionReason,
-          createdById: d.createdById,
-        })
-        .returning();
+    const maxAttempts = d.entityKey ? 1 : 10;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const savepoint = `arabic_entity_create_${attempt}`;
+      await ex.execute(sql.raw(`SAVEPOINT ${savepoint}`));
+
+      let row: typeof schema.arabicEntity.$inferSelect;
+      try {
+        const entityKey =
+          d.entityKey ?? (await this.generateNextEntityKey(ex, attempt));
+        [row] = await ex
+          .insert(schema.arabicEntity)
+          .values({
+            id: randomUUIDv7(),
+            entityKey,
+            arabicText: d.arabicText,
+            normalizedText,
+            meaningBangla: d.meaningBangla,
+            meaningEnglish: d.meaningEnglish,
+            audioUrl: d.audioUrl,
+            pronunciationBangla: d.pronunciationBangla ?? '',
+            pronunciationEnglish: d.pronunciationEnglish ?? '',
+            status: d.status ?? 'DRAFT',
+            rejectionReason: d.rejectionReason,
+            createdById: d.createdById,
+          })
+          .returning();
+      } catch (err: unknown) {
+        await ex.execute(sql.raw(`ROLLBACK TO SAVEPOINT ${savepoint}`));
+        await ex.execute(sql.raw(`RELEASE SAVEPOINT ${savepoint}`));
+
+        const pgErr = err as { code?: string; constraint?: string };
+        if (pgErr?.code === '23505' && pgErr?.constraint?.includes('normalizedText')) {
+          throw new ConflictError(
+            `Arabic entity with normalized text "${normalizedText}" already exists`,
+          );
+        }
+        if (
+          !d.entityKey &&
+          pgErr?.code === '23505' &&
+          pgErr?.constraint?.includes('entityKey') &&
+          attempt + 1 < maxAttempts
+        ) {
+          continue;
+        }
+        if (!d.entityKey && pgErr?.code === '23505' && pgErr?.constraint?.includes('entityKey')) {
+          throw new ConflictError(
+            'Could not reserve a unique Arabic entity key after multiple attempts.',
+          );
+        }
+        throw err;
+      }
+
+      await ex.execute(sql.raw(`RELEASE SAVEPOINT ${savepoint}`));
       return row;
-    } catch (err: unknown) {
-      const pgErr = err as { code?: string; constraint?: string };
-      if (pgErr?.code === '23505' && pgErr?.constraint?.includes('normalizedText')) {
-        throw new ConflictError(
-          `Arabic entity with normalized text "${normalizedText}" already exists`,
-        );
-      }
-      if (!d.entityKey && pgErr?.code === '23505' && pgErr?.constraint?.includes('entityKey')) {
-        throw new ConflictError(
-          'Could not reserve a unique Arabic entity key. Please retry.',
-        );
-      }
-      throw err;
     }
+
+    throw new ConflictError(
+      'Could not reserve a unique Arabic entity key after multiple attempts.',
+    );
   },
 
   async update(
