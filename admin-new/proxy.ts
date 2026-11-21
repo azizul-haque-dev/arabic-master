@@ -2,98 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { LOGIN, PUBLIC_ROUTES, ROOT } from "./lib/routes.data";
 import { getPostLoginRedirect } from "./lib/auth/redirect";
 import { getBackendApiUrl } from "./lib/auth/backend-url";
-
-const SESSION_COOKIE_NAME = "session_token";
-const REFRESH_COOKIE_NAME = "refresh_token";
-const USER_COOKIE_NAME = "user";
-const REFRESH_TIMEOUT_MS = 4_000;
-
-const ADMIN_PREFIX = "/admin";
-const FORBIDDEN_PATH = "/403";
-const ADMIN_ROLES = ["ADMIN", "CONTENT_MANAGER"] as const;
-const AUTH_ENTRY_ROUTES = [LOGIN, "/register"];
-
-function decodeJwtPayload(token: string): { exp?: number; role?: string; id?: string } | null {
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const jsonStr = atob(base64);
-    return JSON.parse(jsonStr);
-  } catch {
-    return null;
-  }
-}
-
-function isTokenExpired(token: string): boolean {
-  const payload = decodeJwtPayload(token);
-  if (!payload || !payload.exp) return true;
-  // If expired or expiring within 30 seconds
-  return Date.now() >= (payload.exp - 30) * 1000;
-}
-
-function applySessionCookies(
-  response: NextResponse,
-  accessToken: string,
-  refreshToken?: string | null
-) {
-  const isProd = process.env.NODE_ENV === "production";
-  const THIRTY_DAYS = 30 * 24 * 60 * 60;
-  response.cookies.set({
-    name: SESSION_COOKIE_NAME,
-    value: accessToken,
-    httpOnly: true,
-    secure: isProd,
-    sameSite: "lax",
-    path: "/",
-    maxAge: THIRTY_DAYS,
-  });
-  if (refreshToken) {
-    response.cookies.set({
-      name: REFRESH_COOKIE_NAME,
-      value: refreshToken,
-      httpOnly: true,
-      secure: isProd,
-      sameSite: "lax",
-      path: "/",
-      maxAge: THIRTY_DAYS,
-    });
-  }
-}
-
-function clearSessionCookies(response: NextResponse) {
-  response.cookies.delete(SESSION_COOKIE_NAME);
-  response.cookies.delete(REFRESH_COOKIE_NAME);
-  response.cookies.delete(USER_COOKIE_NAME);
-}
-
-function temporaryRefreshFailure(request: NextRequest) {
-  if (request.nextUrl.pathname.startsWith("/api/")) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Unable to verify your session right now. Please try again.",
-      },
-      {
-        status: 503,
-        headers: {
-          "Cache-Control": "no-store",
-          "Retry-After": "2",
-        },
-      },
-    );
-  }
-
-  const destination = new URL("/session-unavailable", request.nextUrl);
-  destination.searchParams.set(
-    "returnTo",
-    `${request.nextUrl.pathname}${request.nextUrl.search}`,
-  );
-  const response = NextResponse.rewrite(destination, { status: 503 });
-  response.headers.set("Cache-Control", "no-store");
-  response.headers.set("Retry-After", "2");
-  return response;
-}
+import {
+  SESSION_COOKIE_NAME,
+  REFRESH_COOKIE_NAME,
+  USER_COOKIE_NAME,
+  REFRESH_TIMEOUT_MS,
+  ADMIN_PREFIX,
+  FORBIDDEN_PATH,
+  ADMIN_ROLES,
+  AUTH_ENTRY_ROUTES,
+  fetchRefreshTokenWithRetry,
+  decodeJwtPayload,
+  isTokenExpired,
+  applySessionCookies,
+  clearSessionCookies,
+  temporaryRefreshFailure,
+} from "./lib/auth/proxy-auth";
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -126,16 +50,11 @@ export async function proxy(request: NextRequest) {
   ) {
     try {
       const backendUrl = getBackendApiUrl();
-      const refreshRes = await fetch(`${backendUrl}/auth/refresh`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-client-type": "nextjs",
-        },
-        body: JSON.stringify({ refreshToken }),
-        cache: "no-store",
-        signal: AbortSignal.timeout(REFRESH_TIMEOUT_MS),
-      });
+      const refreshRes = await fetchRefreshTokenWithRetry(
+        backendUrl,
+        refreshToken,
+        REFRESH_TIMEOUT_MS
+      );
 
       if (refreshRes.ok) {
         const body = await refreshRes.json();

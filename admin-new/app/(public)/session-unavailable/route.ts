@@ -75,7 +75,7 @@ export function GET(request: NextRequest) {
 </html>`;
 
   return new NextResponse(html, {
-    status: 503,
+    status: 200,
     headers: {
       "Cache-Control": "no-store",
       "Content-Type": "text/html; charset=utf-8",
