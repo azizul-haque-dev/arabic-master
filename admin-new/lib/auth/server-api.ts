@@ -35,7 +35,8 @@ function fetchWithTimeout(
 function isAiGenerationEndpoint(endpoint: string): boolean {
   const pathname = endpoint.split("?")[0];
   return /\/ai(?:\/list)?$/.test(pathname) ||
-    /\/(?:generate|regenerate-context|regenerate-usage)$/.test(pathname);
+    /\/(?:generate|regenerate-context|regenerate-usage)$/.test(pathname) ||
+    /\/lessons\/[^/]+\/(?:sentences|words)(?:\/batch)?$/.test(pathname);
 }
 
 async function clearSessionWhenPossible(): Promise<void> {
