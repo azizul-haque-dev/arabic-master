@@ -93,9 +93,13 @@ export function validationFailure(issues: readonly { path: PropertyKey[]; messag
   };
 }
 
+export type BackendActionOptions = RequestInit & {
+  timeoutMs?: number;
+};
+
 export async function callBackend(
   endpoint: string,
-  init: RequestInit = {},
+  init: BackendActionOptions = {},
 ): Promise<ContentActionResult<unknown>> {
   try {
     const response = await serverApiFetch(endpoint, { ...init, cache: "no-store" });

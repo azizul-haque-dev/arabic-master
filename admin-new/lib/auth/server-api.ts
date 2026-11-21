@@ -2,9 +2,13 @@ import { getAuthSession, setAuthSession, clearAuthSession } from "./session";
 import { getBackendApiUrl } from "./backend-url";
 import { ActionFailure, AuthActionErrorCode } from "@/lib/types/auth";
 
-const API_REQUEST_TIMEOUT_MS = 25_000;
+const API_REQUEST_TIMEOUT_MS = 60_000;
 const AUTH_REQUEST_TIMEOUT_MS = 10_000;
 const REFRESH_TIMEOUT_MS = 10_000;
+
+export type ServerApiFetchOptions = RequestInit & {
+  timeoutMs?: number;
+};
 
 type RefreshResult =
   | { kind: "refreshed"; accessToken: string }
@@ -14,14 +18,24 @@ type RefreshResult =
 function fetchWithTimeout(
   url: string,
   options: RequestInit,
-  timeoutMs: number,
+  timeoutMs?: number,
 ): Promise<Response> {
+  if (timeoutMs === undefined) {
+    return fetch(url, options);
+  }
+
   const timeoutSignal = AbortSignal.timeout(timeoutMs);
   const signal = options.signal
     ? AbortSignal.any([options.signal, timeoutSignal])
     : timeoutSignal;
 
   return fetch(url, { ...options, signal });
+}
+
+function isAiGenerationEndpoint(endpoint: string): boolean {
+  const pathname = endpoint.split("?")[0];
+  return /\/ai(?:\/list)?$/.test(pathname) ||
+    /\/(?:generate|regenerate-context|regenerate-usage)$/.test(pathname);
 }
 
 async function clearSessionWhenPossible(): Promise<void> {
@@ -148,7 +162,7 @@ async function refreshAccessToken(): Promise<RefreshResult> {
 
 export async function serverApiFetch(
   endpoint: string,
-  options: RequestInit = {},
+  options: ServerApiFetchOptions = {},
   retryOn401 = true
 ): Promise<Response> {
   const backendUrl = getBackendApiUrl();
@@ -168,7 +182,12 @@ export async function serverApiFetch(
   }
 
   const timeoutMs =
-    endpoint === "/auth/me" ? AUTH_REQUEST_TIMEOUT_MS : API_REQUEST_TIMEOUT_MS;
+    options.timeoutMs ??
+    (isAiGenerationEndpoint(endpoint)
+      ? undefined
+      : endpoint === "/auth/me"
+        ? AUTH_REQUEST_TIMEOUT_MS
+        : API_REQUEST_TIMEOUT_MS);
   let response: Response;
 
   try {
@@ -178,7 +197,7 @@ export async function serverApiFetch(
       cache: "no-store",
     }, timeoutMs);
   } catch (error) {
-    if (error instanceof Error && error.name === "TimeoutError") {
+    if (timeoutMs !== undefined && error instanceof Error && error.name === "TimeoutError") {
       console.warn(`[Auth] Backend request to ${endpoint} timed out after ${timeoutMs}ms`);
     }
     throw error;
@@ -200,7 +219,7 @@ export async function serverApiFetch(
           cache: "no-store",
         }, timeoutMs);
       } catch (error) {
-        if (error instanceof Error && error.name === "TimeoutError") {
+        if (timeoutMs !== undefined && error instanceof Error && error.name === "TimeoutError") {
           console.warn(`[Auth] Retried backend request to ${endpoint} timed out after ${timeoutMs}ms`);
         }
         throw error;
