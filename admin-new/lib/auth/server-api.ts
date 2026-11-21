@@ -2,9 +2,9 @@ import { getAuthSession, setAuthSession, clearAuthSession } from "./session";
 import { getBackendApiUrl } from "./backend-url";
 import { ActionFailure, AuthActionErrorCode } from "@/lib/types/auth";
 
-const API_REQUEST_TIMEOUT_MS = 5_000;
-const AUTH_REQUEST_TIMEOUT_MS = 5_000;
-const REFRESH_TIMEOUT_MS = 6_000;
+const API_REQUEST_TIMEOUT_MS = 25_000;
+const AUTH_REQUEST_TIMEOUT_MS = 10_000;
+const REFRESH_TIMEOUT_MS = 10_000;
 
 type RefreshResult =
   | { kind: "refreshed"; accessToken: string }

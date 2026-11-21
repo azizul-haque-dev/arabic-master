@@ -3,7 +3,7 @@ import "server-only";
 import { getAuthSession, setAuthSession, clearAuthSession } from "@/lib/auth/session";
 import { getBackendApiUrl } from "@/lib/auth/backend-url";
 
-const REFRESH_TIMEOUT_MS = 4_000;
+const REFRESH_TIMEOUT_MS = 10_000;
 
 function refreshUnavailableResponse(): Response {
   return new Response(

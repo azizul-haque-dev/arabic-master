@@ -101,7 +101,8 @@ export async function callBackend(
     const response = await serverApiFetch(endpoint, { ...init, cache: "no-store" });
     if (!response.ok) return { success: false, ...failureForStatus(response.status) };
     return { success: true, data: await responseData(response) };
-  } catch {
+  } catch (error) {
+    console.error(`[callBackend] Error calling ${endpoint}:`, error);
     return {
       success: false,
       code: "NETWORK_ERROR",
