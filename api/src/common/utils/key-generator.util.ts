@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import type { Executor } from '../../database/db.js';
+import type { Tx } from '../../database/db.js';
 
 /**
  * Generates the next sequential formatted key (e.g. 'AE-1025', 'W-2048', 'SNT-1024', etc.)
@@ -9,16 +9,20 @@ import type { Executor } from '../../database/db.js';
  * @param columnName Name of the column storing the key
  * @param prefix Key prefix including delimiter (e.g. 'AE-', 'W-', 'SNT-', 'CNV-', 'CRS-', 'SEC-', 'LSN-')
  * @param baseNumber Base number sequence starts after (e.g. 1000 for 1001, 2000 for 2001, etc.)
- * @param ex Database executor (db or transaction)
+ * @param ex Transaction executor that will also insert the generated key
  */
 export async function generateNextSequentialKey(
   tableName: string,
   columnName: string,
   prefix: string,
   baseNumber: number,
-  ex: Executor,
+  ex: Tx,
   attemptOffset = 0,
 ): Promise<string> {
+  await ex.execute(
+    sql`SELECT pg_advisory_xact_lock(hashtext(${tableName}), hashtext(${columnName}))`,
+  );
+
   const fromIndex = prefix.length + 1;
   const regexPattern = `^${prefix}[0-9]+$`;
 

@@ -115,13 +115,15 @@ export const ConversationRepository = {
       .orderBy(asc(schema.conversationTurn.order));
   },
 
-  async generateNextConversationKey(
-    exOrOffset: Executor | number = db,
-    maybeOffset = 0,
-  ): Promise<string> {
-    const ex = typeof exOrOffset === 'number' ? db : exOrOffset;
-    const offset = typeof exOrOffset === 'number' ? exOrOffset : maybeOffset;
-    return generateNextSequentialKey('Conversation', 'conversationKey', 'CNV-', 3000, ex, offset);
+  async generateNextConversationKey(ex: Tx, offset = 0): Promise<string> {
+    return generateNextSequentialKey(
+      'Conversation',
+      'conversationKey',
+      'CNV-',
+      3000,
+      ex,
+      offset,
+    );
   },
 
   async insert(v: typeof schema.conversation.$inferInsert, tx: Tx) {

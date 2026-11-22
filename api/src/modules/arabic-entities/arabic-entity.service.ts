@@ -3,11 +3,16 @@ import {
   assertEditable,
   resolveStatusChange,
 } from '../../common/utils/content-workflow.util.js';
-import { ForbiddenError, NotFoundError } from '../../common/errors/app-error.js';
+import {
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+} from '../../common/errors/app-error.js';
 import { logger } from '../../common/http/logger.js';
 import { paginated } from '../../common/http/response.js';
 import { r2StorageService } from '../../common/storage/r2.service.js';
 import { buildAudioDownloadFilename } from '../../common/utils/audio-filename.util.js';
+import { normalizeArabicText } from '../../common/utils/normalize-arabic.util.js';
 import { withTransaction } from '../../database/db.js';
 import { ContentStatus, Role } from '../../database/drizzle/enums.js';
 import type { RequestUser } from '../auth/auth.types.js';
@@ -64,11 +69,27 @@ export const ArabicEntityService = {
   },
 
   async create(input: CreateArabicEntityInput, userId: string) {
-    return ArabicEntityRepository.create({
-      ...input,
-      status: (input.status as ContentStatus) ?? ContentStatus.DRAFT,
-      createdById: userId,
-    });
+    const normalizedText = normalizeArabicText(input.arabicText);
+    const existing = await ArabicEntityRepository.findByNormalizedText(
+      normalizedText,
+    );
+    if (existing) return existing;
+
+    try {
+      return await ArabicEntityRepository.create({
+        ...input,
+        status: (input.status as ContentStatus) ?? ContentStatus.DRAFT,
+        createdById: userId,
+      });
+    } catch (error) {
+      if (!(error instanceof ConflictError)) throw error;
+
+      const raced = await ArabicEntityRepository.findByNormalizedText(
+        normalizedText,
+      );
+      if (raced) return raced;
+      throw error;
+    }
   },
 
   async update(

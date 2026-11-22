@@ -1,10 +1,27 @@
 import { describe, expect, it, vi } from 'vitest';
 import { generateNextSequentialKey } from './key-generator.util.js';
-import type { Executor } from '../../database/db.js';
+import type { Tx } from '../../database/db.js';
 
-function createMockExecutor(maxNum: number | null, existingKeys: string[] = []) {
-  return {
-    execute: vi.fn().mockImplementation(async (q) => {
+type MockTx = Tx & { execute: ReturnType<typeof vi.fn> };
+
+function queryText(query: { queryChunks: unknown[] }): string {
+  return query.queryChunks
+    .map((chunk) => {
+      if (typeof chunk === 'string') return chunk;
+      if (typeof chunk !== 'object' || chunk === null || !('value' in chunk)) {
+        return '';
+      }
+      const value = chunk.value;
+      return Array.isArray(value) ? value.join('') : '';
+    })
+    .join('');
+}
+
+function createMockExecutor(
+  maxNum: number | null,
+  existingKeys: string[] = [],
+): MockTx {
+  const execute = vi.fn().mockImplementation(async (q) => {
       const chunks = q.queryChunks || [];
       const text = chunks.map((c: any) => (typeof c === 'string' ? c : c?.value ?? '')).join('');
       if (text.includes('MAX(')) {
@@ -18,8 +35,8 @@ function createMockExecutor(maxNum: number | null, existingKeys: string[] = []) 
         return { rows: [{ '?column?': 1 }] };
       }
       return { rows: [] };
-    }),
-  } as unknown as Executor;
+    });
+  return { execute } as unknown as MockTx;
 }
 
 describe('generateNextSequentialKey', () => {
@@ -28,6 +45,19 @@ describe('generateNextSequentialKey', () => {
     const key = await generateNextSequentialKey('Word', 'wordKey', 'W-', 2000, mockExecutor);
     expect(key).toBe('W-2001');
     expect(mockExecutor.execute).toHaveBeenCalled();
+  });
+
+  it('locks the key namespace before reading the current maximum', async () => {
+    const mockExecutor = createMockExecutor(null);
+
+    await generateNextSequentialKey('Word', 'wordKey', 'W-', 2000, mockExecutor);
+
+    const firstQuery = mockExecutor.execute.mock.calls[0][0];
+    expect(queryText(firstQuery)).toContain('pg_advisory_xact_lock');
+    const maxQueryIndex = mockExecutor.execute.mock.calls.findIndex((call) =>
+      queryText(call[0]).includes('MAX('),
+    );
+    expect(maxQueryIndex).toBeGreaterThan(0);
   });
 
   it('should return maxNum + 1 when matching rows exist', async () => {

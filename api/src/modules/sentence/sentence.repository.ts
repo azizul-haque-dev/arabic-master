@@ -14,7 +14,7 @@ import { v7 as randomUUIDv7 } from 'uuid';
 import { escapeLike } from '../../common/utils/escape-like.util.js';
 import { normalizeArabicText } from '../../common/utils/normalize-arabic.util.js';
 import { generateNextSequentialKey } from '../../common/utils/key-generator.util.js';
-import { db, type Executor } from '../../database/db.js';
+import { db, type Executor, type Tx } from '../../database/db.js';
 import type {
   ContentStatus,
   SentenceType,
@@ -154,12 +154,7 @@ export const SentenceRepository = {
     return row ?? null;
   },
 
-  async generateNextSentenceKey(
-    exOrOffset: Executor | number = db,
-    maybeOffset = 0,
-  ): Promise<string> {
-    const ex = typeof exOrOffset === 'number' ? db : exOrOffset;
-    const offset = typeof exOrOffset === 'number' ? exOrOffset : maybeOffset;
+  async generateNextSentenceKey(ex: Tx, offset = 0): Promise<string> {
     return generateNextSequentialKey(
       'Sentence',
       'sentenceKey',

@@ -4,7 +4,11 @@ import path from 'node:path';
 import { Readable } from 'node:stream';
 import { v7 as randomUUIDv7 } from 'uuid';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ForbiddenError, NotFoundError } from '../../common/errors/app-error.js';
+import {
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+} from '../../common/errors/app-error.js';
 import { logger } from '../../common/http/logger.js';
 import { r2StorageService } from '../../common/storage/r2.service.js';
 import * as dbModule from '../../database/db.js';
@@ -122,6 +126,40 @@ describe('ArabicEntityService', () => {
         fs.unlinkSync(realTempPath);
       }
     } catch {}
+  });
+
+  describe('create', () => {
+    it('reuses an entity with the same normalized Arabic text', async () => {
+      const findByNormalizedText = vi
+        .spyOn(ArabicEntityRepository, 'findByNormalizedText')
+        .mockResolvedValue(mockEntity as any);
+      const create = vi.spyOn(ArabicEntityRepository, 'create');
+
+      const result = await ArabicEntityService.create(
+        { arabicText: 'كتاب', status: ContentStatus.DRAFT },
+        mockUser.userId,
+      );
+
+      expect(findByNormalizedText).toHaveBeenCalledWith('كتاب');
+      expect(create).not.toHaveBeenCalled();
+      expect(result).toBe(mockEntity);
+    });
+
+    it('reuses the entity created by a concurrent request', async () => {
+      vi.spyOn(ArabicEntityRepository, 'findByNormalizedText')
+        .mockImplementationOnce(async () => null)
+        .mockResolvedValueOnce(mockEntity as any);
+      vi.spyOn(ArabicEntityRepository, 'create').mockRejectedValue(
+        new ConflictError('Arabic entity already exists'),
+      );
+
+      const result = await ArabicEntityService.create(
+        { arabicText: 'كتاب', status: ContentStatus.DRAFT },
+        mockUser.userId,
+      );
+
+      expect(result).toBe(mockEntity);
+    });
   });
 
   describe('uploadAudio', () => {

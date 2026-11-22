@@ -135,7 +135,10 @@ export function EntityListView({ initialEntities = [] }: EntityListViewProps) {
     });
 
     if (res.success) {
-      setEntities((prev) => [res.data, ...prev]);
+      setEntities((prev) => [
+        res.data,
+        ...prev.filter((entity) => entity.id !== res.data.id),
+      ]);
       setCreateOpen(false);
       router.refresh();
     } else {

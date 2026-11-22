@@ -13,7 +13,7 @@ import {
 import { escapeLike } from '../../common/utils/escape-like.util.js';
 import { normalizeArabicText } from '../../common/utils/normalize-arabic.util.js';
 import { generateNextSequentialKey } from '../../common/utils/key-generator.util.js';
-import { db, type Db, type Executor } from '../../database/db.js';
+import { db, type Db, type Executor, type Tx } from '../../database/db.js';
 import type { ContentStatus } from '../../database/drizzle/enums.js';
 import * as schema from '../../database/drizzle/schema.js';
 
@@ -142,12 +142,7 @@ export const WordRepository = {
     return word ?? null;
   },
 
-  async generateNextWordKey(
-    exOrOffset: Executor | number = db,
-    maybeOffset = 0,
-  ): Promise<string> {
-    const ex = typeof exOrOffset === 'number' ? db : exOrOffset;
-    const offset = typeof exOrOffset === 'number' ? exOrOffset : maybeOffset;
+  async generateNextWordKey(ex: Tx, offset = 0): Promise<string> {
     return generateNextSequentialKey('Word', 'wordKey', 'W-', 2000, ex, offset);
   },
 

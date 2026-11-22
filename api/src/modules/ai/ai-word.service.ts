@@ -11,6 +11,7 @@ import {
   isArabicText,
   normalizeArabicText,
 } from '../../common/utils/normalize-arabic.util.js';
+import { withTransaction } from '../../database/db.js';
 import { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
 import { WordRepository } from '../words/word.repository.js';
 import { AiService } from './ai.service.js';
@@ -71,23 +72,28 @@ export function createAiWordService(dependencies: {
     let attempts = 0;
     while (attempts < 5) {
       try {
-        const wordKey = await words.generateNextWordKey(attempts);
-        return await words.insert({
-          id: randomUUIDv7(),
-          wordKey,
-          entityId: entity.id,
-          category,
-          meaningEn: result.meaningEn,
-          meaningBn: result.meaningBn,
-          whenToUseEn: result.whenToUseEn,
-          whenToUseBn: result.whenToUseBn,
-          pronunciationEn: result.pronunciationEn,
-          pronunciationBn: result.pronunciationBn,
-          feminineEn: result.feminineEn,
-          feminineBn: result.feminineBn,
-          noteEn: result.noteEn || null,
-          noteBn: result.noteBn || null,
-          createdById,
+        return await withTransaction(async (tx) => {
+          const wordKey = await words.generateNextWordKey(tx, attempts);
+          return words.insert(
+            {
+              id: randomUUIDv7(),
+              wordKey,
+              entityId: entity.id,
+              category,
+              meaningEn: result.meaningEn,
+              meaningBn: result.meaningBn,
+              whenToUseEn: result.whenToUseEn,
+              whenToUseBn: result.whenToUseBn,
+              pronunciationEn: result.pronunciationEn,
+              pronunciationBn: result.pronunciationBn,
+              feminineEn: result.feminineEn,
+              feminineBn: result.feminineBn,
+              noteEn: result.noteEn || null,
+              noteBn: result.noteBn || null,
+              createdById,
+            },
+            tx,
+          );
         });
       } catch (err) {
         const pgErr = err as { code?: string; constraint?: string };

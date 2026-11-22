@@ -65,15 +65,20 @@ export const WordService = {
     let attempts = 0;
     while (attempts < 5) {
       try {
-        const wordKey = await WordRepository.generateNextWordKey(attempts);
-        return await WordRepository.insert({
-          id: randomUUIDv7(),
-          wordKey,
-          entityId: entity.id,
-          ...fields,
-          wordType: fields.wordType ?? WordType.OTHER,
-          status: ContentStatus.DRAFT,
-          createdById,
+        return await withTransaction(async (tx) => {
+          const wordKey = await WordRepository.generateNextWordKey(tx, attempts);
+          return WordRepository.insert(
+            {
+              id: randomUUIDv7(),
+              wordKey,
+              entityId: entity.id,
+              ...fields,
+              wordType: fields.wordType ?? WordType.OTHER,
+              status: ContentStatus.DRAFT,
+              createdById,
+            },
+            tx,
+          );
         });
       } catch (err: unknown) {
         const pgErr = err as { code?: string; constraint?: string };
@@ -185,22 +190,27 @@ export const WordService = {
     let word = null;
     while (attempts < 5) {
       try {
-        const wordKey = await WordRepository.generateNextWordKey(attempts);
-        word = await WordRepository.insert({
-          id: randomUUIDv7(),
-          wordKey,
-          entityId: entity.id,
-          meaningEn: empty,
-          meaningBn: empty,
-          whenToUseEn: empty,
-          whenToUseBn: empty,
-          pronunciationEn: empty,
-          pronunciationBn: empty,
-          feminineEn: empty,
-          feminineBn: empty,
-          category: DEFAULT_CATEGORY,
-          status: ContentStatus.DRAFT,
-          createdById,
+        word = await withTransaction(async (tx) => {
+          const wordKey = await WordRepository.generateNextWordKey(tx, attempts);
+          return WordRepository.insert(
+            {
+              id: randomUUIDv7(),
+              wordKey,
+              entityId: entity.id,
+              meaningEn: empty,
+              meaningBn: empty,
+              whenToUseEn: empty,
+              whenToUseBn: empty,
+              pronunciationEn: empty,
+              pronunciationBn: empty,
+              feminineEn: empty,
+              feminineBn: empty,
+              category: DEFAULT_CATEGORY,
+              status: ContentStatus.DRAFT,
+              createdById,
+            },
+            tx,
+          );
         });
         break;
       } catch (err: unknown) {

@@ -104,17 +104,24 @@ export const SentenceService = {
     let sentence = null;
     while (attempts < 5) {
       try {
-        const sentenceKey =
-          await SentenceRepository.generateNextSentenceKey(attempts);
-        sentence = await SentenceRepository.insert({
-          id: randomUUIDv7(),
-          sentenceKey,
-          entityId: entity.id,
-          ...fields,
-          sentenceType,
-          difficulty: fields.difficulty ?? DifficultyLevel.BEGINNER,
-          status: ContentStatus.DRAFT,
-          createdById,
+        sentence = await withTransaction(async (tx) => {
+          const sentenceKey = await SentenceRepository.generateNextSentenceKey(
+            tx,
+            attempts,
+          );
+          return SentenceRepository.insert(
+            {
+              id: randomUUIDv7(),
+              sentenceKey,
+              entityId: entity.id,
+              ...fields,
+              sentenceType,
+              difficulty: fields.difficulty ?? DifficultyLevel.BEGINNER,
+              status: ContentStatus.DRAFT,
+              createdById,
+            },
+            tx,
+          );
         });
         break;
       } catch (err: unknown) {
@@ -290,26 +297,33 @@ export const SentenceService = {
     let sentence = null;
     while (attempts < 5) {
       try {
-        const sentenceKey =
-          await SentenceRepository.generateNextSentenceKey(attempts);
-        sentence = await SentenceRepository.insert({
-          id: randomUUIDv7(),
-          sentenceKey,
-          entityId: entity.id,
-          meaningEn: blank,
-          meaningBn: blank,
-          whenToUseEn: blank,
-          whenToUseBn: blank,
-          pronunciationEn: blank,
-          pronunciationBn: blank,
-          feminineEn: blank,
-          feminineBn: blank,
-          sentenceType,
-          relatedWordId: relatedWordId ?? null,
-          category: DEFAULT_CATEGORY,
-          difficulty: DifficultyLevel.BEGINNER,
-          status: ContentStatus.DRAFT,
-          createdById,
+        sentence = await withTransaction(async (tx) => {
+          const sentenceKey = await SentenceRepository.generateNextSentenceKey(
+            tx,
+            attempts,
+          );
+          return SentenceRepository.insert(
+            {
+              id: randomUUIDv7(),
+              sentenceKey,
+              entityId: entity.id,
+              meaningEn: blank,
+              meaningBn: blank,
+              whenToUseEn: blank,
+              whenToUseBn: blank,
+              pronunciationEn: blank,
+              pronunciationBn: blank,
+              feminineEn: blank,
+              feminineBn: blank,
+              sentenceType,
+              relatedWordId: relatedWordId ?? null,
+              category: DEFAULT_CATEGORY,
+              difficulty: DifficultyLevel.BEGINNER,
+              status: ContentStatus.DRAFT,
+              createdById,
+            },
+            tx,
+          );
         });
         break;
       } catch (err: unknown) {

@@ -110,12 +110,7 @@ export const CourseRepository = {
     return rows.length > 0;
   },
 
-  async generateNextCourseKey(
-    exOrOffset: Executor | number = db,
-    maybeOffset = 0,
-  ): Promise<string> {
-    const ex = typeof exOrOffset === 'number' ? db : exOrOffset;
-    const offset = typeof exOrOffset === 'number' ? exOrOffset : maybeOffset;
+  async generateNextCourseKey(ex: Tx, offset = 0): Promise<string> {
     return generateNextSequentialKey('Course', 'courseKey', 'CRS-', 1000, ex, offset);
   },
 

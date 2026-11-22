@@ -29,14 +29,17 @@ export async function responseData(response: Response): Promise<unknown> {
   }
 }
 
-export function failureForStatus(status: number): {
+export function failureForStatus(
+  status: number,
+  backendMessage?: string,
+): {
   code: ContentErrorCode;
   error: string;
 } {
   if (status === 401) return { code: "UNAUTHORIZED", error: "Your session has expired. Please sign in again." };
   if (status === 403) return { code: "FORBIDDEN", error: "You do not have permission to perform this action." };
   if (status === 404) return { code: "NOT_FOUND", error: "This record no longer exists." };
-  if (status === 409) return { code: "CONFLICT", error: "This content conflicts with an existing record." };
+  if (status === 409) return { code: "CONFLICT", error: backendMessage || "This content conflicts with an existing record." };
   if (status === 429) return { code: "RATE_LIMITED", error: "Too many requests. Please wait and try again." };
   if (status >= 500) return { code: "SERVER_ERROR", error: "The service is temporarily unavailable. Please try again." };
   if (status === 400 || status === 422) {
@@ -103,7 +106,21 @@ export async function callBackend(
 ): Promise<ContentActionResult<unknown>> {
   try {
     const response = await serverApiFetch(endpoint, { ...init, cache: "no-store" });
-    if (!response.ok) return { success: false, ...failureForStatus(response.status) };
+    if (!response.ok) {
+      const payload = await responseData(response);
+      const rawMessage = isRecord(payload) ? payload.message : undefined;
+      const message =
+        typeof rawMessage === "string"
+          ? rawMessage
+          : Array.isArray(rawMessage) &&
+              rawMessage.every((item) => typeof item === "string")
+            ? rawMessage.join("; ")
+            : undefined;
+      return {
+        success: false,
+        ...failureForStatus(response.status, message),
+      };
+    }
     return { success: true, data: await responseData(response) };
   } catch (error) {
     console.error(`[callBackend] Error calling ${endpoint}:`, error);

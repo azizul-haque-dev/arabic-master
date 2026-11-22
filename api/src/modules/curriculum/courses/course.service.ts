@@ -66,13 +66,21 @@ export const CourseService = {
     let attempts = 0;
     while (attempts < 5) {
       try {
-        const courseKey = await CourseRepository.generateNextCourseKey(attempts);
-        return await CourseRepository.insert({
-          id: randomUUIDv7(),
-          courseKey,
-          ...dto,
-          status: ContentStatus.DRAFT,
-          createdById: actor.userId,
+        return await withTransaction(async (tx) => {
+          const courseKey = await CourseRepository.generateNextCourseKey(
+            tx,
+            attempts,
+          );
+          return CourseRepository.insert(
+            {
+              id: randomUUIDv7(),
+              courseKey,
+              ...dto,
+              status: ContentStatus.DRAFT,
+              createdById: actor.userId,
+            },
+            tx,
+          );
         });
       } catch (err: unknown) {
         const pgErr = err as { code?: string; constraint?: string };

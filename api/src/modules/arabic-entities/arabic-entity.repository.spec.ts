@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ArabicEntityRepository } from './arabic-entity.repository.js';
 import { ConflictError } from '../../common/errors/app-error.js';
-import { db, type Executor } from '../../database/db.js';
+import { db, type Tx } from '../../database/db.js';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -39,7 +39,7 @@ describe('ArabicEntityRepository.create', () => {
           returning: vi.fn().mockResolvedValue([entity]),
         }),
       }),
-    } as unknown as Executor;
+    } as unknown as Tx;
     const transaction = vi.spyOn(db, 'transaction').mockImplementation(
       (callback) => callback(mockExecutor as never),
     );
@@ -70,7 +70,7 @@ describe('ArabicEntityRepository.create', () => {
           }),
         }),
       }),
-    } as unknown as Executor;
+    } as unknown as Tx;
 
     await expect(
       ArabicEntityRepository.create(
@@ -104,7 +104,7 @@ describe('ArabicEntityRepository.create', () => {
           }),
         }),
       }),
-    } as unknown as Executor;
+    } as unknown as Tx;
 
     await ArabicEntityRepository.create({ arabicText: 'مرحبا' }, mockExecutor);
 
@@ -143,7 +143,7 @@ describe('ArabicEntityRepository.create', () => {
           }),
         }),
       }),
-    } as unknown as Executor;
+    } as unknown as Tx;
 
     await expect(
       ArabicEntityRepository.create({ arabicText: 'مرحبا' }, mockExecutor),
@@ -175,7 +175,7 @@ describe('ArabicEntityRepository.create', () => {
           }),
         }),
       }),
-    } as unknown as Executor;
+    } as unknown as Tx;
 
     await expect(
       ArabicEntityRepository.create(

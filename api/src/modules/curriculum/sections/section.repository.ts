@@ -131,12 +131,7 @@ export const SectionRepository = {
     return agg?.maxOrder ?? 0;
   },
 
-  async generateNextSectionKey(
-    exOrOffset: Executor | number = db,
-    maybeOffset = 0,
-  ): Promise<string> {
-    const ex = typeof exOrOffset === 'number' ? db : exOrOffset;
-    const offset = typeof exOrOffset === 'number' ? exOrOffset : maybeOffset;
+  async generateNextSectionKey(ex: Tx, offset = 0): Promise<string> {
     return generateNextSequentialKey('Section', 'sectionKey', 'SEC-', 2000, ex, offset);
   },
 

@@ -95,6 +95,7 @@ describe('Arabic Entity CRUD Routes Integration', () => {
     vi.spyOn(ArabicEntityRepository, 'findById').mockResolvedValue(mockEntity as any);
     vi.spyOn(ArabicEntityRepository, 'findDetailedById').mockResolvedValue(mockEntity as any);
     vi.spyOn(ArabicEntityRepository, 'findByEntityKey').mockResolvedValue(null as any);
+    vi.spyOn(ArabicEntityRepository, 'findByNormalizedText').mockResolvedValue(null);
   });
 
   describe('GET /api/v1/arabic-entities', () => {
