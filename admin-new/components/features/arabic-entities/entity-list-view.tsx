@@ -11,12 +11,17 @@ import { ContentStatusBadge } from "@/components/shared/content-status-badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
 import { EntityFormDialog } from "@/components/features/arabic-entities/entity-form-dialog";
+import { ArabicEntityGenerationDialog } from "@/components/features/arabic-entities/arabic-entity-generation-dialog";
 import { RelationshipSummary } from "@/components/features/arabic-entities/relationship-summary";
 import { Button } from "@/components/ui/button";
 import type { ArabicEntity, ContentStatus, EntityFormValues } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
 import { AudioUploadDialog } from "@/components/features/audio/audio-upload-dialog";
 import { checkAudioPermission } from "@/lib/audio/permissions";
+import type {
+  ArabicEntityGenerationBatchResult,
+  ArabicEntityGenerationResult,
+} from "@/actions/content/arabic-entity-actions";
 
 import {
   createArabicEntityAction,
@@ -44,6 +49,51 @@ export function EntityListView({ initialEntities = [] }: EntityListViewProps) {
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ArabicEntity | null>(null);
   const [audioTarget, setAudioTarget] = useState<ArabicEntity | null>(null);
+  const [aiGenerateOpen, setAiGenerateOpen] = useState(false);
+  const [generationMessage, setGenerationMessage] = useState<string | null>(null);
+
+  function addGeneratedEntity(result: ArabicEntityGenerationResult) {
+    if (result.created) {
+      setEntities((prev) => [
+        result.entity,
+        ...prev.filter((entity) => entity.id !== result.entity.id),
+      ]);
+    }
+    setGenerationMessage(
+      result.created
+        ? `Created Arabic entity ${result.entity.entityKey}.`
+        : `Arabic entity ${result.entity.entityKey} already exists.`,
+    );
+    router.refresh();
+  }
+
+  function addGeneratedEntities(results: ArabicEntityGenerationBatchResult[]) {
+    const successful = results.filter(
+      (result): result is Extract<ArabicEntityGenerationBatchResult, { success: true }> =>
+        result.success,
+    );
+    const created = successful.filter((result) => result.created);
+    if (created.length > 0) {
+      setEntities((prev) => [
+        ...created.map((result) => result.entity).filter(
+          (entity) => !prev.some((item) => item.id === entity.id),
+        ),
+        ...prev,
+      ]);
+    }
+
+    const failedCount = results.length - successful.length;
+    const existingCount = successful.length - created.length;
+    const summary = [
+      `${created.length} created`,
+      existingCount > 0 ? `${existingCount} already existed` : null,
+      failedCount > 0 ? `${failedCount} failed` : null,
+    ]
+      .filter(Boolean)
+      .join(", ");
+    setGenerationMessage(`AI entity batch complete: ${summary}.`);
+    router.refresh();
+  }
 
   const filtered = useMemo(() => {
     return entities.filter((entity) => {
@@ -201,12 +251,30 @@ export function EntityListView({ initialEntities = [] }: EntityListViewProps) {
         title="Arabic Entities"
         description="The canonical, reusable Arabic text layer. Words and Sentences reference an entity here instead of storing duplicate Arabic text."
         primaryAction={
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            Create entity
-          </Button>
+          <>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setGenerationMessage(null);
+                setAiGenerateOpen(true);
+              }}
+            >
+              <Sparkles className="h-4 w-4" aria-hidden="true" />
+              Generate with AI
+            </Button>
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              Create entity
+            </Button>
+          </>
         }
       />
+
+      {generationMessage ? (
+        <p role="status" className="rounded-default border border-primary/25 bg-primary-light/15 px-4 py-2.5 text-sm text-primary-dark">
+          {generationMessage}
+        </p>
+      ) : null}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
@@ -309,6 +377,13 @@ export function EntityListView({ initialEntities = [] }: EntityListViewProps) {
           setCreateOpen(false);
           router.push(`/admin/arabic-entities/${entity.id}`);
         }}
+      />
+
+      <ArabicEntityGenerationDialog
+        open={aiGenerateOpen}
+        onOpenChange={setAiGenerateOpen}
+        onGenerated={addGeneratedEntity}
+        onBatchGenerated={addGeneratedEntities}
       />
 
       <DeleteConfirmationDialog

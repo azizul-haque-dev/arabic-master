@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import type { ContentActionResult } from "@/lib/content/action-result";
 import { callBackend, requireContentAdmin, validationFailure } from "@/lib/content/server";
 import {
@@ -9,6 +10,8 @@ import {
   arabicEntityUpdateSchema,
   contentIdSchema,
   contentListQuerySchema,
+  generateQuerySchema,
+  generateWordListQuerySchema,
   queryFromUnknown,
 } from "@/lib/content/validation";
 import {
@@ -20,6 +23,36 @@ import {
   type ArabicEntityListResponse,
 } from "@/lib/arabic-entities/api";
 import type { ArabicEntity, ContentStatus } from "@/lib/types/content";
+
+const generatedEntityResponseSchema = z.strictObject({
+  entity: z.unknown(),
+  created: z.boolean(),
+});
+
+const generatedEntityBatchResponseSchema = z.array(
+  z.discriminatedUnion("success", [
+    z.strictObject({
+      query: z.string(),
+      success: z.literal(true),
+      entity: z.unknown(),
+      created: z.boolean(),
+    }),
+    z.strictObject({
+      query: z.string(),
+      success: z.literal(false),
+      error: z.string(),
+    }),
+  ]),
+);
+
+export interface ArabicEntityGenerationResult {
+  entity: ArabicEntity;
+  created: boolean;
+}
+
+export type ArabicEntityGenerationBatchResult =
+  | ({ query: string; success: true } & ArabicEntityGenerationResult)
+  | { query: string; success: false; error: string };
 
 function toFailure<T>(
   result: Extract<ContentActionResult<unknown>, { success: false }>,
@@ -33,6 +66,84 @@ function safeFailure<T>(): ContentActionResult<T> {
     code: "SERVER_ERROR",
     error: "The request could not be completed. Please try again.",
   };
+}
+
+export async function generateArabicEntityAction(
+  input: unknown,
+): Promise<ContentActionResult<ArabicEntityGenerationResult>> {
+  const authorization = await requireContentAdmin();
+  if (!authorization.success) return toFailure(authorization);
+
+  const parsed = generateQuerySchema.safeParse(input);
+  if (!parsed.success) return validationFailure(parsed.error.issues);
+
+  try {
+    const response = await callBackend("/arabic-entities/ai", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: parsed.data }),
+    });
+    if (!response.success) return toFailure(response);
+
+    const result = generatedEntityResponseSchema.safeParse(response.data);
+    if (!result.success) {
+      console.error("[generateArabicEntityAction] Invalid AI response:", result.error);
+      return safeFailure();
+    }
+
+    revalidatePath("/admin/arabic-entities");
+    return {
+      success: true,
+      data: {
+        entity: normalizeArabicEntity(result.data.entity),
+        created: result.data.created,
+      },
+    };
+  } catch {
+    return safeFailure();
+  }
+}
+
+export async function generateArabicEntityListAction(
+  input: unknown,
+): Promise<ContentActionResult<ArabicEntityGenerationBatchResult[]>> {
+  const authorization = await requireContentAdmin();
+  if (!authorization.success) return toFailure(authorization);
+
+  const parsed = generateWordListQuerySchema.safeParse(input);
+  if (!parsed.success) return validationFailure(parsed.error.issues);
+
+  try {
+    const response = await callBackend("/arabic-entities/ai/list", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: parsed.data }),
+    });
+    if (!response.success) return toFailure(response);
+
+    const result = generatedEntityBatchResponseSchema.safeParse(response.data);
+    if (!result.success) {
+      console.error("[generateArabicEntityListAction] Invalid AI response:", result.error);
+      return safeFailure();
+    }
+
+    revalidatePath("/admin/arabic-entities");
+    return {
+      success: true,
+      data: result.data.map((item) =>
+        item.success
+          ? {
+              query: item.query,
+              success: true as const,
+              entity: normalizeArabicEntity(item.entity),
+              created: item.created,
+            }
+          : item,
+      ),
+    };
+  } catch {
+    return safeFailure();
+  }
 }
 
 export async function listArabicEntitiesAction(

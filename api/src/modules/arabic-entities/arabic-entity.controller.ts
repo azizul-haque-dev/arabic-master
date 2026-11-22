@@ -11,6 +11,11 @@ import type {
   UpdateArabicEntityStatusInput,
 } from './arabic-entity.schemas.js';
 import { ArabicEntityService } from './arabic-entity.service.js';
+import { AiArabicEntityService } from '../ai/ai-arabic-entity.service.js';
+import type {
+  GenerateContentInput,
+  GenerateWordListInput,
+} from '../ai/generate-content.schema.js';
 
 const id = (req: Request) => paramsOf<IdParam>(req)?.id ?? req.params.id;
 
@@ -30,6 +35,24 @@ export const ArabicEntityController = {
     const body = bodyOf<CreateArabicEntityInput>(req);
     const created = await ArabicEntityService.create(body, req.auth!.userId);
     ok(res, created, 201);
+  },
+
+  generate: async (req: Request, res: Response) => {
+    const { query } = bodyOf<GenerateContentInput>(req);
+    const result = await AiArabicEntityService.generateWithAi(
+      query,
+      req.auth!.userId,
+    );
+    ok(res, { entity: result.entity, created: result.created }, result.created ? 201 : 200);
+  },
+
+  generateList: async (req: Request, res: Response) => {
+    const { query } = bodyOf<GenerateWordListInput>(req);
+    ok(
+      res,
+      await AiArabicEntityService.generateManyWithAi(query, req.auth!.userId),
+      200,
+    );
   },
 
   update: async (req: Request, res: Response) => {

@@ -5,6 +5,10 @@ import { parseAudioUpload } from '../../common/middleware/audio-upload.js';
 import { validate } from '../../common/middleware/validate.js';
 import { idParamSchema } from '../../common/schemas.js';
 import { Role } from '../../database/drizzle/enums.js';
+import {
+  generateContentSchema,
+  generateWordListSchema,
+} from '../ai/generate-content.schema.js';
 import { ArabicEntityController } from './arabic-entity.controller.js';
 import {
   audioVariantQuerySchema,
@@ -32,6 +36,20 @@ arabicEntityRoutes.post(
   ...staff,
   validate({ body: createArabicEntitySchema }),
   ArabicEntityController.create,
+);
+
+arabicEntityRoutes.post(
+  '/ai',
+  ...staff,
+  validate({ body: generateContentSchema }),
+  ArabicEntityController.generate,
+);
+
+arabicEntityRoutes.post(
+  '/ai/list',
+  ...staff,
+  validate({ body: generateWordListSchema }),
+  ArabicEntityController.generateList,
 );
 
 // Upload audio for an Arabic entity (POST /api/v1/arabic-entities/:id/audio)
