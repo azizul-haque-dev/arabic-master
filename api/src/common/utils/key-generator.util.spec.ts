@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { PgDialect } from 'drizzle-orm/pg-core';
 import { generateNextSequentialKey } from './key-generator.util.js';
 import type { Tx } from '../../database/db.js';
 
@@ -58,6 +59,26 @@ describe('generateNextSequentialKey', () => {
       queryText(call[0]).includes('MAX('),
     );
     expect(maxQueryIndex).toBeGreaterThan(0);
+  });
+
+  it('inlines the substring start index so PostgreSQL uses positional substring semantics', async () => {
+    const mockExecutor = createMockExecutor(null);
+
+    await generateNextSequentialKey(
+      'ArabicEntity',
+      'entityKey',
+      'AE-',
+      1000,
+      mockExecutor,
+    );
+
+    const maxQuery = mockExecutor.execute.mock.calls.find((call) =>
+      queryText(call[0]).includes('MAX('),
+    )?.[0];
+    if (!maxQuery) throw new Error('Expected a max query');
+    const compiled = new PgDialect().sqlToQuery(maxQuery);
+    expect(compiled.sql).toContain('SUBSTRING("entityKey" FROM 4)');
+    expect(compiled.params).toEqual(['^AE-[0-9]+$']);
   });
 
   it('should return maxNum + 1 when matching rows exist', async () => {

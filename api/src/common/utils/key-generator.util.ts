@@ -27,7 +27,7 @@ export async function generateNextSequentialKey(
   const regexPattern = `^${prefix}[0-9]+$`;
 
   const query = sql`
-    SELECT MAX(CAST(SUBSTRING("${sql.raw(columnName)}" FROM ${fromIndex}) AS INTEGER)) as max_num 
+    SELECT MAX(CAST(SUBSTRING("${sql.raw(columnName)}" FROM ${sql.raw(String(fromIndex))}) AS INTEGER)) as max_num
     FROM "${sql.raw(tableName)}" 
     WHERE "${sql.raw(columnName)}" ~ ${regexPattern}
   `;
