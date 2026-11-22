@@ -1,9 +1,16 @@
 import { and, eq, inArray, isNull } from 'drizzle-orm';
-import { db, type Db, type Executor } from '../../database/db.js';
+import { db, type Executor } from '../../database/db.js';
 import * as schema from '../../database/drizzle/schema.js';
 
 export const SessionRepository= {
     // ---- session ----
+    async lockUserForSession(userId: string, ex: Executor) {
+      await ex
+        .select({ id: schema.user.id })
+        .from(schema.user)
+        .where(eq(schema.user.id, userId))
+        .for('update');
+    },
     async findById(id: string, ex: Executor = db) {
       const [row] = await ex
         .select()
@@ -16,8 +23,8 @@ export const SessionRepository= {
       const [row] = await ex.insert(schema.session).values(v).returning();
       return row;
     },
-    async findOpenIdsByUser(userId: string) {
-      const rows = await db
+    async findOpenIdsByUser(userId: string, ex: Executor = db) {
+      const rows = await ex
         .select({ id: schema.session.id })
         .from(schema.session)
         .where(
@@ -39,8 +46,8 @@ export const SessionRepository= {
           ),
         );
     },
-    async revokeAllForUser(userId: string) {
-      await db
+    async revokeAllForUser(userId: string, ex: Executor = db) {
+      await ex
         .update(schema.session)
         .set({ revokedAt: new Date(), isActive: false })
         .where(
@@ -85,9 +92,9 @@ export const SessionRepository= {
           ),
         );
     },
-    async revokeRefreshBySessions(sessionIds: string[]) {
+    async revokeRefreshBySessions(sessionIds: string[], ex: Executor = db) {
       if (!sessionIds.length) return;
-      await db
+      await ex
         .update(schema.refreshToken)
         .set({ revokedAt: new Date() })
         .where(

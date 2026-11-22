@@ -93,7 +93,7 @@ export function SmartSentenceDialog({
             <DialogTitle>Smart Add Sentences with AI</DialogTitle>
           </div>
           <DialogDescription>
-            Enter multiple sentences (separated by commas or newlines). If a sentence already exists in the database, it will be linked instantly. If not, AI will automatically generate and save it!
+            Enter multiple sentences (separated by commas (`,` or `،`) or newlines). If a sentence already exists in the database, it will be linked instantly. If not, AI will automatically generate and save it!
           </DialogDescription>
         </DialogHeader>
 

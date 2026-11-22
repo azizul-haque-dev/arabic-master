@@ -50,50 +50,68 @@ async function createSession(p: {
   ipAddress?: string;
   userAgent?: string;
 }) {
-  await revokeAllSessionsForUser(p.userId); // ⚠️ single-device login
-
   const refreshTokenExpiresAt = TokenService.getRefreshTokenExpiryDate();
-  const session = await SessionRepository.insert({
-    id: randomUUIDv7(),
-    userId: p.userId,
-    deviceId: randomUUIDv7(),
-    ipAddress: p.ipAddress,
-    userAgent: p.userAgent,
-    expiresAt: refreshTokenExpiresAt,
+  const created = await withTransaction(async (tx) => {
+    await SessionRepository.lockUserForSession(p.userId, tx);
+    const revokedSessionIds = await SessionRepository.findOpenIdsByUser(
+      p.userId,
+      tx,
+    );
+    await SessionRepository.revokeAllForUser(p.userId, tx);
+    await SessionRepository.revokeRefreshBySessions(revokedSessionIds, tx);
+
+    const sessionId = randomUUIDv7();
+    await SessionRepository.insert({
+      id: sessionId,
+      userId: p.userId,
+      deviceId: randomUUIDv7(),
+      ipAddress: p.ipAddress,
+      userAgent: p.userAgent,
+      expiresAt: refreshTokenExpiresAt,
+    }, tx);
+
+    const { token: accessToken } = TokenService.generateAccessToken(
+      p.userId,
+      sessionId,
+    );
+    const { token: refreshToken, jwtId } = TokenService.generateRefreshToken(
+      p.userId,
+      sessionId,
+    );
+
+    await SessionRepository.insertRefresh({
+      id: randomUUIDv7(),
+      sessionId,
+      jwtId,
+      tokenHash: TokenService.hashToken(refreshToken),
+      expiresAt: refreshTokenExpiresAt,
+    }, tx);
+
+    return {
+      revokedSessionIds,
+      sessionId,
+      accessToken,
+      refreshToken,
+    };
   });
 
-  const { token: accessToken } = TokenService.generateAccessToken(
-    p.userId,
-    session.id,
-  );
-  const { token: refreshToken, jwtId } = TokenService.generateRefreshToken(
-    p.userId,
-    session.id,
-  );
-
-  await SessionRepository.insertRefresh({
-    id: randomUUIDv7(),
-    sessionId: session.id,
-    jwtId,
-    tokenHash: TokenService.hashToken(refreshToken),
-    expiresAt: refreshTokenExpiresAt,
-  });
+  await Promise.all(created.revokedSessionIds.map(cacheRevoked));
 
   const ttl = Math.ceil(
     (refreshTokenExpiresAt.getTime() - Date.now()) / 1000,
   );
   try {
-    await RedisService.setActiveSession(p.userId, session.id, ttl);
+    await RedisService.setActiveSession(p.userId, created.sessionId, ttl);
   } catch (err) {
     logger.error(
-      { err, userId: p.userId, sessionId: session.id },
+      { err, userId: p.userId, sessionId: created.sessionId },
       'Failed to cache active session in Redis',
     );
   }
   return {
-    sessionId: session.id,
-    accessToken,
-    refreshToken,
+    sessionId: created.sessionId,
+    accessToken: created.accessToken,
+    refreshToken: created.refreshToken,
     refreshTokenExpiresAt,
   };
 }

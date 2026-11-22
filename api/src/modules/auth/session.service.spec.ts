@@ -3,6 +3,7 @@ import {
   ServiceUnavailableError,
   UnauthorizedError,
 } from '../../common/errors/app-error.js';
+import { withTransaction } from '../../database/db.js';
 import { SessionRepository } from './session.repository.js';
 import { SessionService } from './session.service.js';
 import { TokenService } from './token.service.js';
@@ -237,5 +238,94 @@ describe('SessionService.rotateRefreshToken', () => {
         ...meta,
       }),
     ).rejects.toThrow(ServiceUnavailableError);
+  });
+});
+
+describe('SessionService.createSession', () => {
+  const userId = 'user-uuid-1';
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('serializes logins and revokes existing sessions in the creation transaction', async () => {
+    const operations: string[] = [];
+    vi.spyOn(SessionRepository, 'lockUserForSession').mockImplementation(
+      async () => {
+        operations.push('lock');
+      },
+    );
+    vi.spyOn(SessionRepository, 'findOpenIdsByUser').mockImplementation(
+      async () => {
+        operations.push('find-open-sessions');
+        return ['old-session'];
+      },
+    );
+    vi.spyOn(SessionRepository, 'revokeAllForUser').mockImplementation(
+      async () => {
+        operations.push('revoke-sessions');
+      },
+    );
+    vi.spyOn(SessionRepository, 'revokeRefreshBySessions').mockImplementation(
+      async () => {
+        operations.push('revoke-refresh-tokens');
+      },
+    );
+    vi.spyOn(SessionRepository, 'insert').mockResolvedValue({
+      id: 'unused-session-row-id',
+      userId,
+      deviceId: 'new-device',
+      userAgent: null,
+      ipAddress: null,
+      isActive: true,
+      createdAt: new Date(),
+      expiresAt: new Date(),
+      revokedAt: null,
+    });
+    vi.spyOn(SessionRepository, 'insertRefresh').mockResolvedValue({
+      id: 'new-refresh-token',
+      sessionId: 'unused-session-row-id',
+      jwtId: 'new-jwt-id',
+      tokenHash: 'new-token-hash',
+      expiresAt: new Date(),
+      revokedAt: null,
+      replacedByTokenId: null,
+      createdAt: new Date(),
+    });
+    vi.spyOn(RedisService, 'revokeSession').mockResolvedValue(undefined);
+    vi.spyOn(RedisService, 'setActiveSession').mockResolvedValue(undefined);
+
+    const result = await SessionService.createSession({ userId });
+    const insertedSession = vi.mocked(SessionRepository.insert).mock.calls[0]?.[0];
+
+    expect(insertedSession?.id).toBe(result.sessionId);
+    expect(withTransaction).toHaveBeenCalledOnce();
+    expect(SessionRepository.lockUserForSession).toHaveBeenCalledWith(
+      userId,
+      expect.anything(),
+    );
+    expect(operations).toEqual([
+      'lock',
+      'find-open-sessions',
+      'revoke-sessions',
+      'revoke-refresh-tokens',
+    ]);
+    expect(SessionRepository.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ userId, id: result.sessionId }),
+      expect.anything(),
+    );
+    expect(SessionRepository.insertRefresh).toHaveBeenCalledWith(
+      expect.objectContaining({ sessionId: result.sessionId }),
+      expect.anything(),
+    );
+    expect(RedisService.revokeSession).toHaveBeenCalledWith(
+      'old-session',
+      expect.any(Number),
+    );
+    expect(RedisService.setActiveSession).toHaveBeenCalledWith(
+      userId,
+      result.sessionId,
+      expect.any(Number),
+    );
   });
 });

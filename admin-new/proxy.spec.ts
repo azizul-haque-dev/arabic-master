@@ -6,6 +6,9 @@ import { proxy } from "./proxy";
 
 const originalFetch = globalThis.fetch;
 const expiredAccessToken = "e30.eyJleHAiOjEwMDB9.sig";
+const validAccessToken = `e30.${Buffer.from(
+  JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600 }),
+).toString("base64url")}.sig`;
 
 function request(pathname: string): NextRequest {
   return new NextRequest(`https://arabic-master.test${pathname}`, {
@@ -38,9 +41,9 @@ describe("proxy session refresh", () => {
 
     const response = await proxy(request("/admin/arabic-entities"));
 
-    assert.equal(response.status, 503);
+    assert.equal(response.status, 307);
     assert.match(
-      response.headers.get("x-middleware-rewrite") ?? "",
+      response.headers.get("location") ?? "",
       /\/session-unavailable/,
     );
     assert.equal(response.headers.get("cache-control"), "no-store");
@@ -85,7 +88,12 @@ describe("proxy session refresh", () => {
         { status: 200, headers: { "Content-Type": "application/json" } },
       );
 
-    const response = await proxy(request("/login"));
+    const loginRequest = new NextRequest("https://arabic-master.test/login", {
+      headers: {
+        cookie: `session_token=${expiredAccessToken}; refresh_token=refresh; user=${JSON.stringify({ role: "ADMIN" })}`,
+      },
+    });
+    const response = await proxy(loginRequest);
 
     assert.equal(response.status, 307);
     assert.match(
@@ -93,6 +101,42 @@ describe("proxy session refresh", () => {
       /\/admin\/arabic-entities/,
     );
     assert.match(response.headers.get("set-cookie") ?? "", /session_token=/);
+  });
+
+  it("clears and redirects a revoked session on the next protected page request", async () => {
+    globalThis.fetch = async () => new Response(null, { status: 401 });
+    const protectedRequest = new NextRequest(
+      "https://arabic-master.test/profile",
+      {
+        headers: { cookie: `session_token=${validAccessToken}; refresh_token=refresh` },
+      },
+    );
+
+    const response = await proxy(protectedRequest);
+
+    assert.equal(response.status, 307);
+    assert.match(response.headers.get("location") ?? "", /\/login/);
+    assert.match(response.headers.get("set-cookie") ?? "", /session_token=/);
+    assert.match(response.headers.get("set-cookie") ?? "", /refresh_token=/);
+    assert.match(response.headers.get("set-cookie") ?? "", /user=/);
+  });
+
+  it("sends regular users to their profile after login", async () => {
+    globalThis.fetch = async () =>
+      new Response(JSON.stringify({ data: { user: { role: "USER" } } }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    const loginRequest = new NextRequest("https://arabic-master.test/login", {
+      headers: {
+        cookie: `session_token=${validAccessToken}; user=${JSON.stringify({ role: "USER" })}`,
+      },
+    });
+
+    const response = await proxy(loginRequest);
+
+    assert.equal(response.status, 307);
+    assert.match(response.headers.get("location") ?? "", /\/profile/);
   });
 
   it("rejects external retry destinations on the temporary error route", async () => {
@@ -103,7 +147,7 @@ describe("proxy session refresh", () => {
     );
     const html = await response.text();
 
-    assert.equal(response.status, 503);
+    assert.equal(response.status, 200);
     assert.match(html, /href="\/">Try again/);
     assert.doesNotMatch(html, /href="\/\/evil\.example"/);
   });
