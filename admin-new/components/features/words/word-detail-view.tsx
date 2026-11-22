@@ -300,6 +300,16 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
                   {word.pronunciationBangla}
                 </dd>
               </div>
+              <div>
+                <dt className="text-xs text-text-muted">Feminine form / pronunciation (English)</dt>
+                <dd className="mt-0.5 text-sm text-text">{word.feminineEnglish}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-text-muted">Feminine form / pronunciation (Bangla)</dt>
+                <dd className="mt-0.5 font-bengali text-sm text-text">
+                  {word.feminineBangla}
+                </dd>
+              </div>
             </dl>
           </section>
 

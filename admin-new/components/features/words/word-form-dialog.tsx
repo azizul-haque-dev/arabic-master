@@ -28,6 +28,8 @@ const emptyValues: WordFormValues = {
   meaningEnglish: "",
   pronunciationBangla: "",
   pronunciationEnglish: "",
+  feminineBangla: "ছেলে এবং মেয়ে উভয়ের জন্য একই রূপ",
+  feminineEnglish: "Same for both genders",
   whenToUseBangla: "",
   whenToUseEnglish: "",
   wordType: "OTHER",
@@ -83,6 +85,8 @@ export function WordFormDialog({
           meaningEnglish: initialWord.meaningEnglish,
           pronunciationBangla: initialWord.pronunciationBangla,
           pronunciationEnglish: initialWord.pronunciationEnglish,
+          feminineBangla: initialWord.feminineBangla,
+          feminineEnglish: initialWord.feminineEnglish,
           whenToUseBangla: initialWord.whenToUseBangla,
           whenToUseEnglish: initialWord.whenToUseEnglish,
           wordType: initialWord.wordType,
@@ -105,6 +109,8 @@ export function WordFormDialog({
             meaningEnglish: initialWord.meaningEnglish,
             pronunciationBangla: initialWord.pronunciationBangla,
             pronunciationEnglish: initialWord.pronunciationEnglish,
+            feminineBangla: initialWord.feminineBangla,
+            feminineEnglish: initialWord.feminineEnglish,
             whenToUseBangla: initialWord.whenToUseBangla,
             whenToUseEnglish: initialWord.whenToUseEnglish,
             wordType: initialWord.wordType,
@@ -283,6 +289,30 @@ export function WordFormDialog({
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="w-feminine-en">Feminine form / pronunciation (English)</Label>
+                  <Textarea
+                    id="w-feminine-en"
+                    rows={2}
+                    value={values.feminineEnglish}
+                    onChange={(e) => update("feminineEnglish", e.target.value)}
+                    placeholder="Inti (إنتِ)"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="w-feminine-bn">Feminine form / pronunciation (Bangla)</Label>
+                  <Textarea
+                    id="w-feminine-bn"
+                    rows={2}
+                    value={values.feminineBangla}
+                    onChange={(e) => update("feminineBangla", e.target.value)}
+                    placeholder="ইন্তি (إنتِ)"
+                    className="font-bengali"
+                  />
+                </div>
+              </div>
+
               <div>
                 <Label htmlFor="w-when-en">When to use (English)</Label>
                 <Textarea
@@ -351,6 +381,8 @@ export function WordFormDialog({
                     !values.meaningBangla.trim() ||
                     !values.pronunciationEnglish.trim() ||
                     !values.pronunciationBangla.trim() ||
+                    !values.feminineEnglish.trim() ||
+                    !values.feminineBangla.trim() ||
                     !values.whenToUseEnglish.trim() ||
                     !values.whenToUseBangla.trim() ||
                     !values.category.trim()

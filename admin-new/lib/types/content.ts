@@ -56,12 +56,8 @@ export interface EntityFormValues {
 
 /**
  * A Word references exactly one ArabicEntity (see relationship rules above).
- * Grammar variant tables (I/You-M/You-F/He/She/We/They for verbs, etc.) are
- * intentionally NOT modeled here — the PRD lists "Advanced Grammar
- * Variants" under Phase 2, so building the full variant editor now would be
- * scope creep ahead of the data it depends on. `wordType` and `gender` are
- * kept so the variant system has somewhere to attach later without a
- * migration.
+ * Full grammar variant tables (I/You-M/You-F/He/She/We/They for verbs, etc.)
+ * remain out of scope; the learner-facing feminine form is stored separately.
  */
 export type WordType = "NOUN" | "VERB" | "ADJECTIVE" | "OTHER";
 
@@ -74,6 +70,8 @@ export interface Word {
   meaningEnglish: string;
   pronunciationBangla: string;
   pronunciationEnglish: string;
+  feminineBangla: string;
+  feminineEnglish: string;
   whenToUseBangla: string;
   whenToUseEnglish: string;
   wordType: WordType;
@@ -91,6 +89,8 @@ export interface WordFormValues {
   meaningEnglish: string;
   pronunciationBangla: string;
   pronunciationEnglish: string;
+  feminineBangla: string;
+  feminineEnglish: string;
   whenToUseBangla: string;
   whenToUseEnglish: string;
   wordType: WordType;

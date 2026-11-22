@@ -87,6 +87,8 @@ export function normalizeWord(raw: unknown, arabicTextOverride?: string): Word {
     meaningEnglish: optionalString(raw.meaningEn, raw.meaningEnglish) ?? requiredString(raw, "meaningEn"),
     pronunciationBangla: optionalString(raw.pronunciationBn, raw.pronunciationBangla) ?? requiredString(raw, "pronunciationBn"),
     pronunciationEnglish: optionalString(raw.pronunciationEn, raw.pronunciationEnglish) ?? requiredString(raw, "pronunciationEn"),
+    feminineBangla: optionalString(raw.feminineBn, raw.feminineBangla) ?? requiredString(raw, "feminineBn"),
+    feminineEnglish: optionalString(raw.feminineEn, raw.feminineEnglish) ?? requiredString(raw, "feminineEn"),
     whenToUseBangla: optionalString(raw.whenToUseBn, raw.whenToUseBangla) ?? requiredString(raw, "whenToUseBn"),
     whenToUseEnglish: optionalString(raw.whenToUseEn, raw.whenToUseEnglish) ?? requiredString(raw, "whenToUseEn"),
     wordType: normalizeWordType(raw.wordType),
@@ -138,8 +140,8 @@ export function buildWordPayload(
     whenToUseBn: values.whenToUseBangla,
     wordType: values.wordType,
     category: values.category,
-    feminineEn: values.meaningEnglish,
-    feminineBn: values.meaningBangla,
+    feminineEn: values.feminineEnglish,
+    feminineBn: values.feminineBangla,
   };
 }
 
@@ -153,7 +155,7 @@ export function buildWordUpdatePayload(values: WordFormValues): WordUpdatePayloa
     whenToUseBn: values.whenToUseBangla,
     wordType: values.wordType,
     category: values.category,
-    feminineEn: values.meaningEnglish,
-    feminineBn: values.meaningBangla,
+    feminineEn: values.feminineEnglish,
+    feminineBn: values.feminineBangla,
   };
 }
