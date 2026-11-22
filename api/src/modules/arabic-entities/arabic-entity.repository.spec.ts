@@ -1,9 +1,58 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ArabicEntityRepository } from './arabic-entity.repository.js';
 import { ConflictError } from '../../common/errors/app-error.js';
-import type { Executor } from '../../database/db.js';
+import { db, type Executor } from '../../database/db.js';
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe('ArabicEntityRepository.create', () => {
+  it('uses read-committed transactions for generated-key retries', async () => {
+    const entity = {
+      id: 'entity-1',
+      entityKey: 'AE-1001',
+      arabicText: 'مرحبا',
+      normalizedText: 'مرحبا',
+      audioUrl: null,
+      meaningBangla: null,
+      meaningEnglish: null,
+      pronunciationBangla: '',
+      pronunciationEnglish: '',
+      status: 'DRAFT' as const,
+      rejectionReason: null,
+      createdById: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    const mockExecutor = {
+      execute: vi.fn().mockResolvedValue({ rows: [] }),
+      select: vi.fn().mockReturnValue({
+        from: vi.fn().mockReturnValue({
+          where: vi.fn().mockReturnValue({
+            limit: vi.fn().mockResolvedValue([]),
+          }),
+        }),
+      }),
+      insert: vi.fn().mockReturnValue({
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([entity]),
+        }),
+      }),
+    } as unknown as Executor;
+    const transaction = vi.spyOn(db, 'transaction').mockImplementation(
+      (callback) => callback(mockExecutor as never),
+    );
+
+    await expect(
+      ArabicEntityRepository.create({ arabicText: 'مرحبا' }),
+    ).resolves.toMatchObject({ entityKey: 'AE-1001' });
+
+    expect(transaction).toHaveBeenCalledWith(expect.any(Function), {
+      isolationLevel: 'read committed',
+    });
+  });
+
   it('throws ConflictError if an entity with the same normalizedText already exists', async () => {
     const mockExecutor = {
       execute: vi.fn().mockResolvedValue({ rows: [] }),
