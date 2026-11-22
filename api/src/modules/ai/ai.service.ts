@@ -20,19 +20,14 @@ import {
 } from './output-policy.js';
 
 const FALLBACK_MODELS = [
-  'gemini-3.6-flash',
-  'gemini-3.5-flash',
   'gemini-3.5-flash-lite',
   'gemini-3.1-flash-lite',
+  'gemini-3.5-flash',
+  'gemini-3.6-flash',
 ] as const;
 
-function buildModelCandidates(): string[] {
-  const configured =
-    env.AI_MODEL_NAME === 'gemini-3.1-flash-lite' ||
-    env.AI_MODEL_NAME === 'gemini-3.5-flash-lite'
-      ? 'gemini-3.6-flash'
-      : env.AI_MODEL_NAME;
-  const candidates = [configured, ...FALLBACK_MODELS];
+export function buildModelCandidates(configuredModel: string): string[] {
+  const candidates = [...FALLBACK_MODELS, configuredModel];
   return Array.from(new Set(candidates.filter(Boolean)));
 }
 
@@ -58,7 +53,7 @@ function isServiceOrQuotaError(err: unknown): boolean {
 }
 
 export function createAiService() {
-  const modelNames = buildModelCandidates();
+  const modelNames = buildModelCandidates(env.AI_MODEL_NAME);
 
   return {
     async generateContent(query: string): Promise<AiResponse> {
