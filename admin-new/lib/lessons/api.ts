@@ -106,7 +106,16 @@ function normalizeLessonContentPreview(value: unknown): LessonContentPreview | n
   if (!isRecord(value)) throw new Error("The service returned an invalid lesson item preview.");
 
   const preview: LessonContentPreview = {};
-  for (const key of ["id", "key", "title", "arabicText", "meaningEn", "meaningBn"] as const) {
+  for (const key of [
+    "id",
+    "key",
+    "title",
+    "arabicText",
+    "meaningEn",
+    "meaningBn",
+    "pronunciationEn",
+    "pronunciationBn",
+  ] as const) {
     if (typeof value[key] === "string") preview[key] = value[key];
   }
   if (value.status !== undefined) preview.status = normalizeStatus(value.status);

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, XCircle, Sparkles } from "lucide-react";
+import { ChevronRight, XCircle, Sparkles, Copy } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
 import { ContentActionBar } from "@/components/shared/content-action-bar";
@@ -136,6 +136,32 @@ export function LessonDetailView({
     }
     setLesson(res.data);
     router.refresh();
+  }
+
+  async function handleCopyItems(items: LessonContentItem[], locale: "bn" | "en") {
+    setActionError(null);
+    const data =
+      locale === "bn"
+        ? items.map((item) => ({
+            ar: item.preview?.arabicText ?? "",
+            bn: item.preview?.meaningBn ?? "",
+            pronuntiation: item.preview?.pronunciationBn ?? "",
+          }))
+        : items.map((item) => ({
+            ar: item.preview?.arabicText ?? "",
+            en: item.preview?.meaningEn ?? "",
+            pronuntiation: item.preview?.pronunciationEn ?? "",
+          }));
+
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+    } catch (error) {
+      setActionError(
+        error instanceof Error
+          ? `Unable to copy lesson content: ${error.message}`
+          : "Unable to copy lesson content. Please check clipboard permissions and try again.",
+      );
+    }
   }
 
   const wordItems = useMemo(() => itemsOfType("WORD"), [lesson.items]);
@@ -290,14 +316,20 @@ export function LessonDetailView({
             onReorder={(reordered) => handleReorderType("WORD", reordered)}
             reviewFilters
             extraAction={
-              <button
-                type="button"
-                onClick={() => setSmartWordsOpen(true)}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-[var(--radius-default)] border border-[var(--color-primary)]/30 bg-[var(--color-primary-light)]/10 px-3.5 py-2.5 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary-light)]/25"
-              >
-                <Sparkles className="h-4 w-4" />
-                Smart AI add words
-              </button>
+              <div className="flex flex-1 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSmartWordsOpen(true)}
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-[var(--radius-default)] border border-[var(--color-primary)]/30 bg-[var(--color-primary-light)]/10 px-3.5 py-2.5 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary-light)]/25"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Smart AI add words
+                </button>
+                <LessonContentCopyAction
+                  disabled={wordItems.length === 0}
+                  onCopy={(locale) => handleCopyItems(wordItems, locale)}
+                />
+              </div>
             }
           />
         </TabsContent>
@@ -337,14 +369,20 @@ export function LessonDetailView({
             onReorder={(reordered) => handleReorderType("SENTENCE", reordered)}
             reviewFilters
             extraAction={
-              <button
-                type="button"
-                onClick={() => setSmartSentencesOpen(true)}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-[var(--radius-default)] border border-[var(--color-primary)]/30 bg-[var(--color-primary-light)]/10 px-3.5 py-2.5 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary-light)]/25"
-              >
-                <Sparkles className="h-4 w-4" />
-                Smart AI add sentences
-              </button>
+              <div className="flex flex-1 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSmartSentencesOpen(true)}
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-[var(--radius-default)] border border-[var(--color-primary)]/30 bg-[var(--color-primary-light)]/10 px-3.5 py-2.5 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary-light)]/25"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Smart AI add sentences
+                </button>
+                <LessonContentCopyAction
+                  disabled={sentenceItems.length === 0}
+                  onCopy={(locale) => handleCopyItems(sentenceItems, locale)}
+                />
+              </div>
             }
           />
         </TabsContent>
@@ -480,6 +518,58 @@ export function LessonDetailView({
           router.refresh();
         }}
       />
+    </div>
+  );
+}
+
+function LessonContentCopyAction({
+  disabled,
+  onCopy,
+}: {
+  disabled: boolean;
+  onCopy: (locale: "bn" | "en") => Promise<void>;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={disabled}
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen((open) => !open)}
+      >
+        <Copy className="h-4 w-4" aria-hidden="true" />
+        Copy all
+      </Button>
+      {isOpen ? (
+        <div role="group" aria-label="Choose copy language" className="flex gap-1">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              setIsOpen(false);
+              void onCopy("bn");
+            }}
+          >
+            BN
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              setIsOpen(false);
+              void onCopy("en");
+            }}
+          >
+            EN
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }

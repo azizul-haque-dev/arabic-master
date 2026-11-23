@@ -231,6 +231,8 @@ export interface LessonContentPreview {
   arabicText?: string;
   meaningEn?: string;
   meaningBn?: string;
+  pronunciationEn?: string;
+  pronunciationBn?: string;
   status?: ContentStatus;
   hasAudio?: boolean;
 }
