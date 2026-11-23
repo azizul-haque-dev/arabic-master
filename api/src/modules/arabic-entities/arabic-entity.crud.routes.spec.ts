@@ -155,6 +155,30 @@ describe('Arabic Entity CRUD Routes Integration', () => {
       expect(body.data.items[0].arabicText).toBe('كتاب');
       expect(body.data.meta.total).toBe(1);
     });
+
+    it.each(['with', 'without'] as const)(
+      'passes the %s audio filter to the entity list query',
+      async (audio) => {
+        const list = vi.spyOn(ArabicEntityRepository, 'list').mockResolvedValue({
+          items: [],
+          total: 0,
+        });
+
+        const res = await fetch(
+          `${baseUrl}?page=2&limit=50&search=book&status=DRAFT&audio=${audio}`,
+          { headers: { Authorization: `Bearer ${userToken}` } },
+        );
+
+        expect(res.status).toBe(200);
+        expect(list).toHaveBeenCalledWith({
+          page: 2,
+          limit: 50,
+          search: 'book',
+          status: 'DRAFT',
+          audio,
+        });
+      },
+    );
   });
 
   describe('GET /api/v1/arabic-entities/:id', () => {

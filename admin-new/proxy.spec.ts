@@ -151,4 +151,21 @@ describe("proxy session refresh", () => {
     assert.match(html, /href="\/">Try again/);
     assert.doesNotMatch(html, /href="\/\/evil\.example"/);
   });
+
+  it("shows loading during retries and retains recovery actions after they fail", async () => {
+    const response = sessionUnavailable(
+      new NextRequest(
+        "https://arabic-master.test/session-unavailable?returnTo=%2Fadmin%2Fwords",
+      ),
+    );
+    const html = await response.text();
+
+    assert.match(html, /id="retrying" role="status" aria-live="polite"/);
+    assert.match(html, /id="retry-failed" aria-labelledby="session-error-title" hidden/);
+    assert.match(html, /Checking your session/);
+    assert.match(html, /We couldn&apos;t verify your session/);
+    assert.match(html, /count < 3/);
+    assert.match(html, /id="try-again" class="primary" href="\/admin\/words">Try again/);
+    assert.match(html, /href="\/login">Sign in/);
+  });
 });

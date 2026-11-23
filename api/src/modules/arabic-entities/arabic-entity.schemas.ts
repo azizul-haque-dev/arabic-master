@@ -34,6 +34,18 @@ export const listArabicEntityQuerySchema = z.object({
       'ARCHIVED',
     ])
     .optional(),
+  audio: z.enum(['with', 'without']).optional(),
+  missing: z.preprocess(
+    (value) => typeof value === 'string' ? [value] : value,
+    z.array(
+      z.enum([
+        'meaningEnglish',
+        'meaningBangla',
+        'pronunciationEnglish',
+        'pronunciationBangla',
+      ]),
+    ).max(4).optional(),
+  ),
 }).strip();
 export type ListArabicEntityQuery = z.infer<typeof listArabicEntityQuerySchema>;
 

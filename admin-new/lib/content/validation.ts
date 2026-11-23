@@ -35,6 +35,19 @@ export const contentListQuerySchema = z.object({
   sentenceType: z.enum(sentenceTypes).optional(),
 }).strip();
 
+export const arabicEntityListQuerySchema = contentListQuerySchema.extend({
+  audio: z.enum(["with", "without"]).optional(),
+  missing: z.preprocess(
+    (value) => typeof value === "string" ? [value] : value,
+    z.array(z.enum([
+      "meaningEnglish",
+      "meaningBangla",
+      "pronunciationEnglish",
+      "pronunciationBangla",
+    ])).max(4).optional(),
+  ),
+});
+
 export const wordListQuerySchema = z.object({
   page: z.coerce.number().int().min(1).max(1_000_000).catch(1),
   limit: z.coerce.number().int().min(1).max(100).catch(20),
@@ -259,6 +272,7 @@ export const lessonReorderInSectionSchema = z.object({
 }).strict();
 
 export type ContentListQuery = z.infer<typeof contentListQuerySchema>;
+export type ArabicEntityListQuery = z.infer<typeof arabicEntityListQuerySchema>;
 export type WordListQuery = z.infer<typeof wordListQuerySchema>;
 export type WordCreateInput = z.infer<typeof wordCreateSchema>;
 export type WordUpdateInput = z.infer<typeof wordUpdateSchema>;

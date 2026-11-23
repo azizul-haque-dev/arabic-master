@@ -1,4 +1,9 @@
-import type { ArabicEntity, ContentStatus } from "@/lib/types/content";
+import type {
+  ArabicEntity,
+  ArabicEntitySentenceReference,
+  ArabicEntityWordReference,
+  ContentStatus,
+} from "@/lib/types/content";
 
 export interface ArabicEntityListResponse {
   items: ArabicEntity[];
@@ -51,6 +56,40 @@ function normalizeStatus(value: unknown): ContentStatus {
     return value;
   }
   return "DRAFT";
+}
+
+function normalizeLinkedWords(value: unknown): ArabicEntityWordReference[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  return value.map((item) => {
+    if (!isRecord(item)) {
+      throw new Error("The service returned an invalid linked Word record.");
+    }
+    return {
+      id: requiredString(item, "id"),
+      wordKey: requiredString(item, "wordKey"),
+      meaningEnglish: requiredString(item, "meaningEn"),
+      meaningBangla: requiredString(item, "meaningBn"),
+    };
+  });
+}
+
+function normalizeLinkedSentences(value: unknown): ArabicEntitySentenceReference[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  return value.map((item) => {
+    if (
+      !isRecord(item) ||
+      (item.sentenceType !== "SHORT" && item.sentenceType !== "LONG")
+    ) {
+      throw new Error("The service returned an invalid linked Sentence record.");
+    }
+    return {
+      id: requiredString(item, "id"),
+      sentenceKey: requiredString(item, "sentenceKey"),
+      meaningEnglish: requiredString(item, "meaningEn"),
+      meaningBangla: requiredString(item, "meaningBn"),
+      sentenceType: item.sentenceType,
+    };
+  });
 }
 
 export function normalizeArabicEntity(raw: unknown): ArabicEntity {
@@ -116,6 +155,8 @@ export function normalizeArabicEntity(raw: unknown): ArabicEntity {
     wordUsageCount,
     sentenceUsageCount,
     conversationUsageCount,
+    linkedWords: normalizeLinkedWords(raw.linkedWords),
+    linkedSentences: normalizeLinkedSentences(raw.linkedSentences),
     rejectionReason: typeof raw.rejectionReason === "string" ? raw.rejectionReason : undefined,
     createdBy,
     createdAt,

@@ -1,5 +1,10 @@
 import { Type, MessageSquareText, MessagesSquare } from "lucide-react";
-import type { ArabicEntity } from "@/lib/types/content";
+import Link from "next/link";
+import type {
+  ArabicEntity,
+  ArabicEntitySentenceReference,
+  ArabicEntityWordReference,
+} from "@/lib/types/content";
 
 export function RelationshipPanel({ entity }: { entity: ArabicEntity }) {
   return (
@@ -33,7 +38,71 @@ export function RelationshipPanel({ entity }: { entity: ArabicEntity }) {
           </>
         ) : null}
       </div>
+
+      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        <RelatedContentList
+          label="Words"
+          count={entity.wordUsageCount}
+          items={entity.linkedWords}
+          path="/admin/words"
+        />
+        <RelatedContentList
+          label="Sentences"
+          count={entity.sentenceUsageCount}
+          items={entity.linkedSentences}
+          path="/admin/sentences"
+        />
+      </div>
     </div>
+  );
+}
+
+function RelatedContentList({
+  label,
+  count,
+  items,
+  path,
+}: {
+  label: string;
+  count: number;
+  items: ArabicEntityWordReference[] | ArabicEntitySentenceReference[] | undefined;
+  path: string;
+}) {
+  return (
+    <section className="rounded-md border border-border p-3">
+      <h4 className="text-xs font-semibold text-text">
+        {label} ({count})
+      </h4>
+      {items === undefined ? (
+        <p className="mt-2 text-xs text-text-muted">
+          {count > 0 ? `Unable to load linked ${label.toLowerCase()}.` : `No linked ${label.toLowerCase()}.`}
+        </p>
+      ) : items.length > 0 ? (
+        <ul className="mt-2 flex flex-col gap-1">
+          {items.map((item) => {
+            const key = "wordKey" in item ? item.wordKey : item.sentenceKey;
+            const sentenceType = "sentenceType" in item ? item.sentenceType : undefined;
+            return (
+              <li key={item.id}>
+                <Link
+                  href={`${path}/${encodeURIComponent(item.id)}`}
+                  className="flex flex-col rounded-sm px-2 py-1.5 hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  <span className="text-xs font-medium text-primary">
+                    {key}{sentenceType === "SHORT" ? " · Short sentence" : ""}
+                  </span>
+                  <span className="truncate text-xs text-text-muted">
+                    {item.meaningEnglish || "No English meaning"}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p className="mt-2 text-xs text-text-muted">No linked {label.toLowerCase()}.</p>
+      )}
+    </section>
   );
 }
 

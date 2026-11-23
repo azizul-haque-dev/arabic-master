@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, MessageSquareOff, Trash2, Sparkles } from "lucide-react";
 import { ContentPageHeader } from "@/components/shared/content-page-header";
 import { ContentDataTable, type DataTableColumn } from "@/components/shared/content-data-table";
@@ -13,6 +13,7 @@ import { SentenceAiDialog } from "@/components/features/sentences/sentence-ai-di
 import { SentenceFilterBar } from "@/components/features/sentences/sentence-filter-bar";
 import { SentenceTypeBadge } from "@/components/features/sentences/sentence-type-badge";
 import { Pagination } from "@/components/shared/pagination";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,8 +32,27 @@ import {
     type SentenceType,
 } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
+import { SENTENCE_CATEGORIES } from "@/lib/sentences/categories";
 
 const PAGE_LIMIT = 20;
+const CONTENT_STATUSES: ContentStatus[] = ["DRAFT", "IN_REVIEW", "APPROVED", "PUBLISHED", "REJECTED", "ARCHIVED"];
+
+function replaceSentenceListUrl(
+    updates: Partial<Record<"page" | "search" | "status" | "category" | "sentenceType", string | undefined>>,
+    resetPage = true,
+) {
+    const params = new URLSearchParams(window.location.search);
+    if (resetPage) params.delete("page");
+    for (const [key, value] of Object.entries(updates)) {
+        if (value) params.set(key, value);
+        else params.delete(key);
+    }
+    const query = params.toString();
+    const nextUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+    if (nextUrl !== `${window.location.pathname}${window.location.search}${window.location.hash}`) {
+        window.history.replaceState(null, "", nextUrl);
+    }
+}
 
 export function SentenceListView({
     initialSentences,
@@ -44,16 +64,24 @@ export function SentenceListView({
     fixedSentenceType?: SentenceType;
 }) {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { role } = useRole();
     const isShortOnly = fixedSentenceType === "SHORT";
     const [sentences, setSentences] = useState<Sentence[]>(initialSentences);
-    const [search, setSearch] = useState("");
-    const [statusFilter, setStatusFilter] = useState<Set<ContentStatus>>(new Set());
-    const [category, setCategory] = useState("");
-    const [sentenceTypeFilter, setSentenceTypeFilter] = useState<SentenceType | "">(
-        fixedSentenceType ?? "",
-    );
-    const [page, setPage] = useState(initialMeta.page);
+    const rawPageValue = searchParams.get("page");
+    const rawPage = Number(rawPageValue);
+    const page = Number.isSafeInteger(rawPage) && rawPage > 0 && rawPage <= 1_000_000 ? rawPage : 1;
+    const search = searchParams.get("search") ?? "";
+    const status = CONTENT_STATUSES.find((candidate) => candidate === searchParams.get("status"));
+    const statusFilter = new Set<ContentStatus>(status ? [status] : []);
+    const category = SENTENCE_CATEGORIES.find(
+        (candidate) => candidate === searchParams.get("category"),
+    ) ?? "";
+    const sentenceTypeParam = searchParams.get("sentenceType");
+    const sentenceTypeFilter: SentenceType | "" = fixedSentenceType
+        ?? (sentenceTypeParam === "SHORT" || sentenceTypeParam === "LONG" ? sentenceTypeParam : "");
+    const effectiveSentenceType = fixedSentenceType ?? (sentenceTypeFilter || undefined);
+    const searchParamsString = searchParams.toString();
     const [total, setTotal] = useState(initialMeta.total);
     const [totalPages, setTotalPages] = useState(initialMeta.totalPages);
     const [isLoading, setIsLoading] = useState(false);
@@ -67,11 +95,14 @@ export function SentenceListView({
     const [deleteTarget, setDeleteTarget] = useState<Sentence | null>(null);
     const firstListEffect = useRef(true);
 
-    const effectiveSentenceType = fixedSentenceType ?? (sentenceTypeFilter || undefined);
-
     useEffect(() => {
         if (firstListEffect.current) {
             firstListEffect.current = false;
+            if (rawPageValue !== null && String(page) !== rawPageValue) {
+                replaceSentenceListUrl({
+                    page: page > 1 ? String(page) : undefined,
+                }, false);
+            }
             return;
         }
         let active = true;
@@ -80,7 +111,7 @@ export function SentenceListView({
             page,
             limit: PAGE_LIMIT,
             search: search.trim() || undefined,
-            status: statusFilter.values().next().value,
+            status,
             category: category || undefined,
             sentenceType: effectiveSentenceType,
         })
@@ -90,7 +121,13 @@ export function SentenceListView({
                     setSentences(result.data.items);
                     setTotal(result.data.meta.total);
                     setTotalPages(result.data.meta.totalPages);
-                    if (page > result.data.meta.totalPages) setPage(result.data.meta.totalPages);
+                    if (page > Math.max(1, result.data.meta.totalPages)) {
+                        replaceSentenceListUrl({
+                            page: result.data.meta.totalPages > 1
+                                ? String(result.data.meta.totalPages)
+                                : undefined,
+                        }, false);
+                    }
                 } else {
                     setError(result.error);
                     setSentences([]);
@@ -112,7 +149,16 @@ export function SentenceListView({
         return () => {
             active = false;
         };
-    }, [page, search, statusFilter, category, effectiveSentenceType, refreshToken]);
+    }, [
+        page,
+        rawPageValue,
+        search,
+        status,
+        category,
+        effectiveSentenceType,
+        searchParamsString,
+        refreshToken,
+    ]);
 
     useEffect(() => {
         const sentenceId = generationPendingId;
@@ -162,8 +208,11 @@ export function SentenceListView({
     function triggerReload(resetPage = true) {
         setIsLoading(true);
         setError(null);
-        if (resetPage) setPage(1);
-        setRefreshToken((value) => value + 1);
+        if (resetPage && page > 1) {
+            replaceSentenceListUrl({ page: undefined }, false);
+        } else {
+            setRefreshToken((value) => value + 1);
+        }
     }
 
     async function handleCreate(values: SentenceFormValues) {
@@ -289,9 +338,7 @@ export function SentenceListView({
         },
     ];
 
-    const hasActiveFilters = Boolean(
-        search || statusFilter.size || category || (!fixedSentenceType && sentenceTypeFilter),
-    );
+    const hasActiveFilters = Boolean(search || status || category || (!fixedSentenceType && sentenceTypeFilter));
 
     return (
         <div className="flex flex-col gap-6">
@@ -349,29 +396,19 @@ export function SentenceListView({
             <SentenceFilterBar
                 search={search}
                 onSearchChange={(value) => {
-                    setSearch(value);
-                    triggerReload(true);
+                    replaceSentenceListUrl({ search: value.trim() ? value : undefined });
                 }}
                 statusFilter={statusFilter}
                 onStatusChange={(value) => {
-                    setStatusFilter(value);
-                    setIsLoading(true);
-                    setError(null);
-                    setPage(1);
+                    replaceSentenceListUrl({ status: value.values().next().value });
                 }}
                 category={category}
                 onCategoryChange={(value) => {
-                    setCategory(value);
-                    setIsLoading(true);
-                    setError(null);
-                    setPage(1);
+                    replaceSentenceListUrl({ category: value || undefined });
                 }}
                 sentenceType={sentenceTypeFilter}
                 onSentenceTypeChange={(value) => {
-                    setSentenceTypeFilter(value);
-                    setIsLoading(true);
-                    setError(null);
-                    setPage(1);
+                    replaceSentenceListUrl({ sentenceType: value || undefined });
                 }}
                 hideTypeFilter={Boolean(fixedSentenceType)}
                 total={total}
@@ -379,8 +416,10 @@ export function SentenceListView({
             />
 
             {isLoading ? (
-                <div role="status" className="text-sm text-text-muted">
-                    Loading sentences…
+                <div role="status" aria-label="Loading sentences" className="flex flex-col gap-3">
+                    {Array.from({ length: 6 }).map((_, index) => (
+                        <Skeleton key={index} className="h-16 w-full" />
+                    ))}
                 </div>
             ) : !error && sentences.length === 0 ? (
                 <EmptyState
@@ -443,7 +482,10 @@ export function SentenceListView({
                     isLoading={isLoading}
                     onPageChange={(newPage) => {
                         if (newPage !== page) {
-                            setPage(newPage);
+                            replaceSentenceListUrl(
+                                { page: newPage > 1 ? String(newPage) : undefined },
+                                false,
+                            );
                         }
                     }}
                 />

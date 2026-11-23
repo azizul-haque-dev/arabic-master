@@ -37,10 +37,18 @@ export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntit
 
   const audioPermission = checkAudioPermission(role, entity.status);
 
+  function updateEntity(nextEntity: ArabicEntity) {
+    setEntity((current) => ({
+      ...nextEntity,
+      linkedWords: nextEntity.linkedWords ?? current.linkedWords,
+      linkedSentences: nextEntity.linkedSentences ?? current.linkedSentences,
+    }));
+  }
+
   async function setStatus(status: ContentStatus, rejectionReason?: string) {
     const res = await updateArabicEntityStatusAction(entity.id, status, rejectionReason);
     if (res.success) {
-      setEntity(res.data);
+      updateEntity(res.data);
       router.refresh();
     } else {
       alert(res.error);
@@ -56,7 +64,7 @@ export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntit
       pronunciationBangla: values.pronunciationBangla,
     });
     if (res.success) {
-      setEntity(res.data);
+      updateEntity(res.data);
       setEditOpen(false);
       router.refresh();
     } else {
@@ -77,7 +85,7 @@ export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntit
       try {
         const fresh = await getArabicEntityAction(entity.id);
         if (fresh.success && fresh.data) {
-          setEntity(fresh.data);
+          updateEntity(fresh.data);
           const hasMeaning =
             Boolean(fresh.data.meaningEnglish?.trim()) &&
             Boolean(fresh.data.meaningBangla?.trim());

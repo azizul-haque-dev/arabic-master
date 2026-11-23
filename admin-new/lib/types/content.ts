@@ -40,10 +40,27 @@ export interface ArabicEntity {
   wordUsageCount: number;
   sentenceUsageCount: number;
   conversationUsageCount: number;
+  linkedWords?: ArabicEntityWordReference[];
+  linkedSentences?: ArabicEntitySentenceReference[];
   rejectionReason?: string;
   createdBy: string;
   updatedAt: string; // ISO date
   createdAt: string; // ISO date
+}
+
+export interface ArabicEntityWordReference {
+  id: string;
+  wordKey: string;
+  meaningEnglish: string;
+  meaningBangla: string;
+}
+
+export interface ArabicEntitySentenceReference {
+  id: string;
+  sentenceKey: string;
+  meaningEnglish: string;
+  meaningBangla: string;
+  sentenceType: SentenceType;
 }
 
 export interface EntityFormValues {

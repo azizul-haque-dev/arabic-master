@@ -1,5 +1,6 @@
 import {
   and,
+  asc,
   count,
   desc,
   eq,
@@ -88,6 +89,31 @@ export const ArabicEntityRepository = {
     if (query.status) {
       conditions.push(eq(schema.arabicEntity.status, query.status as ContentStatus));
     }
+    if (query.audio) {
+      const hasAudio = sql<boolean>`(
+        EXISTS (SELECT 1 FROM ${schema.arabicEntityAudio}
+          WHERE ${schema.arabicEntityAudio.entityId} = ${schema.arabicEntity.id})
+        OR (${schema.arabicEntity.audioUrl} IS NOT NULL AND ${schema.arabicEntity.audioUrl} <> '')
+      )`;
+      conditions.push(query.audio === 'with' ? hasAudio : sql<boolean>`NOT (${hasAudio})`);
+    }
+
+    if (query.missing?.length) {
+      const missingColumns = {
+        meaningEnglish: schema.arabicEntity.meaningEnglish,
+        meaningBangla: schema.arabicEntity.meaningBangla,
+        pronunciationEnglish: schema.arabicEntity.pronunciationEnglish,
+        pronunciationBangla: schema.arabicEntity.pronunciationBangla,
+      };
+      conditions.push(
+        or(
+          ...query.missing.map(
+            (field) =>
+              sql<boolean>`(${missingColumns[field]} IS NULL OR BTRIM(${missingColumns[field]}) = '')`,
+          ),
+        )!,
+      );
+    }
 
     if (query.search) {
       const escaped = `%${escapeLike(query.search)}%`;
@@ -138,7 +164,33 @@ export const ArabicEntityRepository = {
       .where(filter)
       .limit(1);
 
-    return row ?? null;
+    if (!row) return null;
+
+    const [linkedWords, linkedSentences] = await Promise.all([
+      ex
+        .select({
+          id: schema.word.id,
+          wordKey: schema.word.wordKey,
+          meaningEn: schema.word.meaningEn,
+          meaningBn: schema.word.meaningBn,
+        })
+        .from(schema.word)
+        .where(eq(schema.word.entityId, row.id))
+        .orderBy(asc(schema.word.wordKey)),
+      ex
+        .select({
+          id: schema.sentence.id,
+          sentenceKey: schema.sentence.sentenceKey,
+          meaningEn: schema.sentence.meaningEn,
+          meaningBn: schema.sentence.meaningBn,
+          sentenceType: schema.sentence.sentenceType,
+        })
+        .from(schema.sentence)
+        .where(eq(schema.sentence.entityId, row.id))
+        .orderBy(asc(schema.sentence.sentenceKey)),
+    ]);
+
+    return { ...row, linkedWords, linkedSentences };
   },
 
   async create(

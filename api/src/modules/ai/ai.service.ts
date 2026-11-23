@@ -20,9 +20,9 @@ import {
 } from './output-policy.js';
 
 const FALLBACK_MODELS = [
+  'gemini-3.5-flash',
   'gemini-3.5-flash-lite',
   'gemini-3.1-flash-lite',
-  'gemini-3.5-flash',
   'gemini-3.6-flash',
 ] as const;
 
@@ -39,6 +39,49 @@ function createChatModel(modelName: string) {
     // Single attempt per model so a 503 spike immediately falls over to the next candidate model
     maxRetries: 0,
   });
+}
+
+export async function runWithModelFallback<T>(
+  modelNames: readonly string[],
+  query: string,
+  invoke: (modelName: string) => Promise<T>,
+): Promise<T> {
+  let lastError: unknown;
+
+  for (const [index, modelName] of modelNames.entries()) {
+    try {
+      const result = await invoke(modelName);
+      logger.info(
+        {
+          modelName,
+          attempt: index + 1,
+          totalCandidates: modelNames.length,
+        },
+        'AI generateContent succeeded with model.',
+      );
+      return result;
+    } catch (err) {
+      lastError = err;
+      const hasNextCandidate = index < modelNames.length - 1;
+      logger.warn(
+        {
+          err,
+          modelName,
+          attempt: index + 1,
+          totalCandidates: modelNames.length,
+          hasNextCandidate,
+          query,
+        },
+        hasNextCandidate
+          ? 'AI generateContent failed on model; trying next candidate.'
+          : 'AI generateContent failed on final candidate.',
+      );
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error('AI content generation failed across all candidate models');
 }
 
 function isServiceOrQuotaError(err: unknown): boolean {
@@ -58,28 +101,15 @@ export function createAiService() {
   return {
     async generateContent(query: string): Promise<AiResponse> {
       const prompt = createSaudiTeacherPrompt(query);
-      let lastError: unknown;
 
-      for (const modelName of modelNames) {
-        try {
-          const generator =
-            createChatModel(modelName).withStructuredOutput(AIResponseSchema);
-          const result = await generator.invoke(prompt);
-          const parsed = AIResponseSchema.parse(result);
-          assertAiOutputLabelsAllowed(parsed);
-          return parsed;
-        } catch (err) {
-          lastError = err;
-          logger.warn(
-            { err, modelName, query },
-            'AI generateContent failed on model; trying next candidate if available.',
-          );
-        }
-      }
-
-      throw lastError instanceof Error
-        ? lastError
-        : new Error('AI content generation failed across all candidate models');
+      return runWithModelFallback(modelNames, query, async (modelName) => {
+        const generator =
+          createChatModel(modelName).withStructuredOutput(AIResponseSchema);
+        const result = await generator.invoke(prompt);
+        const parsed = AIResponseSchema.parse(result);
+        assertAiOutputLabelsAllowed(parsed);
+        return parsed;
+      });
     },
 
     async generateUsageContext(

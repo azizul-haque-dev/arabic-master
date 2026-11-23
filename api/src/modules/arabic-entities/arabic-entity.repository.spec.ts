@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { SQL } from 'drizzle-orm';
+import { PgDialect } from 'drizzle-orm/pg-core';
 import { ArabicEntityRepository } from './arabic-entity.repository.js';
 import { ConflictError } from '../../common/errors/app-error.js';
-import { db, type Tx } from '../../database/db.js';
+import { db, type Executor, type Tx } from '../../database/db.js';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -50,6 +52,98 @@ describe('ArabicEntityRepository.create', () => {
 
     expect(transaction).toHaveBeenCalledWith(expect.any(Function), {
       isolationLevel: 'read committed',
+    });
+  });
+
+  describe('ArabicEntityRepository.list', () => {
+    it('matches entities missing any selected ArabicEntity field', async () => {
+      const whereConditions: SQL[] = [];
+      let selectIndex = 0;
+      type QueryBuilder = {
+        from: (...args: unknown[]) => QueryBuilder;
+        where: (condition?: SQL) => QueryBuilder | Promise<{ total: number }[]>;
+        orderBy: (...args: unknown[]) => QueryBuilder;
+        limit: (...args: unknown[]) => QueryBuilder;
+        offset: (...args: unknown[]) => Promise<unknown[]>;
+      };
+
+      const mockExecutor = {
+        select: vi.fn(() => {
+          const index = selectIndex++;
+          let builder: QueryBuilder;
+          builder = {
+            from: () => builder,
+            where: (condition) => {
+              if (condition) whereConditions.push(condition);
+              return index === 0
+                ? Promise.resolve([{ total: 5 }])
+                : builder;
+            },
+            orderBy: () => builder,
+            limit: () => builder,
+            offset: () => Promise.resolve([]),
+          };
+          return builder;
+        }),
+      } as unknown as Executor;
+
+      await ArabicEntityRepository.list(
+        {
+          page: 1,
+          limit: 50,
+          missing: ['meaningEnglish', 'pronunciationBangla'],
+        },
+        mockExecutor,
+      );
+
+      const query = new PgDialect().sqlToQuery(whereConditions[0]);
+      expect(query.sql).toContain('"ArabicEntity"."meaningEnglish"');
+      expect(query.sql).toContain('"ArabicEntity"."pronunciationBangla"');
+      expect(query.sql).toMatch(/\sor\s/i);
+    });
+  });
+
+  describe('ArabicEntityRepository.findDetailedById', () => {
+    it('returns linked Word and Sentence references', async () => {
+      const queryResults = [
+        [{ id: 'entity-1', entityKey: 'AE-1001' }],
+        [{ id: 'word-1', wordKey: 'W-2001', meaningEn: 'book', meaningBn: 'বই' }],
+        [{
+          id: 'sentence-1',
+          sentenceKey: 'SNT-1001',
+          meaningEn: 'I want a book.',
+          meaningBn: 'আমি একটি বই চাই।',
+          sentenceType: 'SHORT',
+        }],
+      ];
+      let selectIndex = 0;
+      type DetailQueryBuilder = {
+        from: (...args: unknown[]) => DetailQueryBuilder;
+        where: (...args: unknown[]) => DetailQueryBuilder;
+        limit: (...args: unknown[]) => Promise<Record<string, unknown>[]>;
+        orderBy: (...args: unknown[]) => Promise<Record<string, unknown>[]>;
+      };
+
+      const mockExecutor = {
+        select: vi.fn(() => {
+          const index = selectIndex++;
+          let builder: DetailQueryBuilder;
+          builder = {
+            from: () => builder,
+            where: () => builder,
+            limit: async () => queryResults[index] as Record<string, unknown>[],
+            orderBy: async () => queryResults[index] as Record<string, unknown>[],
+          };
+          return builder;
+        }),
+      } as unknown as Executor;
+
+      await expect(
+        ArabicEntityRepository.findDetailedById('entity-1', mockExecutor),
+      ).resolves.toMatchObject({
+        linkedWords: [{ id: 'word-1', wordKey: 'W-2001' }],
+        linkedSentences: [{ id: 'sentence-1', sentenceKey: 'SNT-1001' }],
+      });
     });
   });
 

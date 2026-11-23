@@ -49,6 +49,7 @@ export function SentenceFilterBar({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                 <ContentSearch
+                    key={search}
                     value={search}
                     onChange={onSearchChange}
                     placeholder="Search Arabic, English, Bangla..."

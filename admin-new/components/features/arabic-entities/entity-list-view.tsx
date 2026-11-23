@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, Volume2, VolumeX, Sparkles, Trash2 } from "lucide-react";
 import { ContentPageHeader } from "@/components/shared/content-page-header";
 import { ContentSearch } from "@/components/shared/content-search";
@@ -10,9 +10,14 @@ import { ContentDataTable, type DataTableColumn } from "@/components/shared/cont
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
+import { Pagination } from "@/components/shared/pagination";
 import { EntityFormDialog } from "@/components/features/arabic-entities/entity-form-dialog";
 import { ArabicEntityGenerationDialog } from "@/components/features/arabic-entities/arabic-entity-generation-dialog";
 import { RelationshipSummary } from "@/components/features/arabic-entities/relationship-summary";
+import {
+  MissingDataFilter,
+  type EntityMissingField,
+} from "@/components/features/arabic-entities/missing-data-filter";
 import { Button } from "@/components/ui/button";
 import type { ArabicEntity, ContentStatus, EntityFormValues } from "@/lib/types/content";
 import { useRole } from "@/lib/role-context";
@@ -26,7 +31,34 @@ import type {
 import {
   createArabicEntityAction,
   deleteArabicEntityAction,
+  listArabicEntitiesAction,
 } from "@/actions/content/arabic-entity-actions";
+
+const PAGE_LIMIT = 50;
+const CONTENT_STATUSES: ContentStatus[] = ["DRAFT", "IN_REVIEW", "APPROVED", "PUBLISHED", "REJECTED", "ARCHIVED"];
+
+function replaceEntityListUrl(
+  updates: Partial<Record<"page" | "search" | "status" | "audio", string | undefined>> & {
+    missing?: string[];
+  },
+  resetPage = true,
+) {
+  const params = new URLSearchParams(window.location.search);
+  if (resetPage) params.delete("page");
+  for (const [key, value] of Object.entries(updates)) {
+    params.delete(key);
+    if (Array.isArray(value)) {
+      for (const field of value) params.append(key, field);
+    } else if (value) {
+      params.set(key, value);
+    }
+  }
+  const query = params.toString();
+  const nextUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+  if (nextUrl !== `${window.location.pathname}${window.location.search}${window.location.hash}`) {
+    window.history.replaceState(null, "", nextUrl);
+  }
+}
 
 export interface EntityListViewProps {
   initialEntities?: ArabicEntity[];
@@ -38,13 +70,40 @@ export interface EntityListViewProps {
   };
 }
 
-export function EntityListView({ initialEntities = [] }: EntityListViewProps) {
+export function EntityListView({
+  initialEntities = [],
+  initialMeta = { page: 1, limit: PAGE_LIMIT, total: initialEntities.length, totalPages: 1 },
+}: EntityListViewProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { role } = useRole();
 
   const [entities, setEntities] = useState<ArabicEntity[]>(initialEntities);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<Set<ContentStatus>>(new Set());
+  const rawPage = Number(searchParams.get("page"));
+  const page = Number.isInteger(rawPage) && rawPage > 0 && rawPage <= 1_000_000 ? rawPage : 1;
+  const search = searchParams.get("search") ?? "";
+  const status = CONTENT_STATUSES.find((value) => value === searchParams.get("status"));
+  const statusFilter = new Set<ContentStatus>(status ? [status] : []);
+  const audioValue = searchParams.get("audio");
+  const audio = audioValue === "with" || audioValue === "without" ? audioValue : undefined;
+  const searchParamsString = searchParams.toString();
+  const missing = useMemo(
+    () => new URLSearchParams(searchParamsString)
+      .getAll("missing")
+      .filter((value): value is EntityMissingField =>
+      value === "meaningEnglish" ||
+      value === "meaningBangla" ||
+      value === "pronunciationEnglish" ||
+      value === "pronunciationBangla",
+      ),
+    [searchParamsString],
+  );
+  const [total, setTotal] = useState(initialMeta.total);
+  const [totalPages, setTotalPages] = useState(initialMeta.totalPages);
+  const [refreshToken, setRefreshToken] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const firstListEffect = useRef(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ArabicEntity | null>(null);
@@ -52,19 +111,65 @@ export function EntityListView({ initialEntities = [] }: EntityListViewProps) {
   const [aiGenerateOpen, setAiGenerateOpen] = useState(false);
   const [generationMessage, setGenerationMessage] = useState<string | null>(null);
 
-  function addGeneratedEntity(result: ArabicEntityGenerationResult) {
-    if (result.created) {
-      setEntities((prev) => [
-        result.entity,
-        ...prev.filter((entity) => entity.id !== result.entity.id),
-      ]);
+  useEffect(() => {
+    if (firstListEffect.current) {
+      firstListEffect.current = false;
+      return;
     }
+
+    let active = true;
+    setIsLoading(true);
+    setError(null);
+
+    listArabicEntitiesAction({
+      page,
+      limit: PAGE_LIMIT,
+      search: search.trim() || undefined,
+      status,
+      audio,
+      missing: missing.length > 0 ? missing : undefined,
+    })
+      .then((result) => {
+        if (!active) return;
+        if (result.success) {
+          setEntities(result.data.items);
+          setTotal(result.data.meta.total);
+          setTotalPages(result.data.meta.totalPages);
+          if (page > Math.max(1, result.data.meta.totalPages)) {
+            replaceEntityListUrl({
+              page: result.data.meta.totalPages > 1 ? String(result.data.meta.totalPages) : undefined,
+            }, false);
+          }
+        } else {
+          setError(result.error);
+          setEntities([]);
+          setTotal(0);
+          setTotalPages(1);
+        }
+      })
+      .catch(() => {
+        if (!active) return;
+        setError("Unable to load Arabic entities. Please try again.");
+        setEntities([]);
+        setTotal(0);
+        setTotalPages(1);
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [page, search, status, audio, missing, searchParamsString, refreshToken]);
+
+  function addGeneratedEntity(result: ArabicEntityGenerationResult) {
     setGenerationMessage(
       result.created
         ? `Created Arabic entity ${result.entity.entityKey}.`
         : `Arabic entity ${result.entity.entityKey} already exists.`,
     );
-    router.refresh();
+    setRefreshToken((value) => value + 1);
   }
 
   function addGeneratedEntities(results: ArabicEntityGenerationBatchResult[]) {
@@ -73,14 +178,6 @@ export function EntityListView({ initialEntities = [] }: EntityListViewProps) {
         result.success,
     );
     const created = successful.filter((result) => result.created);
-    if (created.length > 0) {
-      setEntities((prev) => [
-        ...created.map((result) => result.entity).filter(
-          (entity) => !prev.some((item) => item.id === entity.id),
-        ),
-        ...prev,
-      ]);
-    }
 
     const failedCount = results.length - successful.length;
     const existingCount = successful.length - created.length;
@@ -92,22 +189,8 @@ export function EntityListView({ initialEntities = [] }: EntityListViewProps) {
       .filter(Boolean)
       .join(", ");
     setGenerationMessage(`AI entity batch complete: ${summary}.`);
-    router.refresh();
+    setRefreshToken((value) => value + 1);
   }
-
-  const filtered = useMemo(() => {
-    return entities.filter((entity) => {
-      const matchesStatus = statusFilter.size === 0 || statusFilter.has(entity.status);
-      const needle = search.trim().toLowerCase();
-      const matchesSearch =
-        !needle ||
-        entity.arabicText.includes(search.trim()) ||
-        entity.meaningEnglish.toLowerCase().includes(needle) ||
-        entity.meaningBangla.includes(search.trim()) ||
-        entity.entityKey.toLowerCase().includes(needle);
-      return matchesStatus && matchesSearch;
-    });
-  }, [entities, search, statusFilter]);
 
   function toggleSelect(id: string) {
     setSelectedIds((prev) => {
@@ -120,7 +203,7 @@ export function EntityListView({ initialEntities = [] }: EntityListViewProps) {
 
   function toggleSelectAll() {
     setSelectedIds((prev) =>
-      prev.size === filtered.length ? new Set() : new Set(filtered.map((e) => e.id)),
+      prev.size === entities.length ? new Set() : new Set(entities.map((e) => e.id)),
     );
   }
 
@@ -135,12 +218,8 @@ export function EntityListView({ initialEntities = [] }: EntityListViewProps) {
     });
 
     if (res.success) {
-      setEntities((prev) => [
-        res.data,
-        ...prev.filter((entity) => entity.id !== res.data.id),
-      ]);
       setCreateOpen(false);
-      router.refresh();
+      setRefreshToken((value) => value + 1);
     } else {
       alert(res.error);
     }
@@ -151,7 +230,7 @@ export function EntityListView({ initialEntities = [] }: EntityListViewProps) {
     if (res.success) {
       setEntities((prev) => prev.filter((e) => e.id !== entity.id));
       setDeleteTarget(null);
-      router.refresh();
+      setRefreshToken((value) => value + 1);
     } else {
       alert(res.error);
     }
@@ -278,18 +357,61 @@ export function EntityListView({ initialEntities = [] }: EntityListViewProps) {
           {generationMessage}
         </p>
       ) : null}
+      {error ? (
+        <div role="alert" className="flex items-center justify-between gap-3 rounded-default border border-error/20 bg-error-bg p-3 text-sm text-error-text">
+          <span>{error}</span>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setRefreshToken((value) => value + 1)}
+          >
+            Retry
+          </Button>
+        </div>
+      ) : null}
+      {isLoading ? <div className="text-sm text-text-muted">Loading Arabic entities…</div> : null}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
-          <ContentSearch value={search} onChange={setSearch} placeholder="Search Arabic, English, Bangla, or ID..." />
+          <ContentSearch
+            key={search}
+            value={search}
+            onChange={(value) => {
+              if (value !== search) replaceEntityListUrl({ search: value.trim() ? value : undefined });
+            }}
+            placeholder="Search Arabic, English, Bangla, or ID..."
+          />
           <ContentStatusFilter
             selected={statusFilter}
-            onChange={setStatusFilter}
-            options={["DRAFT", "IN_REVIEW", "APPROVED", "PUBLISHED", "REJECTED", "ARCHIVED"]}
+            onChange={(value) => {
+              replaceEntityListUrl({ status: value.values().next().value });
+            }}
+            options={CONTENT_STATUSES}
+            singleSelection
+          />
+          <label className="sr-only" htmlFor="entity-audio-filter">Filter entities by audio</label>
+          <select
+            id="entity-audio-filter"
+            aria-label="Filter entities by audio"
+            className="h-9 rounded-default border border-border-strong bg-white px-3 text-sm text-text"
+            value={audio ?? "all"}
+            onChange={(event) => {
+              replaceEntityListUrl({ audio: event.target.value === "all" ? undefined : event.target.value });
+            }}
+          >
+            <option value="all">All audio</option>
+            <option value="with">With audio</option>
+            <option value="without">Without audio</option>
+          </select>
+          <MissingDataFilter
+            selected={missing}
+            onChange={(value) => {
+              replaceEntityListUrl({ missing: value });
+            }}
           />
         </div>
         <p className="text-xs text-text-muted">
-          {filtered.length} {filtered.length === 1 ? "entity" : "entities"}
+          {total} {total === 1 ? "entity" : "entities"}
         </p>
       </div>
 
@@ -304,7 +426,7 @@ export function EntityListView({ initialEntities = [] }: EntityListViewProps) {
         </div>
       ) : null}
 
-      {filtered.length === 0 ? (
+      {!error && entities.length === 0 && !isLoading ? (
         <EmptyState
           icon={Sparkles}
           title="No matching Arabic entities found"
@@ -316,10 +438,10 @@ export function EntityListView({ initialEntities = [] }: EntityListViewProps) {
             </Button>
           }
         />
-      ) : (
+      ) : entities.length > 0 ? (
         <ContentDataTable
           columns={columns}
-          rows={filtered}
+          rows={entities}
           rowKey={(e) => e.id}
           onRowClick={(e) => router.push(`/admin/arabic-entities/${e.id}`)}
           selectable={role === "ADMIN"}
@@ -369,7 +491,23 @@ export function EntityListView({ initialEntities = [] }: EntityListViewProps) {
             </div>
           )}
         />
-      )}
+      ) : null}
+
+      {entities.length > 0 ? (
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalItems={total}
+          pageSize={PAGE_LIMIT}
+          itemName="entities"
+          isLoading={isLoading}
+          onPageChange={(newPage) => {
+            if (newPage !== page) {
+              replaceEntityListUrl({ page: newPage > 1 ? String(newPage) : undefined }, false);
+            }
+          }}
+        />
+      ) : null}
 
       <EntityFormDialog
         open={createOpen}
@@ -413,11 +551,7 @@ export function EntityListView({ initialEntities = [] }: EntityListViewProps) {
           canEdit={checkAudioPermission(role, audioTarget.status).canEdit}
           disabledReason={checkAudioPermission(role, audioTarget.status).disabledReason}
           onUploaded={() => {
-            setEntities((prev) =>
-              prev.map((item) =>
-                item.id === audioTarget.id ? { ...item, hasAudio: true } : item
-              )
-            );
+            setRefreshToken((value) => value + 1);
           }}
         />
       ) : null}

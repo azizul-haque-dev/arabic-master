@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { EntityListView } from "@/components/features/arabic-entities/entity-list-view";
 import { getArabicEntitiesForAdmin } from "@/lib/arabic-entities/data";
-import { contentListQuerySchema, queryFromUnknown } from "@/lib/content/validation";
+import { arabicEntityListQuerySchema, queryFromUnknown } from "@/lib/content/validation";
 import Loading from "./loading";
 
 interface PageProps {
@@ -18,11 +18,13 @@ export default function ArabicEntitiesPage({ searchParams }: PageProps) {
 
 async function EntityListData({ searchParams }: PageProps) {
   const resolvedParams = searchParams ? await searchParams : {};
-  const parsed = contentListQuerySchema.safeParse(queryFromUnknown(resolvedParams));
+  const parsed = arabicEntityListQuerySchema.safeParse(
+    queryFromUnknown({ ...resolvedParams, limit: 50 }),
+  );
 
   const query = parsed.success
     ? parsed.data
-    : { page: 1, limit: 20 };
+    : { page: 1, limit: 50 };
 
   const result = await getArabicEntitiesForAdmin(query);
 

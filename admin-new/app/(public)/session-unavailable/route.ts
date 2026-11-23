@@ -29,7 +29,9 @@ function escapeHtml(value: string): string {
 }
 
 export function GET(request: NextRequest) {
-  const returnTo = escapeHtml(getSafeReturnPath(request));
+  const safeReturnPath = getSafeReturnPath(request);
+  const returnTo = escapeHtml(safeReturnPath);
+  const scriptReturnTo = JSON.stringify(safeReturnPath).replace(/</g, "\\u003c");
   const html = `<!doctype html>
 <html lang="en">
   <head>
@@ -46,27 +48,84 @@ export function GET(request: NextRequest) {
       nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
       a { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; padding: 0 18px; border-radius: 8px; color: #0e7a5d; font-weight: 600; }
       a.primary { background: #0e7a5d; color: #fff; text-decoration: none; }
+      [hidden] { display: none !important; }
+      .spinner { width: 40px; height: 40px; margin: 0 auto 20px; border: 4px solid #d1fae5; border-top-color: #0e7a5d; border-radius: 50%; animation: spin 0.8s linear infinite; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 1.8s; } }
     </style>
   </head>
   <body>
     <main>
-      <h1>We couldn&apos;t verify your session</h1>
-      <p>The authentication service did not complete verification. This may be temporary; your session cookies have not been removed. Please try again.</p>
-      <nav>
-        <a class="primary" href="${returnTo}">Try again</a>
-        <a href="/login">Sign in</a>
-      </nav>
+      <div id="retrying" role="status" aria-live="polite">
+        <span class="spinner" aria-hidden="true"></span>
+        <h1>Checking your session</h1>
+        <p>Please wait while we retry authentication.</p>
+      </div>
+      <section id="retry-failed" aria-labelledby="session-error-title" hidden>
+        <h1 id="session-error-title">We couldn&apos;t verify your session</h1>
+        <p>The authentication service did not complete verification. This may be temporary; your session cookies have not been removed. Please try again.</p>
+        <nav>
+          <a id="try-again" class="primary" href="${returnTo}">Try again</a>
+          <a href="/login">Sign in</a>
+        </nav>
+      </section>
+      <noscript>
+        <style>
+          #retrying { display: none !important; }
+          #retry-failed[hidden] { display: block !important; }
+        </style>
+      </noscript>
       <script>
         (function() {
           var key = 'session_retry_count';
-          var count = parseInt(sessionStorage.getItem(key) || '0', 10);
+          var returnTo = ${scriptReturnTo};
+          var retrying = document.getElementById('retrying');
+          var failed = document.getElementById('retry-failed');
+          var retryLink = document.getElementById('try-again');
+
+          function showRetrying() {
+            retrying.hidden = false;
+            failed.hidden = true;
+          }
+
+          function showFailure() {
+            retrying.hidden = true;
+            failed.hidden = false;
+          }
+
+          retryLink.addEventListener('click', function(event) {
+            event.preventDefault();
+            showRetrying();
+            window.location.assign(returnTo);
+          });
+
+          var count;
+          try {
+            count = parseInt(sessionStorage.getItem(key) || '0', 10);
+          } catch (error) {
+            console.warn('[Auth] Unable to read session retry state:', error);
+            showFailure();
+            return;
+          }
+
           if (count < 3) {
-            sessionStorage.setItem(key, String(count + 1));
+            try {
+              sessionStorage.setItem(key, String(count + 1));
+            } catch (error) {
+              console.warn('[Auth] Unable to save session retry state:', error);
+              showFailure();
+              return;
+            }
             setTimeout(function() {
-              window.location.href = "${returnTo}";
+              window.location.replace(returnTo);
             }, 2500);
           } else {
-            sessionStorage.removeItem(key);
+            try {
+              sessionStorage.removeItem(key);
+            } catch (error) {
+              console.warn('[Auth] Unable to clear session retry state:', error);
+            }
+            showFailure();
           }
         })();
       </script>

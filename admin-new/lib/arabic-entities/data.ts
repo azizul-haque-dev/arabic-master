@@ -1,7 +1,7 @@
 import "server-only";
 
 import { redirect } from "next/navigation";
-import type { ContentListQuery } from "@/lib/content/validation";
+import type { ArabicEntityListQuery } from "@/lib/content/validation";
 import { readBackend, requireContentAdmin } from "@/lib/content/server";
 import {
   normalizeArabicEntity,
@@ -10,17 +10,21 @@ import {
 } from "./api";
 import type { ArabicEntity } from "@/lib/types/content";
 
-function buildQuery(query: ContentListQuery): string {
+function buildQuery(query: ArabicEntityListQuery): string {
   const params = new URLSearchParams();
   params.set("page", String(query.page));
   params.set("limit", String(query.limit));
   if (query.search) params.set("search", query.search);
   if (query.status) params.set("status", query.status);
+  if (query.audio) params.set("audio", query.audio);
+  for (const missingField of query.missing ?? []) {
+    params.append("missing", missingField);
+  }
   return params.toString();
 }
 
 export async function requestArabicEntityList(
-  query: ContentListQuery,
+  query: ArabicEntityListQuery,
 ): Promise<ArabicEntityListResponse> {
   try {
     const result = await readBackend(`/arabic-entities?${buildQuery(query)}`);
@@ -75,7 +79,7 @@ export async function requestArabicEntityById(
 }
 
 export async function getArabicEntitiesForAdmin(
-  query: ContentListQuery,
+  query: ArabicEntityListQuery,
 ): Promise<ArabicEntityListResponse> {
   const authorization = await requireContentAdmin();
   if (!authorization.success) {
