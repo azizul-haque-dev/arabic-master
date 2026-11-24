@@ -3,21 +3,21 @@ import { Check, MessageCircle, Volume2, Globe2 } from "lucide-react";
 const PILLARS = [
   {
     icon: MessageCircle,
-    title: "Context First, Not Isolated Lists",
+    title: "Words in context",
     description:
-      "Memorizing random dictionary words leaves you stuck in real conversations. You learn how each word combines into natural spoken sentences.",
+      "See how a word is used in a sentence or conversation.",
   },
   {
     icon: Globe2,
-    title: "Built for Bangla & English Speakers",
+    title: "Meanings in Bangla and English",
     description:
-      "Every word and phrase includes clear Bangla and English meanings, pronunciation guides, and when-to-use notes tailored for expatriates.",
+      "Check both translations while you learn a new word or phrase.",
   },
   {
     icon: Volume2,
-    title: "Spoken Saudi & Gulf Situations",
+    title: "Phrases for daily situations",
     description:
-      "Practice ordering food, bargaining at shops, talking with colleagues at work, and navigating healthcare or transport in Arabic-speaking countries.",
+      "Study phrases for shopping, work, restaurants, transport, and greetings.",
   },
 ] as const;
 
@@ -31,25 +31,24 @@ export function WhyArabicMasterSection() {
               Why Arabic Master?
             </span>
             <h2 className="mt-3 font-heading text-2xl font-bold tracking-tight text-text sm:text-3xl">
-              Speak Real Everyday Arabic, Not Just Textbook Rules.
+              Learn a phrase, then see how people use it.
             </h2>
             <p className="mt-3 text-base leading-relaxed text-text-secondary">
-              Traditional courses spend months on abstract grammar before you
-              can order coffee or ask for directions. Arabic Master connects
-              practical words directly to spoken sentences and real dialogues.
+              Each lesson connects vocabulary to sentences and short dialogues,
+              so you can study the words in context.
             </p>
             <ul className="mt-5 space-y-2.5 text-sm text-text-secondary">
               <li className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-primary" aria-hidden="true" />
-                <span>Practical Gulf &amp; Saudi everyday expressions</span>
+                <span>Saudi and Gulf expressions</span>
               </li>
               <li className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-primary" aria-hidden="true" />
-                <span>Clear pronunciation in Bangla &amp; English script</span>
+                <span>Bangla and English meanings</span>
               </li>
               <li className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-primary" aria-hidden="true" />
-                <span>10-minute structured sessions you can actually finish</span>
+                <span>Words, sentences, and guided conversations</span>
               </li>
             </ul>
           </div>

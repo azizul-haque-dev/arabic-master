@@ -1,42 +1,3 @@
-export interface ValueCard {
-    id: string;
-    icon: "translate" | "quote" | "forum";
-    title: string;
-    description: string;
-    arabic: string;
-    meaning: string;
-}
-
-export const valueCards: ValueCard[] = [
-    {
-        id: "words",
-        icon: "translate",
-        title: "Words",
-        description:
-            "Learn useful Arabic vocabulary with pronunciation, meaning, and authentic conversational context.",
-        arabic: "فِنجَان",
-        meaning: "Finjan • Coffee Cup",
-    },
-    {
-        id: "sentences",
-        icon: "quote",
-        title: "Sentences",
-        description:
-            "Practice natural sentences you can actually use in daily conversations with locals and colleagues.",
-        arabic: "أَبغَى قَهوَة سَادَة",
-        meaning: '"I want black coffee."',
-    },
-    {
-        id: "conversations",
-        icon: "forum",
-        title: "Conversations",
-        description:
-            "Build confidence by practicing realistic conversations step by step with guided turns and prompt replies.",
-        arabic: "مَسَاء الخَير",
-        meaning: "Good evening",
-    },
-];
-
 export interface MethodologyStep {
     id: string;
     number: string;
@@ -49,141 +10,117 @@ export const methodologySteps: MethodologyStep[] = [
     {
         id: "situation",
         number: "01",
-        title: "Real Situation",
-        description: "Identify everyday Gulf and Saudi scenarios.",
+        title: "Choose a situation",
+        description: "Start with shopping, work, a restaurant, or daily life.",
         icon: "compass",
     },
     {
         id: "words",
         number: "02",
         title: "Words",
-        description: "Acquire targeted core vocabulary with authentic audio.",
+        description: "Learn useful words with Bangla and English meanings.",
         icon: "book",
     },
     {
         id: "sentences",
         number: "03",
         title: "Sentences",
-        description: "Construct practical colloquial phrases.",
+        description: "See how the words fit into a spoken phrase.",
         icon: "list",
     },
     {
         id: "conversation",
         number: "04",
         title: "Conversation",
-        description: "Simulate authentic two-way dialogue.",
+        description: "Read both sides of a short conversation.",
         icon: "mic",
     },
     {
         id: "practice",
         number: "05",
-        title: "Practice",
-        description: "Active recall & speech recognition drills.",
+        title: "Review",
+        description: "Go over the words and phrases from the lesson.",
         icon: "replay",
     },
     {
         id: "progress",
         number: "06",
-        title: "Progress",
-        description: "Earn XP, track retention & real-world fluency.",
+        title: "Track progress",
+        description: "See which lessons you have completed.",
         icon: "trending",
     },
 ];
 
 export interface Situation {
     id: string;
-    emoji: string;
-    category: string;
+    icon: "shopping" | "work" | "restaurant" | "transportation" | "daily-life" | "conversation";
     title: string;
     description: string;
     arabic: string;
     translation: string;
+    banglaTranslation: string;
 }
 
 export const situations: Situation[] = [
     {
         id: "shopping",
-        emoji: "🛍️",
-        category: "Retail",
+        icon: "shopping",
         title: "Shopping",
         description:
-            "Learn how to ask about prices, negotiate, buy products, and communicate confidently.",
+            "Ask the price, request another size, or ask whether there is a discount.",
         arabic: "مُمْكِن تَخفِيض؟",
         translation: "Could you give a discount?",
+        banglaTranslation: "একটু দাম কম হবে?",
     },
     {
         id: "work",
-        emoji: "💼",
-        category: "Professional",
+        icon: "work",
         title: "Work",
         description:
-            "Professional etiquette, team communication, and office vocabulary for Gulf workplaces.",
+            "Greet a colleague, ask a question, or set a meeting time.",
         arabic: "اجتِمَاع السَّاعَة عَشرَة",
         translation: "Meeting at 10:00",
+        banglaTranslation: "মিটিংটা দশটায়।",
     },
     {
         id: "restaurant",
-        emoji: "🍽️",
-        category: "Dining",
+        icon: "restaurant",
         title: "Restaurant",
         description:
-            "Ordering local dishes, asking for the bill, and specifying dietary preferences.",
+            "Order a meal, ask about an item, or request the bill.",
         arabic: "الحِسَاب لَو سَمَحت",
         translation: "Check please",
+        banglaTranslation: "বিলটা দেবেন, দয়া করে?",
     },
     {
         id: "transportation",
-        emoji: "🚗",
-        category: "Transit",
+        icon: "transportation",
         title: "Transportation",
         description:
-            "Navigating taxis, ride-hailing apps, airport terminals, and road directions.",
+            "Tell a driver where you are going and ask for directions.",
         arabic: "عَلَى اليَمِين هِنَا",
         translation: "Right here on the right",
+        banglaTranslation: "এখানেই ডান দিকে।",
     },
     {
         id: "daily-life",
-        emoji: "🏠",
-        category: "Community",
+        icon: "daily-life",
         title: "Daily Life",
         description:
-            "Greetings, neighborhood interactions, apartment maintenance, and social greetings.",
+            "Use greetings and short phrases with neighbors and service staff.",
         arabic: "صَبَاح الخَير",
         translation: "Good morning",
+        banglaTranslation: "সুপ্রভাত।",
     },
     {
         id: "conversations",
-        emoji: "💬",
-        category: "Social",
+        icon: "conversation",
         title: "Conversations",
         description:
-            "Small talk, making friends, expressing gratitude, and polite conversational formulas.",
+            "Introduce yourself, start a conversation, and respond politely.",
         arabic: "فُرصَة سَعِيدَة",
         translation: "Nice to meet you",
-    },
-];
-
-export interface Recommendation {
-    id: string;
-    emoji: string;
-    title: string;
-    description: string;
-}
-
-export const recommendations: Recommendation[] = [
-    {
-        id: "shopping-arabic",
-        emoji: "🛍️",
-        title: "Shopping Arabic",
-        description:
-            "Asking prices, sizes, and market bargaining phrases commonly heard in Riyadh and Jeddah souqs.",
-    },
-    {
-        id: "arabic-for-work",
-        emoji: "💼",
-        title: "Arabic for Work",
-        description:
-            "Workplace greetings, scheduling meetings, and professional courtesies for team environments.",
+        banglaTranslation: "আপনার সঙ্গে পরিচিত হয়ে ভালো লাগল।",
     },
 ];
 
@@ -195,112 +132,47 @@ export interface ComparisonRow {
 }
 
 export const comparisonRows: ComparisonRow[] = [
-    { feature: "Free Words", free: "✓ Included", pro: "✓ Full Access" },
+    { feature: "Words", free: "Included", pro: "Included" },
     {
-        feature: "Free Sentences",
-        free: "✓ Essential Pack",
-        pro: "✓ Unlimited",
+        feature: "Sentences",
+        free: "Included",
+        pro: "Included",
     },
     {
-        feature: "Beginner Conversations",
-        free: "✓ 10 Scenarios",
-        pro: "✓ Full Library (100+)",
-    },
-    {
-        feature: "Advanced Conversations",
-        free: "✕ Locked",
-        pro: "✓ Included",
-        freeLocked: true,
+        feature: "Conversation levels",
+        free: "Beginner",
+        pro: "Beginner to advanced",
     },
     {
         feature: "Pro Curriculum",
-        free: "✕ Locked",
-        pro: "✓ Full Access",
+        free: "Not included",
+        pro: "Included",
         freeLocked: true,
     },
     {
-        feature: "Tense-Based Courses",
-        free: "✕ Locked",
-        pro: "✓ All Tenses & Conjugations",
+        feature: "Tense courses",
+        free: "Not included",
+        pro: "Included",
         freeLocked: true,
     },
-    { feature: "XP & Levels", free: "✓ Included", pro: "✓ 2x XP Multiplier" },
     {
-        feature: "Streaks & Habits",
-        free: "✓ Included",
-        pro: "✓ Streak Freeze & Recovery",
-    },
-    {
-        feature: "Ad-Free Experience",
-        free: "✕ Ad-supported",
-        pro: "✓ 100% Ad-Free",
+        feature: "Ads",
+        free: "May appear",
+        pro: "No ads",
         freeLocked: true,
     },
+    { feature: "XP, levels, and streaks", free: "Included", pro: "Included" },
 ];
 
 export const proFeatures: string[] = [
-    "Full Pro Curriculum",
-    "Beginner to Advanced Lessons",
-    "Advanced Conversations",
-    "Tense-Based Courses",
-    "Structured Learning Paths",
-    "Ad-Free Learning",
-    "More Practice",
-    "Full Progress Tracking",
-];
-
-export interface HowItWorksStep {
-    number: string;
-    title: string;
-    description: string;
-}
-
-export const howItWorksSteps: HowItWorksStep[] = [
-    {
-        number: "01",
-        title: "Choose Your Goals",
-        description:
-            "Tell us your level, goals, and daily practice time during a 60-second onboarding.",
-    },
-    {
-        number: "02",
-        title: "Learn & Practice",
-        description:
-            "Learn words, sentences, and conversations designed around real situations with native pronunciation audio.",
-    },
-    {
-        number: "03",
-        title: "Build Your Progress",
-        description:
-            "Earn XP, maintain your streak, and continue improving every day with measurable conversational milestones.",
-    },
-];
-
-export interface Testimonial {
-    id: string;
-    quote: string;
-    role: string;
-}
-
-export const testimonials: Testimonial[] = [
-    {
-        id: "t1",
-        quote:
-            "Arabic Master helped me focus on the Arabic I actually need in everyday situations. Within two weeks I was confident ordering food and speaking to taxi drivers.",
-        role: "Healthcare Worker in Riyadh",
-    },
-    {
-        id: "t2",
-        quote:
-            "The distinction between textbook Arabic and real spoken phrases was exactly what I was missing. The situational approach saves hundreds of hours.",
-        role: "Engineer in Jeddah",
-    },
-    {
-        id: "t3",
-        quote:
-            "The 10-minute daily format fits between meetings. Practicing conversational dialogues made speaking at work feel natural.",
-        role: "Business Development Manager in Dammam",
-    },
+    "Full curriculum",
+    "Beginner to advanced courses",
+    "Advanced conversations",
+    "Tense courses",
+    "Lessons organized by topic",
+    "Ad-free learning",
+    "Progress tracking",
+    "XP, levels, and streaks",
 ];
 
 export interface FaqItem {
@@ -314,67 +186,31 @@ export const faqItems: FaqItem[] = [
         id: "faq-1",
         question: "Is Arabic Master free?",
         answer:
-            "You can start learning with free content. Pro unlocks the complete curriculum and additional learning features.",
+            "Yes. Free learners can study words, sentences, and beginner conversations. Pro adds the full curriculum and advanced conversation levels.",
     },
     {
         id: "faq-2",
         question: "Who is Arabic Master for?",
         answer:
-            "Arabic Master is designed for people who want to learn practical spoken Arabic for everyday communication, especially expatriates and residents in Saudi Arabia and Gulf countries.",
+            "It is for learners who want to use spoken Arabic in daily life in Saudi Arabia and the Gulf. Lessons include Bangla and English meanings.",
     },
     {
         id: "faq-3",
         question: "Can beginners use Arabic Master?",
         answer:
-            "Yes. The learning experience starts from beginner level and progressively becomes more advanced.",
+            "Yes. Start with beginner lessons and move through the levels as you study.",
     },
     {
         id: "faq-4",
         question: "What does Pro include?",
         answer:
-            "Pro includes the structured curriculum, advanced conversations, tense courses, and an ad-free learning experience.",
+            "Pro includes the beginner-to-advanced curriculum, advanced conversations, tense courses, and ad-free learning.",
     },
     {
         id: "faq-5",
-        question: "Can I learn Arabic for everyday situations?",
+        question: "What will I study?",
         answer:
-            "Yes. Courses are organized around practical situations such as shopping, work, restaurants, transportation, and daily life.",
+            "Words, sentences, and conversations for situations such as shopping, work, restaurants, and travel.",
     },
 ];
 
-export const navLinks = [
-    { label: "Learn", href: "/" },
-    { label: "Courses", href: "/courses" },
-    { label: "How It Works", href: "/how-it-works" },
-    { label: "Pricing", href: "/pricing" },
-] as const;
-
-export const footerColumns = [
-    {
-        title: "Product",
-        links: [
-            { label: "Course Catalog", href: "/courses" },
-            { label: "Speech Waveform Engine", href: "/how-it-works" },
-            { label: "Dialect Immersion", href: "/pricing" },
-            { label: "Pricing Plans", href: "/pricing" },
-        ],
-    },
-    {
-        title: "Resources",
-        links: [
-            { label: "Phonetic Lexicon", href: "/" },
-            { label: "Pronunciation Benchmark", href: "/how-it-works" },
-            { label: "Acoustic Field Notes", href: "/" },
-            { label: "Documentation", href: "/how-it-works" },
-        ],
-    },
-    {
-        title: "Company",
-        links: [
-            { label: "Academic Pedagogy", href: "/how-it-works" },
-            { label: "Diplomatic Partnerships", href: "/courses" },
-            { label: "Privacy Policy", href: "/pricing" },
-            { label: "Terms of Service", href: "/pricing" },
-        ],
-    },
-] as const;

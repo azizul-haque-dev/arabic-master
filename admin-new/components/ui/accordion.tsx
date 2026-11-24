@@ -19,7 +19,7 @@ function AccordionItem({
         <AccordionPrimitive.Item
             data-slot="accordion-item"
             className={cn(
-                "rounded-xl bg-surface-container-lowest shadow-sm overflow-hidden",
+                "overflow-hidden rounded-2xl border border-border/80 bg-surface-container-lowest shadow-sm transition-colors data-[state=open]:border-primary/25",
                 className
             )}
             {...props}
@@ -37,16 +37,16 @@ function AccordionTrigger({
             <AccordionPrimitive.Trigger
                 data-slot="accordion-trigger"
                 className={cn(
-                    "w-full text-left p-space-lg flex justify-between items-center gap-space-md",
-                    "font-title-lg text-title-lg text-on-surface font-medium",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+                    "flex w-full items-center justify-between gap-4 px-5 py-4 text-left sm:px-6 sm:py-5",
+                    "font-title-lg text-title-lg font-semibold text-on-surface",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/50",
                     "[&[data-state=open]>svg]:rotate-180",
                     className
                 )}
                 {...props}
             >
                 {children}
-                <ChevronDown className="size-5 shrink-0 text-on-surface-variant transition-transform duration-200" />
+                <ChevronDown aria-hidden="true" className="size-5 shrink-0 text-primary transition-transform duration-200" />
             </AccordionPrimitive.Trigger>
         </AccordionPrimitive.Header>
     );
@@ -65,7 +65,7 @@ function AccordionContent({
         >
             <div
                 className={cn(
-                    "px-space-lg pb-space-lg text-on-surface-variant font-body-md text-body-md",
+                    "px-5 pb-5 text-on-surface-variant font-body-md text-body-md sm:px-6 sm:pb-6",
                     className
                 )}
             >

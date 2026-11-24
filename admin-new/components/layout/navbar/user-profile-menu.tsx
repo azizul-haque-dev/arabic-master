@@ -148,7 +148,7 @@ export function UserProfileMenu({ user, overview }: UserProfileMenuProps) {
           </div>
 
           <div className="mt-2">
-            <UserStats xp={xp} streakCount={streakCount} hearts={hearts} plan={plan} />
+            <UserStats xp={xp} streakCount={streakCount} hearts={hearts} />
           </div>
 
           <div className="my-2 h-px bg-border/80" />

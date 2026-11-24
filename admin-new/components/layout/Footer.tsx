@@ -8,7 +8,7 @@ const footerSections = [
       { label: "Arabic Words", href: "/words" },
       { label: "Daily Sentences", href: "/sentences" },
       { label: "Conversations", href: "/conversations" },
-      { label: "Structured Courses", href: "/courses" },
+      { label: "Courses", href: "/courses" },
     ],
   },
   {
@@ -68,8 +68,8 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm leading-relaxed text-text-secondary">
-              Practical spoken Arabic for everyday life in Saudi Arabia and
-              Arabic-speaking countries—built for Bangla and English speakers.
+              Spoken Arabic lessons with Bangla and English meanings for
+              learners in Saudi Arabia and the Gulf.
             </p>
           </div>
 
@@ -96,7 +96,6 @@ export function Footer() {
 
         <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border/70 pt-6 text-xs text-text-muted sm:flex-row">
           <p>© <CopyrightYear /> Arabic Master. All rights reserved.</p>
-          <p>Learn the Arabic You Actually Need to Speak.</p>
         </div>
       </div>
     </footer>

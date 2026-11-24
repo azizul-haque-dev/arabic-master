@@ -78,7 +78,7 @@ function AuthenticatedDashboard({
           href="/profile"
           className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-primary px-4 text-xs font-semibold text-white transition-colors hover:bg-primary-dark"
         >
-          <span>View Details</span>
+              <span>View Progress</span>
           <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
         </Link>
       </div>
@@ -87,15 +87,15 @@ function AuthenticatedDashboard({
         <div className="flex flex-col justify-between gap-4 border-b border-border/70 pb-5 sm:flex-row sm:items-center">
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-primary">
-              {currentLesson ? "Continue Where You Left Off" : "Start Your Practice"}
+              {currentLesson ? "Continue Lesson" : "Choose a lesson"}
             </p>
             <h2 className="mt-1 font-heading text-xl font-bold text-text">
-              {currentLesson ? currentLesson.courseTitle : "Explore Practical Courses"}
+              {currentLesson ? currentLesson.courseTitle : "Start with a course"}
             </h2>
             <p className="mt-1 text-sm text-text-secondary">
               {currentLesson
-                ? `${currentLesson.lessonTitle} • ${currentLesson.completedLessons} / ${currentLesson.totalLessons} lessons completed`
-                : "Choose a beginner course or practice everyday words and sentences."}
+                ? `${currentLesson.lessonTitle} · ${currentLesson.completedLessons} of ${currentLesson.totalLessons} lessons done`
+                : "Browse courses or start with words and sentences."}
             </p>
           </div>
           <Link
@@ -154,14 +154,13 @@ function GuestIntroductionCard() {
         <div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-primary-dark shadow-2xs">
             <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>Free Learner Account</span>
+            <span>Free account</span>
           </span>
           <h2 className="mt-3 font-heading text-2xl font-bold text-text">
-            Build Real Speaking Habits
+            Start with a free lesson.
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-            Create a free account to save your completed lessons, earn XP, keep
-            a daily streak, and unlock guided spoken Arabic tracks.
+            Create an account to save lessons, track XP, and keep your streak.
           </p>
         </div>
 
@@ -170,42 +169,42 @@ function GuestIntroductionCard() {
             href="/register"
             className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-primary-dark"
           >
-            <span>Sign Up Free</span>
+            <span>Create free account</span>
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
           <Link
             href="/words"
             className="inline-flex h-11 items-center justify-center rounded-xl border border-primary/25 bg-white px-4 text-sm font-semibold text-primary-dark transition-colors hover:bg-primary-light/30"
           >
-            Try Free Words
+            Browse words
           </Link>
         </div>
       </div>
 
       <div className="flex flex-col justify-center gap-4 p-6 lg:col-span-7 lg:p-8">
         <p className="text-xs font-bold uppercase tracking-wider text-text-muted">
-          How Each 10-Minute Session Works
+          What a lesson includes
         </p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="rounded-2xl border border-border/70 bg-neutral-bg/50 p-4">
             <span className="text-xs font-bold text-primary">01 · Words</span>
-            <p className="mt-1 text-sm font-semibold text-text">Core Vocabulary</p>
+            <p className="mt-1 text-sm font-semibold text-text">Learn a word</p>
             <p className="mt-1 text-xs text-text-secondary">
-              Bangla &amp; English meanings with audio pronunciation.
+              Read its meaning in Bangla and English and hear it spoken.
             </p>
           </div>
           <div className="rounded-2xl border border-border/70 bg-neutral-bg/50 p-4">
             <span className="text-xs font-bold text-primary">02 · Sentences</span>
-            <p className="mt-1 text-sm font-semibold text-text">Daily Phrases</p>
+            <p className="mt-1 text-sm font-semibold text-text">Read a phrase</p>
             <p className="mt-1 text-xs text-text-secondary">
-              Expressions locals actually use at work and markets.
+              See how the word is used in a sentence.
             </p>
           </div>
           <div className="rounded-2xl border border-border/70 bg-neutral-bg/50 p-4">
             <span className="text-xs font-bold text-primary">03 · Speak</span>
-            <p className="mt-1 text-sm font-semibold text-text">Guided Dialogues</p>
+            <p className="mt-1 text-sm font-semibold text-text">Follow a dialogue</p>
             <p className="mt-1 text-xs text-text-secondary">
-              Practice two-way conversations step by step.
+              Read a short conversation for a daily situation.
             </p>
           </div>
         </div>

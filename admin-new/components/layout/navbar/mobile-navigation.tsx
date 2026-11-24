@@ -19,7 +19,6 @@ import type { LearnerOverview } from "@/lib/types/learner";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "./desktop-navigation";
 import { getDisplayName } from "./user-profile-menu";
-import { UserStats } from "./user-stats";
 
 interface MobileNavigationProps {
   user: SafeUser | null;
@@ -34,9 +33,6 @@ export function MobileNavigation({ user, overview }: MobileNavigationProps) {
 
   const isAdmin = user?.role === "ADMIN" || user?.role === "CONTENT_MANAGER";
   const identity = user ? getDisplayName(user) : null;
-  const xp = overview?.xp ?? 0;
-  const streakCount = overview?.streakCount ?? 0;
-  const hearts = overview?.hearts ?? 5;
   const plan = overview?.plan ?? "FREE";
 
   const handleLogout = () => {
@@ -125,8 +121,6 @@ export function MobileNavigation({ user, overview }: MobileNavigationProps) {
                   </span>
                 </div>
               </div>
-
-              <UserStats xp={xp} streakCount={streakCount} hearts={hearts} plan={plan} />
 
               {isAdmin && (
                 <Link

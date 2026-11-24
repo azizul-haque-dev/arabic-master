@@ -8,6 +8,7 @@ const REFRESH_TIMEOUT_MS = 10_000;
 
 export type ServerApiFetchOptions = RequestInit & {
   timeoutMs?: number;
+  allowCookieMutation?: boolean;
 };
 
 type RefreshResult =
@@ -39,11 +40,12 @@ function isAiGenerationEndpoint(endpoint: string): boolean {
     /\/lessons\/[^/]+\/(?:sentences|words)(?:\/batch)?$/.test(pathname);
 }
 
-async function clearSessionWhenPossible(): Promise<void> {
+async function clearSessionWhenPossible(allowCookieMutation = true): Promise<void> {
+  if (!allowCookieMutation) return;
   try {
     await clearAuthSession();
-  } catch (error) {
-    console.warn("[Auth] Session cookies could not be cleared in this context:", error);
+  } catch {
+    // Server Components cannot mutate cookies during rendering.
   }
 }
 
@@ -83,10 +85,10 @@ export function mapHttpError(
   };
 }
 
-async function refreshAccessToken(): Promise<RefreshResult> {
+async function refreshAccessToken(allowCookieMutation = true): Promise<RefreshResult> {
   const { refreshToken, user } = await getAuthSession();
   if (!refreshToken) {
-    await clearSessionWhenPossible();
+    await clearSessionWhenPossible(allowCookieMutation);
     return { kind: "unauthorized" };
   }
 
@@ -113,7 +115,7 @@ async function refreshAccessToken(): Promise<RefreshResult> {
 
   if (!response.ok) {
     if (response.status === 401 || response.status === 403) {
-      await clearSessionWhenPossible();
+      await clearSessionWhenPossible(allowCookieMutation);
       return { kind: "unauthorized" };
     }
     console.warn(`[Auth] Token refresh returned HTTP status ${response.status}`);
@@ -145,17 +147,19 @@ async function refreshAccessToken(): Promise<RefreshResult> {
     return { kind: "unavailable" };
   }
 
-  try {
-    await setAuthSession({
-      accessToken: newAccessToken,
-      refreshToken:
-        typeof newRefreshToken === "string" && newRefreshToken.length > 0
-          ? newRefreshToken
-          : refreshToken,
-      user,
-    });
-  } catch {
-    // Server Components cannot persist cookies during rendering.
+  if (allowCookieMutation) {
+    try {
+      await setAuthSession({
+        accessToken: newAccessToken,
+        refreshToken:
+          typeof newRefreshToken === "string" && newRefreshToken.length > 0
+            ? newRefreshToken
+            : refreshToken,
+        user,
+      });
+    } catch {
+      // Server Components cannot persist cookies during rendering.
+    }
   }
 
   return { kind: "refreshed", accessToken: newAccessToken };
@@ -169,11 +173,17 @@ export async function serverApiFetch(
   const backendUrl = getBackendApiUrl();
   const url = `${backendUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
+  const {
+    timeoutMs: optionTimeoutMs,
+    allowCookieMutation = true,
+    ...requestOptions
+  } = options;
+
   const { accessToken } = await getAuthSession();
   const token = accessToken;
 
-  const headers = new Headers(options.headers || {});
-  if (!headers.has("Content-Type") && options.body) {
+  const headers = new Headers(requestOptions.headers || {});
+  if (!headers.has("Content-Type") && requestOptions.body) {
     headers.set("Content-Type", "application/json");
   }
   headers.set("x-client-type", "nextjs");
@@ -183,7 +193,7 @@ export async function serverApiFetch(
   }
 
   const timeoutMs =
-    options.timeoutMs ??
+    optionTimeoutMs ??
     (isAiGenerationEndpoint(endpoint)
       ? undefined
       : endpoint === "/auth/me"
@@ -193,7 +203,7 @@ export async function serverApiFetch(
 
   try {
     response = await fetchWithTimeout(url, {
-      ...options,
+      ...requestOptions,
       headers,
       cache: "no-store",
     }, timeoutMs);
@@ -210,12 +220,12 @@ export async function serverApiFetch(
     !endpoint.includes("/auth/login") &&
     !endpoint.includes("/auth/register")
   ) {
-    const refreshResult = await refreshAccessToken();
+    const refreshResult = await refreshAccessToken(allowCookieMutation);
     if (refreshResult.kind === "refreshed") {
       headers.set("Authorization", `Bearer ${refreshResult.accessToken}`);
       try {
         return await fetchWithTimeout(url, {
-          ...options,
+          ...requestOptions,
           headers,
           cache: "no-store",
         }, timeoutMs);

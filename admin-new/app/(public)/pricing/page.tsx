@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { ComparisonSection } from "@/components/landing/ComparisonSection";
-import { ProSection } from "@/components/landing/ProSection";
+import { ComparisonSection } from "@/components/home/comparison-section";
+import { ProSection } from "@/components/home/pro-section";
 
 export const metadata: Metadata = {
   title: "Arabic Master Pro — Plans & Comparison",

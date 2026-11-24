@@ -11,8 +11,8 @@ const MODULES = [
   {
     title: "Words",
     description:
-      "Essential Arabic vocabulary with Bangla & English meaning and audio support.",
-    cta: "Explore Words",
+      "Learn common words with Bangla and English meanings and audio.",
+    cta: "Browse Words",
     href: "/words",
     icon: BookOpen,
     iconBg: "bg-primary-light text-primary",
@@ -20,8 +20,8 @@ const MODULES = [
   {
     title: "Sentences",
     description:
-      "Useful daily Arabic sentences, natural spoken expressions, and practical examples.",
-    cta: "Explore Sentences",
+      "Read phrases for shops, work, restaurants, and daily errands.",
+    cta: "Browse Sentences",
     href: "/sentences",
     icon: MessageSquareText,
     iconBg: "bg-amber-100 text-amber-600",
@@ -29,8 +29,8 @@ const MODULES = [
   {
     title: "Conversations",
     description:
-      "Real-life dialogues and guided conversation practice for everyday confidence.",
-    cta: "Explore Conversations",
+      "Follow short Arabic dialogues for common situations.",
+    cta: "Browse Conversations",
     href: "/conversations",
     icon: MessagesSquare,
     iconBg: "bg-sky-100 text-sky-600",
@@ -38,8 +38,8 @@ const MODULES = [
   {
     title: "Courses",
     description:
-      "Structured learning paths from Beginner to Advanced with organized lessons.",
-    cta: "Explore Courses",
+      "Follow courses from beginner through advanced levels.",
+    cta: "Browse Courses",
     href: "/courses",
     icon: GraduationCap,
     iconBg: "bg-indigo-100 text-indigo-600",
@@ -53,15 +53,14 @@ export function LearningModulesSection() {
         <div className="mx-auto mb-10 max-w-2xl text-center">
           <div className="inline-flex items-center gap-3 text-xs font-bold uppercase tracking-[0.18em] text-primary">
             <span className="h-px w-6 bg-primary/40" aria-hidden="true" />
-            <span>What You&apos;ll Get</span>
+            <span>Study Arabic</span>
             <span className="h-px w-6 bg-primary/40" aria-hidden="true" />
           </div>
           <h2 className="mt-2 font-heading text-2xl font-bold tracking-tight text-text sm:text-3xl">
-            Learn Arabic for Real Life.
+            Choose what to study.
           </h2>
           <p className="mt-2.5 text-base text-text-secondary">
-            Practical lessons designed for everyday situations in Arabic-speaking
-            countries.
+            Start with words or sentences, practice a conversation, or follow a course.
           </p>
         </div>
 

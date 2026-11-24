@@ -1,7 +1,10 @@
 import "server-only";
 import { cache } from "react";
 import { serverApiFetch } from "@/lib/auth/server-api";
-import { getAuthSession } from "@/lib/auth/session";
+import {
+  getAuthSession,
+  isAccessTokenExpiredOrNearExpiry,
+} from "@/lib/auth/session";
 import type { LearnerOverview } from "@/lib/types/learner";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -13,8 +16,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * and progress. Never placed in a shared cache.
  */
 export const getLearnerOverview = cache(async (): Promise<LearnerOverview | null> => {
-  const { accessToken, refreshToken, user } = await getAuthSession();
-  if (!user && !accessToken && !refreshToken) {
+  const { accessToken, refreshToken } = await getAuthSession();
+  if (!accessToken && !refreshToken) {
+    return null;
+  }
+  if ((!accessToken || isAccessTokenExpiredOrNearExpiry(accessToken, 5)) && !refreshToken) {
     return null;
   }
 
@@ -23,6 +29,7 @@ export const getLearnerOverview = cache(async (): Promise<LearnerOverview | null
       method: "GET",
       cache: "no-store",
       timeoutMs: 8_000,
+      allowCookieMutation: false,
     });
 
     if (!response.ok) {
