@@ -24,7 +24,7 @@ const footerSections = [
     title: "Learners",
     links: [
       { label: "Bangla & English Support", href: "/words" },
-      { label: "Saudi & Gulf Spoken Arabic", href: "/sentences" },
+      { label: "Spoken Arabic Across the Gulf", href: "/sentences" },
       { label: "My Profile", href: "/profile" },
     ],
   },
@@ -32,7 +32,7 @@ const footerSections = [
 
 export function Footer() {
   return (
-    <footer className="mt-16 w-full border-t border-border/80 bg-white">
+    <footer className="mt-6 w-full border-t border-white/10 bg-surface">
       <div className="mx-auto max-w-container-max px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
           <div className="space-y-3">
@@ -69,7 +69,7 @@ export function Footer() {
             </Link>
             <p className="text-sm leading-relaxed text-text-secondary">
               Spoken Arabic lessons with Bangla and English meanings for
-              learners in Saudi Arabia and the Gulf.
+              learners across the Gulf.
             </p>
           </div>
 

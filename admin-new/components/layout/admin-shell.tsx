@@ -12,9 +12,9 @@ export function AdminShell({ role = "ADMIN", children }: { role?: AdminRole; chi
 
   return (
     <RoleProvider initialRole={role}>
-      <div className="min-h-screen bg-background lg:flex">
+      <div className="admin-theme min-h-screen bg-background lg:flex">
         {/* Desktop sidebar */}
-        <aside className="hidden w-64 shrink-0 border-r border-border bg-white lg:block">
+        <aside className="hidden w-64 shrink-0 border-r border-white/10 bg-surface lg:block">
           <AdminSidebarContent />
         </aside>
 
@@ -22,15 +22,15 @@ export function AdminShell({ role = "ADMIN", children }: { role?: AdminRole; chi
         {drawerOpen ? (
           <div className="fixed inset-0 z-40 lg:hidden">
             <div
-              className="absolute inset-0 bg-text/40"
+              className="absolute inset-0 bg-black/60"
               onClick={() => setDrawerOpen(false)}
               aria-hidden="true"
             />
-            <div className="absolute left-0 top-0 h-full w-72 bg-white shadow-xl">
+            <div className="absolute left-0 top-0 h-full w-72 bg-surface shadow-xl">
               <button
                 type="button"
                 onClick={() => setDrawerOpen(false)}
-                className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full text-text-muted hover:bg-neutral-bg"
+                className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full text-white/65 transition-colors hover:bg-[#343052] hover:text-white"
                 aria-label="Close navigation"
               >
                 <X className="h-4 w-4" />

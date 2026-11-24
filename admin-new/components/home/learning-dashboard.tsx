@@ -28,7 +28,7 @@ function DashboardSkeleton() {
 
 export function LearningDashboardSection() {
   return (
-    <section className="mx-auto -mt-2 max-w-container-max px-4 pb-10 sm:px-6 lg:px-8">
+    <section id="learning-dashboard" className="mx-auto -mt-2 max-w-container-max px-4 pb-10 sm:px-6 lg:px-8">
       <Suspense fallback={<DashboardSkeleton />}>
         <LearningDashboardSlot />
       </Suspense>

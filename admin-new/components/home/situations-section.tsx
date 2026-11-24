@@ -60,9 +60,9 @@ function SituationCard({ situation }: { situation: Situation }) {
   const Icon = iconMap[situation.icon];
 
   return (
-    <article className="group flex h-full flex-col rounded-2xl border border-border/80 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_16px_30px_rgba(15,23,42,0.08)] sm:p-6">
+    <article className="group flex h-full flex-col rounded-2xl border border-white/10 bg-surface p-5 shadow-[0_8px_24px_rgba(0,0,0,0.16)] transition-colors hover:border-primary/40 sm:p-6">
       <div className="mb-4">
-        <span className="inline-flex size-11 items-center justify-center rounded-xl bg-primary-light text-primary">
+        <span className="inline-flex size-11 items-center justify-center rounded-xl bg-primary-light text-primary-dark ring-1 ring-inset ring-primary-light/20">
           <Icon className="size-5" aria-hidden="true" />
         </span>
       </div>
@@ -73,19 +73,19 @@ function SituationCard({ situation }: { situation: Situation }) {
         {situation.description}
       </p>
 
-      <div className="mt-5 rounded-xl border border-primary/10 bg-primary-light/35 p-4">
+      <div className="mt-5 rounded-xl border border-white/10 bg-[#17152b] p-4">
         <p
           dir="rtl"
           lang="ar"
-          className="font-arabic text-right text-xl font-bold leading-relaxed text-primary-dark"
+          className="font-arabic text-right text-xl font-bold leading-relaxed text-primary-light sm:text-2xl"
         >
           {situation.arabic}
         </p>
-        <p className="mt-2 border-t border-primary/10 pt-2 text-sm text-text-secondary">
-          <span className="font-semibold text-text">EN:</span> {situation.translation}
+        <p className="mt-3 border-t border-white/10 pt-2.5 text-sm leading-relaxed text-white/80">
+          <span className="font-semibold text-primary-light">EN:</span> {situation.translation}
         </p>
-        <p className="font-bengali mt-1 text-sm leading-relaxed text-text-secondary">
-          <span className="font-semibold text-text">বাংলা:</span>{" "}
+        <p className="font-bengali mt-1 text-sm leading-relaxed text-white/80">
+          <span className="font-semibold text-[#c9c6ff]">বাংলা:</span>{" "}
           {situation.banglaTranslation}
         </p>
       </div>

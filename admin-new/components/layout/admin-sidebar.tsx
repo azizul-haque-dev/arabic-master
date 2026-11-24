@@ -22,14 +22,14 @@ export function AdminSidebarContent({ onNavigate }: { onNavigate?: () => void })
           <span className="font-heading text-lg font-bold leading-tight tracking-tight text-text">
             Arabic Master
           </span>
-          <span className="text-[10px] font-semibold tracking-wider text-primary-dark uppercase">
+          <span className="text-[10px] font-semibold tracking-wider text-primary-light uppercase">
             Admin Workspace
           </span>
         </div>
       </Link>
 
       <div>
-        <p className="px-2 pb-2 text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+        <p className="px-2 pb-2 text-[11px] font-semibold uppercase tracking-wide text-white/60">
           Content
         </p>
         <ul className="flex flex-col gap-0.5">
@@ -41,12 +41,12 @@ export function AdminSidebarContent({ onNavigate }: { onNavigate?: () => void })
               return (
                 <li key={item.href}>
                   <span
-                    className="flex cursor-not-allowed items-center gap-2.5 rounded-default px-2.5 py-2 text-sm text-text-muted/60"
+                    className="flex cursor-not-allowed items-center gap-2.5 rounded-default px-2.5 py-2 text-sm text-white/40"
                     title={`${item.label} — coming in a later milestone`}
                   >
                     <Icon className="h-4 w-4" aria-hidden="true" />
                     {item.label}
-                    <span className="ml-auto rounded-full bg-neutral-bg px-1.5 py-0.5 text-[10px] font-medium">
+                    <span className="ml-auto rounded-full bg-[#302d48] px-1.5 py-0.5 text-[10px] font-medium text-white/65">
                       Soon
                     </span>
                   </span>
@@ -62,8 +62,8 @@ export function AdminSidebarContent({ onNavigate }: { onNavigate?: () => void })
                   className={cn(
                     "flex items-center gap-2.5 rounded-default px-2.5 py-2 text-sm font-medium transition-colors",
                     active
-                      ? "bg-primary-light/25 text-primary-dark"
-                      : "text-text-secondary hover:bg-neutral-bg",
+                      ? "bg-primary-light/15 text-primary-light ring-1 ring-inset ring-primary-light/20"
+                      : "text-white/75 hover:bg-[#343052] hover:text-white",
                   )}
                 >
                   <Icon className="h-4 w-4" aria-hidden="true" />

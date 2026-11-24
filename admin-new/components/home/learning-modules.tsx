@@ -24,7 +24,7 @@ const MODULES = [
     cta: "Browse Sentences",
     href: "/sentences",
     icon: MessageSquareText,
-    iconBg: "bg-amber-100 text-amber-600",
+    iconBg: "bg-primary-light text-primary-dark",
   },
   {
     title: "Conversations",
@@ -33,7 +33,7 @@ const MODULES = [
     cta: "Browse Conversations",
     href: "/conversations",
     icon: MessagesSquare,
-    iconBg: "bg-sky-100 text-sky-600",
+    iconBg: "bg-primary-light text-primary-dark",
   },
   {
     title: "Courses",
@@ -42,7 +42,7 @@ const MODULES = [
     cta: "Browse Courses",
     href: "/courses",
     icon: GraduationCap,
-    iconBg: "bg-indigo-100 text-indigo-600",
+    iconBg: "bg-primary/10 text-primary",
   },
 ] as const;
 

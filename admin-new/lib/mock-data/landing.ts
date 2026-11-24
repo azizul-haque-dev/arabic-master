@@ -192,7 +192,7 @@ export const faqItems: FaqItem[] = [
         id: "faq-2",
         question: "Who is Arabic Master for?",
         answer:
-            "It is for learners who want to use spoken Arabic in daily life in Saudi Arabia and the Gulf. Lessons include Bangla and English meanings.",
+            "It is for learners who want to use spoken Arabic in daily life across the Gulf. Lessons include Bangla and English meanings.",
     },
     {
         id: "faq-3",

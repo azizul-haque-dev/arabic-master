@@ -24,7 +24,7 @@ export function HeroCtaClient({
       </Link>
       <Link
         href="/courses"
-        className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-border-strong bg-white px-6 text-sm font-semibold text-text shadow-2xs transition-colors hover:border-primary hover:bg-primary-light/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:text-base"
+        className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-primary-light bg-primary-light px-6 text-sm font-semibold text-primary-dark shadow-2xs transition-colors hover:border-primary hover:bg-primary-light/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:text-base"
       >
         <BookOpen className="h-4 w-4 text-primary" aria-hidden="true" />
         <span>Browse Courses</span>

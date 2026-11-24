@@ -13,7 +13,7 @@ async function AdminAuthBoundary({
 
 function AdminLoadingFallback() {
   return (
-    <div className="min-h-screen bg-background p-8">
+    <div className="admin-theme min-h-screen bg-background p-8">
       <div className="mx-auto max-w-[1280px] space-y-4">
         <div className="h-12 w-64 animate-pulse rounded-xl bg-neutral-bg" />
         <div className="h-96 w-full animate-pulse rounded-2xl bg-white" />

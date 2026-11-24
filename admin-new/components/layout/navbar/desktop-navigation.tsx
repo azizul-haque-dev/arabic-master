@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import {
   BookOpen,
   ChevronDown,
-  GraduationCap,
   Home,
   MessageSquareText,
   MessagesSquare,
@@ -53,8 +52,8 @@ export function DesktopNavigation() {
   const isCoursesActive = pathname === "/courses" || pathname.startsWith("/courses/");
 
   return (
-    <nav aria-label="Primary navigation" className="hidden items-center gap-1 lg:flex">
-      {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
+    <nav aria-label="Primary navigation" className="hidden items-center gap-1 rounded-2xl border border-white/10 bg-[#19172f] p-1 lg:flex">
+      {NAV_ITEMS.map(({ label, href }) => {
         const isActive = href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
         return (
           <Link
@@ -62,13 +61,12 @@ export function DesktopNavigation() {
             href={href}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+              "inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
               isActive
-                ? "bg-primary text-white shadow-xs"
-                : "text-text-secondary hover:bg-neutral-bg hover:text-text",
+                ? "bg-primary text-white shadow-sm shadow-primary/25"
+                : "text-white/75 hover:bg-[#302d48] hover:text-white hover:ring-1 hover:ring-inset hover:ring-primary-light/15",
             )}
           >
-            <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
             <span>{label}</span>
           </Link>
         );
@@ -81,13 +79,12 @@ export function DesktopNavigation() {
           aria-haspopup="menu"
           onClick={() => setCoursesOpen((prev) => !prev)}
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            "inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
             isCoursesActive
-              ? "bg-primary text-white shadow-xs"
-              : "text-text-secondary hover:bg-neutral-bg hover:text-text",
+              ? "bg-primary text-white shadow-sm shadow-primary/25"
+              : "text-white/75 hover:bg-[#302d48] hover:text-white hover:ring-1 hover:ring-inset hover:ring-primary-light/15",
           )}
         >
-          <GraduationCap className="h-4 w-4 shrink-0" aria-hidden="true" />
           <span>Courses</span>
           <ChevronDown
             className={cn("h-3.5 w-3.5 transition-transform duration-150", coursesOpen && "rotate-180")}
@@ -98,7 +95,7 @@ export function DesktopNavigation() {
         {coursesOpen && (
           <div
             role="menu"
-            className="absolute left-0 top-full z-50 mt-2 w-64 rounded-2xl border border-border bg-white p-1.5 shadow-lg"
+            className="absolute left-0 top-full z-50 mt-2 w-64 rounded-2xl border border-white/10 bg-[#211f37] p-1.5 shadow-xl shadow-black/30"
           >
             {COURSE_LINKS.map((item) => (
               <Link
@@ -106,7 +103,7 @@ export function DesktopNavigation() {
                 href={item.href}
                 role="menuitem"
                 onClick={() => setCoursesOpen(false)}
-                className="block rounded-xl px-3 py-2.5 transition-colors hover:bg-neutral-bg"
+                className="block rounded-xl px-3 py-2.5 transition-colors hover:bg-[#302d48]"
               >
                 <span className="block text-sm font-semibold text-text">{item.label}</span>
                 <span className="block text-xs text-text-muted">{item.description}</span>

@@ -235,7 +235,7 @@ export function SectionListView({
         title="Sections"
         description="Groups of lessons within a course."
         primaryAction={
-          <Button onClick={() => setCreateOpen(true)}>
+          <Button onClick={() => setCreateOpen(true)} className="create-action-button">
             <Plus className="h-4 w-4" aria-hidden="true" />
             Create section
           </Button>
@@ -302,7 +302,7 @@ export function SectionListView({
               : "No sections exist yet. Create your first section to get started."
           }
           action={
-            <Button onClick={() => setCreateOpen(true)}>
+            <Button onClick={() => setCreateOpen(true)} className="create-action-button">
               <Plus className="h-4 w-4" aria-hidden="true" />
               Create section
             </Button>

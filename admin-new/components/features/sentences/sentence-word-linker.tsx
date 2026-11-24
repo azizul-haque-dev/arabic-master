@@ -363,7 +363,7 @@ export function SentenceWordLinker({
     <section className="rounded-lg border border-border bg-white p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="flex items-center gap-1.5 font-heading text-sm font-semibold text-text">
-          <Type className="h-3.5 w-3.5 text-secondary" aria-hidden="true" />
+          <Type className="h-3.5 w-3.5 text-primary-light" aria-hidden="true" />
           Word Linking ({linkedWords.length} linked)
         </h2>
         <div className="flex items-center gap-1.5">
@@ -378,7 +378,7 @@ export function SentenceWordLinker({
             {isResyncing ? "Linking all…" : "Link all"}
           </Button>
           <Button
-            variant="secondary"
+            variant="primary"
             size="sm"
             onClick={() => {
               setError(null);
@@ -445,8 +445,8 @@ export function SentenceWordLinker({
                   className={cn(
                     "flex items-center justify-between gap-2 rounded-default border px-3 py-2 transition-colors",
                     linked
-                      ? "border-success/40 bg-success-bg/25"
-                      : "border-border bg-white",
+                      ? "border-primary-light/25 bg-primary-light/10"
+                      : "border-white/10 bg-[#302d48]",
                   )}
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-2.5">
@@ -454,8 +454,8 @@ export function SentenceWordLinker({
                       className={cn(
                         "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-medium",
                         linked
-                          ? "bg-success-bg text-success-text"
-                          : "bg-neutral-bg text-text-muted",
+                          ? "bg-primary-light text-primary-dark"
+                          : "bg-primary/20 text-[#c9c6ff]",
                       )}
                     >
                       {position}
@@ -470,7 +470,7 @@ export function SentenceWordLinker({
                             <span dir="rtl" lang="ar" className="font-arabic text-lg text-text">
                               {token}
                             </span>
-                            <span className="inline-flex items-center gap-1 rounded-full bg-success-bg px-2 py-0.5 text-[10px] font-semibold text-success-text">
+                            <span className="inline-flex items-center gap-1 rounded-full border border-primary-light/20 bg-primary-light/10 px-2 py-0.5 text-[10px] font-semibold text-primary-light">
                               <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
                               Linked
                             </span>
@@ -488,7 +488,7 @@ export function SentenceWordLinker({
                         <span dir="rtl" lang="ar" className="font-arabic text-lg text-text">
                           {token}
                         </span>
-                        <span className="rounded-full bg-neutral-bg px-2 py-0.5 text-[10px] text-text-muted">
+                        <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] text-[#c9c6ff]">
                           Not linked
                         </span>
                       </div>
@@ -502,7 +502,7 @@ export function SentenceWordLinker({
                       disabled={isSaving || Boolean(linkingTokenKey)}
                       aria-label={`Remove ${token}`}
                       onClick={() => void handleUnlinkWord(linked.wordId)}
-                      className="text-error-text hover:bg-error-bg hover:text-error-text"
+                      className="text-rose-300 hover:bg-rose-300/10 hover:text-rose-200"
                     >
                       <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                       {isThisRemoving ? "Removing…" : "Remove"}
@@ -511,6 +511,7 @@ export function SentenceWordLinker({
                     <Button
                       variant="outline"
                       size="sm"
+                      className="border-primary/35 bg-primary/10 text-[#c9c6ff] hover:border-primary/60 hover:bg-primary/20"
                       disabled={Boolean(linkingTokenKey) || isSaving}
                       onClick={() => void handleLinkSentenceToken(token, position)}
                     >
@@ -546,7 +547,7 @@ export function SentenceWordLinker({
               return (
                 <li
                   key={item.id}
-                  className="flex items-center justify-between gap-2 rounded-default border border-border bg-neutral-bg/30 px-3 py-2"
+                  className="flex items-center justify-between gap-2 rounded-default border border-white/10 bg-[#302d48] px-3 py-2"
                 >
                   <Link
                     href={`/admin/words/${encodeURIComponent(item.wordId)}`}
@@ -577,7 +578,7 @@ export function SentenceWordLinker({
                     disabled={isSaving || Boolean(linkingTokenKey)}
                     aria-label={`Remove ${item.arabicText || item.wordKey}`}
                     onClick={() => void handleUnlinkWord(item.wordId)}
-                    className="text-error-text hover:bg-error-bg hover:text-error-text"
+                    className="text-rose-300 hover:bg-rose-300/10 hover:text-rose-200"
                   >
                     <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                     {isThisRemoving ? "Removing…" : "Remove"}

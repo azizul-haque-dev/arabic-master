@@ -18,8 +18,8 @@ export function ComparisonSection() {
           </p>
         </div>
 
-        <div className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-border bg-white shadow-[0_12px_30px_rgba(15,23,42,0.06)]">
-          <p className="px-4 pt-3 text-xs text-text-muted sm:hidden">
+        <div className="mx-auto max-w-6xl overflow-hidden rounded-2xl border border-white/10 bg-surface shadow-[0_18px_50px_rgba(0,0,0,0.24)]">
+          <p className="px-4 pt-3 text-xs text-white/60 sm:hidden">
             Swipe horizontally to compare Free and Pro.
           </p>
           <div
@@ -28,27 +28,27 @@ export function ComparisonSection() {
             tabIndex={0}
             className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
           >
-            <table className="w-full min-w-[680px] text-left">
+            <table className="w-full min-w-[720px] text-left text-sm sm:text-base">
               <caption className="sr-only">
                 Feature comparison between Free and Pro membership
               </caption>
               <thead>
-                <tr className="bg-surface-container">
+                <tr className="bg-[#302d48]">
                   <th
                     scope="col"
-                    className="p-4 font-heading text-sm font-bold text-text sm:p-5"
+                    className="p-4 font-heading font-bold text-white sm:p-5"
                   >
                     Feature
                   </th>
                   <th
                     scope="col"
-                    className="p-4 font-heading text-sm font-bold text-text-secondary sm:p-5"
+                    className="p-4 font-heading font-bold text-white/75 sm:p-5"
                   >
                     Free Tier
                   </th>
                   <th
                     scope="col"
-                    className="bg-primary-light/60 p-4 font-heading text-sm font-bold text-primary-dark sm:p-5"
+                    className="border-l border-primary-light/30 bg-[#393560] p-4 font-heading font-bold text-primary-light sm:p-5"
                   >
                     <span className="flex flex-wrap items-center gap-2">
                       Pro Member
@@ -56,11 +56,11 @@ export function ComparisonSection() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="text-sm text-text">
+              <tbody className="text-sm text-white sm:text-base">
                 {comparisonRows.map((row, index) => (
                   <tr
                     key={row.feature}
-                    className={index % 2 === 1 ? "bg-surface-container-low/70" : "bg-white"}
+                    className={index % 2 === 1 ? "bg-[#2a2743]" : "bg-[#242239]"}
                   >
                     <th
                       scope="row"
@@ -71,7 +71,7 @@ export function ComparisonSection() {
                     <td className="p-4 sm:p-5">
                       <FeatureValue value={row.free} locked={row.freeLocked} />
                     </td>
-                    <td className="bg-primary-light/25 p-4 font-semibold text-primary-dark sm:p-5">
+                    <td className="border-l border-primary-light/20 bg-[#292642] p-4 font-semibold text-white sm:p-5">
                       <FeatureValue value={row.pro} />
                     </td>
                   </tr>
@@ -91,7 +91,7 @@ function FeatureValue({ value, locked = false }: { value: string; locked?: boole
   return (
     <span className="inline-flex items-center gap-2">
       <Icon
-        className={`size-4 shrink-0 ${locked ? "text-text-muted" : "text-primary"}`}
+        className={`size-4 shrink-0 sm:size-5 ${locked ? "text-text-muted" : "text-primary-light"}`}
         aria-hidden="true"
       />
       <span>{value}</span>

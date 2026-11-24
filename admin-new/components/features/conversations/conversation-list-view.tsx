@@ -143,7 +143,7 @@ export function ConversationListView() {
         title="Conversations"
         description="Real-world dialogues built from sentences — never built directly from Arabic entities."
         primaryAction={
-          <Button onClick={() => setCreateOpen(true)}>
+          <Button onClick={() => setCreateOpen(true)} className="create-action-button">
             <Plus className="h-4 w-4" aria-hidden="true" />
             Create conversation
           </Button>
@@ -182,7 +182,7 @@ export function ConversationListView() {
           title="No conversations yet"
           description="Create your first conversation to start building real-world Arabic practice."
           action={
-            <Button onClick={() => setCreateOpen(true)}>
+            <Button onClick={() => setCreateOpen(true)} className="create-action-button">
               <Plus className="h-4 w-4" aria-hidden="true" />
               Create conversation
             </Button>

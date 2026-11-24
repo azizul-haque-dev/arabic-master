@@ -16,7 +16,7 @@ export function FinalCtaButtonClient({
   return (
     <Link
       href={isLoggedIn ? "/courses" : "/register"}
-      className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-6 text-sm font-semibold text-primary-dark shadow-md transition-colors hover:bg-primary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:text-base"
+      className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl border border-transparent bg-primary px-6 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-colors hover:bg-[#554ce8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-light sm:text-base"
     >
       <span>{isLoggedIn ? "Continue Learning" : "Start Learning Free"}</span>
       <ArrowRight className="h-4 w-4" aria-hidden="true" />

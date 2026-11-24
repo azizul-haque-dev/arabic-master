@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     template: "%s | Arabic Master",
   },
   description:
-    "Practical spoken Arabic for everyday life in Saudi Arabia and Gulf countries. Learn words, daily sentences, and real-life conversations with Bangla and English meanings.",
+    "Practical spoken Arabic for everyday life across the Gulf. Learn words, daily sentences, and real-life conversations with Bangla and English meanings.",
   openGraph: {
     title: "Arabic Master — Spoken Arabic Learning Platform",
     description:

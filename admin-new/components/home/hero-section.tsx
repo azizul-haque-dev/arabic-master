@@ -19,7 +19,7 @@ function HeroCtaSkeleton() {
 
 const HERO_FACTS = [
   "Bangla and English meanings",
-  "Saudi and Gulf expressions",
+  "Gulf Arabic expressions",
   "Words, sentences, and conversations",
 ] as const;
 
@@ -45,7 +45,7 @@ export function HeroSection() {
       <div className="relative mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
         <h1 className="mx-auto max-w-4xl font-heading text-4xl font-bold leading-[1.08] tracking-tight text-text sm:text-5xl lg:text-6xl">
           Learn <span className="text-primary">spoken Arabic</span> for
-          <span className="block">daily life in Saudi Arabia.</span>
+          <span className="block">daily life across the Gulf.</span>
         </h1>
 
         <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-text-secondary sm:mt-6 sm:text-lg sm:leading-8">

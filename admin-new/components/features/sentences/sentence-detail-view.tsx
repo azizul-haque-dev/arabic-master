@@ -245,24 +245,24 @@ export function SentenceDetailView({
                         {sentence.arabicText || "Arabic text is not included in this API response."}
                     </p>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <span className="text-xs text-text-muted">Sentence · {sentence.sentenceKey}</span>
+                        <span className="text-xs font-medium text-white/60">Sentence · {sentence.sentenceKey}</span>
                         <ContentStatusBadge status={sentence.status} />
                         <SentenceTypeBadge type={sentence.sentenceType} />
-                        <Badge className="bg-neutral-bg text-neutral-text">
+                        <Badge className="border border-primary/30 bg-primary/15 text-[#c9c6ff]">
                             {DIFFICULTY_LABEL[sentence.difficulty]}
                         </Badge>
                     </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                     <Button
-                        variant="outline"
+                        variant="primary"
                         disabled={isGenerating || isRegeneratingContext}
                         onClick={() => void handleRegenerate()}
                     >
                         <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                         {isGenerating ? "Generating with AI…" : "Generate with AI"}
                     </Button>
-                    <Button variant="secondary" onClick={() => setEditOpen(true)}>
+                    <Button variant="outline" className="border-primary-light/25 text-primary-light hover:bg-primary-light/10" onClick={() => setEditOpen(true)}>
                         <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
                         Edit
                     </Button>
@@ -328,6 +328,7 @@ export function SentenceDetailView({
                                 type="button"
                                 variant="outline"
                                 size="sm"
+                                className="border-primary/35 bg-primary/10 text-[#c9c6ff] hover:border-primary/60 hover:bg-primary/20"
                                 disabled={isGenerating || isRegeneratingContext}
                                 onClick={() => void handleRegenerateContext()}
                             >

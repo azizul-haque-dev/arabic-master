@@ -110,7 +110,7 @@ export function EntityAudioPanel({
         {canEdit && status !== "loading" ? (
           <Button
             type="button"
-            variant="secondary"
+            variant="primary"
             size="sm"
             onClick={() => handleOpenUpload(audios.length === 0 ? "DEFAULT" : "")}
             className="self-start sm:self-auto min-h-[36px]"

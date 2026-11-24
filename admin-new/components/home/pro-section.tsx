@@ -8,7 +8,7 @@ export function ProSection() {
       <div className="mx-auto max-w-container-max px-4 sm:px-6 lg:px-8">
         <div className="grid gap-10 overflow-hidden rounded-3xl bg-secondary p-6 text-white sm:p-9 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-12 lg:p-12">
           <div>
-            <span className="inline-flex items-center rounded-full bg-accent-light px-3 py-1.5 text-xs font-extrabold tracking-[0.12em] text-warning-text">
+            <span className="inline-flex items-center rounded-full bg-accent-light px-3 py-1.5 text-xs font-extrabold tracking-[0.12em] text-primary-dark">
               ARABIC MASTER PRO
             </span>
             <h2 className="mt-5 max-w-xl font-heading text-3xl font-bold tracking-tight sm:text-4xl">
@@ -22,7 +22,7 @@ export function ProSection() {
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/pricing"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-amber-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-secondary"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-secondary"
               >
                 Get Arabic Master Pro
                 <ArrowRight className="size-4" aria-hidden="true" />

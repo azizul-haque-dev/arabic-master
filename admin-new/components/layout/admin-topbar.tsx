@@ -23,11 +23,11 @@ export function AdminTopbar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-white/90 px-4 backdrop-blur sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/10 bg-surface/90 px-4 backdrop-blur sm:px-6">
       <button
         type="button"
         onClick={onOpenSidebar}
-        className="flex h-9 w-9 items-center justify-center rounded-default text-text-secondary hover:bg-neutral-bg lg:hidden"
+        className="flex h-9 w-9 items-center justify-center rounded-default text-white/75 transition-colors hover:bg-[#343052] hover:text-white lg:hidden"
         aria-label="Open navigation"
       >
         <Menu className="h-5 w-5" />
@@ -36,8 +36,8 @@ export function AdminTopbar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
       <div className="hidden lg:block" />
 
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1 rounded-full border border-border bg-background p-1 text-xs">
-          <span className="hidden pl-2 text-text-muted sm:inline">Preview as:</span>
+        <div className="flex items-center gap-1 rounded-full border border-white/10 bg-background p-1 text-xs">
+          <span className="hidden pl-2 text-white/60 sm:inline">Preview as:</span>
           {(["ADMIN", "CONTENT_MANAGER"] as AdminRole[]).map((r) => (
             <button
               key={r}
@@ -47,7 +47,7 @@ export function AdminTopbar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
                 "rounded-full px-2.5 py-1 font-medium transition-colors",
                 role === r
                   ? "bg-primary text-white"
-                  : "text-text-secondary hover:bg-neutral-bg",
+                  : "text-white/70 hover:bg-[#343052] hover:text-white",
               )}
             >
               {r === "ADMIN" ? "Admin" : "Content Manager"}
@@ -66,11 +66,11 @@ export function AdminTopbar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
           </button>
           
           {profileOpen && (
-            <div className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-default border border-border bg-white shadow-lg">
+            <div className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-default border border-white/10 bg-surface shadow-lg">
               <form action={logoutAction}>
                 <button
                   type="submit"
-                  className="flex w-full items-center gap-2 px-4 py-3 text-sm font-medium text-error-text transition-colors hover:bg-neutral-bg"
+                  className="flex w-full items-center gap-2 px-4 py-3 text-sm font-medium text-rose-400 transition-colors hover:bg-rose-950/40 hover:text-rose-300"
                 >
                   <LogOut className="h-4 w-4" aria-hidden="true" />
                   Logout

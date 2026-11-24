@@ -41,15 +41,15 @@ export function GET(request: NextRequest) {
     <title>Session temporarily unavailable — Arabic Master</title>
     <style>
       * { box-sizing: border-box; }
-      body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #f8fafc; color: #0f172a; font: 16px/1.5 system-ui, sans-serif; }
-      main { width: min(100%, 34rem); padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; background: #fff; text-align: center; box-shadow: 0 12px 35px rgb(15 23 42 / 8%); }
+      body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #f8fafc; color: #17152b; font: 16px/1.5 system-ui, sans-serif; }
+      main { width: min(100%, 34rem); padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; background: #b9fbc0; text-align: center; box-shadow: 0 12px 35px rgb(23 21 43 / 8%); }
       h1 { margin: 0 0 12px; font-size: clamp(1.5rem, 5vw, 2rem); line-height: 1.2; }
       p { margin: 0 0 24px; color: #475569; }
       nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
-      a { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; padding: 0 18px; border-radius: 8px; color: #0e7a5d; font-weight: 600; }
-      a.primary { background: #0e7a5d; color: #fff; text-decoration: none; }
+      a { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; padding: 0 18px; border-radius: 8px; color: #635bff; font-weight: 600; }
+      a.primary { background: #635bff; color: #fff; text-decoration: none; }
       [hidden] { display: none !important; }
-      .spinner { width: 40px; height: 40px; margin: 0 auto 20px; border: 4px solid #d1fae5; border-top-color: #0e7a5d; border-radius: 50%; animation: spin 0.8s linear infinite; }
+      .spinner { width: 40px; height: 40px; margin: 0 auto 20px; border: 4px solid #b9fbc0; border-top-color: #635bff; border-radius: 50%; animation: spin 0.8s linear infinite; }
       @keyframes spin { to { transform: rotate(360deg); } }
       @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 1.8s; } }
     </style>

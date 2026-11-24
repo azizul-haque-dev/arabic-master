@@ -11,9 +11,9 @@ import { FAQSection } from "@/components/home/faq-section";
 import { FinalCTASection } from "@/components/home/final-cta";
 
 export const metadata: Metadata = {
-  title: "Arabic Master — Spoken Arabic for Saudi Arabia",
+  title: "Arabic Master — Spoken Arabic for Life Across the Gulf",
   description:
-    "Learn spoken Arabic for daily life in Saudi Arabia, with Bangla and English meanings.",
+    "Learn practical spoken Arabic for daily life across the Gulf, with Bangla and English meanings.",
 };
 
 export default function HomePage() {

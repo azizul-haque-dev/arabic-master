@@ -38,9 +38,9 @@ export function ContentDataTable<T>({
   return (
     <>
       {/* Desktop table */}
-      <div className="hidden overflow-x-auto rounded-lg border border-border bg-white md:block">
+      <div className="hidden overflow-x-auto rounded-lg border border-white/10 bg-white md:block">
         <table className="w-full text-left text-sm">
-          <thead className="sticky top-0 border-b border-border bg-background">
+          <thead className="sticky top-0 border-b border-white/10 bg-background">
             <tr>
               {selectable ? (
                 <th className="w-10 px-4 py-3">
@@ -75,7 +75,7 @@ export function ContentDataTable<T>({
                   key={id}
                   onClick={() => onRowClick?.(row)}
                   className={cn(
-                    "border-b border-border last:border-0 transition-colors",
+                    "border-b border-white/10 last:border-0 transition-colors",
                     onRowClick && "cursor-pointer hover:bg-background",
                   )}
                 >
@@ -114,7 +114,7 @@ export function ContentDataTable<T>({
             <li
               key={rowKey(row)}
               onClick={() => onRowClick?.(row)}
-              className="rounded-lg border border-border bg-white p-4"
+              className="rounded-lg border border-white/10 bg-white p-4"
             >
               {href ? (
                 <Link href={href} className="block" onClick={(event) => event.stopPropagation()}>

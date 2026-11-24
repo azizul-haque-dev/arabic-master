@@ -220,7 +220,7 @@ export function CourseListView({
         title="Courses"
         description="Top-level curriculum tracks. Free tracks contain free words and sentences; Pro tracks follow a structured path."
         primaryAction={
-          <Button onClick={() => setCreateOpen(true)}>
+          <Button onClick={() => setCreateOpen(true)} className="create-action-button">
             <Plus className="h-4 w-4" aria-hidden="true" />
             Create course
           </Button>
@@ -272,7 +272,7 @@ export function CourseListView({
               : "No courses exist yet. Create your first course to get started."
           }
           action={
-            <Button onClick={() => setCreateOpen(true)}>
+            <Button onClick={() => setCreateOpen(true)} className="create-action-button">
               <Plus className="h-4 w-4" aria-hidden="true" />
               Create course
             </Button>

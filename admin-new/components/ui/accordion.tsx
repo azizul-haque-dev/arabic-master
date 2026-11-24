@@ -19,7 +19,7 @@ function AccordionItem({
         <AccordionPrimitive.Item
             data-slot="accordion-item"
             className={cn(
-                "overflow-hidden rounded-2xl border border-border/80 bg-surface-container-lowest shadow-sm transition-colors data-[state=open]:border-primary/25",
+                "overflow-hidden rounded-2xl border border-white/10 bg-surface shadow-sm transition-colors data-[state=open]:border-primary/50 data-[state=open]:bg-surface-container-high",
                 className
             )}
             {...props}
@@ -38,7 +38,7 @@ function AccordionTrigger({
                 data-slot="accordion-trigger"
                 className={cn(
                     "flex w-full items-center justify-between gap-4 px-5 py-4 text-left sm:px-6 sm:py-5",
-                    "font-title-lg text-title-lg font-semibold text-on-surface",
+                    "font-title-lg text-title-lg font-semibold text-white",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/50",
                     "[&[data-state=open]>svg]:rotate-180",
                     className
@@ -46,7 +46,7 @@ function AccordionTrigger({
                 {...props}
             >
                 {children}
-                <ChevronDown aria-hidden="true" className="size-5 shrink-0 text-primary transition-transform duration-200" />
+                <ChevronDown aria-hidden="true" className="size-5 shrink-0 text-primary-light transition-transform duration-200" />
             </AccordionPrimitive.Trigger>
         </AccordionPrimitive.Header>
     );
@@ -60,12 +60,12 @@ function AccordionContent({
     return (
         <AccordionPrimitive.Content
             data-slot="accordion-content"
-            className="overflow-hidden text-body-md data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+            className="overflow-hidden border-t border-white/10 text-body-md data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
             {...props}
         >
             <div
                 className={cn(
-                    "px-5 pb-5 text-on-surface-variant font-body-md text-body-md sm:px-6 sm:pb-6",
+                    "px-5 pb-5 pt-4 text-white/75 font-body-md text-body-md sm:px-6 sm:pb-6",
                     className
                 )}
             >

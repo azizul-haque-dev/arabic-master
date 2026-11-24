@@ -143,7 +143,7 @@ export default function SentencesPage({ searchParams }: SentencesPageProps) {
       <LearningPageHeader
         badge="Daily Expressions"
         title="Useful Spoken Arabic Sentences"
-        description="Learn natural Arabic expressions used every day in Saudi Arabia and the Gulf, complete with Bangla and English translations."
+        description="Learn natural Arabic expressions used every day across the Gulf, complete with Bangla and English translations."
         icon={MessageSquareText}
       />
       <Suspense fallback={<LearningGridSkeleton />}>

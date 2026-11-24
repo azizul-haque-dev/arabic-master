@@ -212,7 +212,7 @@ export function LessonListView({
         title="Lessons"
         description="Core learning units composed of words, sentences, and conversations."
         primaryAction={
-          <Button onClick={() => setCreateOpen(true)}>
+          <Button onClick={() => setCreateOpen(true)} className="create-action-button">
             <Plus className="h-4 w-4" aria-hidden="true" />
             Create lesson
           </Button>
@@ -279,7 +279,7 @@ export function LessonListView({
               : "No lessons exist yet. Create your first lesson to get started."
           }
           action={
-            <Button onClick={() => setCreateOpen(true)}>
+            <Button onClick={() => setCreateOpen(true)} className="create-action-button">
               <Plus className="h-4 w-4" aria-hidden="true" />
               Create lesson
             </Button>

@@ -4,12 +4,12 @@ import { CONTENT_STATUS_LABEL, type ContentStatus } from "@/lib/types/content";
 import { cn } from "@/lib/utils";
 
 const STATUS_STYLE: Record<ContentStatus, { bg: string; text: string; icon: typeof Circle }> = {
-  DRAFT: { bg: "bg-neutral-bg", text: "text-neutral-text", icon: Circle },
-  IN_REVIEW: { bg: "bg-warning-bg", text: "text-warning-text", icon: Clock },
-  APPROVED: { bg: "bg-info-bg", text: "text-info-text", icon: CheckCircle2 },
-  PUBLISHED: { bg: "bg-success-bg", text: "text-success-text", icon: Rocket },
-  REJECTED: { bg: "bg-error-bg", text: "text-error-text", icon: XCircle },
-  ARCHIVED: { bg: "bg-neutral-bg", text: "text-text-muted", icon: Archive },
+  DRAFT: { bg: "border border-white/10 bg-white/5", text: "text-white/75", icon: Circle },
+  IN_REVIEW: { bg: "border border-amber-300/20 bg-amber-300/10", text: "text-amber-200", icon: Clock },
+  APPROVED: { bg: "border border-sky-300/20 bg-sky-300/10", text: "text-sky-200", icon: CheckCircle2 },
+  PUBLISHED: { bg: "bg-primary-light", text: "text-primary-dark", icon: Rocket },
+  REJECTED: { bg: "border border-rose-300/20 bg-rose-300/10", text: "text-rose-200", icon: XCircle },
+  ARCHIVED: { bg: "border border-white/10 bg-white/5", text: "text-white/60", icon: Archive },
 };
 
 export function ContentStatusBadge({ status }: { status: ContentStatus }) {

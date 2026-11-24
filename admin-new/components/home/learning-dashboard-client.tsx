@@ -64,11 +64,11 @@ function AuthenticatedDashboard({
 
   return (
     <div className="grid grid-cols-1 overflow-hidden rounded-3xl border border-border/80 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.06)] lg:grid-cols-12">
-      <div className="flex flex-col items-center justify-center gap-3 bg-primary-light/45 p-6 text-center lg:col-span-4 lg:p-8">
+      <div className="flex flex-col items-center justify-center gap-3 bg-primary-light p-6 text-center lg:col-span-4 lg:p-8">
         <ProgressRing percent={progressPercent} />
         <div>
-          <p className="text-sm font-semibold text-text">Your Progress</p>
-          <p className="mt-0.5 text-xs text-text-secondary">
+          <p className="text-sm font-semibold text-primary-dark">Your Progress</p>
+          <p className="mt-0.5 text-xs text-primary-dark/75">
             {currentLesson
               ? `${currentLesson.completedLessons} of ${currentLesson.totalLessons} lessons`
               : "Level " + (overview?.level ?? 1)}
@@ -108,37 +108,37 @@ function AuthenticatedDashboard({
         </div>
 
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-neutral-bg/50 p-3.5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-primary">
+          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-surface-container-high p-3.5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-light text-primary-dark">
               <Star className="h-5 w-5 fill-current" aria-hidden="true" />
             </span>
             <div>
               <p className="font-heading text-base font-bold text-text">{xp} XP</p>
-              <p className="text-xs text-text-muted">Total XP</p>
+              <p className="text-xs text-white/70">Total XP</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-neutral-bg/50 p-3.5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
+          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-surface-container-high p-3.5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <Flame className="h-5 w-5 fill-current" aria-hidden="true" />
             </span>
             <div>
               <p className="font-heading text-base font-bold text-text">
                 {streakCount} {streakCount === 1 ? "Day" : "Days"}
               </p>
-              <p className="text-xs text-text-muted">Current Streak</p>
+              <p className="text-xs text-white/70">Current Streak</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-neutral-bg/50 p-3.5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-600">
+          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-surface-container-high p-3.5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-light text-primary-dark">
               <Heart className="h-5 w-5 fill-current" aria-hidden="true" />
             </span>
             <div>
               <p className="font-heading text-base font-bold text-text">
                 {hearts} Hearts
               </p>
-              <p className="text-xs text-text-muted">Available</p>
+              <p className="text-xs text-white/70">Available</p>
             </div>
           </div>
         </div>
@@ -150,7 +150,7 @@ function AuthenticatedDashboard({
 function GuestIntroductionCard() {
   return (
     <div className="grid grid-cols-1 overflow-hidden rounded-3xl border border-border/80 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.06)] lg:grid-cols-12">
-      <div className="flex flex-col justify-between gap-4 bg-primary-light/45 p-6 lg:col-span-5 lg:p-8">
+      <div className="flex flex-col justify-between gap-4 bg-primary-light p-6 lg:col-span-5 lg:p-8">
         <div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-primary-dark shadow-2xs">
             <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
@@ -186,21 +186,21 @@ function GuestIntroductionCard() {
           What a lesson includes
         </p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl border border-border/70 bg-neutral-bg/50 p-4">
+          <div className="rounded-2xl border border-white/10 bg-surface-container-high p-4">
             <span className="text-xs font-bold text-primary">01 · Words</span>
             <p className="mt-1 text-sm font-semibold text-text">Learn a word</p>
             <p className="mt-1 text-xs text-text-secondary">
               Read its meaning in Bangla and English and hear it spoken.
             </p>
           </div>
-          <div className="rounded-2xl border border-border/70 bg-neutral-bg/50 p-4">
+          <div className="rounded-2xl border border-white/10 bg-surface-container-high p-4">
             <span className="text-xs font-bold text-primary">02 · Sentences</span>
             <p className="mt-1 text-sm font-semibold text-text">Read a phrase</p>
             <p className="mt-1 text-xs text-text-secondary">
               See how the word is used in a sentence.
             </p>
           </div>
-          <div className="rounded-2xl border border-border/70 bg-neutral-bg/50 p-4">
+          <div className="rounded-2xl border border-white/10 bg-surface-container-high p-4">
             <span className="text-xs font-bold text-primary">03 · Speak</span>
             <p className="mt-1 text-sm font-semibold text-text">Follow a dialogue</p>
             <p className="mt-1 text-xs text-text-secondary">

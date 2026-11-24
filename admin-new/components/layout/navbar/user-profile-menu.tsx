@@ -93,7 +93,7 @@ export function UserProfileMenu({ user, overview }: UserProfileMenuProps) {
         aria-haspopup="menu"
         aria-expanded={isOpen}
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex h-10 items-center gap-2 rounded-xl border border-border/80 bg-white px-2.5 py-1.5 shadow-2xs transition-colors hover:bg-neutral-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="flex h-10 items-center gap-2 rounded-xl border border-white/10 bg-[#242239] px-2.5 py-1.5 text-white/90 shadow-2xs transition-colors hover:border-primary-light/20 hover:bg-[#302d48] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-bold text-white">
           {initials}
@@ -114,9 +114,9 @@ export function UserProfileMenu({ user, overview }: UserProfileMenuProps) {
         <div
           role="menu"
           aria-labelledby="profile-menu-button"
-          className="absolute right-0 top-full z-50 mt-2 w-72 origin-top-right rounded-2xl border border-border bg-white p-2 shadow-xl"
+          className="absolute right-0 top-full z-50 mt-2 w-72 origin-top-right rounded-2xl border border-white/10 bg-surface p-2 shadow-xl"
         >
-          <div className="flex items-center gap-3 rounded-xl bg-neutral-bg/80 p-3">
+          <div className="flex items-center gap-3 rounded-xl bg-[#302d48] p-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white">
               {initials}
             </span>
@@ -124,7 +124,7 @@ export function UserProfileMenu({ user, overview }: UserProfileMenuProps) {
               <p className="truncate text-sm font-semibold text-text">
                 Hello, {fullName}
               </p>
-              <p className="truncate text-xs text-text-muted">{user.email}</p>
+              <p className="truncate text-xs text-white/65">{user.email}</p>
               <div className="mt-1.5 flex items-center gap-1.5">
                 <span
                   className={cn(
@@ -138,7 +138,7 @@ export function UserProfileMenu({ user, overview }: UserProfileMenuProps) {
                   {plan === "PRO" ? "Pro Plan" : "Free Plan"}
                 </span>
                 {isAdmin && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-primary-light/25 bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary-light">
                     <Shield className="h-2.5 w-2.5" />
                     {user.role === "ADMIN" ? "Admin" : "Staff"}
                   </span>
@@ -159,10 +159,10 @@ export function UserProfileMenu({ user, overview }: UserProfileMenuProps) {
                 href="/pricing"
                 role="menuitem"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center justify-between rounded-xl bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800 transition-colors hover:bg-amber-100"
+                className="flex items-center justify-between rounded-xl border border-primary-light/20 bg-[#292642] px-3 py-2 text-sm font-semibold text-primary-light transition-colors hover:bg-[#343052]"
               >
                 <span className="inline-flex items-center gap-2">
-                  <Crown className="h-4 w-4 text-amber-600" aria-hidden="true" />
+                  <Crown className="h-4 w-4 text-primary-light" aria-hidden="true" />
                   <span>Upgrade to Pro</span>
                 </span>
                 <span className="text-xs">&rarr;</span>
@@ -174,7 +174,7 @@ export function UserProfileMenu({ user, overview }: UserProfileMenuProps) {
                 href="/admin/arabic-entities"
                 role="menuitem"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-text transition-colors hover:bg-neutral-bg hover:text-primary"
+                className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-text transition-colors hover:bg-[#343052] hover:text-primary-light"
               >
                 <LayoutDashboard className="h-4 w-4 text-primary" aria-hidden="true" />
                 <span>Admin Dashboard</span>
@@ -185,7 +185,7 @@ export function UserProfileMenu({ user, overview }: UserProfileMenuProps) {
               href="/profile"
               role="menuitem"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-text transition-colors hover:bg-neutral-bg"
+              className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-text transition-colors hover:bg-[#343052]"
             >
               <UserIcon className="h-4 w-4 text-text-muted" aria-hidden="true" />
               <span>Profile &amp; Account</span>
@@ -199,7 +199,7 @@ export function UserProfileMenu({ user, overview }: UserProfileMenuProps) {
             role="menuitem"
             disabled={isPending}
             onClick={handleLogout}
-            className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50 disabled:opacity-50"
+            className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-rose-400 transition-colors hover:bg-rose-950/40 hover:text-rose-300 disabled:opacity-50"
           >
             <LogOut className="h-4 w-4" aria-hidden="true" />
             <span>{isPending ? "Logging out..." : "Log out"}</span>

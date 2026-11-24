@@ -355,7 +355,7 @@ export function SentenceListView({
                             <Sparkles className="h-4 w-4" aria-hidden="true" />
                             Generate with AI
                         </Button>
-                        <Button onClick={() => setCreateOpen(true)}>
+                        <Button onClick={() => setCreateOpen(true)} className="create-action-button">
                             <Plus className="h-4 w-4" aria-hidden="true" />
                             {isShortOnly ? "Create short sentence" : "Create sentence"}
                         </Button>
@@ -433,7 +433,7 @@ export function SentenceListView({
                     }
                     description="Try adjusting your search or filters, or create a new sentence to get started."
                     action={
-                        <Button onClick={() => setCreateOpen(true)}>
+                        <Button onClick={() => setCreateOpen(true)} className="create-action-button">
                             <Plus className="h-4 w-4" aria-hidden="true" />
                             {isShortOnly ? "Create short sentence" : "Create sentence"}
                         </Button>

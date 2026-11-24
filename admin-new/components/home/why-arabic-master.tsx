@@ -40,7 +40,7 @@ export function WhyArabicMasterSection() {
             <ul className="mt-5 space-y-2.5 text-sm text-text-secondary">
               <li className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-primary" aria-hidden="true" />
-                <span>Saudi and Gulf expressions</span>
+                <span>Gulf Arabic expressions</span>
               </li>
               <li className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-primary" aria-hidden="true" />

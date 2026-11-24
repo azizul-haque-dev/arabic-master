@@ -124,12 +124,12 @@ export function Pagination({
       role="navigation"
       aria-label="Pagination"
       className={cn(
-        "flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between",
+        "flex flex-col gap-3 border-t border-white/10 pt-4 sm:flex-row sm:items-center sm:justify-between",
         className,
       )}
     >
       {/* Items summary */}
-      <div className="flex items-center gap-2 text-sm text-text-secondary">
+      <div className="flex items-center gap-2 text-sm text-white/75">
         {isLoading ? (
           <span className="flex items-center gap-1.5 text-xs text-primary font-medium">
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -140,21 +140,21 @@ export function Pagination({
           {typeof totalItems === "number" ? (
             totalItems > 0 ? (
               <>
-                Showing <strong className="font-semibold text-text">{startItem}</strong>
+                Showing <strong className="font-semibold text-primary-light">{startItem}</strong>
                 {startItem !== endItem ? (
                   <>
-                    –<strong className="font-semibold text-text">{endItem}</strong>
+                    –<strong className="font-semibold text-primary-light">{endItem}</strong>
                   </>
                 ) : null}{" "}
-                of <strong className="font-semibold text-text">{totalItems}</strong> {itemName}
+                of <strong className="font-semibold text-primary-light">{totalItems}</strong> {itemName}
               </>
             ) : (
               `0 ${itemName}`
             )
           ) : (
             <>
-              Page <strong className="font-semibold text-text">{currentPage}</strong> of{" "}
-              <strong className="font-semibold text-text">{totalPages}</strong>
+              Page <strong className="font-semibold text-primary-light">{currentPage}</strong> of{" "}
+              <strong className="font-semibold text-primary-light">{totalPages}</strong>
             </>
           )}
         </span>
@@ -169,7 +169,7 @@ export function Pagination({
             disabled={currentPage <= 1 || isLoading}
             aria-label="First page"
             title="First page"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-default border border-border bg-white text-text-secondary transition-colors hover:border-border-strong hover:bg-neutral-bg hover:text-text disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-default border border-white/10 bg-white text-text-secondary transition-colors hover:border-white/20 hover:bg-neutral-bg hover:text-text disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <ChevronsLeft className="h-4 w-4" />
           </button>
@@ -180,7 +180,7 @@ export function Pagination({
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage <= 1 || isLoading}
             aria-label="Previous page"
-            className="inline-flex h-9 items-center justify-center gap-1 rounded-default border border-border bg-white px-2.5 sm:px-3 text-sm font-medium text-text-secondary transition-colors hover:border-border-strong hover:bg-neutral-bg hover:text-text disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="inline-flex h-9 items-center justify-center gap-1 rounded-default border border-white/10 bg-white px-2.5 sm:px-3 text-sm font-medium text-text-secondary transition-colors hover:border-white/20 hover:bg-neutral-bg hover:text-text disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <ChevronLeft className="h-4 w-4" />
             <span className="hidden sm:inline">Previous</span>
@@ -214,7 +214,7 @@ export function Pagination({
                     "inline-flex h-9 min-w-9 items-center justify-center rounded-default px-2.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50",
                     isActive
                       ? "bg-primary text-white font-semibold shadow-xs"
-                      : "border border-border bg-white text-text hover:border-border-strong hover:bg-neutral-bg hover:text-text",
+                      : "border border-white/10 bg-white text-text hover:border-white/20 hover:bg-neutral-bg hover:text-text",
                   )}
                 >
                   {item}
@@ -229,7 +229,7 @@ export function Pagination({
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage >= totalPages || isLoading}
             aria-label="Next page"
-            className="inline-flex h-9 items-center justify-center gap-1 rounded-default border border-border bg-white px-2.5 sm:px-3 text-sm font-medium text-text-secondary transition-colors hover:border-border-strong hover:bg-neutral-bg hover:text-text disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="inline-flex h-9 items-center justify-center gap-1 rounded-default border border-white/10 bg-white px-2.5 sm:px-3 text-sm font-medium text-text-secondary transition-colors hover:border-white/20 hover:bg-neutral-bg hover:text-text disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <span className="hidden sm:inline">Next</span>
             <ChevronRight className="h-4 w-4" />
@@ -242,7 +242,7 @@ export function Pagination({
             disabled={currentPage >= totalPages || isLoading}
             aria-label="Last page"
             title="Last page"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-default border border-border bg-white text-text-secondary transition-colors hover:border-border-strong hover:bg-neutral-bg hover:text-text disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-default border border-white/10 bg-white text-text-secondary transition-colors hover:border-white/20 hover:bg-neutral-bg hover:text-text disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <ChevronsRight className="h-4 w-4" />
           </button>
@@ -251,7 +251,7 @@ export function Pagination({
           {showQuickJumper && totalPages > 5 ? (
             <form
               onSubmit={handleJumpSubmit}
-              className="hidden lg:flex items-center gap-1.5 pl-2 border-l border-border text-xs text-text-muted"
+              className="hidden lg:flex items-center gap-1.5 pl-2 border-l border-white/10 text-xs text-text-muted"
             >
               <span>Go to</span>
               <input
@@ -263,12 +263,12 @@ export function Pagination({
                 placeholder={String(currentPage)}
                 disabled={isLoading}
                 aria-label="Go to page number"
-                className="h-8 w-14 rounded-default border border-border bg-white px-2 text-center text-xs text-text placeholder:text-text-muted focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 disabled:opacity-50"
+                className="h-8 w-14 rounded-default border border-white/10 bg-white px-2 text-center text-xs text-text placeholder:text-text-muted focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 disabled:opacity-50"
               />
               <button
                 type="submit"
                 disabled={isLoading || !jumpPage.trim()}
-                className="h-8 rounded-default border border-border bg-white px-2 text-xs font-medium text-text hover:bg-neutral-bg hover:border-border-strong transition-colors disabled:pointer-events-none disabled:opacity-40"
+                className="h-8 rounded-default border border-white/10 bg-white px-2 text-xs font-medium text-text hover:bg-neutral-bg hover:border-white/20 transition-colors disabled:pointer-events-none disabled:opacity-40"
               >
                 Go
               </button>
