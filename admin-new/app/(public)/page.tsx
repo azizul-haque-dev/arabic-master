@@ -1,30 +1,23 @@
-import { HeroSection } from "@/components/landing/HeroSection";
-import { ValueSection } from "@/components/landing/ValueSection";
-import { MethodologySection } from "@/components/landing/MethodologySection";
-import { SituationsSection } from "@/components/landing/SituationsSection";
-import { PersonalizedLearningSection } from "@/components/landing/PersonalizedLearningSection";
-import { ProgressSection } from "@/components/landing/ProgressSection";
-import { ProSection } from "@/components/landing/ProSection";
-import { ComparisonSection } from "@/components/landing/ComparisonSection";
-import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
-import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
-import { FAQSection } from "@/components/landing/FAQSection";
-import { FinalCTASection } from "@/components/landing/FinalCTASection";
+import type { Metadata } from "next";
+import { HeroSection } from "@/components/home/hero-section";
+import { LearningDashboardSection } from "@/components/home/learning-dashboard";
+import { LearningModulesSection } from "@/components/home/learning-modules";
+import { WhyArabicMasterSection } from "@/components/home/why-arabic-master";
+import { FinalCTASection } from "@/components/home/final-cta";
+
+export const metadata: Metadata = {
+  title: "Arabic Master — Learn the Arabic You Actually Need to Speak",
+  description:
+    "Practical spoken Arabic for everyday life in Arabic-speaking countries. Learn practical words, daily sentences, and conversations with Bangla and English meanings.",
+};
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex w-full flex-col">
       <HeroSection />
-      <ValueSection />
-      <MethodologySection />
-      <SituationsSection />
-      <PersonalizedLearningSection />
-      <ProgressSection />
-      <ProSection />
-      <ComparisonSection />
-      <HowItWorksSection />
-      <TestimonialsSection />
-      <FAQSection />
+      <LearningDashboardSection />
+      <LearningModulesSection />
+      <WhyArabicMasterSection />
       <FinalCTASection />
     </div>
   );

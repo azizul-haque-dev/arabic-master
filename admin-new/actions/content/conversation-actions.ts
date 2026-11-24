@@ -2,7 +2,7 @@
 
 import type { ContentActionResult } from "@/lib/content/action-result";
 import { callBackend, requireContentAdmin, validationFailure } from "@/lib/content/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { contentIdSchema } from "@/lib/content/validation";
 import type { ContentStatus, Conversation } from "@/lib/types/content";
 
@@ -76,6 +76,7 @@ export async function updateConversationStatusAction(
     if (!response.success) return response;
     revalidatePath("/admin/conversations");
     revalidatePath(`/admin/conversations/${encodeURIComponent(id.data)}`);
+    updateTag("conversations");
     return { success: true, data: response.data as { status: ContentStatus; rejectionReason?: string | null } };
   } catch {
     return {

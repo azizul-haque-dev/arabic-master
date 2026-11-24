@@ -1,11 +1,17 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useState } from "react";
 import type { SafeUser } from "@/lib/types/auth";
+import type { LearnerOverview } from "@/lib/types/learner";
 
 interface UserContextValue {
   user: SafeUser | null;
-  setUser: React.Dispatch<React.SetStateAction<SafeUser | null>>;
+  overview: LearnerOverview | null;
+  hasClientOverride: boolean;
+  setUser: (user: SafeUser | null) => void;
+  setOverview: (overview: LearnerOverview | null) => void;
+  clearAuth: () => void;
+  resetClientOverride: () => void;
   isAuthenticated: boolean;
 }
 
@@ -14,25 +20,45 @@ const UserContext = createContext<UserContextValue | undefined>(undefined);
 export function UserProvider({
   children,
   initialUser = null,
+  initialOverview = null,
 }: {
   children: React.ReactNode;
   initialUser?: SafeUser | null;
+  initialOverview?: LearnerOverview | null;
 }) {
-  const [user, setUser] = useState<SafeUser | null>(initialUser);
-  const [prevInitialUser, setPrevInitialUser] = useState<SafeUser | null>(initialUser);
+  const [user, setUserState] = useState<SafeUser | null>(initialUser);
+  const [overview, setOverview] = useState<LearnerOverview | null>(initialOverview);
+  const [hasClientOverride, setHasClientOverride] = useState(false);
 
-  // Synchronize state during rendering when prop changes (React recommended pattern)
-  if (initialUser !== prevInitialUser) {
-    setPrevInitialUser(initialUser);
-    setUser(initialUser);
-  }
+  const setUser = useCallback((nextUser: SafeUser | null) => {
+    setHasClientOverride(true);
+    setUserState(nextUser);
+    if (!nextUser) {
+      setOverview(null);
+    }
+  }, []);
+
+  const clearAuth = useCallback(() => {
+    setHasClientOverride(true);
+    setUserState(null);
+    setOverview(null);
+  }, []);
+
+  const resetClientOverride = useCallback(() => {
+    setHasClientOverride(false);
+  }, []);
 
   return (
     <UserContext.Provider
       value={{
         user,
+        overview,
+        hasClientOverride,
         setUser,
-        isAuthenticated: !!user,
+        setOverview,
+        clearAuth,
+        resetClientOverride,
+        isAuthenticated: Boolean(user),
       }}
     >
       {children}

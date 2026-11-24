@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import type { ContentActionResult } from "@/lib/content/action-result";
 import { callBackend, requireContentAdmin, validationFailure } from "@/lib/content/server";
 import {
@@ -36,6 +36,7 @@ function safeFailure<T>(): ContentActionResult<T> {
 function revalidateSentencePaths(id?: string) {
   revalidatePath("/admin/sentences");
   revalidatePath("/admin/short-sentences");
+  updateTag("sentences");
   if (id) {
     revalidatePath(`/admin/sentences/${encodeURIComponent(id)}`);
   }

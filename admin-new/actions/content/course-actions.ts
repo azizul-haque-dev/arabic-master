@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import type { ContentActionResult } from "@/lib/content/action-result";
 import { callBackend, requireContentAdmin, validationFailure } from "@/lib/content/server";
 import {
@@ -123,6 +123,7 @@ export async function updateCourseAction(
     const course = normalizeCourse(response.data);
     revalidatePath("/admin/courses");
     revalidatePath(`/admin/courses/${encodeURIComponent(id.data)}`);
+    updateTag("courses");
     return { success: true, data: course };
   } catch {
     return safeFailure();
@@ -155,6 +156,7 @@ export async function updateCourseStatusAction(
     const course = normalizeCourse(response.data);
     revalidatePath("/admin/courses");
     revalidatePath(`/admin/courses/${encodeURIComponent(id.data)}`);
+    updateTag("courses");
     return { success: true, data: course };
   } catch {
     return safeFailure();
@@ -187,6 +189,7 @@ export async function deleteCourseAction(
 
     revalidatePath("/admin/courses");
     revalidatePath(`/admin/courses/${encodeURIComponent(id.data)}`);
+    updateTag("courses");
     return { success: true, data: null };
   } catch {
     return safeFailure();

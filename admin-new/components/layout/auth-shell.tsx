@@ -1,5 +1,6 @@
 import { Sparkles, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { CopyrightYear } from "@/components/shared/copyright-year";
 
 export function AuthShell({ children }: { children: React.ReactNode }) {
   return (
@@ -43,7 +44,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <p className="relative z-10 mt-space-xl max-w-md text-center font-body-sm text-body-sm text-text-muted">
-        © {new Date().getFullYear()} Arabic Master. All rights reserved.
+        © <CopyrightYear /> Arabic Master. All rights reserved.
       </p>
     </div>
   );

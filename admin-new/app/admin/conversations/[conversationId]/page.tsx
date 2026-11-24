@@ -1,12 +1,16 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { notFound } from "next/navigation";
 import { ConversationDetailView } from "@/components/features/conversations/conversation-detail-view";
 import { mockConversations } from "@/lib/mock-data/conversations";
-import { notFound } from "next/navigation";
+import Loading from "./loading";
 
-export default async function ConversationDetailPage({
+async function ConversationDetailData({
   params,
 }: {
   params: Promise<{ conversationId: string }>;
 }) {
+  await connection();
   const { conversationId } = await params;
   const conversation = mockConversations.find((c) => c.id === conversationId);
 
@@ -15,4 +19,16 @@ export default async function ConversationDetailPage({
   }
 
   return <ConversationDetailView initialConversation={conversation} />;
+}
+
+export default function ConversationDetailPage({
+  params,
+}: {
+  params: Promise<{ conversationId: string }>;
+}) {
+  return (
+    <Suspense fallback={<Loading />}>
+      <ConversationDetailData params={params} />
+    </Suspense>
+  );
 }

@@ -14,10 +14,12 @@ import { useForm } from "react-hook-form";
 import { registerAction } from "@/actions/auth/register-action";
 import { googleAuthAction } from "@/actions/auth/google-action";
 import { getPostLoginRedirect } from "@/lib/auth/redirect";
+import { useUser } from "@/lib/auth/user-context";
 import { registerSchema, type RegisterFormValues } from "./register-schema";
 
 export function RegisterForm() {
   const router = useRouter();
+  const { setUser } = useUser();
   const [formError, setFormError] = React.useState<string | null>(null);
   const [notice, setNotice] = React.useState<string | null>(null);
 
@@ -56,9 +58,10 @@ export function RegisterForm() {
       return;
     }
 
+    setUser(result.data.user);
     setNotice("Account created successfully.");
-    router.refresh();
     router.push(getPostLoginRedirect(result.data.user.role));
+    router.refresh();
   }
 
 

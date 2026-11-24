@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import type { ContentActionResult } from "@/lib/content/action-result";
 import { callBackend, requireContentAdmin, validationFailure } from "@/lib/content/server";
 import {
@@ -180,6 +180,7 @@ export async function updateWordAction(
     const word = normalizeWord(response.data);
     revalidatePath("/admin/words");
     revalidatePath(`/admin/words/${encodeURIComponent(id.data)}`);
+    updateTag("words");
     return { success: true, data: word };
   } catch {
     return safeFailure();
@@ -210,6 +211,7 @@ export async function updateWordStatusAction(
     const word = normalizeWord(response.data);
     revalidatePath("/admin/words");
     revalidatePath(`/admin/words/${encodeURIComponent(id.data)}`);
+    updateTag("words");
     return { success: true, data: word };
   } catch {
     return safeFailure();

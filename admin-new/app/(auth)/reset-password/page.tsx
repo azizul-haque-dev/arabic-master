@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ShieldAlert } from "lucide-react";
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
   description: "Choose a new password for your Arabic Master account.",
 };
 
-export default async function ResetPasswordPage({
+async function ResetPasswordContent({
   searchParams,
 }: {
   searchParams: Promise<{ token?: string }>;
@@ -39,4 +40,20 @@ export default async function ResetPasswordPage({
   }
 
   return <ResetPasswordForm token={token} />;
+}
+
+export default function ResetPasswordPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ token?: string }>;
+}) {
+  return (
+    <Suspense
+      fallback={
+        <div className="h-80 w-full animate-pulse rounded-xl border border-border bg-surface" />
+      }
+    >
+      <ResetPasswordContent searchParams={searchParams} />
+    </Suspense>
+  );
 }

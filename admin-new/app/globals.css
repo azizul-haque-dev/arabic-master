@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  /* Brand — sourced from Design.md (single source of truth for the project) */
-  --token-primary: #0e7a5d;
-  --token-primary-dark: #0a5c46;
-  --token-primary-light: #98f5d1;
+  /* Brand — aligned with Arabic Master design system */
+  --token-primary: #0f766e;
+  --token-primary-dark: #115e59;
+  --token-primary-light: #ccfbf1;
 
   --token-secondary: #115e59;
-  --token-secondary-light: #a8ece5;
+  --token-secondary-light: #99f6e4;
 
-  --token-accent: #d97706;
+  --token-accent: #f59e0b;
   --token-accent-light: #fef3c7;
 
   /* Neutral */

@@ -15,9 +15,11 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { loginSchema, type LoginFormValues } from "./login-schema";
 import { getPostLoginRedirect } from "@/lib/auth/redirect";
+import { useUser } from "@/lib/auth/user-context";
 
 export function LoginForm() {
   const router = useRouter();
+  const { setUser } = useUser();
   const [formError, setFormError] = React.useState<string | null>(null);
   const [notice, setNotice] = React.useState<string | null>(null);
 
@@ -54,9 +56,10 @@ export function LoginForm() {
       }
       return;
     }
+    setUser(result.data.user);
     setNotice("Signed in successfully.");
-    router.refresh();
     router.push(getPostLoginRedirect(result.data.user.role));
+    router.refresh();
   }
 
 

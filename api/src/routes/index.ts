@@ -6,6 +6,7 @@ import { conversationRoutes } from '../modules/conversations/conversation.routes
 import { courseRoutes } from '../modules/curriculum/courses/course.routes.js';
 import { lessonRoutes } from '../modules/curriculum/lessons/lesson.routes.js';
 import { sectionRoutes } from '../modules/curriculum/sections/section.routes.js';
+import { learnerRoutes } from '../modules/learner/learner.routes.js';
 import {
   sentenceRoutes,
   shortSentenceRoutes,
@@ -30,6 +31,7 @@ router.get('/health', async (_req, res) => {
 });
 
 router.use('/auth', authRoutes);
+router.use('/learner', learnerRoutes);
 router.use('/arabic-entities', arabicEntityRoutes);
 router.use('/words', wordRoutes);
 router.use('/sentences', sentenceRoutes);
