@@ -1,4 +1,4 @@
-import { Sparkles, ArrowLeft } from "lucide-react";
+import { BookOpen, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { CopyrightYear } from "@/components/shared/copyright-year";
 
@@ -7,7 +7,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
     <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-surface-container-low px-gutter-mobile py-space-2xl">
       <Link 
         href="/" 
-        className="absolute top-4 left-4 sm:top-6 sm:left-6 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-on-surface-variant font-label-md text-label-md transition-colors hover:bg-surface-container hover:text-on-surface z-20"
+        className="absolute left-4 top-4 z-20 inline-flex items-center gap-2 rounded-lg px-3 py-2 font-label-md text-label-md text-white/65 transition-colors hover:bg-white/5 hover:text-white sm:left-6 sm:top-6"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Home
@@ -27,15 +27,15 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
           href="/"
           className="mb-space-xl flex items-center justify-center gap-2.5"
         >
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-light/35 text-primary-dark">
-            <Sparkles className="h-5 w-5" aria-hidden="true" />
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#b9fbc0] text-[#17152b]">
+            <BookOpen className="h-5 w-5" aria-hidden="true" />
           </span>
           <span className="text-left">
-            <span className="block font-headline-md text-headline-md leading-none tracking-tight text-on-surface">
+            <span className="block font-headline-md text-headline-md leading-none tracking-tight text-white">
               Arabic Master
             </span>
             <span className="mt-1 block font-label-sm text-label-sm font-semibold uppercase tracking-[0.14em] text-primary">
-              Account Access
+              SPOKEN ARABIC
             </span>
           </span>
         </Link>
@@ -43,7 +43,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
         {children}
       </div>
 
-      <p className="relative z-10 mt-space-xl max-w-md text-center font-body-sm text-body-sm text-text-muted">
+      <p className="relative z-10 mt-space-xl max-w-md text-center font-body-sm text-body-sm text-white/60">
         © <CopyrightYear /> Arabic Master. All rights reserved.
       </p>
     </div>

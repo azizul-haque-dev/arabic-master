@@ -64,12 +64,12 @@ export function LoginForm() {
 
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-6 shadow-[0_18px_45px_rgba(15,23,42,0.08)] sm:p-8">
+    <div className="rounded-2xl border border-white/10 bg-[#211f37] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.28)] sm:p-8">
       <div className="mb-space-lg text-center">
-        <h1 className="font-headline-md text-headline-md font-semibold text-on-surface">
+        <h1 className="font-headline-md text-headline-md font-semibold text-white">
           Welcome back
         </h1>
-        <p className="mt-1.5 font-body-sm text-body-sm text-on-surface-variant">
+        <p className="mt-1.5 font-body-sm text-body-sm text-white/70">
           Sign in to continue your Arabic learning journey.
         </p>
       </div>
@@ -99,11 +99,11 @@ export function LoginForm() {
         className="my-space-lg flex items-center gap-space-sm"
         aria-hidden="true"
       >
-        <span className="h-px flex-1 bg-border" />
-        <span className="font-label-sm text-label-sm uppercase tracking-wider text-text-muted">
+        <span className="h-px flex-1 bg-white/20" />
+        <span className="font-label-sm text-label-sm uppercase tracking-wider text-white/60">
           or continue with email
         </span>
-        <span className="h-px flex-1 bg-border" />
+        <span className="h-px flex-1 bg-white/20" />
       </div>
 
       <form
@@ -118,6 +118,7 @@ export function LoginForm() {
             inputMode="email"
             autoComplete="email"
             placeholder="you@example.com"
+            className="border-white/15 bg-[#17152b] text-white placeholder:text-white/40 focus-visible:border-[#b9fbc0] focus-visible:ring-[#b9fbc0]/15"
             {...register("email")}
             aria-invalid={Boolean(errors.email)}
             aria-describedby={errors.email ? "login-email-error" : undefined}
@@ -127,12 +128,12 @@ export function LoginForm() {
 
         <div>
           <div className="mb-1.5 flex items-center justify-between gap-space-sm">
-            <span className="font-body-sm text-body-sm font-medium text-on-surface">
+            <span className="font-body-sm text-body-sm font-medium text-white/85">
               Password
             </span>
             <Link
               href="/forgot-password"
-              className="font-label-sm text-label-sm font-medium text-primary transition-colors hover:text-primary-dark hover:underline"
+              className="font-label-sm text-label-sm font-medium text-primary transition-colors hover:text-[#b9fbc0] hover:underline hover:underline-offset-4"
             >
               Forgot password?
             </Link>
@@ -143,6 +144,7 @@ export function LoginForm() {
               aria-label="Password"
               autoComplete="current-password"
               placeholder="••••••••"
+              className="border-white/15 bg-[#17152b] text-white placeholder:text-white/40 focus-visible:border-[#b9fbc0] focus-visible:ring-[#b9fbc0]/15"
               {...register("password")}
               aria-invalid={Boolean(errors.password)}
               aria-describedby={
@@ -179,11 +181,11 @@ export function LoginForm() {
         </Button>
       </form>
 
-      <p className="mt-space-lg text-center font-body-sm text-body-sm text-on-surface-variant">
+      <p className="mt-space-lg text-center font-body-sm text-body-sm text-white/70">
         New to Arabic Master?{" "}
         <Link
           href="/register"
-          className="font-medium text-primary transition-colors hover:text-primary-dark hover:underline"
+          className="font-medium text-primary transition-colors hover:text-[#b9fbc0] hover:underline hover:underline-offset-4"
         >
           Create an account
         </Link>

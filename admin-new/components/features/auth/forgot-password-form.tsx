@@ -93,7 +93,7 @@ export function ForgotPasswordForm() {
         Remembered your password?{" "}
         <Link
           href="/login"
-          className="font-medium text-primary transition-colors hover:text-primary-dark hover:underline"
+          className="font-medium text-primary transition-colors hover:text-[#b9fbc0] hover:underline hover:underline-offset-4"
         >
           Sign in
         </Link>
