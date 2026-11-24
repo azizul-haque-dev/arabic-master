@@ -138,7 +138,19 @@ export const arabicEntityStatusSchema = z.object({
   rejectionReason: z.string().trim().optional(),
 }).strict();
 
-export const generateQuerySchema = z.string().trim().min(1).max(500);
+export const generateQuerySchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(500)
+  .refine(
+    (value) =>
+      /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(
+        value,
+      ) &&
+      !/[a-zA-Z\u0980-\u09FF]/.test(value),
+    "Only Arabic text is allowed",
+  );
 export const generateWordListQuerySchema = z.array(generateQuerySchema).min(1).max(25);
 export const aiJobQueueResponseSchema = z.object({
   jobId: z.string(),

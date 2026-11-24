@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isArabicText } from '../../common/utils/normalize-arabic.util.js';
 import { ALLOWED_CATEGORIES } from '../../common/constants/category.constant.js';
 import { paginationShape } from '../../common/schemas.js';
 import {
@@ -14,7 +15,8 @@ const aiQuery = z
   .string()
   .trim()
   .min(1, 'Query is required')
-  .max(500, 'Query is too long');
+  .max(500, 'Query is too long')
+  .refine(isArabicText, 'Only Arabic text is allowed');
 
 export const createSentenceSchema = z.strictObject({
   text: text.describe('Arabic text'),

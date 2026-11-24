@@ -47,32 +47,15 @@ describe('SentenceService.resolveWithAi', () => {
     expect(result).toEqual({ sentence, createdViaAi: false });
   });
 
-  it('translates a new query once and marks the generated sentence as new', async () => {
-    const sentence = { id: 'sentence-2', sentenceKey: 'SNT-1002' } as Awaited<
-      ReturnType<typeof SentenceService.generateWithAi>
-    >;
-    const translate = vi
-      .spyOn(AiService, 'translateToArabic')
-      .mockResolvedValue('كيف حالك؟');
-    vi.spyOn(ArabicEntityRepository, 'findByNormalizedText').mockResolvedValue(
-      null as never,
-    );
-    const generate = vi
-      .spyOn(SentenceService, 'generateWithAi')
-      .mockResolvedValue(sentence);
+  it('rejects non-Arabic text instead of translating it', async () => {
+    const translate = vi.spyOn(AiService, 'translateToArabic');
 
-    const result = await SentenceService.resolveWithAi(
-      'How are you?',
-      'user-1',
-      { sentenceType: 'LONG' },
-    );
+    await expect(
+      SentenceService.resolveWithAi('How are you?', 'user-1', {
+        sentenceType: 'LONG',
+      }),
+    ).rejects.toThrow('Only Arabic text');
 
-    expect(translate).toHaveBeenCalledOnce();
-    expect(generate).toHaveBeenCalledWith(
-      'كيف حالك؟',
-      'user-1',
-      { sentenceType: 'LONG' },
-    );
-    expect(result).toEqual({ sentence, createdViaAi: true });
+    expect(translate).not.toHaveBeenCalled();
   });
 });

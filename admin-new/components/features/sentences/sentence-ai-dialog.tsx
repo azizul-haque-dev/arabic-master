@@ -138,7 +138,7 @@ export function SentenceAiDialog({
                             : "Generate sentence with AI"}
                     </DialogTitle>
                     <DialogDescription>
-                        Enter an Arabic sentence or phrase to generate a single sentence, or enter multiple sentences (one per line or comma-separated) to generate a batch list.
+                        Enter Arabic text only. Generate one sentence or a batch (one per line or comma-separated); no extra context or translation is used.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-3">
@@ -167,7 +167,7 @@ export function SentenceAiDialog({
                     <div>
                         <div className="mb-1 flex items-center justify-between">
                             <Label htmlFor="sentence-ai-query" className="mb-0">
-                                Prompt / Sentences
+                                Arabic sentences
                             </Label>
                             {parsedBatchCount > 1 ? (
                                 <span

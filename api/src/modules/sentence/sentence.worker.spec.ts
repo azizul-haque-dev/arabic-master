@@ -34,6 +34,8 @@ describe('SentenceProcessor', () => {
 
     await SentenceProcessor.process(job, { sentences, entities, ai });
 
+    expect(ai.generateContent).toHaveBeenCalledWith('شكراً');
+
     expect(sentences.update).toHaveBeenCalledWith(
       'sentence-1',
       expect.objectContaining({

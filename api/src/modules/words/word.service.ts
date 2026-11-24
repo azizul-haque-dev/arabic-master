@@ -8,7 +8,6 @@ import {
   normalizeArabicText,
 } from '../../common/utils/normalize-arabic.util.js';
 import { ContentStatus, WordType } from '../../database/drizzle/enums.js';
-import { AiService } from '../ai/ai.service.js';
 import { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
 import { wordQueue } from './word.queue.js';
 import { withTransaction } from '../../database/db.js';
@@ -119,9 +118,10 @@ export const WordService = {
   },
 
   async generateWithAi(rawText: string, createdById: string) {
-    const text = isArabicText(rawText)
-      ? rawText
-      : await AiService.translateToArabic(rawText);
+    if (!isArabicText(rawText)) {
+      throw new ConflictError('Only Arabic text can be generated with AI');
+    }
+    const text = rawText.trim();
     const normalizedText = normalizeArabicText(text);
 
     const queueWordJobIfNeeded = async (
@@ -288,6 +288,9 @@ export const WordService = {
     const arabicText = word.arabicText || word.entity?.arabicText;
     if (!arabicText) {
       throw new ConflictError('Word does not have associated Arabic text');
+    }
+    if (!isArabicText(arabicText)) {
+      throw new ConflictError('Word does not have valid Arabic text');
     }
 
     const existingJob = await wordQueue.getJob(word.id);

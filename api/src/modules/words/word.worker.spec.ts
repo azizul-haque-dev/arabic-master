@@ -34,6 +34,8 @@ describe('WordProcessor', () => {
 
     await WordProcessor.process(job, { words, entities, ai });
 
+    expect(ai.generateContent).toHaveBeenCalledWith('تسلم');
+
     expect(words.update).toHaveBeenCalledWith(
       'word-1',
       expect.objectContaining({

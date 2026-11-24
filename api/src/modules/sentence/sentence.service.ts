@@ -13,7 +13,6 @@ import {
   DifficultyLevel,
   SentenceType,
 } from '../../database/drizzle/enums.js';
-import { AiService } from '../ai/ai.service.js';
 import { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
 import { resolveStatusChange } from '../../common/utils/content-workflow.util.js';
 import type { UpdateStatusInput } from '../../common/schemas.js';
@@ -198,9 +197,10 @@ export const SentenceService = {
     const linkWords = opts.linkWords ?? false;
     const relatedWordId = opts.relatedWordId;
 
-    const text = isArabicText(rawText)
-      ? rawText
-      : await AiService.translateToArabic(rawText);
+    if (!isArabicText(rawText)) {
+      throw new ConflictError('Only Arabic text can be generated with AI');
+    }
+    const text = rawText.trim();
     const normalizedText = normalizeArabicText(text);
 
     const queueSentenceJobIfNeeded = async (
@@ -358,9 +358,10 @@ export const SentenceService = {
     createdById: string,
     options: SentenceAiOptions = {},
   ) {
-    const text = isArabicText(rawText)
-      ? rawText
-      : await AiService.translateToArabic(rawText);
+    if (!isArabicText(rawText)) {
+      throw new ConflictError('Only Arabic text can be generated with AI');
+    }
+    const text = rawText.trim();
     const entity = await ArabicEntityRepository.findByNormalizedText(
       normalizeArabicText(text),
     );
@@ -484,6 +485,9 @@ export const SentenceService = {
     const arabicText = entity?.arabicText;
     if (!arabicText) {
       throw new ConflictError('Sentence does not have associated Arabic text');
+    }
+    if (!isArabicText(arabicText)) {
+      throw new ConflictError('Sentence does not have valid Arabic text');
     }
 
     const createdById = sentence.createdById ?? userId ?? '';

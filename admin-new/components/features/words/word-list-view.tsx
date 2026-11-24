@@ -490,13 +490,13 @@ export function WordListView({
           <DialogHeader>
             <DialogTitle>Generate word with AI</DialogTitle>
             <DialogDescription>
-              Enter an Arabic word or phrase to generate a single word, or enter multiple words (one per line or comma-separated) to generate a batch list.
+              Enter Arabic words only. Generate one word or a batch (one word per line or comma-separated); no context or translation is used.
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <label htmlFor="word-ai-query" className="text-sm font-medium text-text">
-                Prompt / Words
+                Arabic words
               </label>
               {parsedBatchCount > 1 ? (
                 <span

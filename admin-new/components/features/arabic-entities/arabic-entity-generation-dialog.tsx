@@ -109,15 +109,13 @@ export function ArabicEntityGenerationDialog({
         <DialogHeader>
           <DialogTitle>Generate Arabic entity with AI</DialogTitle>
           <DialogDescription>
-            Enter an Arabic word or phrase to create one entity, or enter multiple
-            items (one per line or comma-separated) for a batch. AI fills only the
-            English and Bangla meanings and pronunciations.
+            Enter Arabic text only. Generate one entity or a batch (one per line or comma-separated); no extra context or translation is used.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <Label htmlFor="arabic-entity-ai-query" className="mb-0">
-              Prompt / Words
+              Arabic text
             </Label>
             {queries.length > 1 ? (
               <span

@@ -147,18 +147,10 @@ export const SentenceProcessor = {
       return;
     }
 
-    let arabicText = rawText;
     if (!isArabicText(rawText)) {
-      arabicText = await ai.translateToArabic(rawText);
-      try {
-        await entities.update(sentence.entityId, { arabicText });
-      } catch (err) {
-        log.warn(
-          { err, sentenceId, entityId: sentence.entityId },
-          'Could not update entity arabicText after deferred translation.',
-        );
-      }
+      throw new Error(`Sentence ${sentenceId} does not contain valid Arabic text.`);
     }
+    const arabicText = rawText.trim();
 
     const result = await ai.generateContent(arabicText);
     const category = isValidCategory(result.category)

@@ -1,10 +1,12 @@
 import { z } from 'zod';
+import { isArabicText } from '../../common/utils/normalize-arabic.util.js';
 
 const querySchema = z
   .string()
   .trim()
   .min(1, 'Query is required')
-  .max(500, 'Query is too long');
+  .max(500, 'Query is too long')
+  .refine(isArabicText, 'Only Arabic text is allowed');
 
 export const generateContentSchema = z.strictObject({
   query: querySchema,

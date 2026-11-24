@@ -5,10 +5,13 @@ import {
 } from './generate-content.schema.js';
 
 describe('generateContentSchema', () => {
-  it('accepts the existing single-query request shape', () => {
-    expect(generateContentSchema.parse({ query: 'word' })).toEqual({
-      query: 'word',
+  it('accepts only Arabic single-query input', () => {
+    expect(generateContentSchema.parse({ query: 'مرحبا' })).toEqual({
+      query: 'مرحبا',
     });
+    expect(generateContentSchema.safeParse({ query: 'hello' }).success).toBe(
+      false,
+    );
     expect(generateContentSchema.safeParse({ query: ['word'] }).success).toBe(
       false,
     );
@@ -16,8 +19,8 @@ describe('generateContentSchema', () => {
 });
 
 describe('generateWordListSchema', () => {
-  it('accepts a batch of up to 25 queries', () => {
-    const queries = Array.from({ length: 25 }, (_, index) => `word ${index}`);
+  it('accepts an Arabic batch of up to 25 queries', () => {
+    const queries = Array.from({ length: 25 }, (_, index) => `مرحبا${index}`);
     expect(generateWordListSchema.parse({ query: queries }).query).toEqual(
       queries,
     );

@@ -6,6 +6,13 @@ import {
 } from './prompt.factory.js';
 
 describe('AI dialect prompts', () => {
+  it('sends only the Arabic text as the content-generation user message', () => {
+    const [systemMessage, userMessage] = createSaudiTeacherPrompt('مرحبا');
+
+    expect(userMessage.content).toBe('مرحبا');
+    expect(systemMessage.content).not.toContain('مرحبا');
+  });
+
   it('requests Najdi and Hijazi distinctions in the matching Bangla and English fields', () => {
     const [systemMessage] = createSaudiTeacherPrompt('مرحبا');
 
