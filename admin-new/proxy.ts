@@ -119,41 +119,6 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (hasValidToken && (!isPublicRoute || isAuthEntryRoute)) {
-    let sessionResponse: Response;
-    try {
-      sessionResponse = await fetch(`${getBackendApiUrl()}/auth/me`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "x-client-type": "nextjs",
-        },
-        cache: "no-store",
-        signal: AbortSignal.timeout(REFRESH_TIMEOUT_MS),
-      });
-    } catch (error) {
-      if (error instanceof Error && error.name === "TimeoutError") {
-        console.warn(`[Proxy] Session check timed out after ${REFRESH_TIMEOUT_MS}ms`);
-      } else {
-        console.error("[Proxy] Session check failed:", error);
-      }
-      return temporaryRefreshFailure(request);
-    }
-
-    if (sessionResponse.status === 401) {
-      const rejectedResponse = isAuthEntryRoute
-        ? NextResponse.next()
-        : NextResponse.redirect(new URL(LOGIN, request.nextUrl), request);
-      rejectedResponse.headers.set("Cache-Control", "no-store");
-      clearSessionCookies(rejectedResponse);
-      return rejectedResponse;
-    }
-    if (!sessionResponse.ok) {
-      console.warn(`[Proxy] Session check returned HTTP status ${sessionResponse.status}`);
-      return temporaryRefreshFailure(request);
-    }
-  }
-
   // Redirect unauthenticated requests away from protected pages
   if (!hasValidToken && !isPublicRoute) {
     if (refreshUnavailable) {
