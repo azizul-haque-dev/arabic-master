@@ -1,4 +1,4 @@
-import { BookOpen, Sparkles } from "lucide-react-native";
+import { BookOpen, AudioLines } from "lucide-react-native";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -36,7 +36,7 @@ export function LearningLibraryScreen({
           <View className="flex-row items-center gap-3">
             <View className="h-12 w-12 items-center justify-center rounded-2xl bg-primary-subtle">
               {eyebrow === "SPEAKING PRACTICE" ? (
-                <Sparkles size={21} color="#15803d" />
+                <AudioLines size={21} color="#15803d" />
               ) : (
                 <BookOpen size={21} color="#15803d" />
               )}

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, XCircle, Sparkles, Copy } from "lucide-react";
+import { ChevronRight, XCircle, Copy } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
 import { ContentActionBar } from "@/components/shared/content-action-bar";
@@ -322,7 +322,6 @@ export function LessonDetailView({
                   onClick={() => setSmartWordsOpen(true)}
                   className="flex flex-1 items-center justify-center gap-1.5 rounded-[var(--radius-default)] border border-[var(--color-primary)]/30 bg-[var(--color-primary-light)]/10 px-3.5 py-2.5 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary-light)]/25"
                 >
-                  <Sparkles className="h-4 w-4" />
                   Smart AI add words
                 </button>
                 <LessonContentCopyAction
@@ -375,7 +374,6 @@ export function LessonDetailView({
                   onClick={() => setSmartSentencesOpen(true)}
                   className="flex flex-1 items-center justify-center gap-1.5 rounded-[var(--radius-default)] border border-[var(--color-primary)]/30 bg-[var(--color-primary-light)]/10 px-3.5 py-2.5 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary-light)]/25"
                 >
-                  <Sparkles className="h-4 w-4" />
                   Smart AI add sentences
                 </button>
                 <LessonContentCopyAction

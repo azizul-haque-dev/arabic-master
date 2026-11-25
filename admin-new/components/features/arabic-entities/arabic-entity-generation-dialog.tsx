@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -157,7 +156,6 @@ export function ArabicEntityGenerationDialog({
               disabled={!query.trim() || isGenerating}
               onClick={() => void handleGenerateList()}
             >
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
               {isGenerating && generatingAction === "list"
                 ? "Generating…"
                 : `Generate List${queries.length > 1 ? ` (${queries.length})` : ""}`}
@@ -166,7 +164,6 @@ export function ArabicEntityGenerationDialog({
               disabled={!query.trim() || isGenerating}
               onClick={() => void handleGenerateOne()}
             >
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
               {isGenerating && generatingAction === "single"
                 ? "Generating…"
                 : "Generate One"}

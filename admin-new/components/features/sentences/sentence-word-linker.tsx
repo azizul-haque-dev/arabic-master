@@ -9,7 +9,6 @@ import {
   Link2,
   Plus,
   RefreshCw,
-  Sparkles,
   Trash2,
   Type,
 } from "lucide-react";
@@ -517,7 +516,6 @@ export function SentenceWordLinker({
                     >
                       {isThisLinking ? (
                         <>
-                          <Sparkles className="h-3.5 w-3.5 animate-pulse text-primary" aria-hidden="true" />
                           Linking…
                         </>
                       ) : (

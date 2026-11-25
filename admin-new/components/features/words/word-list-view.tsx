@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Plus, BookX, Trash2, Sparkles } from "lucide-react";
+import { Plus, BookX, Trash2 } from "lucide-react";
 import { ContentPageHeader } from "@/components/shared/content-page-header";
 import { ContentSearch } from "@/components/shared/content-search";
 import { ContentStatusFilter } from "@/components/shared/content-filters";
@@ -357,7 +357,6 @@ export function WordListView({
                 setGenerateOpen(true);
               }}
             >
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
               Generate with AI
             </Button>
             <Button onClick={() => setCreateOpen(true)} className="create-action-button">
@@ -531,7 +530,6 @@ export function WordListView({
                 disabled={!generationQuery.trim() || isGenerating}
                 onClick={() => void handleGenerateList()}
               >
-                <Sparkles className="h-4 w-4" aria-hidden="true" />
                 {isGenerating && generatingAction === "list"
                   ? "Queueing…"
                   : `Generate List${parsedBatchCount > 1 ? ` (${parsedBatchCount})` : ""}`}
@@ -540,7 +538,6 @@ export function WordListView({
                 disabled={!generationQuery.trim() || isGenerating}
                 onClick={() => void handleGenerateSingle()}
               >
-                <Sparkles className="h-4 w-4" aria-hidden="true" />
                 {isGenerating && generatingAction === "single"
                   ? "Queueing…"
                   : "Generate One"}

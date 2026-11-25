@@ -7,7 +7,7 @@ import {
   MessageSquareQuote,
   MessageSquareText,
   MessagesSquare,
-  Sparkles,
+  Languages,
 } from "lucide-react";
 
 export interface AdminNavItem {
@@ -25,5 +25,5 @@ export const CONTENT_NAV: AdminNavItem[] = [
   { label: "Short Sentences", href: "/admin/short-sentences", icon: MessageSquareQuote, implemented: true },
   { label: "Sentences", href: "/admin/sentences", icon: MessageSquareText, implemented: true },
   { label: "Conversations", href: "/admin/conversations", icon: MessagesSquare, implemented: true },
-  { label: "Arabic Entities", href: "/admin/arabic-entities", icon: Sparkles, implemented: true },
+  { label: "Arabic Entities", href: "/admin/arabic-entities", icon: Languages, implemented: true },
 ];

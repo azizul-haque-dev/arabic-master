@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Pencil, Sparkles, XCircle } from "lucide-react";
+import { ChevronRight, Pencil, XCircle } from "lucide-react";
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
 import { EntityAudioPanel } from "@/components/features/audio/entity-audio-panel";
 import { ContentActionBar } from "@/components/shared/content-action-bar";
@@ -137,7 +137,6 @@ export function EntityDetailView({ initialEntity }: { initialEntity: ArabicEntit
             disabled={isPollingAi}
             onClick={() => setGenerateOpen(true)}
           >
-            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
             {isPollingAi ? "Generating with AI…" : "Generate with AI"}
           </Button>
           <Button variant="secondary" onClick={() => setEditOpen(true)}>

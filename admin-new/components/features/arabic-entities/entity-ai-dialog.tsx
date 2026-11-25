@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Type, MessageSquareText, MessageSquareQuote, Sparkles } from "lucide-react";
+import { Type, MessageSquareText, MessageSquareQuote } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -228,7 +228,6 @@ export function EntityAiDialog({
               disabled={isGenerating}
               onClick={() => void handleGenerate()}
             >
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
               {isGenerating ? "Queueing…" : "Generate"}
             </Button>
           </div>

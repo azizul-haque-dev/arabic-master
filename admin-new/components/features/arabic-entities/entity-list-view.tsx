@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Plus, Volume2, VolumeX, Sparkles, Trash2 } from "lucide-react";
+import { Plus, Volume2, VolumeX, Languages, Trash2 } from "lucide-react";
 import { ContentPageHeader } from "@/components/shared/content-page-header";
 import { ContentSearch } from "@/components/shared/content-search";
 import { ContentStatusFilter } from "@/components/shared/content-filters";
@@ -341,7 +341,6 @@ export function EntityListView({
                 setAiGenerateOpen(true);
               }}
             >
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
               Generate with AI
             </Button>
             <Button onClick={() => setCreateOpen(true)} className="create-action-button">
@@ -428,7 +427,7 @@ export function EntityListView({
 
       {!error && entities.length === 0 && !isLoading ? (
         <EmptyState
-          icon={Sparkles}
+          icon={Languages}
           title="No matching Arabic entities found"
           description="Try adjusting your search or filters, or create a new entity to get started."
           action={

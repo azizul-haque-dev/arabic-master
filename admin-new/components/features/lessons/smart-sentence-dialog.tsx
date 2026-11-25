@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, Loader2, CheckCircle2, AlertCircle, Info } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle, Info } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -89,7 +89,6 @@ export function SmartSentenceDialog({
       <DialogContent className="max-h-[92dvh] overflow-y-auto max-w-md sm:max-w-lg">
         <DialogHeader>
           <div className="flex items-center gap-2 text-[var(--color-primary)]">
-            <Sparkles className="h-5 w-5" />
             <DialogTitle>Smart Add Sentences with AI</DialogTitle>
           </div>
           <DialogDescription>
@@ -222,7 +221,6 @@ export function SmartSentenceDialog({
                 </>
               ) : (
                 <>
-                  <Sparkles className="h-4 w-4 mr-1.5" />
                   Add Sentences
                 </>
               )}

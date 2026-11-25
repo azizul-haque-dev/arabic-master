@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Plus, MessageSquareOff, Trash2, Sparkles } from "lucide-react";
+import { Plus, MessageSquareOff, Trash2 } from "lucide-react";
 import { ContentPageHeader } from "@/components/shared/content-page-header";
 import { ContentDataTable, type DataTableColumn } from "@/components/shared/content-data-table";
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
@@ -352,7 +352,6 @@ export function SentenceListView({
                 primaryAction={
                     <div className="flex gap-2">
                         <Button variant="secondary" onClick={() => setGenerateOpen(true)}>
-                            <Sparkles className="h-4 w-4" aria-hidden="true" />
                             Generate with AI
                         </Button>
                         <Button onClick={() => setCreateOpen(true)} className="create-action-button">

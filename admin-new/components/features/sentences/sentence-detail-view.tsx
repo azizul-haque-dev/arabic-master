@@ -7,7 +7,6 @@ import {
     ChevronRight,
     Pencil,
     XCircle,
-    Sparkles,
     MessagesSquare,
     GraduationCap,
     Loader2,
@@ -360,7 +359,6 @@ export function SentenceDetailView({
                         }
                         onClick={() => void handleRegenerate()}
                     >
-                        <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                         {isGenerating ? "Generating with AI…" : "Generate with AI"}
                     </Button>
                     <Button variant="outline" className="border-primary-light/25 text-primary-light hover:bg-primary-light/10" onClick={() => setEditOpen(true)}>
@@ -422,8 +420,8 @@ export function SentenceDetailView({
                                         variant="ghost"
                                         size="icon"
                                         className="h-7 w-7 text-text-muted hover:text-primary"
-                                        aria-label="Regenerate Bangla pronunciation with AI"
-                                        title="Regenerate Bangla pronunciation with AI"
+                                        aria-label="উচ্চারণ আবার তৈরি করুন"
+                                        title="উচ্চারণ আবার তৈরি করুন"
                                         disabled={
                                             isGenerating ||
                                             isRegeneratingContext ||
@@ -439,10 +437,7 @@ export function SentenceDetailView({
                                                 aria-hidden="true"
                                             />
                                         ) : (
-                                            <Sparkles
-                                                className="h-4 w-4"
-                                                aria-hidden="true"
-                                            />
+                                            <RotateCcw className="h-4 w-4" aria-hidden="true" />
                                         )}
                                     </Button>
                                 </dd>
@@ -502,9 +497,7 @@ export function SentenceDetailView({
                             >
                                 {isRegeneratingContext ? (
                                     <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-                                ) : (
-                                    <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                                )}
+                                ) : null}
                                 {isRegeneratingContext ? "Regenerating…" : "Regenerate"}
                             </Button>
                         </div>
@@ -538,7 +531,6 @@ export function SentenceDetailView({
                                         <section className="rounded-lg border border-border bg-white p-5">
                         <div className="flex flex-wrap items-center justify-between gap-2 pb-1">
                             <h2 className="flex items-center gap-1.5 font-heading text-sm font-semibold text-text">
-                                <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
                                 Source Arabic Entity
                             </h2>
                             <Link
