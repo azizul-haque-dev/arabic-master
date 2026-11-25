@@ -336,6 +336,17 @@ export const ArabicEntityRepository = {
       .where(eq(schema.arabicEntity.id, id));
   },
 
+  async updateBanglaPronunciation(
+    id: string,
+    pronunciationBangla: string,
+    ex: Executor = db,
+  ) {
+    await ex
+      .update(schema.arabicEntity)
+      .set({ pronunciationBangla, updatedAt: new Date() })
+      .where(eq(schema.arabicEntity.id, id));
+  },
+
   async delete(id: string, ex: Executor = db) {
     // Check if referenced by Word
     const [word] = await ex

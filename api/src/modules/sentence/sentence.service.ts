@@ -497,7 +497,7 @@ export const SentenceService = {
       if (state === 'active') {
         if (existingJob.name !== 'process-sentence') {
           throw new ConflictError(
-            'Context regeneration is already in progress for this sentence',
+            'A targeted AI regeneration is already in progress for this sentence',
           );
         }
         return {
@@ -510,7 +510,7 @@ export const SentenceService = {
       if (state === 'waiting' || state === 'delayed') {
         if (existingJob.name !== 'process-sentence') {
           throw new ConflictError(
-            'Context regeneration is already queued for this sentence',
+            'A targeted AI regeneration is already queued for this sentence',
           );
         }
         return {
@@ -574,7 +574,7 @@ export const SentenceService = {
           };
         }
         throw new ConflictError(
-          'Full AI generation is already in progress for this sentence',
+          'Another AI operation is already in progress for this sentence',
         );
       }
 
@@ -596,6 +596,53 @@ export const SentenceService = {
       jobId: sentence.id,
       queued: true,
       message: 'Context regeneration queued successfully',
+    };
+  },
+
+  async regenerateBanglaPronunciation(id: string) {
+    const sentence = await SentenceRepository.findById(id);
+    if (!sentence) throw new NotFoundError('Sentence not found');
+
+    const entity = await ArabicEntityRepository.findById(sentence.entityId);
+    const arabicText = entity?.arabicText;
+    if (!arabicText) {
+      throw new ConflictError('Sentence does not have associated Arabic text');
+    }
+    if (!isArabicText(arabicText)) {
+      throw new ConflictError('Sentence does not have valid Arabic text');
+    }
+
+    const existingJob = await sentenceQueue.getJob(sentence.id);
+    if (existingJob) {
+      const state = await existingJob.getState();
+      if (state === 'active' || state === 'waiting' || state === 'delayed') {
+        if (existingJob.name === 'regenerate-sentence-pronunciation-bn') {
+          return {
+            sentenceId: sentence.id,
+            jobId: sentence.id,
+            queued: true,
+            message: 'Bangla pronunciation regeneration is already in progress',
+          };
+        }
+        throw new ConflictError(
+          'Another AI operation is already in progress for this sentence',
+        );
+      }
+
+      await existingJob.remove();
+    }
+
+    await sentenceQueue.add(
+      'regenerate-sentence-pronunciation-bn',
+      { sentenceId: sentence.id, arabicText },
+      { jobId: sentence.id },
+    );
+
+    return {
+      sentenceId: sentence.id,
+      jobId: sentence.id,
+      queued: true,
+      message: 'Bangla pronunciation regeneration queued successfully',
     };
   },
 

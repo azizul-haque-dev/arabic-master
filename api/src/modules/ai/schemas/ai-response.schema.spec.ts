@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { createSaudiTeacherPrompt } from '../prompts/prompt.factory.js';
-import { AIResponseSchema } from './ai-response.schema.js';
+import {
+  AIBanglaPronunciationSchema,
+  AIResponseSchema,
+} from './ai-response.schema.js';
 
 const response = {
   text: 'تسلم',
@@ -21,6 +24,21 @@ describe('AIResponseSchema', () => {
 
     expect(parsed.whenToUseEn).toContain('تسلم (tislam)');
     expect(parsed.whenToUseBn).toContain('تسلم (তিসলাম)');
+  });
+});
+
+describe('AIBanglaPronunciationSchema', () => {
+  it('accepts Bangla-script pronunciation and rejects mixed-script output', () => {
+    expect(
+      AIBanglaPronunciationSchema.parse({ pronunciationBn: 'ছাবাহুল খাইর' })
+        .pronunciationBn,
+    ).toBe('ছাবাহুল খাইর');
+    expect(() =>
+      AIBanglaPronunciationSchema.parse({ pronunciationBn: 'صباح الخير' }),
+    ).toThrow();
+    expect(() =>
+      AIBanglaPronunciationSchema.parse({ pronunciationBn: 'shobahul khair' }),
+    ).toThrow();
   });
 });
 

@@ -2,6 +2,7 @@ import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { logger } from '../../common/http/logger.js';
 import { env } from '../../config/env.js';
 import {
+  createBanglaPronunciationPrompt,
   createSaudiTeacherPrompt,
   createUsageContextPrompt,
   textToTranslateSaudiNativeArabic,
@@ -9,6 +10,7 @@ import {
 } from './prompts/prompt.factory.js';
 import {
   AIUsageContextSchema,
+  AIBanglaPronunciationSchema,
   AIResponseSchema,
   SaudiArabicTranslationSchema,
   type AiUsageContext,
@@ -112,6 +114,19 @@ export function createAiService() {
       });
     },
 
+    async generateBanglaPronunciation(query: string): Promise<string> {
+      const prompt = createBanglaPronunciationPrompt(query);
+
+      return runWithModelFallback(modelNames, query, async (modelName) => {
+        const generator = createChatModel(modelName).withStructuredOutput(
+          AIBanglaPronunciationSchema,
+        );
+        const result = await generator.invoke(prompt);
+        const parsed = AIBanglaPronunciationSchema.parse(result);
+        return parsed.pronunciationBn;
+      });
+    },
+
     async generateUsageContext(
       input: UsageContextPromptInput,
     ): Promise<AiUsageContext> {
@@ -206,6 +221,8 @@ function getAiService() {
 export const AiService = {
   generateContent: (query: string): Promise<AiResponse> =>
     getAiService().generateContent(query),
+  generateBanglaPronunciation: (query: string): Promise<string> =>
+    getAiService().generateBanglaPronunciation(query),
   generateUsageContext: (
     input: UsageContextPromptInput,
   ): Promise<AiUsageContext> => getAiService().generateUsageContext(input),

@@ -60,6 +60,12 @@ wordRoutes.post(
   WordController.regenerateUsageContext,
 );
 wordRoutes.post(
+  '/:id/regenerate-pronunciation-bn',
+  ...staff,
+  params,
+  WordController.regenerateBanglaPronunciation,
+);
+wordRoutes.post(
   '/:id/ai',
   ...staff,
   params,

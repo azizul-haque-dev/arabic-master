@@ -61,6 +61,22 @@ export const AIUsageContextSchema = z.object({
 });
 export type AiUsageContext = z.infer<typeof AIUsageContextSchema>;
 
+export const AIBanglaPronunciationSchema = z.object({
+  pronunciationBn: z
+    .string()
+    .trim()
+    .min(1)
+    .regex(/^[\u0980-\u09FF\s]+$/u, {
+      message: 'Bangla pronunciation must use Bangla script only',
+    })
+    .describe(
+      'Practical pronunciation using Bangla script only; represent Arabic س and ص with ছ',
+    ),
+});
+export type AiBanglaPronunciation = z.infer<
+  typeof AIBanglaPronunciationSchema
+>;
+
 export const SaudiArabicTranslationSchema = z.object({
   translatedText: z.string().min(1),
 });

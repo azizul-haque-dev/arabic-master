@@ -142,6 +142,8 @@ export const SentenceController = {
       await SentenceService.regenerateContext(id(req), req.auth?.userId),
       202,
     ),
+  regenerateBanglaPronunciation: async (req: Request, res: Response) =>
+    ok(res, await SentenceService.regenerateBanglaPronunciation(id(req)), 202),
   resyncWords: async (req: Request, res: Response) =>
     ok(res, await SentenceService.resyncWords(id(req)), 202),
   changeStatus: async (req: Request, res: Response) =>

@@ -306,7 +306,7 @@ export const WordService = {
           };
         }
         throw new ConflictError(
-          'Full AI generation is already in progress for this word',
+          'Another AI operation is already in progress for this word',
         );
       }
 
@@ -327,6 +327,52 @@ export const WordService = {
     };
   },
 
+  async regenerateBanglaPronunciation(id: string) {
+    const word = await WordRepository.findDetailedById(id);
+    if (!word) throw new NotFoundError('Word not found');
+
+    const arabicText = word.arabicText || word.entity?.arabicText;
+    if (!arabicText) {
+      throw new ConflictError('Word does not have associated Arabic text');
+    }
+    if (!isArabicText(arabicText)) {
+      throw new ConflictError('Word does not have valid Arabic text');
+    }
+
+    const existingJob = await wordQueue.getJob(word.id);
+    if (existingJob) {
+      const state = await existingJob.getState();
+      if (state === 'active' || state === 'waiting' || state === 'delayed') {
+        if (existingJob.name === 'regenerate-word-pronunciation-bn') {
+          return {
+            wordId: word.id,
+            jobId: word.id,
+            queued: true,
+            message: 'Bangla pronunciation regeneration is already in progress',
+          };
+        }
+        throw new ConflictError(
+          'Another AI operation is already in progress for this word',
+        );
+      }
+
+      await existingJob.remove();
+    }
+
+    await wordQueue.add(
+      'regenerate-word-pronunciation-bn',
+      { wordId: word.id, arabicText },
+      { jobId: word.id },
+    );
+
+    return {
+      wordId: word.id,
+      jobId: word.id,
+      queued: true,
+      message: 'Bangla pronunciation regeneration queued successfully',
+    };
+  },
+
   async regenerateWithAi(id: string) {
     const word = await WordRepository.findDetailedById(id);
     if (!word) throw new NotFoundError('Word not found');
@@ -342,7 +388,7 @@ export const WordService = {
       if (state === 'active') {
         if (existingJob.name !== 'process-word') {
           throw new ConflictError(
-            'Usage-context regeneration is already in progress for this word',
+            'A targeted AI regeneration is already in progress for this word',
           );
         }
         return {
@@ -355,7 +401,7 @@ export const WordService = {
       if (state === 'waiting' || state === 'delayed') {
         if (existingJob.name !== 'process-word') {
           throw new ConflictError(
-            'Usage-context regeneration is already queued for this word',
+            'A targeted AI regeneration is already queued for this word',
           );
         }
         return {

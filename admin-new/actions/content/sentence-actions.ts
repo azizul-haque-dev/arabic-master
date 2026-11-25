@@ -293,6 +293,28 @@ export async function regenerateSentenceContextAction(
   return { success: true, data: queued.data };
 }
 
+export async function regenerateSentenceBanglaPronunciationAction(
+  idInput: unknown,
+): Promise<ContentActionResult<{ jobId: string; queued: boolean }>> {
+  const authorization = await requireContentAdmin();
+  if (!authorization.success) return toFailure(authorization);
+
+  const id = contentIdSchema.safeParse(idInput);
+  if (!id.success) return validationFailure(id.error.issues);
+
+  const response = await callBackend(
+    `/sentences/${encodeURIComponent(id.data)}/regenerate-pronunciation-bn`,
+    { method: "POST" },
+  );
+  if (!response.success) return toFailure(response);
+
+  const queued = aiJobQueueResponseSchema.safeParse(response.data);
+  if (!queued.success) return safeFailure();
+
+  revalidateSentencePaths(id.data);
+  return { success: true, data: queued.data };
+}
+
 export async function getSentenceAiJobStatusAction(
   idInput: unknown,
 ): Promise<ContentActionResult<{ state: string; failedReason: string | null }>> {

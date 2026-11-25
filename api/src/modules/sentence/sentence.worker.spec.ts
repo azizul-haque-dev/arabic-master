@@ -94,4 +94,45 @@ describe('SentenceProcessor', () => {
       ['updatedAt', 'whenToUseBn', 'whenToUseEn'].sort(),
     );
   });
+
+  it('updates only Bangla pronunciation during targeted regeneration', async () => {
+    const sentence = {
+      id: 'sentence-1',
+      entityId: 'entity-1',
+    } as unknown as NonNullable<
+      Awaited<ReturnType<typeof SentenceRepository.findById>>
+    >;
+    const update = vi.fn();
+    const sentences = {
+      findById: vi.fn().mockResolvedValue(sentence),
+      update,
+    } as unknown as SentenceRepository;
+    const updateBanglaPronunciation = vi.fn();
+    const entities = {
+      findById: vi.fn().mockResolvedValue({ arabicText: 'صباح الخير' }),
+      updateBanglaPronunciation,
+    } as unknown as ArabicEntityRepository;
+    const ai = {
+      generateBanglaPronunciation: vi.fn().mockResolvedValue('ছাবাহুল খাইর'),
+    } as unknown as AiService;
+    const job = {
+      name: 'regenerate-sentence-pronunciation-bn',
+      data: { sentenceId: 'sentence-1', arabicText: 'ignored' },
+    } as Job<SentenceJobData>;
+
+    await SentenceProcessor.process(job, { sentences, entities, ai });
+
+    expect(ai.generateBanglaPronunciation).toHaveBeenCalledWith('صباح الخير');
+    expect(updateBanglaPronunciation).toHaveBeenCalledWith(
+      'entity-1',
+      'ছাবাহুল খাইর',
+    );
+    expect(update).toHaveBeenCalledWith(
+      'sentence-1',
+      expect.objectContaining({ pronunciationBn: 'ছাবাহুল খাইর' }),
+    );
+    expect(Object.keys(update.mock.calls[0][1]).sort()).toEqual(
+      ['pronunciationBn', 'updatedAt'].sort(),
+    );
+  });
 });

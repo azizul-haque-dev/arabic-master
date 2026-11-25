@@ -97,6 +97,37 @@ export const SentenceProcessor = {
       return;
     }
 
+    if (job.name === 'regenerate-sentence-pronunciation-bn') {
+      const { sentenceId } = job.data as SentenceResyncData;
+      const sentence = await sentences.findById(sentenceId);
+      if (!sentence) {
+        log.warn(
+          `Sentence ${sentenceId} was deleted before pronunciation regeneration ran — skipping.`,
+        );
+        return;
+      }
+
+      const entity = await entities.findById(sentence.entityId);
+      if (!entity?.arabicText || !isArabicText(entity.arabicText)) {
+        throw new Error(
+          `Sentence ${sentenceId} does not have valid associated Arabic text.`,
+        );
+      }
+
+      const pronunciationBn = await ai.generateBanglaPronunciation(
+        entity.arabicText,
+      );
+      await entities.updateBanglaPronunciation(
+        sentence.entityId,
+        pronunciationBn,
+      );
+      await sentences.update(sentenceId, {
+        pronunciationBn,
+        updatedAt: new Date(),
+      });
+      return;
+    }
+
     /** SentenceWord-এ (sentenceId, wordId) unique, তাই repeat হলে শুধু প্রথম position থাকে */
     async function resolveWords(
       arabicText: string,

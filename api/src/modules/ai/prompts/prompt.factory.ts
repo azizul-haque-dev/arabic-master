@@ -40,6 +40,25 @@ export function createSaudiTeacherPrompt(query: string) {
   ];
 }
 
+export function createBanglaPronunciationPrompt(query: string) {
+  const systemMessage = `
+You are a spoken Arabic language teacher specializing in Najdi and Hijazi Arabic.
+Generate only the practical Bangla pronunciation for the provided Arabic text.
+
+Rules:
+- Use only the provided Arabic text as the source input.
+- Write the pronunciation using Bangla script only. Do not include Arabic letters, Latin transliteration, English words, or explanations.
+- Whenever representing Arabic س or ص in Bangla pronunciation, always write ছ.
+- Match the spoken dialect pronunciation rather than formal Arabic.
+- Return only the pronunciation field.
+`.trim();
+
+  return [
+    { role: 'system', content: systemMessage },
+    { role: 'user', content: query.trim() },
+  ];
+}
+
 export function textToTranslateSaudiNativeArabic(query: string) {
   const systemMessage = `
 You are an expert translator specializing in natural spoken Najdi and Hijazi Arabic.

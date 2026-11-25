@@ -133,6 +133,12 @@ sentenceRoutes.post(
   SentenceController.regenerateContext,
 );
 sentenceRoutes.post(
+  '/:id/regenerate-pronunciation-bn',
+  ...staff,
+  params,
+  SentenceController.regenerateBanglaPronunciation,
+);
+sentenceRoutes.post(
   '/:id/ai',
   ...staff,
   params,
@@ -200,6 +206,12 @@ shortSentenceRoutes.post(
   ...staff,
   params,
   SentenceController.regenerateContext,
+);
+shortSentenceRoutes.post(
+  '/:id/regenerate-pronunciation-bn',
+  ...staff,
+  params,
+  SentenceController.regenerateBanglaPronunciation,
 );
 shortSentenceRoutes.post(
   '/:id/ai',

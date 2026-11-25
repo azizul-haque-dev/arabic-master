@@ -38,6 +38,34 @@ export const WordProcessor = {
 
     const { wordId, arabicText: rawText } = job.data;
 
+    if (job.name === 'regenerate-word-pronunciation-bn') {
+      const word = await words.findDetailedById(wordId);
+      if (!word) {
+        log.warn(
+          `Word ${wordId} was deleted before pronunciation regeneration ran — skipping.`,
+        );
+        return;
+      }
+
+      const arabicText = word.arabicText || word.entity?.arabicText;
+      if (!arabicText || !isArabicText(arabicText)) {
+        throw new Error(
+          `Word ${wordId} does not have valid associated Arabic text.`,
+        );
+      }
+
+      const pronunciationBn = await ai.generateBanglaPronunciation(arabicText);
+      await entities.updateBanglaPronunciation(
+        word.entityId,
+        pronunciationBn,
+      );
+      await words.update(wordId, {
+        pronunciationBn,
+        updatedAt: new Date(),
+      });
+      return;
+    }
+
     if (job.name === 'regenerate-word-usage') {
       const word = await words.findDetailedById(wordId);
       if (!word) {

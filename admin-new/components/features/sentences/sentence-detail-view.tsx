@@ -15,6 +15,7 @@ import {
     getSentenceAction,
     getSentenceAiJobStatusAction,
     regenerateSentenceAction,
+    regenerateSentenceBanglaPronunciationAction,
     regenerateSentenceContextAction,
     updateSentenceAction,
     updateSentenceStatusAction,
@@ -79,6 +80,12 @@ export function SentenceDetailView({
     const [isRegeneratingContext, setIsRegeneratingContext] = useState(false);
     const [contextMessage, setContextMessage] = useState<string | null>(null);
     const [contextError, setContextError] = useState<string | null>(null);
+    const [isRegeneratingBanglaPronunciation, setIsRegeneratingBanglaPronunciation] =
+        useState(false);
+    const [pronunciationMessage, setPronunciationMessage] = useState<string | null>(
+        null,
+    );
+    const [pronunciationError, setPronunciationError] = useState<string | null>(null);
     const autoRegenerateContextStarted = useRef(false);
 
     async function handleSave(values: SentenceFormValues): Promise<Sentence> {
@@ -207,6 +214,87 @@ export function SentenceDetailView({
         }
     }, [isGenerating, isRegeneratingContext, router, sentence.id]);
 
+    const handleRegenerateBanglaPronunciation = useCallback(async () => {
+        if (
+            isGenerating ||
+            isRegeneratingContext ||
+            isRegeneratingBanglaPronunciation
+        ) {
+            return;
+        }
+
+        setIsRegeneratingBanglaPronunciation(true);
+        setPronunciationMessage(
+            "Bangla pronunciation regeneration queued. Waiting for the updated content…",
+        );
+        setPronunciationError(null);
+
+        try {
+            const queued = await regenerateSentenceBanglaPronunciationAction(
+                sentence.id,
+            );
+            if (!queued.success) {
+                setPronunciationMessage(null);
+                setPronunciationError(queued.error);
+                return;
+            }
+
+            for (let attempt = 0; attempt < 30; attempt += 1) {
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+                const status = await getSentenceAiJobStatusAction(queued.data.jobId);
+                if (!status.success) {
+                    setPronunciationMessage(null);
+                    setPronunciationError(status.error);
+                    return;
+                }
+                if (status.data.state === "failed") {
+                    setPronunciationMessage(null);
+                    setPronunciationError(
+                        status.data.failedReason ||
+                            "AI could not regenerate the Bangla pronunciation.",
+                    );
+                    return;
+                }
+                if (status.data.state === "completed") {
+                    const fresh = await getSentenceAction(sentence.id);
+                    if (!fresh.success) {
+                        setPronunciationMessage(null);
+                        setPronunciationError(fresh.error);
+                        return;
+                    }
+                    setSentence((prev) => ({
+                        ...fresh.data,
+                        arabicText: fresh.data.arabicText || prev.arabicText,
+                    }));
+                    setPronunciationMessage(
+                        "Bangla pronunciation regenerated successfully.",
+                    );
+                    router.refresh();
+                    return;
+                }
+            }
+
+            setPronunciationMessage(
+                "Regeneration is still running in the background. Refresh this page shortly.",
+            );
+        } catch (cause) {
+            setPronunciationMessage(null);
+            setPronunciationError(
+                cause instanceof Error
+                    ? cause.message
+                    : "Unable to regenerate Bangla pronunciation.",
+            );
+        } finally {
+            setIsRegeneratingBanglaPronunciation(false);
+        }
+    }, [
+        isGenerating,
+        isRegeneratingBanglaPronunciation,
+        isRegeneratingContext,
+        router,
+        sentence.id,
+    ]);
+
     useEffect(() => {
         if (
             autoRegenerateContextStarted.current ||
@@ -256,7 +344,11 @@ export function SentenceDetailView({
                 <div className="flex flex-wrap items-center gap-2">
                     <Button
                         variant="primary"
-                        disabled={isGenerating || isRegeneratingContext}
+                        disabled={
+                            isGenerating ||
+                            isRegeneratingContext ||
+                            isRegeneratingBanglaPronunciation
+                        }
                         onClick={() => void handleRegenerate()}
                     >
                         <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
@@ -314,9 +406,53 @@ export function SentenceDetailView({
                             </div>
                             <div>
                                 <dt className="text-xs text-text-muted">Pronunciation (Bangla)</dt>
-                                <dd className="mt-0.5 font-bengali text-sm text-text">
-                                    {sentence.pronunciationBangla}
+                                <dd className="mt-0.5 flex items-center gap-2 font-bengali text-sm text-text">
+                                    <span>{sentence.pronunciationBangla}</span>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-7 w-7 text-text-muted hover:text-primary"
+                                        aria-label="Regenerate Bangla pronunciation with AI"
+                                        title="Regenerate Bangla pronunciation with AI"
+                                        disabled={
+                                            isGenerating ||
+                                            isRegeneratingContext ||
+                                            isRegeneratingBanglaPronunciation
+                                        }
+                                        onClick={() =>
+                                            void handleRegenerateBanglaPronunciation()
+                                        }
+                                    >
+                                        {isRegeneratingBanglaPronunciation ? (
+                                            <Loader2
+                                                className="h-4 w-4 animate-spin"
+                                                aria-hidden="true"
+                                            />
+                                        ) : (
+                                            <Sparkles
+                                                className="h-4 w-4"
+                                                aria-hidden="true"
+                                            />
+                                        )}
+                                    </Button>
                                 </dd>
+                                {pronunciationMessage ? (
+                                    <p
+                                        role="status"
+                                        className="mt-1 text-xs text-text-secondary"
+                                    >
+                                        {pronunciationMessage}
+                                    </p>
+                                ) : null}
+                                {pronunciationError ? (
+                                    <p
+                                        role="alert"
+                                        className="mt-1 text-xs text-error-text"
+                                    >
+                                        {pronunciationError}
+                                    </p>
+                                ) : null}
                             </div>
                         </dl>
                     </section>
@@ -329,7 +465,11 @@ export function SentenceDetailView({
                                 variant="outline"
                                 size="sm"
                                 className="border-primary/35 bg-primary/10 text-[#c9c6ff] hover:border-primary/60 hover:bg-primary/20"
-                                disabled={isGenerating || isRegeneratingContext}
+                                disabled={
+                                    isGenerating ||
+                                    isRegeneratingContext ||
+                                    isRegeneratingBanglaPronunciation
+                                }
                                 onClick={() => void handleRegenerateContext()}
                             >
                                 {isRegeneratingContext ? (

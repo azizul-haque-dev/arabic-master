@@ -1,11 +1,26 @@
 import { describe, expect, it } from 'vitest';
 import {
+  createBanglaPronunciationPrompt,
   createSaudiTeacherPrompt,
   createUsageContextPrompt,
   textToTranslateSaudiNativeArabic,
 } from './prompt.factory.js';
 
 describe('AI dialect prompts', () => {
+  it('generates only Bangla pronunciation and maps س and ص to ছ', () => {
+    const [systemMessage, userMessage] =
+      createBanglaPronunciationPrompt('صباح الخير');
+
+    expect(userMessage.content).toBe('صباح الخير');
+    expect(systemMessage.content).toContain(
+      'Write the pronunciation using Bangla script only.',
+    );
+    expect(systemMessage.content).toContain(
+      'Whenever representing Arabic س or ص in Bangla pronunciation, always write ছ.',
+    );
+    expect(systemMessage.content).toContain('Return only the pronunciation field.');
+  });
+
   it('sends only the Arabic text as the content-generation user message', () => {
     const [systemMessage, userMessage] = createSaudiTeacherPrompt('مرحبا');
 
