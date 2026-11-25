@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Sparkles } from "lucide-react";
 import {
     Dialog,
     DialogContent,
@@ -223,6 +224,7 @@ export function SentenceAiDialog({
                             disabled={!query.trim() || isGenerating}
                             onClick={() => void handleGenerateList()}
                         >
+                            <Sparkles className="h-4 w-4" aria-hidden="true" />
                             {isGenerating && generatingAction === "list"
                                 ? "Queueing…"
                                 : `Generate List${parsedBatchCount > 1 ? ` (${parsedBatchCount})` : ""}`}
@@ -231,6 +233,7 @@ export function SentenceAiDialog({
                             disabled={!query.trim() || isGenerating}
                             onClick={() => void handleGenerateSingle()}
                         >
+                            <Sparkles className="h-4 w-4" aria-hidden="true" />
                             {isGenerating && generatingAction === "single"
                                 ? "Queueing…"
                                 : "Generate One"}

@@ -531,6 +531,7 @@ export function WordListView({
                 disabled={!generationQuery.trim() || isGenerating}
                 onClick={() => void handleGenerateList()}
               >
+                <Sparkles className="h-4 w-4" aria-hidden="true" />
                 {isGenerating && generatingAction === "list"
                   ? "Queueing…"
                   : `Generate List${parsedBatchCount > 1 ? ` (${parsedBatchCount})` : ""}`}
@@ -539,6 +540,7 @@ export function WordListView({
                 disabled={!generationQuery.trim() || isGenerating}
                 onClick={() => void handleGenerateSingle()}
               >
+                <Sparkles className="h-4 w-4" aria-hidden="true" />
                 {isGenerating && generatingAction === "single"
                   ? "Queueing…"
                   : "Generate One"}

@@ -3,7 +3,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Pencil, XCircle, Sparkles, MessagesSquare, GraduationCap, Loader2 } from "lucide-react";
+import {
+    ChevronRight,
+    Pencil,
+    XCircle,
+    Sparkles,
+    MessagesSquare,
+    GraduationCap,
+    Loader2,
+    RotateCcw,
+} from "lucide-react";
 import { ContentStatusBadge } from "@/components/shared/content-status-badge";
 import { RejectionDialog } from "@/components/shared/rejection-dialog";
 import { SentenceFormDialog } from "@/components/features/sentences/sentence-form-dialog";
@@ -446,12 +455,31 @@ export function SentenceDetailView({
                                     </p>
                                 ) : null}
                                 {pronunciationError ? (
-                                    <p
-                                        role="alert"
-                                        className="mt-1 text-xs text-error-text"
-                                    >
-                                        {pronunciationError}
-                                    </p>
+                                    <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+                                        <p
+                                            role="alert"
+                                            className="text-xs text-error-text"
+                                        >
+                                            {pronunciationError}
+                                        </p>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            disabled={
+                                                isRegeneratingBanglaPronunciation
+                                            }
+                                            onClick={() =>
+                                                void handleRegenerateBanglaPronunciation()
+                                            }
+                                        >
+                                            <RotateCcw
+                                                className="h-3.5 w-3.5"
+                                                aria-hidden="true"
+                                            />
+                                            Retry
+                                        </Button>
+                                    </div>
                                 ) : null}
                             </div>
                         </dl>
