@@ -22,6 +22,9 @@ export function createSaudiTeacherPrompt(query: string) {
     `* Usage-context guidance:\n${USAGE_CONTEXT_GUIDANCE}\n` +
     `* Pronunciation must match the spoken dialect form, not formal Arabic.\n` +
     `* Write Bangla pronunciation and explanations in Bangla, and English pronunciation and explanations in English.\n` +
+    `* When representing the Arabic letters س or ص in Bangla pronunciation, always use the Bangla letter ছ.\n` +
+    `* Keep pronunciation fields strictly in their matching script: pronunciationBn and feminineBn must use Bangla script only; pronunciationEn and feminineEn must use English/Latin letters only. Do not include Arabic script, another language's script, or explanations in pronunciation fields.\n` +
+    `* Apply the script-only rule to feminine pronunciation when a distinct feminine form exists; preserve the required "same for both genders" fallback strings when no distinct feminine form exists.\n` +
     `* English pronunciation should be a practical transliteration, not academic transliteration.\n` +
     `* Meanings must be natural and conversational.\n` +
     `* When referring to people in English, use "Arabs"; in Bangla, use "আরবরা". Do not describe usage by country or nationality.\n` +

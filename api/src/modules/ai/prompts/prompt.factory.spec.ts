@@ -25,6 +25,25 @@ describe('AI dialect prompts', () => {
     expect(systemMessage.content).toContain('English pronunciation and explanations in English');
   });
 
+  it('uses ছ for س and ص in Bangla pronunciation', () => {
+    const [systemMessage] = createSaudiTeacherPrompt('مرحبا');
+
+    expect(systemMessage.content).toContain(
+      'When representing the Arabic letters س or ص in Bangla pronunciation, always use the Bangla letter ছ.',
+    );
+  });
+
+  it('keeps regular and feminine pronunciation fields in their matching script', () => {
+    const [systemMessage] = createSaudiTeacherPrompt('مرحبا');
+
+    expect(systemMessage.content).toContain(
+      'pronunciationBn and feminineBn must use Bangla script only; pronunciationEn and feminineEn must use English/Latin letters only.',
+    );
+    expect(systemMessage.content).toContain(
+      'preserve the required "same for both genders" fallback strings when no distinct feminine form exists.',
+    );
+  });
+
   it('uses the shared Najdi/Hijazi form when translating without regional context', () => {
     const [systemMessage] = textToTranslateSaudiNativeArabic('Hello');
 

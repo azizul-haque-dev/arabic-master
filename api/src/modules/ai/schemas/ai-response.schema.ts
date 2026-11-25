@@ -11,19 +11,23 @@ export const AIResponseSchema = z.object({
     .describe('Natural and conversational meaning in English'),
   pronunciationBn: z
     .string()
-    .describe('Practical pronunciation spelling in Bangla for Bangla speakers'),
+    .describe(
+      'Practical pronunciation spelling in Bangla script only for Bangla speakers; do not include Arabic text or Latin transliteration',
+    ),
   pronunciationEn: z
     .string()
-    .describe('Practical English pronunciation transliteration written in English'),
+    .describe(
+      'Practical pronunciation transliteration using English/Latin letters only; do not include Arabic text or Bangla script',
+    ),
   feminineBn: z
     .string()
     .describe(
-      'Feminine form in Arabic with Bangla pronunciation. If identical to male, exactly return: ছেলে এবং মেয়ে উভয়ের জন্য একই রূপ',
+      'Feminine pronunciation in Bangla script only; do not include Arabic text, Latin transliteration, or explanations. If identical to male, exactly return: ছেলে এবং মেয়ে উভয়ের জন্য একই রূপ',
     ),
   feminineEn: z
     .string()
     .describe(
-      'Feminine form in Arabic with English pronunciation. If identical to male, exactly return: Same for both genders',
+      'Feminine pronunciation using English/Latin letters only; do not include Arabic text, Bangla script, or explanations. If identical to male, exactly return: Same for both genders',
     ),
   whenToUseBn: z
     .string()
