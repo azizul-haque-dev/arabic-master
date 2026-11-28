@@ -33,7 +33,7 @@ export const ArabicEntityController = {
 
   create: async (req: Request, res: Response) => {
     const body = bodyOf<CreateArabicEntityInput>(req);
-    const created = await ArabicEntityService.create(body, req.auth!.userId);
+    const created = await ArabicEntityService.create(body, req.auth!);
     ok(res, created, 201);
   },
 
@@ -41,7 +41,7 @@ export const ArabicEntityController = {
     const { query } = bodyOf<GenerateContentInput>(req);
     const result = await AiArabicEntityService.generateWithAi(
       query,
-      req.auth!.userId,
+      req.auth!,
     );
     ok(res, { entity: result.entity, created: result.created }, result.created ? 201 : 200);
   },
@@ -50,7 +50,7 @@ export const ArabicEntityController = {
     const { query } = bodyOf<GenerateWordListInput>(req);
     ok(
       res,
-      await AiArabicEntityService.generateManyWithAi(query, req.auth!.userId),
+      await AiArabicEntityService.generateManyWithAi(query, req.auth!),
       200,
     );
   },

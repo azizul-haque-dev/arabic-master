@@ -11,7 +11,10 @@ import { ContentStatus, WordType } from '../../database/drizzle/enums.js';
 import { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
 import { wordQueue } from './word.queue.js';
 import { withTransaction } from '../../database/db.js';
-import { resolveStatusChange } from '../../common/utils/content-workflow.util.js';
+import {
+  defaultContentStatus,
+  resolveStatusChange,
+} from '../../common/utils/content-workflow.util.js';
 import type { UpdateStatusInput } from '../../common/schemas.js';
 import type { RequestUser } from '../auth/auth.types.js';
 import { WordRepository } from './word.repository.js';
@@ -43,7 +46,7 @@ export const WordService = {
     return word;
   },
 
-  async create(input: CreateWordInput, createdById: string) {
+  async create(input: CreateWordInput, actor: RequestUser) {
     const { text, audioUrl, ...fields } = input;
     let entity = await ArabicEntityRepository.findByNormalizedText(
       normalizeArabicText(text),
@@ -57,7 +60,8 @@ export const WordService = {
       entity = await ArabicEntityRepository.create({
         arabicText: text,
         audioUrl,
-        createdById,
+        status: defaultContentStatus(actor.role),
+        createdById: actor.userId,
       });
     }
 
@@ -73,8 +77,8 @@ export const WordService = {
               entityId: entity.id,
               ...fields,
               wordType: fields.wordType ?? WordType.OTHER,
-              status: ContentStatus.DRAFT,
-              createdById,
+              status: defaultContentStatus(actor.role),
+              createdById: actor.userId,
             },
             tx,
           );
@@ -117,7 +121,7 @@ export const WordService = {
     await WordRepository.delete(id);
   },
 
-  async generateWithAi(rawText: string, createdById: string) {
+  async generateWithAi(rawText: string, actor: RequestUser) {
     if (!isArabicText(rawText)) {
       throw new ConflictError('Only Arabic text can be generated with AI');
     }
@@ -172,7 +176,8 @@ export const WordService = {
       try {
         entity = await ArabicEntityRepository.create({
           arabicText: text,
-          createdById,
+          status: defaultContentStatus(actor.role),
+          createdById: actor.userId,
         });
       } catch (error) {
         if (!isUniqueViolation(error)) throw error;
@@ -206,8 +211,8 @@ export const WordService = {
               feminineEn: empty,
               feminineBn: empty,
               category: DEFAULT_CATEGORY,
-              status: ContentStatus.DRAFT,
-              createdById,
+              status: defaultContentStatus(actor.role),
+              createdById: actor.userId,
             },
             tx,
           );
@@ -233,13 +238,13 @@ export const WordService = {
     return word;
   },
 
-  async generateManyWithAi(queries: string[], createdById: string) {
+  async generateManyWithAi(queries: string[], actor: RequestUser) {
     const results: WordGenerationBatchResult[] = [];
     const processQuery = async (
       query: string,
     ): Promise<WordGenerationBatchResult> => {
       try {
-        const word = await WordService.generateWithAi(query, createdById);
+        const word = await WordService.generateWithAi(query, actor);
         const job = await wordQueue.getJob(word.id);
         return {
           query,

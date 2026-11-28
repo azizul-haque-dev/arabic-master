@@ -106,7 +106,7 @@ export const arabicEntityCreateSchema = z.object({
   meaningBangla: z.string().trim().optional(),
   pronunciationEnglish: z.string().trim().optional(),
   pronunciationBangla: z.string().trim().optional(),
-  status: z.enum(contentStatuses).optional().default("DRAFT"),
+  status: z.enum(contentStatuses).optional(),
 }).strict();
 
 export const arabicEntityUpdateSchema = z.object({

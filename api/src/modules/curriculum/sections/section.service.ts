@@ -10,6 +10,7 @@ import type { UpdateStatusInput } from '../../../common/schemas.js';
 import {
   assertEditable,
   assertSameIdSet,
+  defaultContentStatus,
   resolveStatusChange,
 } from '../../../common/utils/content-workflow.util.js';
 import { withTransaction } from '../../../database/db.js';
@@ -81,7 +82,7 @@ export const SectionService = {
           title: dto.title,
           description: dto.description ?? '',
           order: maxOrder + 1,
-          status: ContentStatus.DRAFT,
+          status: defaultContentStatus(actor.role),
           createdById: actor.userId,
         },
         tx,

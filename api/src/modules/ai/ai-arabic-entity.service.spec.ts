@@ -1,9 +1,18 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { AiService } from './ai.service.js';
 import type { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
+import { Role } from '../../database/drizzle/enums.js';
+import type { RequestUser } from '../auth/auth.types.js';
 import { createAiArabicEntityService } from './ai-arabic-entity.service.js';
 
 describe('AiArabicEntityService', () => {
+  const admin: RequestUser = {
+    userId: 'user-1',
+    sessionId: 'session-1',
+    jwtId: 'jwt-1',
+    role: Role.ADMIN,
+  };
+
   it('creates an entity with AI-generated meanings and pronunciations', async () => {
     const entity = { id: 'entity-1', arabicText: 'مرحبا' };
     const entities = {
@@ -21,7 +30,7 @@ describe('AiArabicEntityService', () => {
     } as unknown as AiService;
     const service = createAiArabicEntityService({ ai, entities });
 
-    const result = await service.generateWithAi('مرحبا', 'user-1');
+    const result = await service.generateWithAi('مرحبا', admin);
 
     expect(ai.generateContent).toHaveBeenCalledWith('مرحبا');
     expect(entities.create).toHaveBeenCalledWith({
@@ -30,7 +39,8 @@ describe('AiArabicEntityService', () => {
       meaningEnglish: 'Hello',
       pronunciationBangla: 'মারহাবা',
       pronunciationEnglish: 'marhaban',
-      createdById: 'user-1',
+      status: 'APPROVED',
+      createdById: admin.userId,
     });
     expect(result).toEqual({ entity, created: true });
   });
@@ -47,7 +57,7 @@ describe('AiArabicEntityService', () => {
     } as unknown as AiService;
     const service = createAiArabicEntityService({ ai, entities });
 
-    const result = await service.generateWithAi('مرحبا', 'user-1');
+    const result = await service.generateWithAi('مرحبا', admin);
 
     expect(result).toEqual({ entity, created: false });
     expect(ai.generateContent).not.toHaveBeenCalled();

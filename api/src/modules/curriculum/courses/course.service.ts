@@ -7,6 +7,7 @@ import { paginated } from '../../../common/http/response.js';
 import type { UpdateStatusInput } from '../../../common/schemas.js';
 import {
   assertEditable,
+  defaultContentStatus,
   resolveStatusChange,
 } from '../../../common/utils/content-workflow.util.js';
 import { withTransaction } from '../../../database/db.js';
@@ -76,7 +77,7 @@ export const CourseService = {
               id: randomUUIDv7(),
               courseKey,
               ...dto,
-              status: ContentStatus.DRAFT,
+              status: defaultContentStatus(actor.role),
               createdById: actor.userId,
             },
             tx,

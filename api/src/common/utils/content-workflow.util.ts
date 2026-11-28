@@ -21,6 +21,10 @@ export function assertEditable(status: ContentStatus, role: Role): void {
   }
 }
 
+export function defaultContentStatus(role: Role): ContentStatus {
+  return role === Role.ADMIN ? ContentStatus.APPROVED : ContentStatus.DRAFT;
+}
+
 export function resolveStatusChange(p: {
   from: ContentStatus;
   to: ContentStatus;

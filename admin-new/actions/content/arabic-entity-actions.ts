@@ -205,7 +205,9 @@ export async function createArabicEntityAction(
       meaningEnglish: parsed.data.meaningEnglish ?? parsed.data.meaningEn,
       pronunciationBangla: parsed.data.pronunciationBangla ?? parsed.data.pronunciationBn,
       pronunciationEnglish: parsed.data.pronunciationEnglish ?? parsed.data.pronunciationEn,
-      status: parsed.data.status,
+      status:
+        parsed.data.status ??
+        (authorization.data.role === "ADMIN" ? "APPROVED" : "DRAFT"),
     };
 
     const response = await callBackend("/arabic-entities", {

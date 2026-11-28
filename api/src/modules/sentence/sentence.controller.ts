@@ -28,7 +28,7 @@ export const SentenceController = {
       res,
       await SentenceService.create(
         bodyOf<CreateSentenceInput>(req),
-        req.auth!.userId,
+        req.auth!,
       ),
       201,
     ),
@@ -37,7 +37,7 @@ export const SentenceController = {
       res,
       await SentenceService.createShort(
         bodyOf<CreateSentenceInput>(req),
-        req.auth!.userId,
+        req.auth!,
       ),
       201,
     ),
@@ -46,7 +46,7 @@ export const SentenceController = {
       res,
       await SentenceService.createLong(
         bodyOf<CreateSentenceInput>(req),
-        req.auth!.userId,
+        req.auth!,
       ),
       201,
     ),
@@ -55,7 +55,7 @@ export const SentenceController = {
     const sentenceType = body.sentenceType ?? body.type ?? SentenceType.LONG;
     ok(
       res,
-      await SentenceService.generateWithAi(body.query, req.auth!.userId, {
+      await SentenceService.generateWithAi(body.query, req.auth!, {
         sentenceType,
         linkWords: body.linkWords,
         relatedWordId: body.relatedWordId,
@@ -67,7 +67,7 @@ export const SentenceController = {
     const body = bodyOf<GenerateSentenceAiInput>(req);
     ok(
       res,
-      await SentenceService.generateShortWithAi(body.query, req.auth!.userId, {
+      await SentenceService.generateShortWithAi(body.query, req.auth!, {
         linkWords: body.linkWords,
         relatedWordId: body.relatedWordId,
       }),
@@ -78,7 +78,7 @@ export const SentenceController = {
     const body = bodyOf<GenerateSentenceAiInput>(req);
     ok(
       res,
-      await SentenceService.generateLongWithAi(body.query, req.auth!.userId, {
+      await SentenceService.generateLongWithAi(body.query, req.auth!, {
         linkWords: body.linkWords,
         relatedWordId: body.relatedWordId,
       }),
@@ -90,7 +90,7 @@ export const SentenceController = {
     const sentenceType = body.sentenceType ?? body.type ?? SentenceType.LONG;
     ok(
       res,
-      await SentenceService.generateManyWithAi(body.query, req.auth!.userId, {
+      await SentenceService.generateManyWithAi(body.query, req.auth!, {
         sentenceType,
         linkWords: body.linkWords,
         relatedWordId: body.relatedWordId,
@@ -104,7 +104,7 @@ export const SentenceController = {
       res,
       await SentenceService.generateManyShortWithAi(
         body.query,
-        req.auth!.userId,
+        req.auth!,
         {
           linkWords: body.linkWords,
           relatedWordId: body.relatedWordId,
@@ -119,7 +119,7 @@ export const SentenceController = {
       res,
       await SentenceService.generateManyLongWithAi(
         body.query,
-        req.auth!.userId,
+        req.auth!,
         {
           linkWords: body.linkWords,
           relatedWordId: body.relatedWordId,

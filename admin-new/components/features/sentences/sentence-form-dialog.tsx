@@ -329,7 +329,13 @@ export function SentenceFormDialog({
                                 Cancel
                             </Button>
                             <Button variant="primary" disabled={!isValid || isSaving} onClick={() => void handleSave()}>
-                                {isSaving ? "Saving…" : "Save draft"}
+                                {isSaving
+                                    ? "Saving…"
+                                    : isEditing
+                                      ? "Save changes"
+                                      : role === "ADMIN"
+                                        ? "Approve & create"
+                                        : "Save draft"}
                             </Button>
                         </div>
                     </div>

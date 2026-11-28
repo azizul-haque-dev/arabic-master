@@ -168,7 +168,7 @@ export function WordFormDialog({
       pronunciationBangla: formValues.pronunciationBangla,
       pronunciationEnglish: formValues.pronunciationEnglish,
       hasAudio: false,
-      status: "DRAFT",
+      status: role === "ADMIN" ? "APPROVED" : "DRAFT",
       wordUsageCount: 0,
       sentenceUsageCount: 0,
       conversationUsageCount: 0,
@@ -389,7 +389,13 @@ export function WordFormDialog({
                   }
                   onClick={() => void handleSave()}
                 >
-                  {isSaving ? "Saving…" : "Save draft"}
+                  {isSaving
+                    ? "Saving…"
+                    : isEditing
+                      ? "Save changes"
+                      : role === "ADMIN"
+                        ? "Approve & create"
+                        : "Save draft"}
                 </Button>
               </div>
             </div>

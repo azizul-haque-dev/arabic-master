@@ -247,7 +247,7 @@ export function EntityFormDialog({
                     handleClose(false);
                   }}
                 >
-                  Save draft
+                  {role === "ADMIN" ? "Approve & create" : "Save draft"}
                 </Button>
               </div>
             </>

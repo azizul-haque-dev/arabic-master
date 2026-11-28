@@ -4,8 +4,10 @@ import {
   isArabicText,
   normalizeArabicText,
 } from '../../common/utils/normalize-arabic.util.js';
+import { defaultContentStatus } from '../../common/utils/content-workflow.util.js';
 import { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
 import type { ArabicEntityRepository as ArabicEntityRepositoryType } from '../arabic-entities/arabic-entity.repository.js';
+import type { RequestUser } from '../auth/auth.types.js';
 import { AiService } from './ai.service.js';
 import type { AiService as AiServiceType } from './ai.service.js';
 
@@ -30,7 +32,7 @@ export function createAiArabicEntityService(dependencies: {
 
   async function generateWithAi(
     query: string,
-    createdById: string,
+    actor: RequestUser,
   ): Promise<ArabicEntityGenerationResult> {
     const arabicText = isArabicText(query)
       ? query
@@ -48,7 +50,8 @@ export function createAiArabicEntityService(dependencies: {
         meaningEnglish: generated.meaningEn,
         pronunciationBangla: generated.pronunciationBn,
         pronunciationEnglish: generated.pronunciationEn,
-        createdById,
+        status: defaultContentStatus(actor.role),
+        createdById: actor.userId,
       });
       return { entity, created: true };
     } catch (error) {
@@ -64,7 +67,7 @@ export function createAiArabicEntityService(dependencies: {
 
   async function generateManyWithAi(
     queries: string[],
-    createdById: string,
+    actor: RequestUser,
   ): Promise<ArabicEntityGenerationBatchResult[]> {
     const results: ArabicEntityGenerationBatchResult[] = [];
 
@@ -76,7 +79,7 @@ export function createAiArabicEntityService(dependencies: {
             return {
               query,
               success: true,
-              ...(await generateWithAi(query, createdById)),
+              ...(await generateWithAi(query, actor)),
             };
           } catch (error) {
             return {
@@ -112,9 +115,9 @@ function getAiArabicEntityService() {
 }
 
 export const AiArabicEntityService = {
-  generateWithAi: (query: string, createdById: string) =>
-    getAiArabicEntityService().generateWithAi(query, createdById),
-  generateManyWithAi: (queries: string[], createdById: string) =>
-    getAiArabicEntityService().generateManyWithAi(queries, createdById),
+  generateWithAi: (query: string, actor: RequestUser) =>
+    getAiArabicEntityService().generateWithAi(query, actor),
+  generateManyWithAi: (queries: string[], actor: RequestUser) =>
+    getAiArabicEntityService().generateManyWithAi(queries, actor),
 };
 

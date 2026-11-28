@@ -214,7 +214,6 @@ export function EntityListView({
       meaningBangla: values.meaningBangla,
       pronunciationEnglish: values.pronunciationEnglish,
       pronunciationBangla: values.pronunciationBangla,
-      status: "DRAFT",
     });
 
     if (res.success) {

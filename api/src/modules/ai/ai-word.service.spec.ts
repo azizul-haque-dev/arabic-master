@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { logger } from '../../common/http/logger.js';
 import * as dbModule from '../../database/db.js';
+import { Role } from '../../database/drizzle/enums.js';
 import type { AiService } from './ai.service.js';
 import type { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
 import type { WordRepository } from '../words/word.repository.js';
@@ -35,12 +36,13 @@ describe('AiWordService', () => {
     } as unknown as AiService;
     const service = createAiWordService({ ai, entities, words, logger });
 
-    await service.createWordViaAi('تسلم');
+    await service.createWordViaAi('تسلم', 'admin-1', Role.ADMIN);
 
     expect(words.insert).toHaveBeenCalledWith(
       expect.objectContaining({
         whenToUseEn: 'Say this in reply to تسلم (tislam).',
         whenToUseBn: 'تسلم (তিসলাম) বললে জবাবে এটি বলা হয়।',
+        status: 'APPROVED',
       }),
       expect.anything(),
     );

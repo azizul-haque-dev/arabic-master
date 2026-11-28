@@ -14,7 +14,10 @@ import {
   SentenceType,
 } from '../../database/drizzle/enums.js';
 import { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
-import { resolveStatusChange } from '../../common/utils/content-workflow.util.js';
+import {
+  defaultContentStatus,
+  resolveStatusChange,
+} from '../../common/utils/content-workflow.util.js';
 import type { UpdateStatusInput } from '../../common/schemas.js';
 import type { RequestUser } from '../auth/auth.types.js';
 import { sentenceQueue } from './sentence.queue.js';
@@ -76,7 +79,7 @@ export const SentenceService = {
 
   async create(
     dto: CreateSentenceInput,
-    createdById: string,
+    actor: RequestUser,
     forcedType?: SentenceType,
   ) {
     const { text, audioUrl, words, ...fields } = dto;
@@ -95,7 +98,8 @@ export const SentenceService = {
       entity = await ArabicEntityRepository.create({
         arabicText: text,
         audioUrl,
-        createdById,
+        status: defaultContentStatus(actor.role),
+        createdById: actor.userId,
       });
     }
 
@@ -116,8 +120,8 @@ export const SentenceService = {
               ...fields,
               sentenceType,
               difficulty: fields.difficulty ?? DifficultyLevel.BEGINNER,
-              status: ContentStatus.DRAFT,
-              createdById,
+              status: defaultContentStatus(actor.role),
+              createdById: actor.userId,
             },
             tx,
           );
@@ -142,12 +146,12 @@ export const SentenceService = {
       : SentenceRepository.findById(sentence.id);
   },
 
-  async createShort(dto: CreateSentenceInput, createdById: string) {
-    return SentenceService.create(dto, createdById, SentenceType.SHORT);
+  async createShort(dto: CreateSentenceInput, actor: RequestUser) {
+    return SentenceService.create(dto, actor, SentenceType.SHORT);
   },
 
-  async createLong(dto: CreateSentenceInput, createdById: string) {
-    return SentenceService.create(dto, createdById, SentenceType.LONG);
+  async createLong(dto: CreateSentenceInput, actor: RequestUser) {
+    return SentenceService.create(dto, actor, SentenceType.LONG);
   },
 
   async changeStatus(id: string, dto: UpdateStatusInput, actor: RequestUser) {
@@ -186,7 +190,7 @@ export const SentenceService = {
 
   async generateWithAi(
     rawText: string,
-    createdById: string,
+    actor: RequestUser,
     typeOrOptions: SentenceType | SentenceAiOptions = SentenceType.LONG,
   ) {
     const opts: SentenceAiOptions =
@@ -235,7 +239,8 @@ export const SentenceService = {
             {
               sentenceId: current.id,
               arabicText: text,
-              createdById,
+              createdById: actor.userId,
+              createdByRole: actor.role,
               linkWords,
             },
             { jobId: current.id },
@@ -254,7 +259,8 @@ export const SentenceService = {
               {
                 sentenceId: current.id,
                 arabicText: text,
-                createdById,
+                createdById: actor.userId,
+                createdByRole: actor.role,
                 linkWords,
               },
               { jobId: current.id },
@@ -279,7 +285,8 @@ export const SentenceService = {
       try {
         entity = await ArabicEntityRepository.create({
           arabicText: text,
-          createdById,
+          status: defaultContentStatus(actor.role),
+          createdById: actor.userId,
         });
       } catch (error) {
         if (!isUniqueViolation(error)) throw error;
@@ -319,8 +326,8 @@ export const SentenceService = {
               relatedWordId: relatedWordId ?? null,
               category: DEFAULT_CATEGORY,
               difficulty: DifficultyLevel.BEGINNER,
-              status: ContentStatus.DRAFT,
-              createdById,
+              status: defaultContentStatus(actor.role),
+              createdById: actor.userId,
             },
             tx,
           );
@@ -345,7 +352,8 @@ export const SentenceService = {
       {
         sentenceId: sentence.id,
         arabicText: text,
-        createdById,
+        createdById: actor.userId,
+        createdByRole: actor.role,
         linkWords,
       },
       { jobId: sentence.id },
@@ -355,7 +363,7 @@ export const SentenceService = {
 
   async resolveWithAi(
     rawText: string,
-    createdById: string,
+    actor: RequestUser,
     options: SentenceAiOptions = {},
   ) {
     if (!isArabicText(rawText)) {
@@ -370,7 +378,7 @@ export const SentenceService = {
       : null;
     const sentence = await SentenceService.generateWithAi(
       text,
-      createdById,
+      actor,
       options,
     );
 
@@ -379,10 +387,10 @@ export const SentenceService = {
 
   async generateShortWithAi(
     rawText: string,
-    createdById: string,
+    actor: RequestUser,
     options?: Omit<SentenceAiOptions, 'sentenceType'>,
   ) {
-    return SentenceService.generateWithAi(rawText, createdById, {
+    return SentenceService.generateWithAi(rawText, actor, {
       ...options,
       sentenceType: SentenceType.SHORT,
     });
@@ -390,10 +398,10 @@ export const SentenceService = {
 
   async generateLongWithAi(
     rawText: string,
-    createdById: string,
+    actor: RequestUser,
     options?: Omit<SentenceAiOptions, 'sentenceType'>,
   ) {
-    return SentenceService.generateWithAi(rawText, createdById, {
+    return SentenceService.generateWithAi(rawText, actor, {
       ...options,
       sentenceType: SentenceType.LONG,
     });
@@ -401,7 +409,7 @@ export const SentenceService = {
 
   async generateManyWithAi(
     queries: string[],
-    createdById: string,
+    actor: RequestUser,
     typeOrOptions: SentenceType | SentenceAiOptions = SentenceType.LONG,
   ) {
     const results: SentenceGenerationBatchResult[] = [];
@@ -411,7 +419,7 @@ export const SentenceService = {
       try {
         const sentence = await SentenceService.generateWithAi(
           query,
-          createdById,
+          actor,
           typeOrOptions,
         );
         const job = await sentenceQueue.getJob(sentence.id);
@@ -442,10 +450,10 @@ export const SentenceService = {
 
   async generateManyShortWithAi(
     queries: string[],
-    createdById: string,
+    actor: RequestUser,
     options?: Omit<SentenceAiOptions, 'sentenceType'>,
   ) {
-    return SentenceService.generateManyWithAi(queries, createdById, {
+    return SentenceService.generateManyWithAi(queries, actor, {
       ...options,
       sentenceType: SentenceType.SHORT,
     });
@@ -453,10 +461,10 @@ export const SentenceService = {
 
   async generateManyLongWithAi(
     queries: string[],
-    createdById: string,
+    actor: RequestUser,
     options?: Omit<SentenceAiOptions, 'sentenceType'>,
   ) {
-    return SentenceService.generateManyWithAi(queries, createdById, {
+    return SentenceService.generateManyWithAi(queries, actor, {
       ...options,
       sentenceType: SentenceType.LONG,
     });

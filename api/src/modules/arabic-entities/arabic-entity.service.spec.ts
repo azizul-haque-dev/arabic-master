@@ -129,6 +129,38 @@ describe('ArabicEntityService', () => {
   });
 
   describe('create', () => {
+    it('defaults Admin-created entities to APPROVED', async () => {
+      vi.spyOn(ArabicEntityRepository, 'findByNormalizedText').mockResolvedValue(null);
+      const create = vi
+        .spyOn(ArabicEntityRepository, 'create')
+        .mockResolvedValue(mockEntity as any);
+
+      await ArabicEntityService.create({ arabicText: 'كتاب' }, mockAdminUser);
+
+      expect(create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: ContentStatus.APPROVED,
+          createdById: mockAdminUser.userId,
+        }),
+      );
+    });
+
+    it('does not allow Content Managers to create approved entities', async () => {
+      vi.spyOn(ArabicEntityRepository, 'findByNormalizedText').mockResolvedValue(null);
+      const create = vi
+        .spyOn(ArabicEntityRepository, 'create')
+        .mockResolvedValue(mockEntity as any);
+
+      await ArabicEntityService.create(
+        { arabicText: 'كتاب', status: ContentStatus.APPROVED },
+        mockUser,
+      );
+
+      expect(create).toHaveBeenCalledWith(
+        expect.objectContaining({ status: ContentStatus.DRAFT }),
+      );
+    });
+
     it('reuses an entity with the same normalized Arabic text', async () => {
       const findByNormalizedText = vi
         .spyOn(ArabicEntityRepository, 'findByNormalizedText')
@@ -137,7 +169,7 @@ describe('ArabicEntityService', () => {
 
       const result = await ArabicEntityService.create(
         { arabicText: 'كتاب', status: ContentStatus.DRAFT },
-        mockUser.userId,
+        mockUser,
       );
 
       expect(findByNormalizedText).toHaveBeenCalledWith('كتاب');
@@ -155,7 +187,7 @@ describe('ArabicEntityService', () => {
 
       const result = await ArabicEntityService.create(
         { arabicText: 'كتاب', status: ContentStatus.DRAFT },
-        mockUser.userId,
+        mockUser,
       );
 
       expect(result).toBe(mockEntity);

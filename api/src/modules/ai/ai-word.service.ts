@@ -11,6 +11,8 @@ import {
   isArabicText,
   normalizeArabicText,
 } from '../../common/utils/normalize-arabic.util.js';
+import { defaultContentStatus } from '../../common/utils/content-workflow.util.js';
+import { Role } from '../../database/drizzle/enums.js';
 import { withTransaction } from '../../database/db.js';
 import { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
 import { WordRepository } from '../words/word.repository.js';
@@ -31,7 +33,11 @@ export function createAiWordService(dependencies: {
     return { entity, word };
   }
 
-  async function createWordViaAi(input: string, createdById?: string) {
+  async function createWordViaAi(
+    input: string,
+    createdById?: string,
+    role: Role = Role.CONTENT_MANAGER,
+  ) {
     const text = isArabicText(input)
       ? input
       : await ai.translateToArabic(input);
@@ -55,6 +61,7 @@ export function createAiWordService(dependencies: {
         entity = await entities.create({
           arabicText: text,
           createdById,
+          status: defaultContentStatus(role),
           pronunciationBangla: result.pronunciationBn,
           pronunciationEnglish: result.pronunciationEn,
         });
@@ -90,6 +97,7 @@ export function createAiWordService(dependencies: {
               feminineBn: result.feminineBn,
               noteEn: result.noteEn || null,
               noteBn: result.noteBn || null,
+              status: defaultContentStatus(role),
               createdById,
             },
             tx,
@@ -112,7 +120,11 @@ export function createAiWordService(dependencies: {
     throw new Error('Failed to generate unique wordKey after 5 attempts');
   }
 
-  async function resolveWordWithAi(input: string, createdById?: string) {
+  async function resolveWordWithAi(
+    input: string,
+    createdById?: string,
+    role: Role = Role.CONTENT_MANAGER,
+  ) {
     const text = isArabicText(input)
       ? input
       : await ai.translateToArabic(input);
@@ -124,7 +136,7 @@ export function createAiWordService(dependencies: {
     }
 
     // Pass `text` (already translated to Arabic) so createWordViaAi does not translate a second time
-    const created = await createWordViaAi(text, createdById);
+    const created = await createWordViaAi(text, createdById, role);
     return { word: created, createdViaAi: true };
   }
 
@@ -144,10 +156,10 @@ function getAiWordService() {
 }
 
 export const AiWordService = {
-  createWordViaAi: (input: string, createdById?: string) =>
-    getAiWordService().createWordViaAi(input, createdById),
-  resolveWordWithAi: (input: string, createdById?: string) =>
-    getAiWordService().resolveWordWithAi(input, createdById),
+  createWordViaAi: (input: string, createdById?: string, role?: Role) =>
+    getAiWordService().createWordViaAi(input, createdById, role),
+  resolveWordWithAi: (input: string, createdById?: string, role?: Role) =>
+    getAiWordService().resolveWordWithAi(input, createdById, role),
 };
 
 export type AiWordService = typeof AiWordService;

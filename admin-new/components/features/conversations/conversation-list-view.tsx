@@ -57,7 +57,7 @@ export function ConversationListView() {
       conversationKey: generateNextConversationKey(conversations),
       ...values,
       turns: [],
-      status: "DRAFT",
+      status: role === "ADMIN" ? "APPROVED" : "DRAFT",
       createdBy: role === "ADMIN" ? "You (Admin)" : "You (Content Manager)",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

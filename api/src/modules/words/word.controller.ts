@@ -23,19 +23,19 @@ export const WordController = {
   create: async (req: Request, res: Response) =>
     ok(
       res,
-      await WordService.create(bodyOf<CreateWordInput>(req), req.auth!.userId),
+      await WordService.create(bodyOf<CreateWordInput>(req), req.auth!),
       201,
     ),
   generate: async (req: Request, res: Response) => {
     const { query } = bodyOf<GenerateContentInput>(req);
-    ok(res, await WordService.generateWithAi(query, req.auth!.userId), 202);
+    ok(res, await WordService.generateWithAi(query, req.auth!), 202);
   },
   generateList: async (req: Request, res: Response) =>
     ok(
       res,
       await WordService.generateManyWithAi(
         bodyOf<GenerateWordListInput>(req).query,
-        req.auth!.userId,
+        req.auth!,
       ),
       202,
     ),

@@ -2,8 +2,19 @@ import { describe, expect, it } from 'vitest';
 import { ConflictError, ForbiddenError } from '../errors/app-error.js';
 import {
   assertSameIdSet,
+  defaultContentStatus,
   resolveStatusChange,
 } from './content-workflow.util.js';
+
+describe('defaultContentStatus', () => {
+  it('defaults Admin-created content to APPROVED', () => {
+    expect(defaultContentStatus('ADMIN')).toBe('APPROVED');
+  });
+
+  it('keeps Content Manager-created content in DRAFT', () => {
+    expect(defaultContentStatus('CONTENT_MANAGER')).toBe('DRAFT');
+  });
+});
 
 describe('resolveStatusChange', () => {
   it('DRAFT → IN_REVIEW অনুমোদিত', () => {

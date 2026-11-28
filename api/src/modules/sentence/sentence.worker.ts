@@ -14,6 +14,7 @@ import {
 import { SENTENCE_QUEUE_NAME } from '../../config/constants.js';
 import { bullConnection } from '../../config/redis.js';
 import { withTransaction } from '../../database/db.js';
+import type { Role } from '../../database/drizzle/enums.js';
 import { AiService } from '../ai/ai.service.js';
 import { AiWordService } from '../ai/ai-word.service.js';
 import { ArabicEntityRepository } from '../arabic-entities/arabic-entity.repository.js';
@@ -23,6 +24,7 @@ export interface SentenceProcessData {
   sentenceId: string;
   arabicText: string;
   createdById?: string;
+  createdByRole?: Role;
   linkWords?: boolean;
 }
 
@@ -132,6 +134,7 @@ export const SentenceProcessor = {
     async function resolveWords(
       arabicText: string,
       createdById?: string,
+      createdByRole?: Role,
     ): Promise<WordLink[]> {
       const tokens = cleanTextAndSpaces(arabicText).split(' ').filter(Boolean);
       const seen = new Set<string>();
@@ -139,7 +142,11 @@ export const SentenceProcessor = {
 
       for (let i = 0; i < tokens.length; i++) {
         try {
-          const word = await aiWords.createWordViaAi(tokens[i], createdById);
+          const word = await aiWords.createWordViaAi(
+            tokens[i],
+            createdById,
+            createdByRole,
+          );
           if (seen.has(word.id)) {
             log.warn(
               `Word "${tokens[i]}" repeats in this sentence — keeping only its first position.`,
@@ -168,8 +175,13 @@ export const SentenceProcessor = {
       return;
     }
 
-    const { sentenceId, arabicText: rawText, createdById, linkWords } =
-      job.data as SentenceProcessData;
+    const {
+      sentenceId,
+      arabicText: rawText,
+      createdById,
+      createdByRole,
+      linkWords,
+    } = job.data as SentenceProcessData;
     const sentence = await sentences.findById(sentenceId);
     if (!sentence) {
       log.warn(
@@ -218,7 +230,7 @@ export const SentenceProcessor = {
     if (linkWords === true) {
       await replaceWords(
         sentenceId,
-        await resolveWords(arabicText, createdById),
+        await resolveWords(arabicText, createdById, createdByRole),
       );
     }
   },

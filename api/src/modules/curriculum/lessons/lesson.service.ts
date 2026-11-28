@@ -10,6 +10,7 @@ import type { UpdateStatusInput } from '../../../common/schemas.js';
 import {
   assertEditable,
   assertSameIdSet,
+  defaultContentStatus,
   resolveStatusChange,
 } from '../../../common/utils/content-workflow.util.js';
 import { withTransaction, type Tx } from '../../../database/db.js';
@@ -120,7 +121,7 @@ export const LessonService = {
           title: dto.title,
           description: dto.description ?? '',
           order: maxOrder + 1,
-          status: ContentStatus.DRAFT,
+          status: defaultContentStatus(actor.role),
           createdById: actor.userId,
         },
         tx,
@@ -331,12 +332,13 @@ export const LessonService = {
             const res = await AiWordService.resolveWordWithAi(
               query,
               actor.userId,
+              actor.role,
             );
             word = res.word;
             createdViaAi = res.createdViaAi;
           } catch {
             // Fallback to queued WordService.generateWithAi so the word is still created & linked
-            word = await WordService.generateWithAi(query, actor.userId);
+            word = await WordService.generateWithAi(query, actor);
             createdViaAi = true;
           }
         }
@@ -490,7 +492,7 @@ export const LessonService = {
         if (!sentence) {
           const resolved = await SentenceService.resolveWithAi(
             query,
-            actor.userId,
+            actor,
             { sentenceType, linkWords: true },
           );
           sentence = resolved.sentence;

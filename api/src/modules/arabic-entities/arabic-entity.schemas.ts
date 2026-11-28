@@ -65,7 +65,7 @@ export const createArabicEntitySchema = z.strictObject({
       'REJECTED',
       'ARCHIVED',
     ])
-    .default('DRAFT'),
+    .optional(),
 });
 export type CreateArabicEntityInput = z.infer<typeof createArabicEntitySchema>;
 

@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import {
   assertEditable,
+  defaultContentStatus,
   resolveStatusChange,
 } from '../../common/utils/content-workflow.util.js';
 import {
@@ -68,7 +69,7 @@ export const ArabicEntityService = {
     return entity;
   },
 
-  async create(input: CreateArabicEntityInput, userId: string) {
+  async create(input: CreateArabicEntityInput, actor: RequestUser) {
     const normalizedText = normalizeArabicText(input.arabicText);
     const existing = await ArabicEntityRepository.findByNormalizedText(
       normalizedText,
@@ -78,8 +79,11 @@ export const ArabicEntityService = {
     try {
       return await ArabicEntityRepository.create({
         ...input,
-        status: (input.status as ContentStatus) ?? ContentStatus.DRAFT,
-        createdById: userId,
+        status:
+          actor.role === Role.ADMIN
+            ? input.status ?? defaultContentStatus(actor.role)
+            : defaultContentStatus(actor.role),
+        createdById: actor.userId,
       });
     } catch (error) {
       if (!(error instanceof ConflictError)) throw error;
