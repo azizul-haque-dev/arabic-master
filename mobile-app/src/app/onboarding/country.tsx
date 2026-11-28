@@ -90,8 +90,8 @@ export default function CountryScreen() {
         <View className="mb-2 flex-row items-center">
           <View className="flex-row items-center gap-2 rounded-full bg-surface-container px-3.5 py-1 border border-outline-variant">
             <View className="h-1.5 w-1.5 rounded-full bg-primary" />
-            <Text className="font-label-sm text-xs font-semibold text-on-surface-variant tracking-wider uppercase">
-              Step 2 of 4 • Location
+            <Text className="font-label-sm text-xs font-semibold text-on-surface-variant">
+              Step 2 of 4 · Location
             </Text>
           </View>
         </View>

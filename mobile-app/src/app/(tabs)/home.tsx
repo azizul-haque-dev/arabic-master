@@ -1,4 +1,3 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
   ArrowRight,
@@ -37,12 +36,6 @@ import { useOnboardingStore } from "@/features/onboarding/store";
 
 const WEEK_DAYS = ["M", "T", "W", "T", "F", "S", "S"];
 
-function greetingFor(hour: number) {
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
-}
-
 export default function HomeScreen() {
   const router = useRouter();
   const practiceDuration = useOnboardingStore((s) => s.practiceDuration);
@@ -50,7 +43,6 @@ export default function HomeScreen() {
   const [savedWord, setSavedWord] = useState(false);
 
   const now = new Date();
-  const greeting = greetingFor(now.getHours());
   const todayIndex = (now.getDay() + 6) % 7; // Monday = 0
 
   const goalMinutes = goalMinutesFrom(practiceDuration);
@@ -99,9 +91,9 @@ export default function HomeScreen() {
           </View>
           <View>
             <Text className="font-body-sm text-xs text-on-surface-variant">
-              {greeting}
+              Your learning
             </Text>
-            <Text className="font-headline-sm text-xl font-bold tracking-tight text-on-surface">
+            <Text className="font-headline-sm text-xl font-semibold text-on-surface">
               {learner.firstName}
             </Text>
           </View>
@@ -111,8 +103,8 @@ export default function HomeScreen() {
           onPress={() => {
             tapFeedback();
             Alert.alert(
-              "You're all caught up",
-              "There are no new notifications right now.",
+              "No new notifications",
+              "There are no new notifications right now",
             );
           }}
           hitSlop={6}
@@ -129,19 +121,19 @@ export default function HomeScreen() {
         items={[
           {
             key: "streak",
-            icon: <Flame size={20} color="#ea580c" fill="#fed7aa" />,
+            icon: <Flame size={20} color="#15803d" />,
             value: `${learner.streakDays}`,
             label: "day streak",
           },
           {
             key: "xp",
-            icon: <Star size={20} color="#d97706" fill="#fde68a" />,
+            icon: <Star size={20} color="#15803d" />,
             value: `${learner.xp}`,
             label: "total XP",
           },
           {
             key: "hearts",
-            icon: <Heart size={20} color="#e11d48" fill="#fecdd3" />,
+            icon: <Heart size={20} color="#15803d" />,
             value: `${learner.hearts}`,
             label: "hearts",
           },
@@ -149,7 +141,7 @@ export default function HomeScreen() {
       />
 
       {/* Today's goal */}
-      <View className="rounded-3xl border border-outline-variant/70 bg-white p-4">
+      <View className="rounded-2xl border border-outline-variant/70 bg-white p-4">
         <View className="flex-row items-center gap-4">
           <ProgressRing value={goalRatio} size={84} strokeWidth={9}>
             <Text className="font-headline-sm text-xl font-bold leading-6 text-on-surface">
@@ -160,8 +152,8 @@ export default function HomeScreen() {
             </Text>
           </ProgressRing>
           <View className="flex-1">
-            <Text className="font-label-sm text-[10px] font-bold uppercase tracking-[1.2px] text-primary">
-              Today's goal
+            <Text className="font-label-sm text-xs font-medium text-primary-strong">
+              Today&apos;s goal
             </Text>
             <Text className="mt-1 font-headline-sm text-lg font-bold leading-6 text-on-surface">
               {minutesLeft > 0
@@ -228,36 +220,31 @@ export default function HomeScreen() {
           actionLabel="All lessons"
           onAction={() => openLearn(continueLesson.section)}
         />
-        <LinearGradient
-          colors={["#14532d", "#166534", "#15803d"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{ borderRadius: 28, padding: 20, overflow: "hidden" }}
-        >
+        <View className="rounded-2xl border border-primary/20 bg-white p-5">
           <View className="flex-row items-center justify-between">
-            <View className="rounded-full bg-white/15 px-3 py-1">
-              <Text className="font-label-sm text-[10px] font-bold uppercase tracking-[1px] text-white">
+            <View className="rounded-md bg-primary-subtle px-2.5 py-1">
+              <Text className="font-label-sm text-xs font-medium text-primary-strong">
                 {continueLesson.situation} · {continueLesson.lessonLabel}
               </Text>
             </View>
-            <Text className="font-label-md text-xs font-bold text-primary-subtle">
+            <Text className="font-label-md text-xs font-medium text-on-surface-variant">
               {Math.round(lessonRatio * 100)}%
             </Text>
           </View>
 
           <View className="mt-4 flex-row items-center gap-4">
             <View className="flex-1">
-              <Text className="font-headline-sm text-xl font-bold leading-7 text-white">
+              <Text className="font-headline-sm text-xl font-semibold leading-7 text-on-surface">
                 {continueLesson.title}
               </Text>
-              <Text className="mt-1 font-body-sm text-xs text-primary-subtle">
+              <Text className="mt-1 font-body-sm text-xs text-on-surface-variant">
                 {continueLesson.completed} of {continueLesson.total} words
                 learned
               </Text>
             </View>
-            <View className="h-[72px] w-[72px] items-center justify-center rounded-3xl border border-white/15 bg-white/10">
+            <View className="h-[72px] w-[72px] items-center justify-center rounded-xl border border-primary/15 bg-primary-subtle">
               <Text
-                className="font-arabic-display text-[28px] text-white"
+                className="font-arabic-display text-[28px] text-primary-strong"
                 style={{ writingDirection: "rtl" }}
               >
                 {continueLesson.arabic}
@@ -269,8 +256,7 @@ export default function HomeScreen() {
             <ProgressBar
               value={lessonRatio}
               label="Lesson progress"
-              fillColor="#ffffff"
-              trackColor="rgba(255,255,255,0.18)"
+              fillColor="#15803d"
               height={6}
             />
           </View>
@@ -279,14 +265,14 @@ export default function HomeScreen() {
             onPress={() => openLearn(continueLesson.section)}
             accessibilityRole="button"
             accessibilityLabel={`Continue ${continueLesson.title}`}
-            className="mt-5 h-12 flex-row items-center justify-center gap-2 rounded-full bg-white active:bg-primary-subtle"
+            className="mt-5 h-12 flex-row items-center justify-center gap-2 rounded-lg bg-primary active:bg-primary-strong"
           >
-            <Text className="font-label-lg text-sm font-bold text-primary-strong">
+            <Text className="font-label-lg text-sm font-medium text-white">
               Continue lesson
             </Text>
-            <ArrowRight size={17} color="#14532d" strokeWidth={2.5} />
+            <ArrowRight size={17} color="#ffffff" strokeWidth={2} />
           </Pressable>
-        </LinearGradient>
+        </View>
       </View>
 
       {/* Learning products */}
@@ -304,11 +290,11 @@ export default function HomeScreen() {
                 onPress={() => openProduct(product.id)}
                 accessibilityRole="button"
                 accessibilityLabel={`${product.title}, ${product.access === "mixed" ? "free and premium" : product.access}. ${product.description}`}
-                className="min-h-[164px] w-[48.5%] justify-between rounded-3xl border border-outline-variant/70 bg-white p-3.5 active:bg-surface-container-low"
+                className="min-h-[164px] w-[48.5%] justify-between rounded-xl border border-outline-variant/70 bg-white p-4 active:bg-surface-container-low"
               >
                 <View className="gap-2.5">
                   <View
-                    className={`h-10 w-10 items-center justify-center rounded-2xl ${product.tileClass}`}
+                    className={`h-10 w-10 items-center justify-center rounded-lg ${product.tileClass}`}
                   >
                     <Icon
                       size={19}
@@ -318,7 +304,7 @@ export default function HomeScreen() {
                   </View>
                   <Text
                     numberOfLines={2}
-                    className="font-label-lg text-sm font-bold text-on-surface"
+                    className="font-label-lg text-sm font-semibold text-on-surface"
                   >
                     {product.title}
                   </Text>
@@ -337,9 +323,9 @@ export default function HomeScreen() {
       </View>
 
       {/* Word of the day */}
-      <View className="rounded-3xl border border-outline-variant/70 bg-white p-4">
+      <View className="rounded-2xl border border-outline-variant/70 bg-white p-4">
         <View className="flex-row items-start justify-between">
-          <Text className="font-label-sm text-[10px] font-bold uppercase tracking-[1.2px] text-primary">
+          <Text className="font-label-sm text-xs font-medium text-primary-strong">
             Word of the day
           </Text>
           <Pressable
@@ -365,7 +351,7 @@ export default function HomeScreen() {
 
         <View className="mt-1 flex-row items-end justify-between gap-3">
           <View className="flex-1">
-            <Text className="font-headline-sm text-2xl font-bold text-on-surface">
+            <Text className="font-headline-sm text-2xl font-semibold text-on-surface">
               {wordOfTheDay.translation}
             </Text>
             <Text className="mt-0.5 font-label-md text-sm font-semibold text-primary">
@@ -418,7 +404,7 @@ export default function HomeScreen() {
                 accessibilityLabel={`${situation.title}, ${situation.lessons} lessons, ${Math.round(
                   situation.progress * 100,
                 )} percent complete`}
-                className="w-[152px] rounded-3xl border border-outline-variant/70 bg-white p-4 active:bg-surface-container-low"
+                className="w-[152px] rounded-xl border border-outline-variant/70 bg-white p-4 active:bg-surface-container-low"
               >
                 <View className="flex-row items-start justify-between">
                   <View className="h-10 w-10 items-center justify-center rounded-2xl bg-primary-subtle">
@@ -426,8 +412,8 @@ export default function HomeScreen() {
                   </View>
                   {forYou ? (
                     <View className="rounded-full bg-secondary-subtle px-2 py-0.5">
-                      <Text className="font-label-sm text-[9px] font-bold text-on-secondary-subtle">
-                        FOR YOU
+                      <Text className="font-label-sm text-[11px] font-medium text-on-secondary-subtle">
+                        For you
                       </Text>
                     </View>
                   ) : null}
@@ -438,7 +424,7 @@ export default function HomeScreen() {
                 >
                   {situation.arabic}
                 </Text>
-                <Text className="font-label-lg text-sm font-bold text-on-surface">
+                <Text className="font-label-lg text-sm font-semibold text-on-surface">
                   {situation.title}
                 </Text>
                 <Text className="mt-0.5 font-body-sm text-[11px] text-on-surface-variant">

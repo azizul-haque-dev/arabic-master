@@ -6,6 +6,7 @@ import {
   Plus_Jakarta_Sans,
 } from "next/font/google";
 import { UserProvider } from "@/lib/auth/user-context";
+import { AppThemeProvider } from "@/lib/theme-context";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -50,12 +51,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
       <body
         suppressHydrationWarning
         className={`${jakarta.variable} ${inter.variable} ${notoArabic.variable} ${notoBengali.variable} antialiased`}
       >
-        <UserProvider>{children}</UserProvider>
+        <AppThemeProvider>
+          <UserProvider>{children}</UserProvider>
+        </AppThemeProvider>
       </body>
     </html>
   );

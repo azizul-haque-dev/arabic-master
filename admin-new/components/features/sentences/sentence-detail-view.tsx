@@ -343,10 +343,10 @@ export function SentenceDetailView({
                         {sentence.arabicText || "Arabic text is not included in this API response."}
                     </p>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <span className="text-xs font-medium text-white/60">Sentence · {sentence.sentenceKey}</span>
+                        <span className="text-xs font-medium text-text-secondary">Sentence · {sentence.sentenceKey}</span>
                         <ContentStatusBadge status={sentence.status} />
                         <SentenceTypeBadge type={sentence.sentenceType} />
-                        <Badge className="border border-primary/30 bg-primary/15 text-[#c9c6ff]">
+                        <Badge className="border border-primary/20 bg-primary-light text-primary-dark">
                             {DIFFICULTY_LABEL[sentence.difficulty]}
                         </Badge>
                     </div>
@@ -489,7 +489,7 @@ export function SentenceDetailView({
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                className="border-primary/35 bg-primary/10 text-[#c9c6ff] hover:border-primary/60 hover:bg-primary/20"
+                                className="border-primary/35 bg-primary/10 text-primary-dark hover:border-primary/60 hover:bg-primary/20"
                                 disabled={
                                     isGenerating ||
                                     isRegeneratingContext ||

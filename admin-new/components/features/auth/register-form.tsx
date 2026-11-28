@@ -66,7 +66,7 @@ export function RegisterForm() {
 
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-6 shadow-[0_18px_45px_rgba(15,23,42,0.08)] sm:p-8">
+    <div className="rounded-2xl border border-border bg-white p-6 sm:p-8">
       <div className="mb-space-lg text-center">
         <h1 className="font-headline-md text-headline-md font-semibold text-on-surface">
           Create your account
@@ -104,7 +104,7 @@ export function RegisterForm() {
       >
         <span className="h-px flex-1 bg-border" />
 
-        <span className="font-label-sm text-label-sm uppercase tracking-wider text-text-muted">
+        <span className="font-label-sm text-label-sm text-text-muted">
           or sign up with email
         </span>
 
@@ -199,7 +199,7 @@ export function RegisterForm() {
         Already have an account?{" "}
         <Link
           href="/login"
-          className="font-medium text-primary transition-colors hover:text-[#b9fbc0] hover:underline hover:underline-offset-4"
+          className="font-medium text-primary-dark transition-colors hover:text-primary hover:underline hover:underline-offset-4"
         >
           Sign in
         </Link>

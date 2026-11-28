@@ -1,14 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Menu, LogOut } from "lucide-react";
-import { useRole } from "@/lib/role-context";
-import type { AdminRole } from "@/lib/types/content";
-import { cn } from "@/lib/utils";
+import { LogOut, Menu } from "lucide-react";
 import { logoutAction } from "@/actions/auth/logout-action";
+import { ThemeToggleButton } from "@/components/layout/theme-toggle-button";
 
 export function AdminTopbar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
-  const { role, setRole } = useRole();
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
@@ -23,11 +20,11 @@ export function AdminTopbar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/10 bg-surface/90 px-4 backdrop-blur sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-surface px-4 sm:px-6">
       <button
         type="button"
         onClick={onOpenSidebar}
-        className="flex h-9 w-9 items-center justify-center rounded-default text-white/75 transition-colors hover:bg-[#343052] hover:text-white lg:hidden"
+        className="flex h-9 w-9 items-center justify-center rounded-default text-text-secondary transition-colors hover:bg-neutral-bg hover:text-text lg:hidden"
         aria-label="Open navigation"
       >
         <Menu className="h-5 w-5" />
@@ -36,41 +33,24 @@ export function AdminTopbar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
       <div className="hidden lg:block" />
 
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1 rounded-full border border-white/10 bg-background p-1 text-xs">
-          <span className="hidden pl-2 text-white/60 sm:inline">Preview as:</span>
-          {(["ADMIN", "CONTENT_MANAGER"] as AdminRole[]).map((r) => (
-            <button
-              key={r}
-              type="button"
-              onClick={() => setRole(r)}
-              className={cn(
-                "rounded-full px-2.5 py-1 font-medium transition-colors",
-                role === r
-                  ? "bg-primary text-white"
-                  : "text-white/70 hover:bg-[#343052] hover:text-white",
-              )}
-            >
-              {r === "ADMIN" ? "Admin" : "Content Manager"}
-            </button>
-          ))}
-        </div>
+        <ThemeToggleButton />
 
         <div className="relative" ref={profileRef}>
           <button
             type="button"
             onClick={() => setProfileOpen(!profileOpen)}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-on-secondary-fixed transition-opacity hover:opacity-90"
             title="Signed in as Nusrat Jahan"
           >
             NJ
           </button>
           
           {profileOpen && (
-            <div className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-default border border-white/10 bg-surface shadow-lg">
+            <div className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-default border border-border bg-surface shadow-sm">
               <form action={logoutAction}>
                 <button
                   type="submit"
-                  className="flex w-full items-center gap-2 px-4 py-3 text-sm font-medium text-rose-400 transition-colors hover:bg-rose-950/40 hover:text-rose-300"
+                  className="flex w-full items-center gap-2 px-4 py-3 text-sm font-medium text-error transition-colors hover:bg-error-bg"
                 >
                   <LogOut className="h-4 w-4" aria-hidden="true" />
                   Logout

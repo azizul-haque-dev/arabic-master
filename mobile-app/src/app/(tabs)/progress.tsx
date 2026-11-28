@@ -61,8 +61,8 @@ export default function ProgressScreen() {
           <TrendingUp size={22} color="#15803d" />
         </View>
         <View className="flex-1">
-          <Text className="font-label-sm text-[10px] font-bold uppercase tracking-[1.2px] text-primary">
-            YOUR MOMENTUM
+          <Text className="font-label-sm text-xs font-medium text-primary">
+            Progress overview
           </Text>
           <Text className="mt-1 font-headline-sm text-xl font-bold text-on-surface">
             Progress that adds up
@@ -77,17 +77,17 @@ export default function ProgressScreen() {
 
       {previewState === "progress" ? (
         <>
-          <View className="rounded-3xl bg-primary-strong p-5">
+          <View className="rounded-2xl border border-outline-variant bg-white p-5">
             <View className="flex-row items-center gap-2">
-              <CalendarDays size={17} color="#f0fdf4" />
-              <Text className="font-label-md text-xs font-semibold text-primary-subtle">
-                THIS WEEK · SAMPLE
+              <CalendarDays size={17} color="#15803d" />
+              <Text className="font-label-md text-xs font-semibold text-on-surface-variant">
+                This week · sample
               </Text>
             </View>
-            <Text className="mt-3 font-headline-lg-mobile text-3xl font-bold text-white">
+            <Text className="mt-3 font-headline-lg-mobile text-3xl font-semibold text-on-surface">
               You showed up.
             </Text>
-            <Text className="mt-1 font-body-sm text-sm text-primary-subtle">
+            <Text className="mt-1 font-body-sm text-sm text-on-surface-variant">
               {learner.todayMinutes} focused minutes today. That counts.
             </Text>
             <View className="mt-7 h-32 flex-row items-end justify-between gap-2">
@@ -100,11 +100,13 @@ export default function ProgressScreen() {
                     accessible
                     accessibilityLabel={`${day}${index === todayIndex ? ", today" : ""}: ${minutes} sample minutes`}
                     className={`w-full rounded-t-lg ${
-                      index === todayIndex ? "bg-white" : "bg-primary-subtle/40"
+                      index === todayIndex
+                        ? "bg-primary"
+                        : "bg-surface-container-high"
                     }`}
                     style={{ height: Math.max(value * 96, 12) }}
                   />
-                  <Text className="font-label-sm text-[10px] font-semibold text-primary-subtle">
+                  <Text className="font-label-sm text-[10px] font-semibold text-on-surface-variant">
                     {day}
                   </Text>
                 </View>

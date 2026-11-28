@@ -43,7 +43,6 @@ export default function CompleteScreen() {
   );
   const goals = useOnboardingStore((state) => state.goals);
   const language = useOnboardingStore((state) => state.language);
-  const country = useOnboardingStore((state) => state.country);
 
   const handleCreateAccount = () => {
     try {
@@ -137,27 +136,18 @@ export default function CompleteScreen() {
           </View>
 
           {/* Personalized Curriculum Roadmap Card */}
-          <View
-            style={{
-              shadowColor: "#14532d",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.05,
-              shadowRadius: 8,
-              elevation: 2,
-            }}
-            className="mt-5 rounded-2xl border border-primary/20 bg-primary-subtle p-4"
-          >
+          <View className="mt-5 rounded-2xl border border-primary/20 bg-primary-subtle p-4">
             {/* Card Header Label */}
             <View className="mb-3 flex-row items-center justify-between border-b border-primary/10 pb-2.5">
               <View className="flex-row items-center gap-1.5">
                 <Target size={15} color="#15803d" strokeWidth={2.4} />
-                <Text className="font-label-sm text-xs font-bold uppercase tracking-wider text-primary-strong">
-                  Your Learning Blueprint
+                <Text className="font-label-sm text-sm font-medium text-primary-strong">
+                  Your learning blueprint
                 </Text>
               </View>
               <View className="rounded-full bg-white px-2 py-0.5 border border-primary/15">
                 <Text className="text-[10px] font-bold text-primary">
-                  Beginner Path
+                  Beginner path
                 </Text>
               </View>
             </View>
@@ -291,20 +281,9 @@ export default function CompleteScreen() {
           accessibilityRole="button"
           accessibilityLabel="Preview account setup"
           accessibilityHint="Opens a local UI preview; account creation and progress saving are not connected."
-          style={({ pressed }) => [
-            {
-              shadowColor: "#15803d",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.2,
-              shadowRadius: 10,
-              elevation: 4,
-              opacity: pressed ? 0.92 : 1,
-              transform: [{ scale: pressed ? 0.985 : 1 }],
-            },
-          ]}
-          className="min-h-[54px] w-full flex-row items-center justify-center gap-2 rounded-2xl bg-primary py-3.5"
+          className="min-h-[54px] w-full flex-row items-center justify-center gap-2 rounded-xl bg-primary py-3.5 active:opacity-80"
         >
-          <Text className="font-label-lg text-base font-bold text-white tracking-wide">
+          <Text className="font-label-lg text-base font-semibold text-white">
             Preview account setup
           </Text>
           <ArrowRight color="#ffffff" size={19} strokeWidth={2.6} />

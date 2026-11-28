@@ -27,11 +27,11 @@ export function WhyArabicMasterSection() {
       <div className="mx-auto max-w-container-max px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12">
           <div className="lg:col-span-5">
-            <span className="inline-flex items-center rounded-full bg-primary-light px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary-dark">
+            <span className="inline-flex items-center rounded-md bg-primary-light px-2.5 py-1 text-sm font-medium text-primary-dark">
               Why Arabic Master?
             </span>
-            <h2 className="mt-3 font-heading text-2xl font-bold tracking-tight text-text sm:text-3xl">
-              Learn a phrase, then see how people use it.
+            <h2 className="mt-3 font-heading text-2xl font-semibold tracking-tight text-text sm:text-3xl">
+              Learn a phrase, then see how people use it
             </h2>
             <p className="mt-3 text-base leading-relaxed text-text-secondary">
               Each lesson connects vocabulary to sentences and short dialogues,
@@ -65,7 +65,7 @@ export function WhyArabicMasterSection() {
                     <Icon className="h-5 w-5" aria-hidden="true" />
                   </span>
                   <div>
-                    <h3 className="font-heading text-base font-bold text-text">
+                    <h3 className="font-heading text-base font-semibold text-text">
                       {item.title}
                     </h3>
                     <p className="mt-1 text-sm leading-relaxed text-text-secondary">

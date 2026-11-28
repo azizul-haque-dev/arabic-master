@@ -7,8 +7,6 @@ import Svg, { Circle } from "react-native-svg";
 
 import { useTabBarClearance } from "@/components/navigation/FloatingTabBar";
 
-export const SCREEN_BACKGROUND = "#f6f8f7";
-
 /** Light selection haptic. Failures (e.g. web, unsupported device) are ignored. */
 export function tapFeedback() {
   Haptics.selectionAsync().catch(() => undefined);
@@ -19,11 +17,7 @@ export function TabScreen({ children }: { children: ReactNode }) {
   const clearance = useTabBarClearance();
 
   return (
-    <SafeAreaView
-      className="flex-1"
-      style={{ backgroundColor: SCREEN_BACKGROUND }}
-      edges={["top"]}
-    >
+    <SafeAreaView className="flex-1 bg-background-soft" edges={["top"]}>
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: clearance }}

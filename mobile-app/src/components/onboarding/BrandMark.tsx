@@ -29,7 +29,7 @@ export function BrandMark({ variant = "logo", size }: BrandMarkProps) {
           style={{ width: boxSize, height: boxSize }}
           className="relative items-center justify-center rounded-2xl bg-primary shadow-sm"
         >
-          <Text className="font-arabic-display text-2xl font-bold tracking-wider text-on-primary">
+          <Text className="font-arabic-display text-2xl font-semibold text-on-primary">
             ا ب ت
           </Text>
           {/* Subtle speech tail */}

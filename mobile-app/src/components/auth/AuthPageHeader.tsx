@@ -94,8 +94,8 @@ export function AuthPageHeader({
       </View>
 
       <View className="items-center px-2 pt-5">
-        <Text className="font-label-sm text-[10px] font-bold uppercase tracking-[1.4px] text-primary">
-          {isLogin ? "SIGN-IN PREVIEW" : "ACCOUNT SETUP PREVIEW"}
+        <Text className="font-label-sm text-xs font-medium text-primary">
+          {isLogin ? "Sign-in preview" : "Account setup preview"}
         </Text>
         <Text className="mt-2 text-center font-headline-md text-[27px] font-bold leading-tight tracking-tight text-on-surface">
           {isLogin ? "Welcome back" : "Start speaking Arabic"}

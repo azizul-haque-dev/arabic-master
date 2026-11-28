@@ -86,12 +86,12 @@ async function ProfileContent() {
                     System Administrator
                   </span>
                 ) : user.role === "CONTENT_MANAGER" ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-600">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                     <Shield className="h-3.5 w-3.5" aria-hidden="true" />
                     Content Manager
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-neutral-bg px-3 py-1 text-xs font-semibold text-text-secondary">
                     <CheckCircle className="h-3.5 w-3.5" aria-hidden="true" />
                     Learner
                   </span>

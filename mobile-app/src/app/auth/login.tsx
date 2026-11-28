@@ -365,7 +365,7 @@ export default function LoginScreen() {
                     </View>
                   ) : (
                     <View className="flex-row items-center gap-2">
-                      <Text className="font-label-lg text-base font-bold text-white tracking-wide">
+                      <Text className="font-label-lg text-base font-semibold text-white">
                         Log In
                       </Text>
                       <ArrowRight color="#ffffff" size={18} strokeWidth={2.6} />
@@ -458,7 +458,7 @@ export default function LoginScreen() {
               {/* Create Account Row */}
               <View className="flex-row items-center">
                 <Text className="font-body-sm text-sm text-on-surface-variant">
-                  Don't have an account?{" "}
+                  Don&apos;t have an account?{" "}
                 </Text>
                 <Pressable
                   onPress={() => {

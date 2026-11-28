@@ -76,6 +76,15 @@ module.exports = {
         "label-sm": ["PlusJakartaSans_600SemiBold", "system-ui", "sans-serif"],
         "arabic-display": ["NotoSansArabic_500Medium", "system-ui", "sans-serif"],
       },
+      // Keep utility weights within the documented 400/500/600 body scale.
+      fontWeight: {
+        normal: "400",
+        medium: "500",
+        semibold: "600",
+        bold: "600",
+        extrabold: "600",
+        black: "600",
+      },
       fontSize: {
         "headline-xl": [
           "48px",

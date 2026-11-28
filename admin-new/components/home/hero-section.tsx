@@ -23,28 +23,12 @@ const HERO_FACTS = [
   "Words, sentences, and conversations",
 ] as const;
 
-const dotPattern = {
-  backgroundImage: "radial-gradient(rgba(100, 116, 139, 0.35) 1.25px, transparent 1.25px)",
-  backgroundSize: "16px 16px",
-};
-
 export function HeroSection() {
   return (
-    <section className="relative isolate overflow-hidden bg-background py-16 sm:py-20 lg:py-24">
-      <div
-        className="pointer-events-none absolute -right-3 top-7 hidden h-56 w-52 opacity-60 sm:block"
-        style={dotPattern}
-        aria-hidden="true"
-      />
-      <div
-        className="pointer-events-none absolute -bottom-10 -left-5 hidden h-48 w-52 opacity-50 sm:block"
-        style={dotPattern}
-        aria-hidden="true"
-      />
-
-      <div className="relative mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
+    <section className="bg-background-soft py-16 sm:py-20 lg:py-24">
+      <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
         <h1 className="mx-auto max-w-4xl font-heading text-4xl font-bold leading-[1.08] tracking-tight text-text sm:text-5xl lg:text-6xl">
-          Learn <span className="text-primary">spoken Arabic</span> for
+          Learn <span className="text-primary-dark">spoken Arabic</span> for
           <span className="block">daily life across the Gulf.</span>
         </h1>
 

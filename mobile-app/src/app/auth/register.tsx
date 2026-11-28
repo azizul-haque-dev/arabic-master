@@ -3,7 +3,6 @@ import {
   AlertCircle,
   ArrowRight,
   Check,
-  CheckCircle2,
   Eye,
   EyeOff,
   Lock,
@@ -558,7 +557,7 @@ export default function RegisterScreen() {
                     </View>
                   ) : (
                     <View className="flex-row items-center gap-2">
-                      <Text className="font-label-lg text-base font-bold text-white tracking-wide">
+                      <Text className="font-label-lg text-base font-semibold text-white">
                         Create Account
                       </Text>
                       <ArrowRight color="#ffffff" size={18} strokeWidth={2.6} />

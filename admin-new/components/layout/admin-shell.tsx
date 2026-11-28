@@ -7,14 +7,20 @@ import { RoleProvider } from "@/lib/role-context";
 import { AdminSidebarContent } from "@/components/layout/admin-sidebar";
 import { AdminTopbar } from "@/components/layout/admin-topbar";
 
-export function AdminShell({ role = "ADMIN", children }: { role?: AdminRole; children: React.ReactNode; }) {
+export function AdminShell({
+  role = "ADMIN",
+  children,
+}: {
+  role?: AdminRole;
+  children: React.ReactNode;
+}) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
     <RoleProvider initialRole={role}>
-      <div className="admin-theme min-h-screen bg-background lg:flex">
+      <div className="admin-theme min-h-screen bg-background text-text lg:flex">
         {/* Desktop sidebar */}
-        <aside className="hidden w-64 shrink-0 border-r border-white/10 bg-surface lg:block">
+        <aside className="hidden w-64 shrink-0 border-r border-border bg-surface lg:sticky lg:top-0 lg:block lg:h-screen">
           <AdminSidebarContent />
         </aside>
 
@@ -26,11 +32,11 @@ export function AdminShell({ role = "ADMIN", children }: { role?: AdminRole; chi
               onClick={() => setDrawerOpen(false)}
               aria-hidden="true"
             />
-            <div className="absolute left-0 top-0 h-full w-72 bg-surface shadow-xl">
+            <div className="absolute inset-y-0 left-0 flex h-full w-72 max-w-[85vw] flex-col border-r border-border bg-surface shadow-xl">
               <button
                 type="button"
                 onClick={() => setDrawerOpen(false)}
-                className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full text-white/65 transition-colors hover:bg-[#343052] hover:text-white"
+                className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-neutral-bg hover:text-text"
                 aria-label="Close navigation"
               >
                 <X className="h-4 w-4" />
@@ -41,8 +47,10 @@ export function AdminShell({ role = "ADMIN", children }: { role?: AdminRole; chi
         ) : null}
 
         <div className="flex min-h-screen flex-1 flex-col">
-          <AdminTopbar onOpenSidebar={() => setDrawerOpen(true)} />
-          <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+          <AdminTopbar
+            onOpenSidebar={() => setDrawerOpen(true)}
+          />
+          <main className="flex-1 bg-background px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
             <div className="mx-auto max-w-[1280px]">{children}</div>
           </main>
         </div>

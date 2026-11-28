@@ -4,10 +4,10 @@ export function BrandLogo() {
   return (
     <Link
       href="/"
-      className="flex min-w-0 items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+      className="flex min-w-0 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
     >
       <span
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-light text-primary shadow-xs ring-1 ring-primary/15"
+        className="flex h-9 w-9 shrink-0 items-center justify-center text-primary"
         aria-hidden="true"
       >
         <svg
@@ -45,11 +45,11 @@ export function BrandLogo() {
         </svg>
       </span>
       <span className="min-w-0">
-        <span className="block truncate font-heading text-lg font-bold leading-none tracking-tight text-text">
+        <span className="block truncate font-heading text-lg font-semibold leading-none text-text">
           Arabic Master
         </span>
-        <span className="mt-1 block text-[10px] font-bold uppercase tracking-[0.16em] text-primary">
-          SPOKEN ARABIC
+        <span className="mt-1 block text-xs font-medium text-text-muted">
+          Spoken Arabic
         </span>
       </span>
     </Link>

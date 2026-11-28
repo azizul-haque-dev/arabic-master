@@ -1,9 +1,7 @@
-import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import {
   ArrowLeft,
-  ArrowRight,
   BookOpen,
   Check,
   ChevronLeft,
@@ -12,7 +10,6 @@ import {
   Crown,
   Eye,
   EyeOff,
-  Globe,
   Heart,
   Layers,
   Lock,
@@ -92,103 +89,103 @@ const SECTION_METADATA: Record<
   // Words
   "words-greetings": {
     arabic: "تَحِيَّات",
-    iconBg: "bg-amber-100",
-    iconColor: "#d97706",
-    chipBg: "bg-amber-50",
-    chipText: "text-amber-800",
+    iconBg: "bg-primary-subtle",
+    iconColor: "#15803d",
+    chipBg: "bg-primary-subtle",
+    chipText: "text-primary-strong",
   },
   "words-numbers": {
     arabic: "أَرْقَام",
-    iconBg: "bg-emerald-100",
-    iconColor: "#059669",
-    chipBg: "bg-emerald-50",
-    chipText: "text-emerald-800",
+    iconBg: "bg-primary-subtle",
+    iconColor: "#15803d",
+    chipBg: "bg-primary-subtle",
+    chipText: "text-primary-strong",
   },
   "words-food": {
     arabic: "طَعَام",
-    iconBg: "bg-orange-100",
-    iconColor: "#ea580c",
-    chipBg: "bg-orange-50",
-    chipText: "text-orange-800",
+    iconBg: "bg-primary-subtle",
+    iconColor: "#15803d",
+    chipBg: "bg-primary-subtle",
+    chipText: "text-primary-strong",
   },
   "words-shopping": {
     arabic: "تَسَوُّق",
-    iconBg: "bg-teal-100",
-    iconColor: "#0d9488",
-    chipBg: "bg-teal-50",
-    chipText: "text-teal-800",
+    iconBg: "bg-primary-subtle",
+    iconColor: "#15803d",
+    chipBg: "bg-primary-subtle",
+    chipText: "text-primary-strong",
   },
   "words-transport": {
     arabic: "مُوَاصَلَات",
-    iconBg: "bg-sky-100",
-    iconColor: "#0284c7",
-    chipBg: "bg-sky-50",
-    chipText: "text-sky-800",
+    iconBg: "bg-primary-subtle",
+    iconColor: "#15803d",
+    chipBg: "bg-primary-subtle",
+    chipText: "text-primary-strong",
   },
   // Sentences
   "sentences-greetings": {
     arabic: "تَحِيَّات",
-    iconBg: "bg-amber-100",
-    iconColor: "#d97706",
-    chipBg: "bg-amber-50",
-    chipText: "text-amber-800",
+    iconBg: "bg-primary-subtle",
+    iconColor: "#15803d",
+    chipBg: "bg-primary-subtle",
+    chipText: "text-primary-strong",
   },
   "sentences-introductions": {
     arabic: "تَعَارُف",
-    iconBg: "bg-purple-100",
-    iconColor: "#7c3aed",
-    chipBg: "bg-purple-50",
-    chipText: "text-purple-800",
+    iconBg: "bg-primary-subtle",
+    iconColor: "#15803d",
+    chipBg: "bg-primary-subtle",
+    chipText: "text-primary-strong",
   },
   "sentences-food": {
     arabic: "طَعَام",
-    iconBg: "bg-orange-100",
-    iconColor: "#ea580c",
-    chipBg: "bg-orange-50",
-    chipText: "text-orange-800",
+    iconBg: "bg-primary-subtle",
+    iconColor: "#15803d",
+    chipBg: "bg-primary-subtle",
+    chipText: "text-primary-strong",
   },
   "sentences-shopping": {
     arabic: "تَسَوُّق",
-    iconBg: "bg-teal-100",
-    iconColor: "#0d9488",
-    chipBg: "bg-teal-50",
-    chipText: "text-teal-800",
+    iconBg: "bg-primary-subtle",
+    iconColor: "#15803d",
+    chipBg: "bg-primary-subtle",
+    chipText: "text-primary-strong",
   },
   "sentences-transport": {
     arabic: "مُوَاصَلَات",
-    iconBg: "bg-sky-100",
-    iconColor: "#0284c7",
-    chipBg: "bg-sky-50",
-    chipText: "text-sky-800",
+    iconBg: "bg-primary-subtle",
+    iconColor: "#15803d",
+    chipBg: "bg-primary-subtle",
+    chipText: "text-primary-strong",
   },
   // Conversations
   "conversations-greetings": {
     arabic: "تَعَارُف",
-    iconBg: "bg-indigo-100",
-    iconColor: "#4f46e5",
-    chipBg: "bg-indigo-50",
-    chipText: "text-indigo-800",
+    iconBg: "bg-primary-subtle",
+    iconColor: "#15803d",
+    chipBg: "bg-primary-subtle",
+    chipText: "text-primary-strong",
   },
   "conversations-shopping": {
     arabic: "فِي السُّوق",
-    iconBg: "bg-teal-100",
-    iconColor: "#0d9488",
-    chipBg: "bg-teal-50",
-    chipText: "text-teal-800",
+    iconBg: "bg-primary-subtle",
+    iconColor: "#15803d",
+    chipBg: "bg-primary-subtle",
+    chipText: "text-primary-strong",
   },
   "conversations-restaurant": {
     arabic: "فِي المَقْهَى",
-    iconBg: "bg-rose-100",
-    iconColor: "#e11d48",
-    chipBg: "bg-rose-50",
-    chipText: "text-rose-800",
+    iconBg: "bg-primary-subtle",
+    iconColor: "#15803d",
+    chipBg: "bg-primary-subtle",
+    chipText: "text-primary-strong",
   },
   "conversations-travel": {
     arabic: "السَّفَر",
-    iconBg: "bg-blue-100",
-    iconColor: "#2563eb",
-    chipBg: "bg-blue-50",
-    chipText: "text-blue-800",
+    iconBg: "bg-primary-subtle",
+    iconColor: "#15803d",
+    chipBg: "bg-primary-subtle",
+    chipText: "text-primary-strong",
   },
 };
 
@@ -479,7 +476,7 @@ export default function LearnScreen() {
           <View className="flex-row items-center justify-between min-h-[36px]">
             <View className="h-9 justify-center">
               <Text
-                className="font-headline-sm text-[26px] font-bold tracking-tight text-on-surface"
+                className="font-headline-sm text-[26px] font-semibold tracking-tight text-on-surface"
                 style={{ includeFontPadding: false }}
               >
                 Learn Arabic
@@ -499,10 +496,10 @@ export default function LearnScreen() {
                 hitSlop={6}
                 accessibilityRole="button"
                 accessibilityLabel={`${learner.hearts} of ${learner.maxHearts} hearts`}
-                className="h-9 flex-row items-center justify-center gap-1.5 rounded-full border border-rose-100 bg-rose-50 px-3 active:bg-rose-100"
+                className="h-9 flex-row items-center justify-center gap-1.5 rounded-full border border-error/20 bg-error-container px-3 active:opacity-80"
               >
-                <Heart size={15} color="#e11d48" fill="#e11d48" />
-                <Text className="font-label-md text-sm font-bold text-rose-700">
+                <Heart size={15} color="#ba1a1a" fill="#ba1a1a" />
+                <Text className="font-label-md text-sm font-semibold text-error">
                   {learner.hearts}
                 </Text>
               </Pressable>
@@ -535,7 +532,7 @@ export default function LearnScreen() {
       {!selectedSection ? (
         <View className="gap-3">
           <View className="flex-row items-center justify-between">
-            <Text className="font-label-md text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+            <Text className="font-label-md text-sm font-medium text-on-surface-variant">
               Learning Tracks
             </Text>
             {activeSkill ? (
@@ -571,34 +568,22 @@ export default function LearnScreen() {
                   accessibilityState={{ selected }}
                   aria-selected={selected}
                   style={{ width: 162 }}
-                  className={`rounded-2xl border p-4 transition-all shadow-xs ${
+                  className={`rounded-xl border p-4 transition-colors ${
                     selected
-                      ? "border-primary bg-primary"
+                      ? "border-primary bg-primary-subtle"
                       : "border-outline-variant/70 bg-white active:bg-surface-container-low"
                   }`}
                 >
                   <View className="flex-row items-center justify-between">
-                    <View
-                      className={`h-9 w-9 items-center justify-center rounded-xl ${
-                        selected ? "bg-white/20" : "bg-primary-subtle"
-                      }`}
-                    >
+                    <View className="h-9 w-9 items-center justify-center rounded-xl bg-primary-subtle">
                       <Icon
                         size={18}
-                        color={selected ? "#ffffff" : "#15803d"}
+                        color="#15803d"
                         strokeWidth={2.4}
                       />
                     </View>
-                    <View
-                      className={`rounded-md px-2 py-0.5 ${
-                        selected ? "bg-white/20" : "bg-primary-subtle"
-                      }`}
-                    >
-                      <Text
-                        className={`font-arabic-display text-xs font-semibold ${
-                          selected ? "text-white" : "text-primary"
-                        }`}
-                      >
+                    <View className="rounded-md bg-primary-subtle px-2 py-0.5">
+                      <Text className="font-arabic-display text-xs font-semibold text-primary-strong">
                         {track.arabicTitle}
                       </Text>
                     </View>
@@ -606,48 +591,29 @@ export default function LearnScreen() {
 
                   <Text
                     numberOfLines={1}
-                    className={`mt-3 font-headline-sm text-base font-bold ${
-                      selected ? "text-white" : "text-on-surface"
+                    className={`mt-3 font-headline-sm text-base font-semibold ${
+                      selected ? "text-primary-strong" : "text-on-surface"
                     }`}
                   >
                     {track.title}
                   </Text>
 
-                  <Text
-                    numberOfLines={1}
-                    className={`mt-0.5 font-body-sm text-xs ${
-                      selected ? "text-white/80" : "text-on-surface-variant"
-                    }`}
-                  >
+                  <Text numberOfLines={1} className="mt-0.5 font-body-sm text-xs text-on-surface-variant">
                     {track.subtitle}
                   </Text>
 
                   <View className="mt-3 gap-1.5">
                     <View className="flex-row items-center justify-between">
-                      <Text
-                        className={`font-label-sm text-xs font-medium ${
-                          selected ? "text-white/90" : "text-on-surface-variant"
-                        }`}
-                      >
+                      <Text className="font-label-sm text-xs font-medium text-on-surface-variant">
                         Progress
                       </Text>
-                      <Text
-                        className={`font-label-sm text-xs font-bold ${
-                          selected ? "text-white" : "text-primary-strong"
-                        }`}
-                      >
+                      <Text className="font-label-sm text-xs font-semibold text-primary-strong">
                         {progressPct}%
                       </Text>
                     </View>
-                    <View
-                      className={`h-2 w-full overflow-hidden rounded-full ${
-                        selected ? "bg-white/30" : "bg-surface-container"
-                      }`}
-                    >
+                    <View className="h-2 w-full overflow-hidden rounded-full bg-surface-container">
                       <View
-                        className={`h-full rounded-full ${
-                          selected ? "bg-white" : "bg-primary"
-                        }`}
+                        className="h-full rounded-full bg-primary"
                         style={{ width: `${progressPct}%` }}
                       />
                     </View>
@@ -741,7 +707,7 @@ export default function LearnScreen() {
                     hitSlop={10}
                     accessibilityRole="button"
                     accessibilityLabel="Back to all topics"
-                    className="mt-0.5 h-11 w-11 items-center justify-center rounded-full border border-outline-variant/70 bg-white active:bg-surface-container-low shadow-2xs"
+                    className="mt-0.5 h-11 w-11 items-center justify-center rounded-full border border-outline-variant/70 bg-white active:bg-surface-container-low"
                   >
                     <ArrowLeft size={19} color="#15803d" strokeWidth={2.4} />
                   </Pressable>
@@ -749,7 +715,7 @@ export default function LearnScreen() {
                   <View className="flex-1 min-w-0 pr-2">
                     <Text
                       accessibilityRole="header"
-                      className="font-headline-sm text-2xl font-bold tracking-tight text-on-surface"
+                      className="font-headline-sm text-2xl font-semibold text-on-surface"
                     >
                       {selectedSection.title}
                     </Text>
@@ -769,13 +735,8 @@ export default function LearnScreen() {
               </View>
 
               {/* Topic Progress Card */}
-              <View className="overflow-hidden rounded-3xl border border-primary/20 bg-white shadow-xs">
-                <LinearGradient
-                  colors={["#f0fdf4", "#ffffff"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={{ padding: 20 }}
-                >
+              <View className="overflow-hidden rounded-2xl border border-outline-variant bg-white">
+                <View className="p-5">
                   <View className="flex-row items-center gap-4">
                     <ProgressRing
                       value={
@@ -788,7 +749,7 @@ export default function LearnScreen() {
                       strokeWidth={5}
                       color="#15803d"
                     >
-                      <Text className="font-label-sm text-xs font-bold text-primary-strong">
+                      <Text className="font-label-sm text-xs font-semibold text-primary-strong">
                         {Math.round(
                           (detailLessons.filter((l) => l.status === "done")
                             .length /
@@ -801,15 +762,15 @@ export default function LearnScreen() {
 
                     <View className="flex-1 gap-1.5">
                       <View className="flex-row items-center justify-between">
-                        <Text className="font-label-md text-base font-bold text-on-surface">
-                          Topic Progress
+                        <Text className="font-label-md text-base font-semibold text-on-surface">
+                          Topic progress
                         </Text>
                         <Text className="font-label-sm text-xs font-semibold text-primary-strong">
                           {
                             detailLessons.filter((l) => l.status === "done")
                               .length
                           }{" "}
-                          of {detailLessons.length} Completed
+                          of {detailLessons.length} completed
                         </Text>
                       </View>
 
@@ -826,7 +787,7 @@ export default function LearnScreen() {
                       />
                     </View>
                   </View>
-                </LinearGradient>
+                </View>
               </View>
 
               {/* Unified Lesson Roadmap List (NO Beginner/Elementary tabs; direct progression with Basic 1, Basic 2...) */}
@@ -870,21 +831,16 @@ export default function LearnScreen() {
               onPress={() => openCurrentLesson(currentLesson)}
               accessibilityRole="button"
               accessibilityLabel={`Resume lesson: ${currentLesson.lesson.title}`}
-              className="overflow-hidden rounded-3xl border border-primary/30 bg-white active:scale-[0.99] shadow-xs"
+              className="overflow-hidden rounded-2xl border border-outline-variant bg-white"
             >
-              <LinearGradient
-                colors={["#f0fdf4", "#ffffff"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={{ padding: 22 }}
-              >
+              <View className="p-5">
                 <View style={{ gap: 14 }}>
                   {/* Top Tag Row */}
                   <View className="flex-row items-center justify-between">
                     <View className="flex-row items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5">
                       <View className="h-2 w-2 rounded-full bg-primary" />
-                      <Text className="font-label-sm text-xs font-bold uppercase tracking-wider text-primary-strong">
-                        Continue Learning
+                      <Text className="font-label-sm text-sm font-medium text-primary-strong">
+                        Continue learning
                       </Text>
                     </View>
 
@@ -897,7 +853,7 @@ export default function LearnScreen() {
 
                   {/* Title & Section */}
                   <View style={{ gap: 4 }}>
-                    <Text className="font-headline-sm text-xl font-bold text-on-surface">
+                    <Text className="font-headline-sm text-xl font-semibold text-on-surface">
                       {currentLesson.lesson.title}
                     </Text>
                     <Text className="font-body-sm text-sm text-on-surface-variant">
@@ -910,7 +866,7 @@ export default function LearnScreen() {
                   <View style={{ gap: 6 }}>
                     <View className="flex-row items-center justify-between">
                       <Text className="font-label-sm text-xs font-semibold text-primary-strong">
-                        Lesson Progress
+                        Lesson progress
                       </Text>
                       <Text className="font-label-sm text-xs font-medium text-on-surface-variant">
                         {Math.round(
@@ -935,13 +891,13 @@ export default function LearnScreen() {
                   {/* Bottom Action Row */}
                   <View className="flex-row items-center justify-between pt-1">
                     <View className="flex-row items-center gap-1.5">
-                      <Zap size={16} color="#d97706" />
+                      <Zap size={16} color="#b45309" />
                       <Text className="font-label-sm text-xs font-medium text-on-surface-variant">
-                        +20 XP upon completion
+                        +20 XP on completion
                       </Text>
                     </View>
 
-                    <View className="flex-row items-center gap-1.5 rounded-full bg-primary px-4 py-2.5 shadow-xs">
+                    <View className="flex-row items-center gap-1.5 rounded-lg bg-primary px-4 py-2.5">
                       <Play size={14} color="#ffffff" fill="#ffffff" />
                       <Text className="font-label-md text-sm font-bold text-white">
                         Resume
@@ -949,13 +905,13 @@ export default function LearnScreen() {
                     </View>
                   </View>
                 </View>
-              </LinearGradient>
+              </View>
             </Pressable>
           ) : null}
 
           {/* 5. Modern Search & Quick Filter Bar */}
           <View className="gap-3">
-            <View className="h-13 flex-row items-center rounded-2xl border border-outline-variant/70 bg-white px-4 shadow-2xs">
+            <View className="h-13 flex-row items-center rounded-xl border border-outline-variant/70 bg-white px-4">
               <Search
                 size={19}
                 color={searchFocused ? "#15803d" : "#6b7280"}
@@ -1012,7 +968,7 @@ export default function LearnScreen() {
                   { id: "in-progress", label: "In Progress" },
                   { id: "completed", label: "Completed" },
                   { id: "free", label: "Free" },
-                  { id: "premium", label: "Pro 👑" },
+                  { id: "premium", label: "Pro" },
                 ] as const
               ).map((chip) => {
                 const active = filter === chip.id;
@@ -1075,18 +1031,13 @@ export default function LearnScreen() {
               }}
               accessibilityRole="button"
               accessibilityLabel="View full Pro curriculum"
-              className="overflow-hidden rounded-3xl border border-secondary/40 bg-white shadow-xs active:scale-[0.99]"
+              className="overflow-hidden rounded-2xl border border-outline-variant bg-white"
             >
-              <LinearGradient
-                colors={["#fef3c7", "#fffbeb"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={{ paddingHorizontal: 20, paddingVertical: 18 }}
-              >
+              <View className="bg-secondary-subtle px-5 py-4">
                 <View className="flex-row items-center justify-between gap-4">
                   {/* Left icon and text container with flex-1 and generous right padding */}
                   <View className="flex-1 min-w-0 flex-row items-center gap-3.5 pr-3">
-                    <View className="h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 flex-shrink-0 shadow-xs">
+                    <View className="h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-secondary">
                       <Crown size={22} color="#ffffff" strokeWidth={2.4} />
                     </View>
                     <View className="flex-1 min-w-0 gap-1">
@@ -1103,11 +1054,11 @@ export default function LearnScreen() {
                   </View>
 
                   {/* Right circular chevron pill - never touching text */}
-                  <View className="h-10 w-10 items-center justify-center rounded-full bg-amber-200/80 flex-shrink-0">
-                    <ChevronRight size={18} color="#b45309" strokeWidth={2.4} />
+                  <View className="h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white/70">
+                    <ChevronRight size={18} color="#737373" strokeWidth={2} />
                   </View>
                 </View>
-              </LinearGradient>
+              </View>
             </Pressable>
           ) : null}
 
@@ -1168,7 +1119,7 @@ function ModernSectionCard({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`Open topic ${section.title}`}
-      className="overflow-hidden rounded-3xl border border-outline-variant/70 bg-white p-5 active:scale-[0.99] active:bg-surface-container-low shadow-xs"
+      className="overflow-hidden rounded-2xl border border-outline-variant/70 bg-white p-5 active:bg-surface-container-low"
     >
       <View className="flex-row items-start gap-4">
         <View
@@ -1181,7 +1132,7 @@ function ModernSectionCard({
           <View className="flex-row items-center justify-between">
             <Text
               numberOfLines={1}
-              className="font-headline-sm text-lg font-bold text-on-surface"
+              className="font-headline-sm text-lg font-semibold text-on-surface"
             >
               {section.title}
             </Text>
@@ -1257,9 +1208,9 @@ function RoadmapLessonCard({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`${stageLabel}: ${lesson.title}, ${lesson.status}`}
-      className={`rounded-3xl border p-5 transition-all shadow-xs ${
+      className={`rounded-2xl border p-5 transition-colors ${
         isCurrent
-          ? "border-2 border-primary bg-white shadow-sm"
+          ? "border-primary bg-primary-subtle"
           : isDone
             ? "border-outline-variant/70 bg-white"
             : "border-outline-variant/40 bg-surface-container-low/60 opacity-90"
@@ -1293,8 +1244,8 @@ function RoadmapLessonCard({
         {/* Status Indicator Chip */}
         <View className="flex-row items-center gap-2">
           {isDone ? (
-            <View className="flex-row items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 border border-emerald-200">
-              <Text className="font-label-sm text-[11px] font-bold text-emerald-700">
+            <View className="flex-row items-center gap-1.5 rounded-full border border-success/20 bg-success-container px-2.5 py-1">
+              <Text className="font-label-sm text-[11px] font-semibold text-success">
                 Completed
               </Text>
             </View>
@@ -1306,7 +1257,7 @@ function RoadmapLessonCard({
               </Text>
             </View>
           ) : isPro ? (
-            <View className="flex-row items-center gap-1 rounded-full bg-secondary-subtle px-2.5 py-1 border border-amber-200">
+            <View className="flex-row items-center gap-1 rounded-full border border-secondary/20 bg-secondary-subtle px-2.5 py-1">
               <Crown size={12} color="#b45309" strokeWidth={2.4} />
               <Text className="font-label-sm text-[11px] font-bold text-on-secondary-subtle">
                 PRO
@@ -1348,9 +1299,9 @@ function RoadmapLessonCard({
             </Text>
           </View>
 
-          <View className="flex-row items-center gap-1 rounded-lg bg-amber-50 px-2.5 py-1 border border-amber-200/50">
-            <Zap size={13} color="#d97706" />
-            <Text className="font-label-sm text-xs font-semibold text-amber-800">
+          <View className="flex-row items-center gap-1 rounded-lg border border-secondary/20 bg-secondary-subtle px-2.5 py-1">
+            <Zap size={13} color="#b45309" />
+            <Text className="font-label-sm text-xs font-semibold text-on-secondary-subtle">
               +20 XP
             </Text>
           </View>
@@ -1360,10 +1311,10 @@ function RoadmapLessonCard({
       {/* 3. Bottom Action CTA: Breathable, dedicated, never crowded */}
       <View className="mt-4 border-t border-outline-variant/30 pt-3.5">
         {isCurrent ? (
-          <View className="flex-row items-center justify-center gap-2 rounded-2xl bg-primary py-3 px-4 shadow-xs">
+          <View className="flex-row items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3">
             <Play size={14} color="#ffffff" fill="#ffffff" />
             <Text className="font-label-md text-sm font-bold text-white">
-              Start Lesson
+              Start lesson
             </Text>
           </View>
         ) : isDone ? (
@@ -1479,19 +1430,19 @@ function WordSentenceExperience({
 
   if (isComplete) {
     return (
-      <View className="items-center gap-4 rounded-3xl border border-primary/20 bg-white p-6 shadow-sm">
-        <View className="h-16 w-16 items-center justify-center rounded-full bg-amber-100">
-          <Trophy size={32} color="#d97706" strokeWidth={2.2} />
+      <View className="items-center gap-4 rounded-2xl border border-outline-variant bg-white p-6">
+        <View className="h-16 w-16 items-center justify-center rounded-full bg-secondary-subtle">
+          <Trophy size={32} color="#b45309" strokeWidth={2.2} />
         </View>
 
         <View className="items-center gap-1.5">
-          <View className="rounded-full bg-amber-50 px-3.5 py-1">
-            <Text className="font-label-sm text-xs font-bold text-amber-700">
-              +20 XP EARNED ⭐
+          <View className="rounded-full bg-secondary-subtle px-3.5 py-1">
+            <Text className="font-label-sm text-xs font-medium text-on-secondary-subtle">
+              +20 XP earned
             </Text>
           </View>
-          <Text className="mt-1 font-headline-sm text-2xl font-bold text-on-surface">
-            MashaAllah! Complete!
+          <Text className="mt-1 font-headline-sm text-2xl font-semibold text-on-surface">
+            Lesson complete
           </Text>
           <Text className="text-center font-body-sm text-sm leading-6 text-on-surface-variant">
             You successfully completed all {itemCount} {itemKind} items in{" "}
@@ -1507,7 +1458,7 @@ function WordSentenceExperience({
           >
             <RotateCcw size={18} color="#15803d" />
             <Text className="font-label-md text-base font-bold text-primary-strong">
-              Review Again
+              Review again
             </Text>
           </Pressable>
 
@@ -1517,7 +1468,7 @@ function WordSentenceExperience({
             className="min-h-12 items-center justify-center rounded-full bg-primary px-4 active:bg-primary-strong"
           >
             <Text className="font-label-md text-base font-bold text-white">
-              Back to Roadmap
+              Back to roadmap
             </Text>
           </Pressable>
         </View>
@@ -1619,18 +1570,13 @@ function WordSentenceExperience({
       {item ? (
         <View className="gap-4">
           {/* 2. Hero Interactive Arabic Word Card (Clean, spacious, unnested) */}
-          <View className="overflow-hidden rounded-3xl border border-outline-variant/70 bg-white shadow-xs">
-            <LinearGradient
-              colors={["#f0fdf4", "#ffffff"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 0.4 }}
-              style={{ padding: 22 }}
-            >
+          <View className="overflow-hidden rounded-2xl border border-outline-variant bg-white">
+            <View className="p-5">
               {/* Card Meta Row (NO sparkles, NO AI badge) */}
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center gap-1.5">
                   <View className="rounded-full bg-primary/10 px-3 py-1 border border-primary/20">
-                    <Text className="font-label-sm text-xs font-bold uppercase tracking-wider text-primary-strong">
+                    <Text className="font-label-sm text-sm font-medium text-primary-strong">
                       {item.wordType ||
                         (itemKind === "word" ? "Word" : "Sentence")}
                     </Text>
@@ -1650,16 +1596,16 @@ function WordSentenceExperience({
               {/* Arabic Calligraphy Center Stage (Glorious & Large) */}
               <View className="items-center py-6">
                 <Text
-                  className="text-center font-arabic-display text-[46px] font-bold leading-[72px] text-on-surface"
+                  className="text-center font-arabic-display text-[46px] font-semibold leading-[72px] text-on-surface"
                   style={{ writingDirection: "rtl" }}
                 >
                   {item.arabic}
                 </Text>
 
                 {/* Transliteration badge - fresh emerald, generous padding, never touching borders */}
-                <View className="mt-3 min-h-[42px] px-6 py-2 rounded-full bg-emerald-50 border border-emerald-200/80 items-center justify-center">
+                <View className="mt-3 min-h-[42px] items-center justify-center rounded-lg border border-primary/15 bg-primary-subtle px-6 py-2">
                   <Text
-                    className="font-label-lg text-base font-bold tracking-wide text-emerald-800"
+                    className="font-label-lg text-base font-medium text-primary-strong"
                     style={{ includeFontPadding: false }}
                   >
                     {item.transliteration}
@@ -1671,10 +1617,10 @@ function WordSentenceExperience({
                   onPress={playArabicAudio}
                   accessibilityRole="button"
                   accessibilityLabel="Listen to Arabic pronunciation"
-                  className={`mt-5 min-h-[56px] px-7 py-3.5 flex-row items-center justify-center gap-2.5 rounded-full border transition-all ${
+                  className={`mt-5 min-h-[56px] flex-row items-center justify-center gap-2.5 rounded-lg border px-7 py-3.5 transition-colors ${
                     isPlayingAudio
-                      ? "border-primary bg-primary shadow-sm"
-                      : "border-primary/30 bg-primary-subtle active:scale-95"
+                      ? "border-primary bg-primary"
+                      : "border-primary/30 bg-primary-subtle"
                   }`}
                 >
                   <Volume2
@@ -1687,14 +1633,14 @@ function WordSentenceExperience({
                       isPlayingAudio ? "text-white" : "text-primary-strong"
                     }`}
                   >
-                    {isPlayingAudio ? "Playing..." : "Listen Arabic"}
+                    {isPlayingAudio ? "Playing audio…" : "Play pronunciation"}
                   </Text>
                 </Pressable>
               </View>
 
               {/* Meaning (Direct on card, NO nested border, spacious & large) */}
               <View className="mt-4 items-center border-t border-outline-variant/30 pt-5">
-                <Text className="font-label-sm text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+                <Text className="font-label-sm text-sm font-medium text-on-surface-variant">
                   {isEn ? "Meaning" : "অর্থ"}
                 </Text>
                 <Text className="mt-1.5 text-center font-headline-sm text-2xl font-bold text-on-surface">
@@ -1707,7 +1653,7 @@ function WordSentenceExperience({
                 <View className="mt-5 rounded-2xl bg-surface-container-low/70 p-4 border border-outline-variant/40">
                   <View className="flex-row items-center gap-1.5">
                     <Compass size={15} color="#15803d" strokeWidth={2.4} />
-                    <Text className="font-label-sm text-xs font-bold uppercase tracking-wider text-primary-strong">
+                    <Text className="font-label-sm text-sm font-medium text-primary-strong">
                       {isEn ? "When to use" : "ব্যবহারের ক্ষেত্র"}
                     </Text>
                   </View>
@@ -1729,12 +1675,12 @@ function WordSentenceExperience({
                   ) : null}
                 </View>
               ) : null}
-            </LinearGradient>
+            </View>
           </View>
 
           {/* 3. Deep Dive Explorer: Segmented View for Examples & Forms */}
           {hasExtraDetails ? (
-            <View className="rounded-3xl border border-outline-variant/70 bg-white p-5 shadow-xs">
+            <View className="rounded-2xl border border-outline-variant bg-white p-5">
               {/* Segmented Tab Header */}
               <View className="flex-row items-center rounded-2xl bg-surface-container-low p-1">
                 {hasExamples ? (
@@ -1777,12 +1723,12 @@ function WordSentenceExperience({
                   >
                     <Layers
                       size={15}
-                      color={currentTab === "forms" ? "#4f46e5" : "#6b7280"}
+                      color={currentTab === "forms" ? "#15803d" : "#6b7280"}
                     />
                     <Text
                       className={`font-label-md text-sm font-bold ${
                         currentTab === "forms"
-                          ? "text-indigo-900"
+                          ? "text-primary-strong"
                           : "text-on-surface-variant"
                       }`}
                     >
@@ -1817,7 +1763,7 @@ function WordSentenceExperience({
                           className={`h-9 w-9 items-center justify-center rounded-full ${
                             playingSentenceIdx === idx
                               ? "bg-primary"
-                              : "bg-primary-subtle active:scale-95"
+                              : "bg-primary-subtle active:opacity-80"
                           }`}
                         >
                           <Volume2
@@ -1847,7 +1793,7 @@ function WordSentenceExperience({
                       className="flex-row items-center justify-between rounded-2xl border border-outline-variant/40 bg-surface-container-low/30 p-3.5"
                     >
                       <View className="gap-0.5">
-                        <Text className="font-label-sm text-xs font-bold uppercase tracking-wider text-primary-strong">
+                        <Text className="font-label-sm text-sm font-medium text-primary-strong">
                           {variant.form}
                         </Text>
                         <Text className="font-body-sm text-sm text-on-surface">
@@ -1899,14 +1845,14 @@ function WordSentenceExperience({
               accessibilityLabel={
                 itemIndex === itemCount - 1 ? "Complete Lesson" : "Next item"
               }
-              className="min-h-[58px] flex-1 flex-row items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-4 active:bg-primary-strong shadow-sm"
+              className="min-h-[58px] flex-1 flex-row items-center justify-center gap-2 rounded-xl bg-primary px-5 py-4 active:bg-primary-strong"
             >
-              <Text className="font-label-lg text-base font-bold text-white tracking-wide">
+              <Text className="font-label-lg text-base font-semibold text-white">
                 {itemIndex === itemCount - 1
-                  ? "Complete Lesson"
+                  ? "Complete lesson"
                   : itemKind === "sentence"
-                    ? "Next Sentence"
-                    : "Next Word"}
+                    ? "Next sentence"
+                    : "Next word"}
               </Text>
               <ChevronRight size={20} color="#ffffff" strokeWidth={2.4} />
             </Pressable>
@@ -2004,7 +1950,7 @@ function ConversationExperience({
                 className={`max-w-[88%] rounded-3xl p-4.5 border ${
                   isLayla
                     ? "rounded-tl-xs border-primary/20 bg-primary-subtle"
-                    : "rounded-tr-xs border-outline-variant/80 bg-white shadow-xs"
+                    : "rounded-tr-xs border-outline-variant/80 bg-white"
                 }`}
               >
                 <View className="flex-row items-center justify-between gap-3">
@@ -2047,27 +1993,27 @@ function ConversationExperience({
       </View>
 
       {/* Completed CTA */}
-      <View className="mt-4 rounded-3xl border border-primary/30 bg-white p-5 shadow-sm">
+      <View className="mt-4 rounded-2xl border border-outline-variant bg-white p-5">
         <View className="flex-row items-center gap-3">
           <View className="h-11 w-11 items-center justify-center rounded-full bg-primary">
             <Check size={22} color="#ffffff" strokeWidth={3} />
           </View>
           <View className="flex-1">
-            <Text className="font-label-lg text-base font-bold text-on-surface">
-              Conversation Reviewed
+            <Text className="font-label-lg text-base font-semibold text-on-surface">
+              Conversation reviewed
             </Text>
             <Text className="font-body-sm text-sm text-on-surface-variant">
-              Practice speaking both roles aloud to master fluency!
+              Practice speaking both roles aloud to build fluency.
             </Text>
           </View>
         </View>
 
         <Pressable
           onPress={onBack}
-          className="mt-4 min-h-12 items-center justify-center rounded-full bg-primary active:bg-primary-strong"
+          className="mt-4 min-h-12 items-center justify-center rounded-lg bg-primary active:bg-primary-strong"
         >
           <Text className="font-label-md text-sm font-bold text-white">
-            Return to Topics
+            Return to topics
           </Text>
         </Pressable>
       </View>
@@ -2119,10 +2065,10 @@ function ProLockedModal({
   onExplorePro: () => void;
 }) {
   return (
-    <View className="rounded-3xl border border-secondary/40 bg-white p-6 shadow-lg">
+    <View className="rounded-2xl border border-secondary/40 bg-white p-6">
       <View className="flex-row items-start justify-between">
-        <View className="h-13 w-13 items-center justify-center rounded-2xl bg-amber-100">
-          <Crown size={26} color="#d97706" strokeWidth={2.4} />
+        <View className="h-13 w-13 items-center justify-center rounded-2xl bg-secondary-subtle">
+          <Crown size={26} color="#b45309" strokeWidth={2.4} />
         </View>
         <Pressable
           onPress={onClose}
@@ -2133,7 +2079,7 @@ function ProLockedModal({
         </Pressable>
       </View>
 
-      <Text className="mt-3 font-headline-sm text-xl font-bold text-on-surface">
+      <Text className="mt-3 font-headline-sm text-xl font-semibold text-on-surface">
         Unlock with Arabic Master Pro
       </Text>
       <Text className="mt-1.5 font-body-sm text-sm leading-6 text-on-surface-variant">
@@ -2144,9 +2090,9 @@ function ProLockedModal({
       <View className="mt-5 gap-2.5">
         <Pressable
           onPress={onExplorePro}
-          className="min-h-12 items-center justify-center rounded-full bg-amber-500 px-4 active:bg-amber-600 shadow-xs"
+          className="min-h-12 items-center justify-center rounded-lg bg-secondary px-4 active:bg-secondary/90"
         >
-          <Text className="font-label-md text-base font-bold text-white">
+          <Text className="font-label-md text-base font-semibold text-on-secondary">
             Explore Pro Curriculum
           </Text>
         </Pressable>
@@ -2156,7 +2102,7 @@ function ProLockedModal({
           className="min-h-11 items-center justify-center rounded-full border border-outline-variant/70 bg-white active:bg-surface-container-low"
         >
           <Text className="font-label-md text-sm font-bold text-on-surface-variant">
-            Maybe Later
+            Maybe later
           </Text>
         </Pressable>
       </View>

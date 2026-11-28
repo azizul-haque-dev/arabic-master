@@ -109,7 +109,7 @@ export function OnboardingLayout({
               }`}
             >
               <Text
-                className={`font-label-lg text-lg font-bold tracking-wide ${
+                className={`font-label-lg text-lg font-semibold ${
                   continueDisabled
                     ? "text-on-surface-variant"
                     : "text-white"

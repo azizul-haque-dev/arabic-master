@@ -76,8 +76,8 @@ export function MobileNavigation({ user, overview }: MobileNavigationProps) {
     cn(
       "flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
       active
-        ? "bg-primary/15 text-primary-light"
-        : "text-white/80 hover:bg-[#302d48] hover:text-white",
+        ? "bg-primary-light text-primary-dark"
+        : "text-text-secondary hover:bg-neutral-bg hover:text-text",
     );
 
   return (
@@ -91,8 +91,8 @@ export function MobileNavigation({ user, overview }: MobileNavigationProps) {
         className={cn(
           "flex h-10 w-10 items-center justify-center rounded-xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
           open
-            ? "border-primary-light/25 bg-primary/15 text-primary-light"
-            : "border-white/10 bg-surface text-white hover:bg-[#302d48]",
+            ? "border-primary/20 bg-primary-light text-primary-dark"
+            : "border-border bg-white text-text-secondary hover:bg-neutral-bg",
         )}
       >
         {open ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
@@ -101,7 +101,7 @@ export function MobileNavigation({ user, overview }: MobileNavigationProps) {
       {open ? (
         <div
           id="mobile-nav-panel"
-          className="scrollbar-hide absolute right-0 top-[calc(100%+0.75rem)] z-50 max-h-[calc(100dvh-6rem)] w-[calc(100vw-1.5rem)] max-w-sm overscroll-contain overflow-y-auto rounded-2xl border border-white/10 bg-surface p-2.5 shadow-xl"
+          className="scrollbar-hide absolute right-0 top-[calc(100%+0.75rem)] z-50 max-h-[calc(100dvh-6rem)] w-[calc(100vw-1.5rem)] max-w-sm overscroll-contain overflow-y-auto rounded-xl border border-border bg-white p-2.5 shadow-lg"
         >
           <nav aria-label="Mobile navigation" className="flex flex-col gap-1">
             {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
@@ -114,7 +114,7 @@ export function MobileNavigation({ user, overview }: MobileNavigationProps) {
                   onClick={() => setOpen(false)}
                   className={linkClass(active)}
                 >
-                  <Icon className={cn("h-4 w-4", !active && "text-primary-light")} aria-hidden="true" />
+                  <Icon className={cn("h-4 w-4", !active && "text-text-muted")} aria-hidden="true" />
                   {label}
                 </Link>
               );
@@ -132,22 +132,22 @@ export function MobileNavigation({ user, overview }: MobileNavigationProps) {
 
           {user && identity ? (
             <>
-              <div className="my-2 border-t border-white/10" />
-              <div className="flex items-center gap-3 rounded-xl bg-[#302d48] p-3">
+              <div className="my-2 border-t border-border" />
+              <div className="flex items-center gap-3 rounded-lg bg-neutral-bg p-3">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white">
                   {identity.initials}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-white">
-                    Hello, {identity.firstName}
+                  <p className="truncate text-sm font-semibold text-text">
+                    {identity.fullName}
                   </p>
-                  <p className="truncate text-xs text-white/60">{user.email}</p>
+                  <p className="truncate text-xs text-text-muted">{user.email}</p>
                 </div>
                 <span
                   className={cn(
-                    "rounded-full px-2 py-1 text-[10px] font-semibold",
+                    "rounded-full px-2 py-1 text-xs font-medium",
                     plan === "PRO"
-                      ? "bg-amber-300/10 text-amber-200"
+                      ? "bg-amber-50 text-amber-800"
                       : "bg-primary-light text-primary-dark",
                   )}
                 >
@@ -162,7 +162,7 @@ export function MobileNavigation({ user, overview }: MobileNavigationProps) {
                     onClick={() => setOpen(false)}
                     className={linkClass(false)}
                   >
-                    <LayoutDashboard className="h-4 w-4 text-primary-light" aria-hidden="true" />
+                    <LayoutDashboard className="h-4 w-4 text-text-muted" aria-hidden="true" />
                     Admin Dashboard
                   </Link>
                 ) : null}
@@ -171,14 +171,14 @@ export function MobileNavigation({ user, overview }: MobileNavigationProps) {
                   onClick={() => setOpen(false)}
                   className={linkClass(false)}
                 >
-                  <UserIcon className="h-4 w-4 text-white/60" aria-hidden="true" />
+                  <UserIcon className="h-4 w-4 text-text-muted" aria-hidden="true" />
                   Profile &amp; Account
                 </Link>
                 {plan === "FREE" ? (
                   <Link
                     href="/pricing"
                     onClick={() => setOpen(false)}
-                    className="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium text-primary-light transition-colors hover:bg-primary-light/10"
+                    className="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium text-primary-dark transition-colors hover:bg-primary-light"
                   >
                     <Crown className="h-4 w-4" aria-hidden="true" />
                     Upgrade to Pro
@@ -188,7 +188,7 @@ export function MobileNavigation({ user, overview }: MobileNavigationProps) {
                   type="button"
                   disabled={isPending}
                   onClick={handleLogout}
-                  className="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium text-rose-300 transition-colors hover:bg-rose-300/10 hover:text-rose-200 disabled:opacity-50"
+                  className="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium text-error transition-colors hover:bg-error-bg disabled:opacity-50"
                 >
                   <LogOut className="h-4 w-4" aria-hidden="true" />
                   {isPending ? "Logging out..." : "Log out"}
@@ -196,18 +196,18 @@ export function MobileNavigation({ user, overview }: MobileNavigationProps) {
               </div>
             </>
           ) : (
-            <div className="mt-2 flex flex-col gap-2 border-t border-white/10 pt-3">
+            <div className="mt-2 flex flex-col gap-2 border-t border-border pt-3">
               <Link
                 href="/login"
                 onClick={() => setOpen(false)}
-                className="flex min-h-11 items-center justify-center rounded-xl border border-white/10 bg-[#242239] px-4 text-sm font-semibold text-white hover:bg-[#302d48]"
+                className="flex min-h-11 items-center justify-center rounded-lg border border-border bg-white px-4 text-sm font-medium text-text hover:bg-neutral-bg"
               >
                 Login
               </Link>
               <Link
                 href="/register"
                 onClick={() => setOpen(false)}
-                className="flex min-h-11 items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-white hover:bg-[#554ce8]"
+                className="flex min-h-11 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
               >
                 Sign Up Free
               </Link>

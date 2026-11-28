@@ -106,7 +106,7 @@ export function OptionCard({
               }`}
             >
               <Text
-                className={`text-[11px] font-bold tracking-wider uppercase ${
+                className={`text-xs font-semibold ${
                   selected ? "text-white" : "text-on-surface-variant"
                 }`}
               >

@@ -22,7 +22,6 @@ type DurationOption = {
   level: string;
   detail: string;
   Icon: typeof Zap;
-  iconColor: string;
   tag?: string;
 };
 
@@ -34,7 +33,6 @@ const durations: DurationOption[] = [
     level: "Casual",
     detail: "সহজ শুরু • ১টি ছোট লেসন",
     Icon: Zap,
-    iconColor: "#d97706",
   },
   {
     value: "10",
@@ -43,8 +41,7 @@ const durations: DurationOption[] = [
     level: "Regular",
     detail: "জনপ্রিয় পছন্দ • সবচেয়ে কার্যকর",
     Icon: Target,
-    iconColor: "#15803d",
-    tag: "★ Recommended",
+    tag: "Recommended",
   },
   {
     value: "15",
@@ -53,7 +50,6 @@ const durations: DurationOption[] = [
     level: "Steady",
     detail: "ধারাবাহিক অগ্রগতি • দ্রুত উন্নতি",
     Icon: Clock3,
-    iconColor: "#2563eb",
   },
   {
     value: "20+",
@@ -62,7 +58,6 @@ const durations: DurationOption[] = [
     level: "Intense",
     detail: "সিরিয়াস লার্নার • দ্রুত আয়ত্ত",
     Icon: Flame,
-    iconColor: "#ea580c",
   },
 ];
 
@@ -82,15 +77,15 @@ export default function PracticeTimeScreen() {
         <View className="mb-2 flex-row items-center">
           <View className="flex-row items-center gap-2 rounded-full bg-surface-container px-3.5 py-1 border border-outline-variant">
             <View className="h-1.5 w-1.5 rounded-full bg-primary" />
-            <Text className="font-label-sm text-xs font-semibold text-on-surface-variant tracking-wider uppercase">
-              Step 4 of 4 • Daily Goal
+            <Text className="font-label-sm text-xs font-semibold text-on-surface-variant">
+              Step 4 of 4 · Daily goal
             </Text>
           </View>
         </View>
       }
       title="How much time can you practice each day?"
       subtitle="সহজে বজায় রাখা যায় এমন একটি লক্ষ্য বেছে নিন (পরবর্তীতে যেকোনো সময় পরিবর্তন করা যাবে)"
-      continueLabel="Start Learning"
+      continueLabel="Start learning"
       onBack={() => router.back()}
       continueDisabled={!selectedDuration}
       onContinue={() => router.push("/onboarding/complete")}
@@ -103,7 +98,7 @@ export default function PracticeTimeScreen() {
         accessibilityLabel="Daily practice duration options"
       >
         {durations.map(
-          ({ value, label, banglaTime, detail, Icon, iconColor, tag }) => {
+          ({ value, label, banglaTime, detail, Icon, tag }) => {
             const isSelected = selectedDuration === value;
             return (
               <Pressable
@@ -130,7 +125,7 @@ export default function PracticeTimeScreen() {
                   >
                     <Icon
                       size={22}
-                      color={isSelected ? "#15803d" : iconColor}
+                      color="#15803d"
                       strokeWidth={2.2}
                     />
                   </View>

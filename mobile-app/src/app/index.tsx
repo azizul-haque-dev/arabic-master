@@ -1,5 +1,5 @@
 import * as Haptics from "expo-haptics";
-import { BookOpen, ChevronRight, Globe, User, Zap } from "lucide-react-native";
+import { BookOpen, ChevronRight, User } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -64,116 +64,38 @@ export default function WelcomeScreen() {
           {/* Top Brand Identity Header */}
           <View className="items-center">
             <BrandMark variant="logo" size={42} />
-            <View className="mt-2.5 rounded-full border border-primary/20 bg-primary-subtle px-3 py-1">
-              <Text className="font-label-sm text-[11px] font-bold uppercase tracking-wider text-primary-strong">
-                Everyday Spoken Arabic
+            <View className="mt-2.5 rounded-md bg-primary-subtle px-3 py-1">
+              <Text className="font-label-sm text-xs font-medium text-primary-strong">
+                Practical spoken Arabic
               </Text>
             </View>
           </View>
 
-          {/* Hero Section: Typography & Conversational Visual */}
-          <View className="items-center py-2">
-            {/* Value Proposition Headline */}
-            <Text className="text-center font-headline-lg-mobile text-[30px] font-extrabold tracking-tight text-on-surface leading-[38px]">
-              Master Arabic{"\n"}Through Real Dialogues
-            </Text>
-            <Text className="mt-2 text-center font-body-sm text-[14.5px] font-normal text-on-surface-variant max-w-[290px] leading-relaxed">
-              Learn practical, conversational Arabic step-by-step with zero
-              overwhelm.
-            </Text>
-
-            {/* Conversational Art Centerpiece */}
-            <View
-              className="relative mt-6 h-56 w-56 items-center justify-center"
-              accessible={false}
-              importantForAccessibility="no-hide-descendants"
-            >
-              {/* Outer Radiant Mint Halo */}
-              <View
-                style={{
-                  shadowColor: "#15803d",
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: 0.12,
-                  shadowRadius: 20,
-                  elevation: 4,
-                }}
-                className="h-48 w-48 items-center justify-center rounded-full border border-primary/15 bg-primary-subtle"
-              >
-                {/* Secondary Ambient Ring */}
-                <View className="h-36 w-36 items-center justify-center rounded-full bg-white/70">
-                  {/* Primary Arabic Speech Bubble */}
-                  <View
-                    style={{
-                      shadowColor: "#14532d",
-                      shadowOffset: { width: 0, height: 4 },
-                      shadowOpacity: 0.2,
-                      shadowRadius: 8,
-                      elevation: 5,
-                    }}
-                    className="relative -ml-3 -mt-2 h-[72px] w-[106px] items-center justify-center rounded-2xl bg-primary"
-                  >
-                    <Text className="font-arabic-display text-2xl font-bold tracking-wider text-white">
-                      ا ب ت
-                    </Text>
-                    {/* Speech Bubble Pointer */}
-                    <View
-                      style={{ width: 14, height: 14 }}
-                      className="absolute -bottom-2 left-6 rotate-45 rounded-xs bg-primary"
-                    />
-                  </View>
-                </View>
-              </View>
-
-              {/* Overlapping Conversation Pill with 3 Dialog Dots */}
-              <View
-                style={{
-                  shadowColor: "#000000",
-                  shadowOffset: { width: 0, height: 3 },
-                  shadowOpacity: 0.08,
-                  shadowRadius: 6,
-                  elevation: 4,
-                }}
-                className="absolute bottom-5 right-5 flex-row items-center gap-1.5 rounded-2xl border border-primary/25 bg-[#def5ea] px-3.5 py-2.5"
-              >
-                <View className="h-2 w-2 rounded-full bg-primary" />
-                <View className="h-2 w-2 rounded-full bg-primary opacity-80" />
-                <View className="h-2 w-2 rounded-full bg-primary opacity-50" />
-              </View>
-
-              {/* Floating Cultural Tag: "Marhaban" */}
-              <View
-                style={{
-                  shadowColor: "#15803d",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 5,
-                  elevation: 3,
-                }}
-                className="absolute -top-1 right-2 flex-row items-center gap-1.5 rounded-full border border-primary/20 bg-white px-2.5 py-1"
-              >
-                <Text className="text-xs font-bold text-primary">
-                  مَرْحَبًا
-                </Text>
-                <Text className="text-[10px] font-semibold text-on-surface-variant">
-                  Ahlan
-                </Text>
-              </View>
+          <View className="items-center gap-5 py-5">
+            <View className="items-center">
+              <Text className="text-center font-headline-lg-mobile text-[30px] font-semibold tracking-tight text-on-surface leading-[38px]">
+                Learn practical Arabic{"\n"}through everyday dialogue
+              </Text>
+              <Text className="mt-2 max-w-[300px] text-center font-body-sm text-[14px] font-normal text-on-surface-variant leading-relaxed">
+                Study useful words, sentences, and conversations with Bangla
+                and English meanings.
+              </Text>
             </View>
 
-            {/* Micro Feature Proof Points */}
-            <View className="mt-5 flex-row items-center justify-center gap-3">
-              <View className="flex-row items-center gap-1.5 rounded-lg bg-surface-container-low px-2.5 py-1.5">
-                <Zap size={13} color="#f59e0b" strokeWidth={2.5} />
-                <Text className="font-label-sm text-xs font-semibold text-on-surface">
-                  5 Min Lessons
-                </Text>
-              </View>
-              <View className="flex-row items-center gap-1.5 rounded-lg bg-surface-container-low px-2.5 py-1.5">
-                <Globe size={13} color="#15803d" strokeWidth={2.5} />
-                <Text className="font-label-sm text-xs font-semibold text-on-surface">
-                  বাংলা & English
-                </Text>
-              </View>
+            <View className="w-full max-w-[340px] rounded-2xl border border-outline-variant bg-white p-5">
+              <Text className="font-label-sm text-xs font-medium text-on-surface-variant">
+                Everyday greeting
+              </Text>
+              <Text
+                className="mt-3 text-center font-arabic-display text-[36px] leading-[54px] text-primary-strong"
+                style={{ writingDirection: "rtl" }}
+              >
+                مَرْحَبًا
+              </Text>
+              <View className="mt-3 h-1 w-10 self-center rounded-full bg-primary" />
+              <Text className="mt-3 text-center font-body-md text-sm text-on-surface">
+                Marhaban · Hello
+              </Text>
             </View>
           </View>
 
@@ -185,18 +107,8 @@ export default function WelcomeScreen() {
               accessibilityRole="button"
               accessibilityLabel="I'm new here, start learning without creating an account"
               accessibilityHint="Starts the personalized onboarding flow"
-              style={({ pressed }) => [
-                {
-                  shadowColor: "#15803d",
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 10,
-                  elevation: 4,
-                  opacity: pressed ? 0.92 : 1,
-                  transform: [{ scale: pressed ? 0.985 : 1 }],
-                },
-              ]}
-              className="relative overflow-hidden rounded-2xl bg-primary p-4"
+              style={({ pressed }) => [{ opacity: pressed ? 0.86 : 1 }]}
+              className="rounded-xl bg-primary p-4"
             >
               <View className="flex-row items-center justify-between">
                 <View className="flex-1 flex-row items-center gap-3.5">
@@ -213,7 +125,7 @@ export default function WelcomeScreen() {
                       </Text>
                       {/* Highlight Badge */}
                       <View className="rounded-full bg-secondary px-2 py-0.5">
-                        <Text className="text-[10px] font-extrabold uppercase tracking-wider text-on-secondary">
+                        <Text className="text-xs font-semibold text-on-secondary">
                           Free
                         </Text>
                       </View>
@@ -237,13 +149,8 @@ export default function WelcomeScreen() {
               accessibilityRole="button"
               accessibilityLabel="I already have an account, sign in"
               accessibilityHint="Opens a sign-in UI preview; authentication and saved progress are not connected."
-              style={({ pressed }) => [
-                {
-                  opacity: pressed ? 0.85 : 1,
-                  transform: [{ scale: pressed ? 0.99 : 1 }],
-                },
-              ]}
-              className="flex-row items-center justify-between rounded-2xl border border-outline-variant bg-surface-container-lowest p-3.5"
+              style={({ pressed }) => [{ opacity: pressed ? 0.86 : 1 }]}
+              className="flex-row items-center justify-between rounded-xl border border-outline-variant bg-surface-container-lowest p-4"
             >
               <View className="flex-1 flex-row items-center gap-3.5">
                 <View className="h-11 w-11 items-center justify-center rounded-xl bg-surface-container">
@@ -254,7 +161,7 @@ export default function WelcomeScreen() {
                     I already have an account
                   </Text>
                   <Text className="mt-0.5 font-body-sm text-xs font-normal text-on-surface-variant leading-snug">
-                    Preview sign-in; saved progress is not connected.
+                    Preview sign-in; progress is not saved
                   </Text>
                 </View>
               </View>
@@ -262,13 +169,13 @@ export default function WelcomeScreen() {
             </Pressable>
 
             {/* Reassurance Footnote */}
-            <Text className="text-center font-body-sm text-[11.5px] text-on-surface-variant">
+            <Text className="text-center font-body-sm text-xs text-on-surface-variant">
               No subscription or credit card required to start
             </Text>
             {restoreError ? (
               <Text
                 accessibilityRole="alert"
-                className="text-center font-body-sm text-xs text-red-700"
+                className="text-center font-body-sm text-xs text-error"
               >
                 {restoreError}
               </Text>

@@ -121,13 +121,13 @@ export default function ProfileScreen() {
               className="flex-row items-center justify-between p-4 active:bg-surface-container-low"
             >
               <View className="flex-row items-center gap-3">
-                <LogOut size={18} color="#b91c1c" />
-                <Text className="font-label-md text-sm font-semibold text-red-700">
+                <LogOut size={18} color="#ba1a1a" />
+                <Text className="font-label-md text-sm font-semibold text-error">
                   Sign out
                 </Text>
               </View>
               {isSigningOut ? (
-                <ActivityIndicator size="small" color="#b91c1c" />
+                <ActivityIndicator size="small" color="#ba1a1a" />
               ) : (
                 <ChevronRight size={18} color="#9ca3af" />
               )}

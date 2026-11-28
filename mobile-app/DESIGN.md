@@ -260,6 +260,9 @@ Each size class (`text-<token>`) carries its own line height, weight, and letter
 To get the intended font once it is loaded, pair it with the matching family class
 (`font-<token>`).
 
+Generic `font-bold`, `font-extrabold`, and `font-black` utilities resolve to 600;
+700 is reserved for the two display headline tokens.
+
 | Token | Size / line height | Weight | Use |
 | :-- | :-- | :-- | :-- |
 | `headline-xl` | 48 / 56, −0.03em | 700 | Large hero numbers (tablet) |

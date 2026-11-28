@@ -336,8 +336,8 @@ export const courses: Course[] = [
     subtitle: "Useful daily sentences",
     pathTitle: "Daily life · Section 1",
     icon: MessageSquareText,
-    tileClass: "bg-secondary-subtle",
-    iconColor: "#b45309",
+    tileClass: "bg-primary-subtle",
+    iconColor: "#15803d",
     lessons: [
       { id: "s1", title: "Greetings", status: "done", completed: 6, total: 6 },
       {
@@ -402,8 +402,8 @@ export const courses: Course[] = [
     subtitle: "Practise real dialogues",
     pathTitle: "Beginner",
     icon: MessagesSquare,
-    tileClass: "bg-sky-50",
-    iconColor: "#0369a1",
+    tileClass: "bg-surface-container-low",
+    iconColor: "#15803d",
     lessons: [
       { id: "c1", title: "Greetings", status: "done", completed: 4, total: 4 },
       {
@@ -836,7 +836,12 @@ function mockLesson(
     id,
     title,
     status,
-    completed: status === "done" ? total : status === "current" ? 1 : 0,
+    completed:
+      status === "done"
+        ? total
+        : status === "current"
+          ? Math.min(1, Math.max(total - 1, 0))
+          : 0,
     total,
     access,
     sampleItemIds,
@@ -1246,8 +1251,8 @@ export const learningProducts: LearningProductFixture[] = [
     description: "Practice useful sentences for everyday situations.",
     access: "free",
     icon: MessageSquareText,
-    tileClass: "bg-secondary-subtle",
-    iconColor: "#b45309",
+    tileClass: "bg-primary-subtle",
+    iconColor: "#15803d",
     sections: sentencesSections,
   },
   {
@@ -1256,8 +1261,8 @@ export const learningProducts: LearningProductFixture[] = [
     description: "Explore sample dialogues and premium conversation topics.",
     access: "mixed",
     icon: MessagesSquare,
-    tileClass: "bg-sky-50",
-    iconColor: "#0369a1",
+    tileClass: "bg-surface-container-low",
+    iconColor: "#15803d",
     sections: conversationSections,
   },
   {
@@ -1400,8 +1405,8 @@ export const skillProgress = [
     done: 60,
     total: 100,
     icon: MessageSquareText,
-    color: "#b45309",
-    tileClass: "bg-secondary-subtle",
+    color: "#15803d",
+    tileClass: "bg-primary-subtle",
   },
   {
     id: "conversations",
@@ -1409,8 +1414,8 @@ export const skillProgress = [
     done: 20,
     total: 50,
     icon: MessagesSquare,
-    color: "#0369a1",
-    tileClass: "bg-sky-50",
+    color: "#15803d",
+    tileClass: "bg-surface-container-low",
   },
 ];
 

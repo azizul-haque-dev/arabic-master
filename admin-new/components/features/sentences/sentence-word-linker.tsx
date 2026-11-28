@@ -429,7 +429,7 @@ export function SentenceWordLinker({
       {/* Section 1: Sentence words split by space */}
       {sentenceTokens.length > 0 ? (
         <div className="mt-3">
-          <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-text-muted">
+          <p className="mb-1.5 text-xs font-medium text-text-muted">
             Words in this sentence ({sentenceTokens.length})
           </p>
           <ul className="flex flex-col gap-2">
@@ -447,7 +447,7 @@ export function SentenceWordLinker({
                     "flex items-center justify-between gap-2 rounded-default border px-3 py-2 transition-colors",
                     linked
                       ? "border-primary-light/25 bg-primary-light/10"
-                      : "border-white/10 bg-[#302d48]",
+                      : "border-border bg-white",
                   )}
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-2.5">
@@ -456,7 +456,7 @@ export function SentenceWordLinker({
                         "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-medium",
                         linked
                           ? "bg-primary-light text-primary-dark"
-                          : "bg-primary/20 text-[#c9c6ff]",
+                          : "bg-neutral-bg text-text-secondary",
                       )}
                     >
                       {position}
@@ -489,7 +489,7 @@ export function SentenceWordLinker({
                         <span dir="rtl" lang="ar" className="font-arabic text-lg text-text">
                           {token}
                         </span>
-                        <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] text-[#c9c6ff]">
+                        <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] text-primary-dark">
                           Not linked
                         </span>
                       </div>
@@ -503,7 +503,7 @@ export function SentenceWordLinker({
                       disabled={isSaving || Boolean(linkingTokenKey)}
                       aria-label={`Remove ${token}`}
                       onClick={() => setWordToUnlink({ wordId: linked.wordId, label: token })}
-                      className="text-rose-300 hover:bg-rose-300/10 hover:text-rose-200"
+                      className="text-error hover:bg-error-container hover:text-on-error-container"
                     >
                       <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                       {isThisRemoving ? "Removing…" : "Remove"}
@@ -512,7 +512,7 @@ export function SentenceWordLinker({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="border-primary/35 bg-primary/10 text-[#c9c6ff] hover:border-primary/60 hover:bg-primary/20"
+                      className="border-primary/35 bg-primary/10 text-primary-dark hover:border-primary/60 hover:bg-primary/20"
                       disabled={Boolean(linkingTokenKey) || isSaving}
                       onClick={() => void handleLinkSentenceToken(token, position)}
                     >
@@ -537,7 +537,7 @@ export function SentenceWordLinker({
 
       {/* Section 2: All currently linked words summary + Remove */}
       <div className="mt-4 border-t border-border pt-3">
-        <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-text-muted">
+        <p className="mb-1.5 text-xs font-medium text-text-muted">
           Currently linked words ({linkedWords.length})
         </p>
         {linkedWords.length > 0 ? (
@@ -547,7 +547,7 @@ export function SentenceWordLinker({
               return (
                 <li
                   key={item.id}
-                  className="flex items-center justify-between gap-2 rounded-default border border-white/10 bg-[#302d48] px-3 py-2"
+                  className="flex items-center justify-between gap-2 rounded-default border border-border bg-white px-3 py-2"
                 >
                   <Link
                     href={`/admin/words/${encodeURIComponent(item.wordId)}`}

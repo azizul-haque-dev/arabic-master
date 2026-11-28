@@ -1,4 +1,3 @@
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import * as Haptics from "expo-haptics";
 import type { Tabs } from "expo-router";
 import {
@@ -12,7 +11,6 @@ import {
   useEffect,
   useState,
   type ComponentProps,
-  type ReactNode,
 } from "react";
 import { Keyboard, Platform, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -21,8 +19,7 @@ type TabBarProps = Parameters<
   NonNullable<ComponentProps<typeof Tabs>["tabBar"]>
 >[0];
 
-const BAR_HEIGHT = 66;
-const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
+const BAR_HEIGHT = 64;
 
 /** Only these routes appear in the bar; any other route in the group stays hidden. */
 const TAB_ITEMS: Record<string, { label: string; icon: LucideIcon }> = {
@@ -113,21 +110,21 @@ export function FloatingTabBar({
               <>
                 <View
                   className={`h-8 w-14 items-center justify-center rounded-full ${
-                    focused ? "bg-primary" : ""
+                    focused ? "bg-primary-subtle" : ""
                   }`}
-                  style={{ transform: [{ scale: pressed ? 0.9 : 1 }] }}
+                  style={{ opacity: pressed ? 0.7 : 1 }}
                 >
                   <Icon
                     size={20}
-                    color={focused ? "#ffffff" : "#6b7280"}
-                    strokeWidth={focused ? 2.4 : 2}
+                    color={focused ? "#14532d" : "#737373"}
+                    strokeWidth={2}
                   />
                 </View>
                 <Text
                   numberOfLines={1}
                   className={`mt-1 text-[11px] ${
                     focused
-                      ? "font-label-sm font-bold text-primary-strong"
+                      ? "font-label-sm font-medium text-primary-strong"
                       : "font-label-sm font-medium text-on-surface-variant"
                   }`}
                 >
@@ -144,49 +141,14 @@ export function FloatingTabBar({
   return (
     <View
       pointerEvents="box-none"
-      style={{ position: "absolute", left: 16, right: 16, bottom }}
+      style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}
     >
-      <BarSurface>{items}</BarSurface>
-    </View>
-  );
-}
-
-function BarSurface({ children }: { children: ReactNode }) {
-  const shadow = {
-    borderRadius: 32,
-    shadowColor: "#0f172a",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
-    elevation: 12,
-  };
-
-  if (HAS_LIQUID_GLASS) {
-    return (
-      <View style={shadow}>
-        <GlassView
-          glassEffectStyle="regular"
-          colorScheme="light"
-          style={{ borderRadius: 32, overflow: "hidden" }}
-        >
-          {children}
-        </GlassView>
+      <View
+        className="border-t border-outline-variant bg-white"
+        style={{ paddingBottom: bottom }}
+      >
+        {items}
       </View>
-    );
-  }
-
-  return (
-    <View
-      style={[
-        shadow,
-        {
-          backgroundColor: "#ffffff",
-          borderWidth: 1,
-          borderColor: "rgba(229,231,235,0.9)",
-        },
-      ]}
-    >
-      {children}
     </View>
   );
 }

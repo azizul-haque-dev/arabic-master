@@ -4,7 +4,6 @@ import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
-  Eye,
   KeyRound,
   Mail,
   MailCheck,
@@ -133,7 +132,7 @@ export default function ForgotPasswordScreen() {
             hitSlop={12}
             accessibilityRole="button"
             accessibilityLabel="Go back"
-            className="h-10 w-10 items-center justify-center rounded-full border border-outline-variant bg-surface-container-lowest active:bg-surface-container-low active:scale-95"
+            className="h-10 w-10 items-center justify-center rounded-full border border-outline-variant bg-surface-container-lowest active:bg-surface-container-low active:opacity-80"
           >
             <ArrowLeft size={20} color="#171717" strokeWidth={2.4} />
           </Pressable>
@@ -276,7 +275,7 @@ export default function ForgotPasswordScreen() {
                   ) : (
                     <View className="flex-row items-center gap-2">
                       <Send size={18} color="#ffffff" strokeWidth={2.4} />
-                      <Text className="font-label-lg text-base font-bold text-white tracking-wide">
+                      <Text className="font-label-lg text-base font-semibold text-white">
                         Preview reset email
                       </Text>
                     </View>
@@ -310,18 +309,9 @@ export default function ForgotPasswordScreen() {
             ) : (
               // ---------------- STATE 2: Reset Flow Preview ----------------
               <View className="items-center pt-6">
-                {/* Soft Concentric Glow Badge */}
-                <View className="items-center justify-center mb-6">
-                  <View className="h-28 w-28 items-center justify-center rounded-full bg-emerald-50">
-                    <View className="h-20 w-20 items-center justify-center rounded-full bg-emerald-100">
-                      <View className="h-14 w-14 items-center justify-center rounded-full bg-primary shadow-sm shadow-emerald-500/20">
-                        <MailCheck
-                          size={28}
-                          color="#ffffff"
-                          strokeWidth={2.4}
-                        />
-                      </View>
-                    </View>
+                <View className="mb-6 h-16 w-16 items-center justify-center rounded-full bg-primary">
+                  <View className="h-12 w-12 items-center justify-center rounded-full bg-white/15">
+                    <MailCheck size={24} color="#ffffff" strokeWidth={2.4} />
                   </View>
                 </View>
 

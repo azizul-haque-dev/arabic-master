@@ -23,7 +23,7 @@ const languages: {
     label: "আমি বাংলা থেকে আরবি শিখতে চাই",
     detail: "সহজ বাংলা ব্যাখ্যা, উচ্চারণ ও প্রয়োজনীয় শব্দভাণ্ডার",
     routeLabel: "বাংলা → العربية",
-    tag: "★ সবচেয়ে জনপ্রিয়",
+    tag: "সবচেয়ে জনপ্রিয়",
     script: "অ",
   },
   {
@@ -31,7 +31,7 @@ const languages: {
     label: "I want to learn English to Arabic",
     detail: "English medium with clear phonetics, grammar & phrases",
     routeLabel: "English → العربية",
-    tag: "Global Standard",
+    tag: "Global standard",
     script: "Aa",
   },
 ];
@@ -49,8 +49,8 @@ export default function LanguageScreen() {
           <BrandMark variant="logo" size={44} />
           <View className="mt-3 flex-row items-center gap-2 rounded-full bg-surface-container px-3.5 py-1 border border-outline-variant">
             <View className="h-1.5 w-1.5 rounded-full bg-primary" />
-            <Text className="font-label-sm text-xs font-semibold text-on-surface-variant tracking-wider uppercase">
-              Step 1 of 4 • Language Choice
+            <Text className="font-label-sm text-xs font-semibold text-on-surface-variant">
+              Step 1 of 4 · Language choice
             </Text>
           </View>
         </View>

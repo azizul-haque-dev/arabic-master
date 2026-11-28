@@ -3,7 +3,7 @@ import { CopyrightYear } from "@/components/shared/copyright-year";
 
 const footerSections = [
   {
-    title: "Learning Modules",
+    title: "Learning",
     links: [
       { label: "Arabic Words", href: "/words" },
       { label: "Daily Sentences", href: "/sentences" },
@@ -16,7 +16,7 @@ const footerSections = [
     links: [
       { label: "Why Arabic Master", href: "/#why-arabic-master" },
       { label: "Arabic Master Pro", href: "/pricing" },
-      { label: "Create Free Account", href: "/register" },
+      { label: "Create free account", href: "/register" },
       { label: "Sign In", href: "/login" },
     ],
   },
@@ -32,7 +32,7 @@ const footerSections = [
 
 export function Footer() {
   return (
-    <footer className="mt-6 w-full border-t border-white/10 bg-surface">
+    <footer className="mt-6 w-full border-t border-border bg-white">
       <div className="mx-auto max-w-container-max px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
           <div className="space-y-3">
@@ -59,11 +59,11 @@ export function Footer() {
                 </svg>
               </span>
               <span>
-                <span className="block font-heading text-base font-bold text-text">
+                <span className="block font-heading text-base font-semibold text-text">
                   Arabic Master
                 </span>
-                <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
-                  SPOKEN ARABIC
+                <span className="block text-xs font-medium text-text-muted">
+                  Spoken Arabic
                 </span>
               </span>
             </Link>
@@ -75,7 +75,7 @@ export function Footer() {
 
           {footerSections.map((column) => (
             <div key={column.title}>
-              <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-text">
+              <h3 className="mb-3 text-sm font-medium text-text">
                 {column.title}
               </h3>
               <ul className="space-y-2.5">

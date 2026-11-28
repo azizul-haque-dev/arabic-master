@@ -59,9 +59,9 @@ export default function ResetPasswordScreen() {
 
   const getStrengthLabel = () => {
     if (!password) return { label: "", color: "bg-outline-variant" };
-    if (strengthScore <= 1) return { label: "Weak", color: "bg-red-500" };
-    if (strengthScore === 2) return { label: "Fair", color: "bg-amber-500" };
-    if (strengthScore === 3) return { label: "Good", color: "bg-emerald-500" };
+    if (strengthScore <= 1) return { label: "Weak", color: "bg-error" };
+    if (strengthScore === 2) return { label: "Fair", color: "bg-warning" };
+    if (strengthScore === 3) return { label: "Good", color: "bg-success" };
     return { label: "Strong", color: "bg-primary" };
   };
 
@@ -123,7 +123,7 @@ export default function ResetPasswordScreen() {
               hitSlop={12}
               accessibilityRole="button"
               accessibilityLabel="Go back"
-              className="h-10 w-10 items-center justify-center rounded-full border border-outline-variant bg-surface-container-lowest active:bg-surface-container-low active:scale-95"
+              className="h-10 w-10 items-center justify-center rounded-full border border-outline-variant bg-surface-container-lowest active:bg-surface-container-low active:opacity-80"
             >
               <ArrowLeft size={20} color="#171717" strokeWidth={2.4} />
             </Pressable>
@@ -488,7 +488,7 @@ export default function ResetPasswordScreen() {
                     </View>
                   ) : (
                     <View className="flex-row items-center gap-2">
-                      <Text className="font-label-lg text-base font-bold text-white tracking-wide">
+                      <Text className="font-label-lg text-base font-semibold text-white">
                         Preview password reset
                       </Text>
                       <ArrowRight color="#ffffff" size={18} strokeWidth={2.6} />
@@ -519,26 +519,9 @@ export default function ResetPasswordScreen() {
           <View className="flex-1 justify-between px-margin pb-6 pt-10">
             {/* Centered Success Body */}
             <View className="flex-1 items-center justify-center">
-              {/* Outer soft glowing concentric circles matching reference HTML */}
-              <View className="relative items-center justify-center mb-8">
-                {/* Outer Soft Ring */}
-                <View className="h-32 w-32 items-center justify-center rounded-full bg-emerald-50">
-                  {/* Middle Ring */}
-                  <View className="h-24 w-24 items-center justify-center rounded-full bg-emerald-100">
-                    {/* Core Emerald Circle with Checkmark */}
-                    <View
-                      style={{
-                        shadowColor: "#10b981",
-                        shadowOffset: { width: 0, height: 4 },
-                        shadowOpacity: 0.25,
-                        shadowRadius: 10,
-                        elevation: 6,
-                      }}
-                      className="h-16 w-16 items-center justify-center rounded-full bg-primary"
-                    >
-                      <Check size={32} color="#ffffff" strokeWidth={3.5} />
-                    </View>
-                  </View>
+              <View className="mb-8 h-16 w-16 items-center justify-center rounded-full bg-primary">
+                <View className="h-12 w-12 items-center justify-center rounded-full bg-white/15">
+                  <Check size={26} color="#ffffff" strokeWidth={2.8} />
                 </View>
               </View>
 

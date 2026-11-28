@@ -15,8 +15,8 @@ export function SentenceTypeBadge({
         <Badge
             className={cn(
                 isShort
-                    ? "border border-primary-light/20 bg-primary-light/10 text-primary-light"
-                    : "border border-primary/25 bg-primary/15 text-[#c9c6ff]",
+                    ? "border border-primary-light/20 bg-primary-light/10 text-primary-dark"
+                    : "border border-primary/25 bg-primary/15 text-primary-dark",
                 className,
             )}
         >
