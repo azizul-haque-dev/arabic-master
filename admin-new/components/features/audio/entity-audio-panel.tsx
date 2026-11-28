@@ -116,7 +116,7 @@ export function EntityAudioPanel({
             className="self-start sm:self-auto min-h-[36px]"
           >
             <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-            Add Audio
+            {audios.length > 0 ? "Replace audio" : "Add Audio"}
           </Button>
         ) : null}
       </div>
