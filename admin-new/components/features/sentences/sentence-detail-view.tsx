@@ -48,7 +48,9 @@ export function SentenceDetailView({
     const [sentence, setSentence] = useState(initialSentence);
     const [editOpen, setEditOpen] = useState(false);
     const [rejectOpen, setRejectOpen] = useState(false);
-    const [targetStatus, setTargetStatus] = useState<ContentStatus>(sentence.status);
+    const [targetStatus, setTargetStatus] = useState<ContentStatus>(
+        role === "ADMIN" ? "APPROVED" : sentence.status,
+    );
     const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
     const allowedStatusOptions: { value: ContentStatus; label: string }[] =

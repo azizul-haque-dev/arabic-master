@@ -19,6 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -71,6 +72,7 @@ export function SentenceWordLinker({
   const [isSaving, setIsSaving] = useState(false);
   const [linkingTokenKey, setLinkingTokenKey] = useState<string | null>(null);
   const [removingWordId, setRemovingWordId] = useState<string | null>(null);
+  const [wordToUnlink, setWordToUnlink] = useState<{ wordId: string; label: string } | null>(null);
   const [isResyncing, setIsResyncing] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -500,7 +502,7 @@ export function SentenceWordLinker({
                       size="sm"
                       disabled={isSaving || Boolean(linkingTokenKey)}
                       aria-label={`Remove ${token}`}
-                      onClick={() => void handleUnlinkWord(linked.wordId)}
+                      onClick={() => setWordToUnlink({ wordId: linked.wordId, label: token })}
                       className="text-rose-300 hover:bg-rose-300/10 hover:text-rose-200"
                     >
                       <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
@@ -575,7 +577,12 @@ export function SentenceWordLinker({
                     size="sm"
                     disabled={isSaving || Boolean(linkingTokenKey)}
                     aria-label={`Remove ${item.arabicText || item.wordKey}`}
-                    onClick={() => void handleUnlinkWord(item.wordId)}
+                    onClick={() =>
+                      setWordToUnlink({
+                        wordId: item.wordId,
+                        label: item.arabicText || item.wordKey,
+                      })
+                    }
                     className="text-rose-300 hover:bg-rose-300/10 hover:text-rose-200"
                   >
                     <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
@@ -729,6 +736,20 @@ export function SentenceWordLinker({
           </div>
         </DialogContent>
       </Dialog>
+
+      <DeleteConfirmationDialog
+        open={Boolean(wordToUnlink)}
+        onOpenChange={(open) => {
+          if (!open) setWordToUnlink(null);
+        }}
+        title="Remove linked word?"
+        description={`This will unlink "${wordToUnlink?.label ?? "this word"}" from the sentence. The word itself will not be deleted.`}
+        confirmLabel="Remove link"
+        onConfirm={() => {
+          if (wordToUnlink) void handleUnlinkWord(wordToUnlink.wordId);
+          setWordToUnlink(null);
+        }}
+      />
     </section>
   );
 }

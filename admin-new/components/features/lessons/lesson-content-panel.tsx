@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Plus, Trash2, ChevronUp, ChevronDown } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
 import type { LessonContentItem } from "@/lib/types/content";
 
 type StatusFilter = "all" | "approved" | "not-approved";
@@ -37,6 +38,7 @@ export function LessonContentPanel({
     reviewFilters?: boolean;
 }) {
     const [addOpen, setAddOpen] = useState(false);
+    const [itemToRemove, setItemToRemove] = useState<LessonContentItem | null>(null);
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
     const [audioFilter, setAudioFilter] = useState<AudioFilter>("all");
 
@@ -152,7 +154,7 @@ export function LessonContentPanel({
                                 ) : null}
                                 <button
                                     type="button"
-                                    onClick={() => onRemove(item.id)}
+                                    onClick={() => setItemToRemove(item)}
                                     aria-label="Remove"
                                     className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--color-text-muted)] hover:bg-[var(--color-error-bg)] hover:text-[var(--color-error-text)]"
                                 >
@@ -188,6 +190,20 @@ export function LessonContentPanel({
                     })}
                 </DialogContent>
             </Dialog>
+
+            <DeleteConfirmationDialog
+                open={Boolean(itemToRemove)}
+                onOpenChange={(open) => {
+                    if (!open) setItemToRemove(null);
+                }}
+                title="Remove content from lesson?"
+                description="This removes the selected item only from this lesson. The underlying content will not be deleted."
+                confirmLabel="Remove"
+                onConfirm={() => {
+                    if (itemToRemove) onRemove(itemToRemove.id);
+                    setItemToRemove(null);
+                }}
+            />
         </div>
     );
 }

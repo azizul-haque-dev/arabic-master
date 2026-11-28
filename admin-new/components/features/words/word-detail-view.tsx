@@ -38,7 +38,9 @@ export function WordDetailView({ initialWord }: { initialWord: Word }) {
   const [word, setWord] = useState(initialWord);
   const [editOpen, setEditOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
-  const [targetStatus, setTargetStatus] = useState<ContentStatus>(word.status);
+  const [targetStatus, setTargetStatus] = useState<ContentStatus>(
+    role === "ADMIN" ? "APPROVED" : word.status,
+  );
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
   const allowedStatusOptions: { value: ContentStatus; label: string }[] =

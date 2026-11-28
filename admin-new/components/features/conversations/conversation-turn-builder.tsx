@@ -1,6 +1,7 @@
 "use client";
 
 import { SentenceSelector } from "@/components/features/conversations/sentence-selector";
+import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,7 @@ export function ConversationTurnBuilder({
   onChange: (turns: ConversationTurn[]) => void;
 }) {
   const [addOpen, setAddOpen] = useState(false);
+  const [turnToRemove, setTurnToRemove] = useState<ConversationTurn | null>(null);
 
   function renumber(list: ConversationTurn[]) {
     return list.map((t, i) => ({ ...t, order: i + 1 }));
@@ -139,7 +141,7 @@ export function ConversationTurnBuilder({
                   </button>
                   <button
                     type="button"
-                    onClick={() => removeTurn(turn.id)}
+                    onClick={() => setTurnToRemove(turn)}
                     aria-label={`Remove turn ${turn.order}`}
                     className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--color-text-muted)] hover:bg-[var(--color-error-bg)] hover:text-[var(--color-error-text)]"
                   >
@@ -173,6 +175,20 @@ export function ConversationTurnBuilder({
           <SentenceSelector onSelect={(s) => addTurn(s.id)} />
         </DialogContent>
       </Dialog>
+
+      <DeleteConfirmationDialog
+        open={Boolean(turnToRemove)}
+        onOpenChange={(open) => {
+          if (!open) setTurnToRemove(null);
+        }}
+        title="Remove sentence from conversation?"
+        description="This sentence turn will be removed from the conversation."
+        confirmLabel="Remove sentence"
+        onConfirm={() => {
+          if (turnToRemove) removeTurn(turnToRemove.id);
+          setTurnToRemove(null);
+        }}
+      />
     </div>
   );
 }
